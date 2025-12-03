@@ -35,16 +35,16 @@ Tempo AIは、HealthKitデータと天気情報を活用し、AIがあなたの�
 - **位置情報**: CoreLocation
 - **通知**: UserNotifications
 
-### バックエンド
-- **フレームワーク**: NestJS (Node.js)
-- **言語**: TypeScript
+### バックエンドAPI
+- **プラットフォーム**: Cloudflare Workers
+- **フレームワーク**: Hono (軽量TypeScript)
 - **AI**: Claude API (Anthropic)
 - **天気API**: Open-Meteo
 - **データベース**: PostgreSQL (Supabase)
-- **ORM**: Prisma
+- **接続最適化**: Hyperdrive
 
 ### インフラ
-- **ホスティング**: Railway / Vercel
+- **APIホスティング**: Cloudflare Workers
 - **データベース**: Supabase
 - **バージョン管理**: GitHub
 
@@ -147,10 +147,12 @@ Tempo AIは、HealthKitデータと天気情報を活用し、AIがあなたの�
 - macOS Sonoma 14+
 - iPhone実機（HealthKitテスト用）
 
-**バックエンド開発**:
+**Cloudflare Workers開発**:
 - Node.js 18+
-- npm または yarn
+- npm または pnpm
+- Wrangler CLI
 - VS Code（推奨）
+- Cloudflareアカウント
 
 **API キー**:
 - Claude API キー（Anthropic）
@@ -164,13 +166,13 @@ git clone https://github.com/yourusername/tempo-ai.git
 cd tempo-ai
 ```
 
-2. **バックエンドセットアップ**
+2. **Cloudflare Workers APIセットアップ**
 ```bash
-cd backend
+cd workers
 npm install
-cp .env.example .env
-# .env を編集（APIキー等を設定）
-npm run start:dev
+cp wrangler.toml.example wrangler.toml
+# wrangler.toml を編集（APIキー等を設定）
+npm run dev
 ```
 
 3. **iOSアプリセットアップ**

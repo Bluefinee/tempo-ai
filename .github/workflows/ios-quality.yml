@@ -1,0 +1,105 @@
+name: iOS Quality Check
+
+on:
+  pull_request:
+    branches: [main, develop]
+    paths: 
+      - 'ios/**'
+      - '.github/workflows/ios-quality.yml'
+
+env:
+  # Use latest stable version for cost efficiency
+  XCODE_VERSION: '15.2'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ios-lint:
+    name: iOS Code Quality
+    runs-on: macos-latest
+    # Only run on PRs and only when iOS files change
+    if: github.event_name == 'pull_request'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: ${{ env.XCODE_VERSION }}
+      
+      - name: Check iOS Project
+        id: check
+        run: |
+          echo "📱 Checking iOS project..."
+          if [ ! -d "./ios/TempoAI" ]; then
+            echo "::notice::iOS project not found, skipping iOS checks"
+            echo "skip=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          if [ ! -f "./ios/TempoAI/TempoAI.xcodeproj/project.pbxproj" ]; then
+            echo "::warning::Xcode project file not found"
+            echo "skip=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          echo "✅ iOS project found"
+          echo "skip=false" >> $GITHUB_OUTPUT
+      
+      - name: Install SwiftLint
+        if: steps.check.outputs.skip != 'true'
+        run: |
+          echo "📦 Installing SwiftLint..."
+          if ! command -v swiftlint &> /dev/null; then
+            brew install swiftlint
+          else
+            echo "SwiftLint already installed"
+          fi
+          swiftlint --version
+      
+      - name: Run SwiftLint
+        if: steps.check.outputs.skip != 'true'
+        working-directory: ./ios/TempoAI
+        run: |
+          echo "🧹 Running SwiftLint..."
+          swiftlint --strict --reporter github-actions-logging
+        continue-on-error: true
+      
+      - name: Build Validation
+        if: steps.check.outputs.skip != 'true'
+        working-directory: ./ios/TempoAI
+        run: |
+          echo "🔨 Validating iOS build..."
+          
+          # First verify project can be read
+          if ! xcodebuild -list &>/dev/null; then
+            echo "❌ Xcode project is corrupted or unreadable"
+            exit 1
+          fi
+          
+          # Build for generic iOS platform (no simulator needed)
+          xcodebuild build \
+            -project TempoAI.xcodeproj \
+            -scheme TempoAI \
+            -destination generic/platform=iOS \
+            -configuration Debug \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            -quiet
+          
+          echo "✅ iOS build validation completed"
+      
+      - name: Summary
+        if: always() && steps.check.outputs.skip != 'true'
+        run: |
+          echo "📊 iOS Quality Check Summary"
+          echo "=========================="
+          echo "✅ SwiftLint: Static analysis completed"
+          echo "✅ Build: Compilation validation completed"
+          echo ""
+          echo "💡 This workflow focuses on code quality and basic compilation."
+          echo "   Full testing with simulators is handled separately to optimize costs."

@@ -22,9 +22,17 @@
       "Bash(xcodebuild:*)",
       "Bash(gh run list:*)",
       "Bash(gh pr view:*)",
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "Bash(gh run view:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(pnpm:*)"
     ],
     "deny": [],
-    "ask": []
+    "ask": [],
+    "additionalDirectories": [
+      "/private/tmp"
+    ]
   }
 }

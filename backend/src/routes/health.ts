@@ -10,8 +10,7 @@
  */
 
 import { Hono } from 'hono'
-import { analyzeHealth } from '../services/ai'
-import { getWeather } from '../services/weather'
+import { performHealthAnalysis } from '../services/health-analysis'
 import type { HealthData, UserProfile } from '../types/health'
 import { handleError } from '../utils/errors'
 
@@ -58,7 +57,7 @@ interface AnalyzeRequest {
  * @throws {400} リクエストが無効な場合
  * @throws {500} API設定エラーまたは内部エラー
  */
-healthRoutes.post('/analyze', async (c) => {
+healthRoutes.post('/analyze', async (c): Promise<Response> => {
   try {
     console.log('Received analyze request')
 
@@ -68,7 +67,10 @@ healthRoutes.post('/analyze', async (c) => {
       body = (await c.req.json()) as AnalyzeRequest
     } catch (parseError) {
       console.error('Failed to parse request body:', parseError)
-      return c.json({ error: 'Invalid JSON in request body' }, 400)
+      return c.json(
+        { success: false, error: 'Invalid JSON in request body' },
+        400,
+      )
     }
 
     // Validate required fields
@@ -77,55 +79,64 @@ healthRoutes.post('/analyze', async (c) => {
     if (!healthData || !location || !userProfile) {
       return c.json(
         {
-          error: 'Missing required fields',
-          required: ['healthData', 'location', 'userProfile'],
+          success: false,
+          error: 'Missing required fields: healthData, location, userProfile',
         },
         400,
       )
     }
 
+    // Validate location coordinates type
     if (
       typeof location.latitude !== 'number' ||
       typeof location.longitude !== 'number'
     ) {
       return c.json(
-        { error: 'Location must contain valid latitude and longitude numbers' },
+        {
+          success: false,
+          error:
+            'Invalid coordinates: latitude must be -90 to 90, longitude must be -180 to 180',
+        },
         400,
       )
     }
 
-    console.log('Request validation successful')
-    console.log('User profile:', JSON.stringify(userProfile))
-    console.log('Location:', `${location.latitude}, ${location.longitude}`)
-
-    // Fetch weather data
-    console.log('Fetching weather data...')
-    const weather = await getWeather(location.latitude, location.longitude)
-    console.log('Weather data retrieved successfully')
-
-    // Get API key
+    // API key取得
     const apiKey = c.env.ANTHROPIC_API_KEY
     if (!apiKey) {
       console.error('ANTHROPIC_API_KEY not found in environment')
-      return c.json({ error: 'API configuration error' }, 500)
+      return c.json(
+        {
+          success: false,
+          error: 'API configuration error',
+        },
+        500,
+      )
     }
 
-    // Analyze with AI
-    console.log('Starting AI analysis...')
-    const advice = await analyzeHealth({
+    // Service層呼び出し
+    const advice = await performHealthAnalysis({
       healthData,
-      weather,
+      location,
       userProfile,
       apiKey,
     })
-    console.log('AI analysis completed successfully')
 
-    return c.json(advice)
+    return c.json({
+      success: true,
+      data: advice,
+    })
   } catch (error) {
     console.error('Analysis error:', error)
 
     const { message, statusCode } = handleError(error)
-    return c.json({ error: message }, statusCode as 500)
+    return c.json(
+      {
+        success: false,
+        error: message,
+      },
+      statusCode as never,
+    )
   }
 })
 
@@ -137,10 +148,13 @@ healthRoutes.post('/analyze', async (c) => {
  *
  * @returns サービスの状態情報とタイムスタンプ
  */
-healthRoutes.get('/status', async (c) => {
+healthRoutes.get('/status', async (c): Promise<Response> => {
   return c.json({
-    status: 'healthy',
-    service: 'Tempo AI Health Analysis',
-    timestamp: new Date().toISOString(),
+    success: true,
+    data: {
+      status: 'healthy',
+      service: 'Tempo AI Health Analysis',
+      timestamp: new Date().toISOString(),
+    },
   })
 })

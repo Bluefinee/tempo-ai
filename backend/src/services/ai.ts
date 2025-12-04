@@ -16,6 +16,12 @@ import type { WeatherData } from '../types/weather'
 import { APIError } from '../utils/errors'
 import { buildPrompt } from '../utils/prompts'
 
+// AI設定定数
+const ANTHROPIC_MODEL = 'claude-sonnet-4'
+const PLACEHOLDER_API_KEY = 'sk-ant-api03-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+const MAX_TOKENS = 4000
+const TEMPERATURE = 0.7
+
 /**
  * AI分析関数のパラメータ型定義
  */
@@ -52,10 +58,7 @@ interface AnalyzeParams {
 export const analyzeHealth = async (
   params: AnalyzeParams,
 ): Promise<DailyAdvice> => {
-  if (
-    !params.apiKey ||
-    params.apiKey === 'sk-ant-api03-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
-  ) {
+  if (!params.apiKey || params.apiKey === PLACEHOLDER_API_KEY) {
     throw new APIError(
       'Claude API key not configured. Please set ANTHROPIC_API_KEY environment variable.',
       500,
@@ -72,9 +75,9 @@ export const analyzeHealth = async (
     const prompt = buildPrompt(params)
 
     const message = await anthropic.messages.create({
-      model: 'claude-3-5-sonnet-20241022',
-      max_tokens: 4000,
-      temperature: 0.7,
+      model: ANTHROPIC_MODEL,
+      max_tokens: MAX_TOKENS,
+      temperature: TEMPERATURE,
       system:
         'You are a health advisor that provides personalized daily health advice based on health metrics and weather conditions. Always respond in valid JSON format exactly matching the requested structure. Be specific and actionable in all recommendations.',
       messages: [

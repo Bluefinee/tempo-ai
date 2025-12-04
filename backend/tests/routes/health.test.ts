@@ -37,14 +37,17 @@ interface SuccessResponse {
 }
 
 interface ErrorResponse {
+  success: false
   error: string
-  required?: string[]
 }
 
 interface StatusResponse {
-  status: string
-  service: string
-  timestamp: string
+  success: true
+  data: {
+    status: string
+    service: string
+    timestamp: string
+  }
 }
 
 const mockAnalyzeHealth = vi.mocked(analyzeHealth)
@@ -213,7 +216,8 @@ describe('Health Routes', () => {
 
       expect(response.status).toBe(200)
       const result = (await response.json()) as SuccessResponse
-      expect(result).toEqual(mockAdviceResult)
+      expect(result.success).toBe(true)
+      expect(result.data).toEqual(mockAdviceResult)
     })
 
     it('should return 400 for invalid JSON in request body', async () => {
@@ -232,6 +236,7 @@ describe('Health Routes', () => {
 
       expect(response.status).toBe(400)
       const result = (await response.json()) as ErrorResponse
+      expect(result.success).toBe(false)
       expect(result.error).toBe('Invalid JSON in request body')
     })
 
@@ -256,8 +261,10 @@ describe('Health Routes', () => {
 
       expect(response.status).toBe(400)
       const result = (await response.json()) as ErrorResponse
-      expect(result.error).toBe('Missing required fields')
-      expect(result.required).toEqual(['healthData', 'location', 'userProfile'])
+      expect(result.success).toBe(false)
+      expect(result.error).toBe(
+        'Missing required fields: healthData, location, userProfile',
+      )
     })
 
     it('should return 400 when location is missing', async () => {
@@ -281,7 +288,10 @@ describe('Health Routes', () => {
 
       expect(response.status).toBe(400)
       const result = (await response.json()) as ErrorResponse
-      expect(result.error).toBe('Missing required fields')
+      expect(result.success).toBe(false)
+      expect(result.error).toBe(
+        'Missing required fields: healthData, location, userProfile',
+      )
     })
 
     it('should return 400 when userProfile is missing', async () => {
@@ -305,7 +315,10 @@ describe('Health Routes', () => {
 
       expect(response.status).toBe(400)
       const result = (await response.json()) as ErrorResponse
-      expect(result.error).toBe('Missing required fields')
+      expect(result.success).toBe(false)
+      expect(result.error).toBe(
+        'Missing required fields: healthData, location, userProfile',
+      )
     })
 
     it('should return 400 for invalid latitude type', async () => {
@@ -332,8 +345,9 @@ describe('Health Routes', () => {
 
       expect(response.status).toBe(400)
       const result = (await response.json()) as ErrorResponse
+      expect(result.success).toBe(false)
       expect(result.error).toBe(
-        'Location must contain valid latitude and longitude numbers',
+        'Invalid coordinates: latitude must be -90 to 90, longitude must be -180 to 180',
       )
     })
 
@@ -361,8 +375,9 @@ describe('Health Routes', () => {
 
       expect(response.status).toBe(400)
       const result = (await response.json()) as ErrorResponse
+      expect(result.success).toBe(false)
       expect(result.error).toBe(
-        'Location must contain valid latitude and longitude numbers',
+        'Invalid coordinates: latitude must be -90 to 90, longitude must be -180 to 180',
       )
     })
 
@@ -382,6 +397,7 @@ describe('Health Routes', () => {
 
       expect(response.status).toBe(500)
       const result = (await response.json()) as ErrorResponse
+      expect(result.success).toBe(false)
       expect(result.error).toBe('API configuration error')
     })
 
@@ -507,9 +523,10 @@ describe('Health Routes', () => {
 
       expect(response.status).toBe(200)
       const result = (await response.json()) as StatusResponse
-      expect(result.status).toBe('healthy')
-      expect(result.service).toBe('Tempo AI Health Analysis')
-      expect(result.timestamp).toBeDefined()
+      expect(result.success).toBe(true)
+      expect(result.data.status).toBe('healthy')
+      expect(result.data.service).toBe('Tempo AI Health Analysis')
+      expect(result.data.timestamp).toBeDefined()
     })
 
     it('should return valid timestamp format', async () => {
@@ -518,8 +535,10 @@ describe('Health Routes', () => {
       const result = (await response.json()) as StatusResponse
 
       // Check if timestamp is a valid ISO string
-      expect(() => new Date(result.timestamp)).not.toThrow()
-      expect(new Date(result.timestamp).toISOString()).toBe(result.timestamp)
+      expect(() => new Date(result.data.timestamp)).not.toThrow()
+      expect(new Date(result.data.timestamp).toISOString()).toBe(
+        result.data.timestamp,
+      )
     })
   })
 })

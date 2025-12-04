@@ -2,7 +2,10 @@ node_modules/
 dist/
 .wrangler/
 *.log
-*.json
-*.md
 .env*
 .dev.vars
+# Ignore generated/build artifacts but allow config and docs formatting
+coverage/
+*.generated.json
+*.bundle.json
+build/

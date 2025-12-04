@@ -6,7 +6,7 @@ echo "===================================="
 echo ""
 echo "🔧 Fixing TypeScript API..."
 echo "---------------------------"
-cd backend
+cd backend || exit 1
 if pnpm run quality:fix; then
     echo "✅ TypeScript API auto-fix completed"
 else
@@ -26,7 +26,7 @@ cd ..
 echo ""
 echo "🔧 Fixing Swift iOS..."
 echo "----------------------"
-cd ios
+cd ios || exit 1
 if ./scripts/fix-all.sh; then
     echo "✅ Swift iOS auto-fix completed"
 else

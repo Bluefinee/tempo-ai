@@ -23,23 +23,35 @@ import app from '../src/index'
 
 // Response type definitions
 interface RootResponse {
-  service: string
-  version: string
-  status: string
-  timestamp: string
-  endpoints: Record<string, string>
+  success: true
+  data: {
+    service: string
+    version: string
+    status: string
+    timestamp: string
+    endpoints: Record<string, string>
+  }
 }
 
 interface ErrorResponse {
+  success: false
   error: string
-  path?: string
-  method?: string
-  timestamp?: string
-  details?: unknown
 }
 
 interface TimestampResponse {
-  timestamp: string
+  success: true
+  data: {
+    timestamp: string
+  }
+}
+
+interface HealthStatusResponse {
+  success: true
+  data: {
+    status: string
+    service: string
+    timestamp: string
+  }
 }
 
 describe('Main Application Integration', () => {
@@ -54,7 +66,8 @@ describe('Main Application Integration', () => {
       expect(response.status).toBe(200)
       const result = (await response.json()) as RootResponse
 
-      expect(result).toEqual({
+      expect(result.success).toBe(true)
+      expect(result.data).toEqual({
         service: 'Tempo AI API',
         version: '1.0.0',
         status: 'healthy',
@@ -66,8 +79,10 @@ describe('Main Application Integration', () => {
       })
 
       // Validate timestamp is ISO string
-      expect(() => new Date(result.timestamp)).not.toThrow()
-      expect(new Date(result.timestamp).toISOString()).toBe(result.timestamp)
+      expect(() => new Date(result.data.timestamp)).not.toThrow()
+      expect(new Date(result.data.timestamp).toISOString()).toBe(
+        result.data.timestamp,
+      )
     })
 
     it('should always return current timestamp', async () => {
@@ -80,8 +95,8 @@ describe('Main Application Integration', () => {
       const response2 = await app.request('/')
       const result2 = (await response2.json()) as TimestampResponse
 
-      expect(new Date(result1.timestamp).getTime()).toBeLessThanOrEqual(
-        new Date(result2.timestamp).getTime(),
+      expect(new Date(result1.data.timestamp).getTime()).toBeLessThanOrEqual(
+        new Date(result2.data.timestamp).getTime(),
       )
     })
 
@@ -166,11 +181,11 @@ describe('Main Application Integration', () => {
       const response = await app.request('/non-existent-route')
 
       expect(response.status).toBe(404)
-      const result = (await response.json()) as RootResponse
+      const result = (await response.json()) as ErrorResponse
 
       expect(result).toEqual({
-        error: 'Not Found',
-        message: 'The requested endpoint does not exist',
+        success: false,
+        error: 'Not Found - The requested endpoint does not exist',
       })
     })
 
@@ -197,7 +212,10 @@ describe('Main Application Integration', () => {
         expect(response.status).toBe(404)
 
         const result = (await response.json()) as ErrorResponse
-        expect(result.error).toBe('Not Found')
+        expect(result.success).toBe(false)
+        expect(result.error).toBe(
+          'Not Found - The requested endpoint does not exist',
+        )
       }
     })
   })
@@ -210,9 +228,10 @@ describe('Main Application Integration', () => {
 
       // This will trigger 404, but we can verify the error handling structure
       expect(response.status).toBe(404)
-      const result = (await response.json()) as RootResponse
+      const result = (await response.json()) as ErrorResponse
+      expect(result).toHaveProperty('success')
       expect(result).toHaveProperty('error')
-      expect(result).toHaveProperty('message')
+      expect(result.success).toBe(false)
     })
 
     it('should return JSON format for all errors', async () => {
@@ -273,9 +292,10 @@ describe('Main Application Integration', () => {
       const response = await app.request('/api/health/status')
       expect(response.status).toBe(200)
 
-      const result = (await response.json()) as RootResponse
-      expect(result.service).toBe('Tempo AI Health Analysis')
-      expect(result.status).toBe('healthy')
+      const result = (await response.json()) as HealthStatusResponse
+      expect(result.success).toBe(true)
+      expect(result.data.service).toBe('Tempo AI Health Analysis')
+      expect(result.data.status).toBe('healthy')
     })
   })
 

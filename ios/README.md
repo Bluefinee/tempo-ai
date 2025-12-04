@@ -40,7 +40,7 @@ Tempo AI iOSアプリは、ユーザーのHealthKitデータ（睡眠、心拍�
 
 ## 📋 プロジェクト構造
 
-```
+```text
 ios/
 ├── TempoAI.xcodeproj/          # Xcodeプロジェクト
 └── TempoAI/                    # ソースコード
@@ -116,7 +116,7 @@ self.baseURL = "https://tempo-ai-backend.workers.dev/api"  // 本番環境
 
 ## 📊 データフロー
 
-```
+```text
 1. アプリ起動
    ↓
 2. HealthKit権限リクエスト

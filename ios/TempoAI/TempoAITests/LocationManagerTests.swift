@@ -141,8 +141,9 @@ final class LocationManagerTests: XCTestCase {
         // Given: Authorization changes to authorized
         mockCLLocationManager.authorizationStatusResult = .authorizedWhenInUse
         
-        // When: Authorization changes
-        locationManager.locationManagerDidChangeAuthorization(mockCLLocationManager as! CLLocationManager)
+        // When: Authorization changes (use actual CLLocationManager instance)
+        let actualManager = CLLocationManager()
+        locationManager.locationManagerDidChangeAuthorization(actualManager)
         
         // Then: Should update status and request location
         XCTAssertEqual(locationManager.authorizationStatus, .authorizedWhenInUse)
@@ -153,8 +154,9 @@ final class LocationManagerTests: XCTestCase {
         // Given: Authorization changes to denied
         mockCLLocationManager.authorizationStatusResult = .denied
         
-        // When: Authorization changes
-        locationManager.locationManagerDidChangeAuthorization(mockCLLocationManager as! CLLocationManager)
+        // When: Authorization changes (use actual CLLocationManager instance)
+        let actualManager = CLLocationManager()
+        locationManager.locationManagerDidChangeAuthorization(actualManager)
         
         // Then: Should update status and set error message
         XCTAssertEqual(locationManager.authorizationStatus, .denied)
@@ -166,8 +168,9 @@ final class LocationManagerTests: XCTestCase {
         // Given: Authorization changes to not determined
         mockCLLocationManager.authorizationStatusResult = .notDetermined
         
-        // When: Authorization changes
-        locationManager.locationManagerDidChangeAuthorization(mockCLLocationManager as! CLLocationManager)
+        // When: Authorization changes (use actual CLLocationManager instance)
+        let actualManager = CLLocationManager()
+        locationManager.locationManagerDidChangeAuthorization(actualManager)
         
         // Then: Should update status but not request location
         XCTAssertEqual(locationManager.authorizationStatus, .notDetermined)

@@ -29,7 +29,7 @@
       "suspicious": {
         "noConsole": "off",
         "noVar": "error",
-        "noExplicitAny": "warn"
+        "noExplicitAny": "error"
       },
       "correctness": {
         "noUnusedVariables": "error"

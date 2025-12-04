@@ -45,38 +45,41 @@ app.route('/api/health', healthRoutes)
 app.route('/api/test', testRoutes)
 
 // Root endpoint
-app.get('/', (c) => {
+app.get('/', (c): Response => {
   return c.json({
-    service: 'Tempo AI API',
-    version: '1.0.0',
-    status: 'healthy',
-    timestamp: new Date().toISOString(),
-    endpoints: {
-      'POST /api/health/analyze': 'Analyze health data and generate advice',
-      'GET /api/health/status': 'Health service status check',
+    success: true,
+    data: {
+      service: 'Tempo AI API',
+      version: '1.0.0',
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      endpoints: {
+        'POST /api/health/analyze': 'Analyze health data and generate advice',
+        'GET /api/health/status': 'Health service status check',
+      },
     },
   })
 })
 
 // 404 handler
-app.notFound((c) => {
+app.notFound((c): Response => {
   return c.json(
     {
-      error: 'Not Found',
-      message: 'The requested endpoint does not exist',
+      success: false,
+      error: 'Not Found - The requested endpoint does not exist',
     },
     404,
   )
 })
 
 // Global error handler
-app.onError((err, c) => {
+app.onError((err, c): Response => {
   console.error('Unhandled error:', err)
 
   return c.json(
     {
-      error: 'Internal Server Error',
-      message: 'An unexpected error occurred',
+      success: false,
+      error: 'Internal Server Error - An unexpected error occurred',
     },
     500,
   )

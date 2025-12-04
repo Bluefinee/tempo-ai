@@ -8,8 +8,8 @@ on:
       - '.github/workflows/ios-quality.yml'
 
 env:
-  # Use latest stable version for cost efficiency
-  XCODE_VERSION: '15.2'
+  # Use latest available stable version  
+  XCODE_VERSION: '16.4'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

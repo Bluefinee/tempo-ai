@@ -1,0 +1,14 @@
+name = "tempo-ai-backend"
+main = "src/index.ts"
+compatibility_date = "2024-12-04"
+compatibility_flags = ["nodejs_compat"]
+
+[observability]
+enabled = true
+
+# 環境変数（公開）
+[vars]
+# 公開環境変数はここに
+
+# シークレット環境変数は以下のコマンドで設定:
+# wrangler secret put ANTHROPIC_API_KEY

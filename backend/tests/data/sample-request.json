@@ -1,0 +1,41 @@
+{
+  "healthData": {
+    "sleep": {
+      "duration": 6.5,
+      "deep": 1.2,
+      "rem": 1.8,
+      "light": 3.0,
+      "awake": 0.5,
+      "efficiency": 92
+    },
+    "hrv": {
+      "average": 45,
+      "min": 25,
+      "max": 68
+    },
+    "heartRate": {
+      "resting": 62,
+      "average": 75,
+      "min": 58,
+      "max": 145
+    },
+    "activity": {
+      "steps": 8234,
+      "distance": 6.2,
+      "calories": 420,
+      "activeMinutes": 35
+    }
+  },
+  "location": {
+    "latitude": 35.6895,
+    "longitude": 139.6917
+  },
+  "userProfile": {
+    "age": 28,
+    "gender": "male",
+    "goals": ["fatigue_recovery", "focus"],
+    "dietaryPreferences": "No restrictions",
+    "exerciseHabits": "Regular weight training",
+    "exerciseFrequency": "active"
+  }
+}

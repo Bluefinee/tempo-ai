@@ -1,0 +1,14 @@
+{
+  "indentation": {
+    "spaces": 4
+  },
+  "lineBreakBeforeControlFlowKeywords": false,
+  "lineBreakBeforeEachArgument": false,
+  "lineLength": 120,
+  "maximumBlankLines": 2,
+  "prioritizeKeepingFunctionOutputTogether": true,
+  "respectsExistingLineBreaks": true,
+  "spacesAroundRangeFormationOperators": true,
+  "tabWidth": 4,
+  "version": 1
+}

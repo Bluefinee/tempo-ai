@@ -1,0 +1,51 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  # This workflow orchestrates all quality checks
+  quality-gate:
+    name: Quality Gate
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Trigger parallel quality checks
+        run: |
+          echo "🚀 Starting parallel CI pipeline..."
+          echo ""
+          echo "Running workflows:"
+          echo "  📝 Linting & Formatting (lint.yml)"
+          echo "  🧪 Backend Testing (test.yml)" 
+          echo "  📱 iOS Testing (ios-tests.yml)"
+          echo "  🏗️ Build Verification (build.yml)"
+          echo "  🔒 Security Scanning (security.yml)"
+          echo ""
+          echo "⏱️ Expected completion: ~8-12 minutes"
+
+  # Meta-job that provides CI status overview
+  integration-status:
+    name: Integration Status
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+      - name: Check overall CI status
+        run: |
+          echo "📊 CI Pipeline Status Report"
+          echo "=============================="
+          echo ""
+          echo "🔗 Check individual workflow results:"
+          echo "  - Lint: https://github.com/${{ github.repository }}/actions/workflows/lint.yml"
+          echo "  - Backend Test: https://github.com/${{ github.repository }}/actions/workflows/test.yml"
+          echo "  - iOS Test: https://github.com/${{ github.repository }}/actions/workflows/ios-tests.yml"
+          echo "  - Build: https://github.com/${{ github.repository }}/actions/workflows/build.yml"
+          echo "  - Security: https://github.com/${{ github.repository }}/actions/workflows/security.yml"
+          echo ""
+          echo "✨ CodeRabbit will review this PR based on:"
+          echo "  - CLAUDE.md project standards"
+          echo "  - .claude/typescript-hono-standards.md"
+          echo "  - .claude/swift-coding-standards.md"

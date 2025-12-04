@@ -2,6 +2,12 @@
 
 > あなた専用の健康コーチが、毎朝最適なアドバイスをお届けします
 
+[![Lint](https://github.com/masakazuiwahara/tempo-ai/actions/workflows/lint.yml/badge.svg)](https://github.com/masakazuiwahara/tempo-ai/actions/workflows/lint.yml)
+[![Test](https://github.com/masakazuiwahara/tempo-ai/actions/workflows/test.yml/badge.svg)](https://github.com/masakazuiwahara/tempo-ai/actions/workflows/test.yml)
+[![Build](https://github.com/masakazuiwahara/tempo-ai/actions/workflows/build.yml/badge.svg)](https://github.com/masakazuiwahara/tempo-ai/actions/workflows/build.yml)
+[![Security](https://github.com/masakazuiwahara/tempo-ai/actions/workflows/security.yml/badge.svg)](https://github.com/masakazuiwahara/tempo-ai/actions/workflows/security.yml)
+[![CI](https://github.com/masakazuiwahara/tempo-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/masakazuiwahara/tempo-ai/actions/workflows/ci.yml)
+
 Tempo AIは、HealthKitデータと天気情報を活用し、AIがあなたの体調と環境に最適化された健康アドバイスを毎日提供するパーソナル健康アシスタントです。
 
 ## 🎯 コンセプト
@@ -39,6 +45,13 @@ Tempo AIは、HealthKitデータと天気情報を活用し、AIがあなたの�
 - **プラットフォーム**: Cloudflare Workers
 - **フレームワーク**: Hono (軽量TypeScript)
 - **AI**: Claude API (Anthropic)
+
+### CI/CD & 品質管理
+- **Linting**: ESLint + Prettier (TypeScript), SwiftLint (Swift)
+- **Testing**: Vitest (API), XCTest (iOS)
+- **Build**: GitHub Actions 並列実行
+- **Security**: CodeQL, Trivy, 依存関係監査
+- **Code Review**: CodeRabbit AI + CLAUDE.md standards
 - **天気API**: Open-Meteo
 - **データベース**: PostgreSQL (Supabase)
 - **接続最適化**: Hyperdrive
@@ -137,6 +150,49 @@ Tempo AIは、HealthKitデータと天気情報を活用し、AIがあなたの�
 - **HTTPS必須**: 全通信TLS 1.3
 - **匿名化**: ユーザーIDはUUID（個人特定不可）
 - **API キー管理**: 環境変数で適切に管理
+
+## 🔧 品質管理 & CI/CD
+
+### 基本コマンド
+```bash
+make setup           # 開発環境の自動セットアップ
+make check           # 全プロジェクトの品質チェック
+make fix             # 全問題の自動修正
+make test            # 全テスト実行（モック使用、コスト $0）
+make test-mutation   # ミューテーションテスト（モック使用）
+make test-real-api   # 実APIテスト（コスト注意 💸）
+make ci-full         # 完全CI環境模擬（コストセーフ）
+```
+
+### 💰 コスト管理
+```bash
+# 🆓 無料テスト（日常使用）
+make test              # モックAPIでコスト $0
+make test-mutation     # モックAPIでコスト $0
+
+# 💸 有料テスト（リリース前のみ）  
+make test-real-api     # 実API使用、~$0.50/回
+```
+
+### テスト駆動開発（TDD）基準
+- **テストカバレッジ**: 80%以上必須
+- **ミューテーションスコア**: 70%以上推奨
+- **TypeScript型エラー**: ゼロ必須
+- **ESLint/SwiftLint**: エラーなし
+- **テストファースト**: 新機能はテスト先行
+- **セキュリティ**: 脆弱性ゼロ
+
+### CI/CDパイプライン
+```
+┌─────────────┬─────────────┬─────────────┐
+│   品質ゲート   │   テスト実行   │   デプロイ    │
+│              │              │              │
+│ ✅ 型チェック  │ 🧪 単体テスト │ 🚀 本番環境  │
+│ ✅ Lint     │ 🔗 統合テスト │ 📊 監視     │
+│ ✅ フォーマット │ 🧬 変異テスト │ 📈 分析     │
+│ ✅ セキュリティ │ ⚡ 性能テスト │              │
+└─────────────┴─────────────┴─────────────┘
+```
 
 ## 🛠️ 開発環境セットアップ
 

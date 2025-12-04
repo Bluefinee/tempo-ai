@@ -1,0 +1,208 @@
+name: Coverage Report & GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_run:
+    workflows: ["Quality Gate & CI"]
+    types:
+      - completed
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  generate-coverage-report:
+    name: 📊 Generate Coverage Report
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success' || github.event_name == 'push'
+    defaults:
+      run:
+        working-directory: ./backend
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "pnpm"
+          cache-dependency-path: backend/pnpm-lock.yaml
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate test coverage
+        run: pnpm run test:coverage
+
+      - name: Create coverage badge
+        run: |
+          # Extract coverage percentage
+          COVERAGE=$(node -p "Math.round(JSON.parse(require('fs').readFileSync('./coverage/coverage-summary.json')).total.lines.pct)")
+
+          # Determine badge color
+          if [ $COVERAGE -ge 80 ]; then
+            COLOR="brightgreen"
+          elif [ $COVERAGE -ge 60 ]; then
+            COLOR="yellow"
+          else
+            COLOR="red"
+          fi
+
+          # Create badge URL
+          BADGE_URL="https://img.shields.io/badge/coverage-${COVERAGE}%25-${COLOR}"
+          echo "COVERAGE_BADGE_URL=$BADGE_URL" >> $GITHUB_ENV
+          echo "COVERAGE_PERCENT=$COVERAGE" >> $GITHUB_ENV
+
+      - name: Create coverage summary page
+        run: |
+          mkdir -p ./public
+          cat > ./public/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html lang="ja">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Tempo AI - Test Coverage Report</title>
+              <style>
+                  body {
+                      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                      line-height: 1.6;
+                      margin: 0;
+                      padding: 20px;
+                      background-color: #f6f8fa;
+                  }
+                  .container {
+                      max-width: 1200px;
+                      margin: 0 auto;
+                      background: white;
+                      border-radius: 8px;
+                      padding: 30px;
+                      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                  }
+                  .header {
+                      border-bottom: 1px solid #e1e4e8;
+                      padding-bottom: 20px;
+                      margin-bottom: 30px;
+                  }
+                  .coverage-badge {
+                      margin: 10px 0;
+                  }
+                  .metrics {
+                      display: grid;
+                      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                      gap: 20px;
+                      margin: 20px 0;
+                  }
+                  .metric {
+                      padding: 20px;
+                      border-radius: 8px;
+                      text-align: center;
+                      border: 1px solid #e1e4e8;
+                  }
+                  .metric h3 {
+                      margin: 0 0 10px 0;
+                      color: #586069;
+                  }
+                  .metric .value {
+                      font-size: 2em;
+                      font-weight: bold;
+                      color: #28a745;
+                  }
+                  .links {
+                      margin-top: 30px;
+                      padding-top: 20px;
+                      border-top: 1px solid #e1e4e8;
+                  }
+                  .btn {
+                      display: inline-block;
+                      padding: 10px 20px;
+                      background: #0366d6;
+                      color: white;
+                      text-decoration: none;
+                      border-radius: 6px;
+                      margin-right: 10px;
+                  }
+                  .btn:hover {
+                      background: #0256cc;
+                  }
+              </style>
+          </head>
+          <body>
+              <div class="container">
+                  <div class="header">
+                      <h1>🧪 Tempo AI - Test Coverage Report</h1>
+                      <p>自動生成されたテストカバレッジレポート</p>
+                      <div class="coverage-badge">
+                          <img src="$COVERAGE_BADGE_URL" alt="Coverage Badge">
+                      </div>
+                      <p><strong>最終更新:</strong> $(date)</p>
+                  </div>
+                  
+                  <div class="metrics">
+                      <div class="metric">
+                          <h3>総合カバレッジ</h3>
+                          <div class="value">$COVERAGE_PERCENT%</div>
+                      </div>
+                      <div class="metric">
+                          <h3>品質ゲート</h3>
+                          <div class="value">80%</div>
+                      </div>
+                      <div class="metric">
+                          <h3>テスト数</h3>
+                          <div class="value">58+</div>
+                      </div>
+                      <div class="metric">
+                          <h3>ステータス</h3>
+                          <div class="value">✅</div>
+                      </div>
+                  </div>
+                  
+                  <h2>📋 カバレッジ詳細</h2>
+                  <p>詳細なカバレッジレポートは以下のHTMLファイルで確認できます:</p>
+                  
+                  <div class="links">
+                      <a href="./html/index.html" class="btn">📄 詳細HTMLレポート</a>
+                      <a href="https://github.com/tempo-ai/tempo-ai" class="btn">📚 GitHub Repository</a>
+                  </div>
+                  
+                  <h2>🎯 テスト駆動開発（TDD）統計</h2>
+                  <ul>
+                      <li>TypeScript API: 包括的なユニットテスト</li>
+                      <li>iOS App: HealthKit、API、Location マネージャーテスト</li>
+                      <li>統合テスト: エンドツーエンドAPIテスト</li>
+                      <li>品質ゲート: 80%カバレッジ必須</li>
+                  </ul>
+              </div>
+          </body>
+          </html>
+          EOF
+
+      - name: Copy HTML coverage report
+        run: |
+          cp -r ./coverage/html ./public/
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload to Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./backend/public
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

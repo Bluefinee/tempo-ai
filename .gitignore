@@ -140,6 +140,9 @@ coverage.xml
 .coverage
 htmlcov/
 
+# SwiftLint reports (development artifacts)
+**/swiftlint-report*.json
+
 # Python (if any Python scripts are added)
 __pycache__/
 *.py[cod]
@@ -153,3 +156,7 @@ ENV/
 # CLAUDE.md is EXPLICITLY tracked (not ignored)
 # This file contains important project context for AI development
 !CLAUDE.md
+
+# Claude Code configuration and standards
+!.claude/
+!.claude/**

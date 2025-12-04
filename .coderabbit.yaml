@@ -1,0 +1,150 @@
+language: "en-US"
+early_access: false
+enable_free_tier: true
+
+# 知識ベース設定 - プロジェクトから学習
+knowledge_base:
+  learnings:
+    scope: auto
+  issues:
+    scope: auto
+
+# チャット設定
+chat:
+  auto_reply: true
+
+# レビュー設定
+reviews:
+  profile: "assertive"  # 詳細なレビューのため
+  request_changes_workflow: true  # 品質基準を満たさない場合は変更要求
+  high_level_summary: true
+  poem: false  # プロフェッショナル環境のため
+  review_status: true
+  collapse_walkthrough: false  # 詳細な説明を展開表示
+  
+  auto_review:
+    enabled: true
+    drafts: false  # ドラフトPRはレビューしない
+    ignore_title_keywords:
+      - WIP
+      - DRAFT
+      - "[SKIP]"
+    base_branches:
+      - main
+      - develop
+
+  # パスフィルター - レビュー対象外
+  path_filters:
+    - "!node_modules/**"
+    - "!.wrangler/**"
+    - "!dist/**"
+    - "!build/**"
+    - "!coverage/**"
+    - "!*.min.js"
+    - "!package-lock.json"
+    - "!pnpm-lock.yaml"
+    - "!*.xcworkspace/**"
+    - "!*.xcodeproj/project.xcworkspace/**"
+    - "!*.xcodeproj/xcuserdata/**"
+
+  # パス別レビュー指示 - 既存指示ファイルを参照
+  path_instructions:
+    # TypeScript/Hono API レビュー
+    - path: "backend/src/**/*.ts"
+      instructions: |
+        ## 参照基準文書
+        レビュー時は以下のプロジェクト基準文書を厳密に適用してください：
+        
+        **必読文書:**
+        - **CLAUDE.md** - プロジェクト全体の開発ガイドライン、アーキテクチャ原則（SOLID）、品質基準
+        - **.claude/typescript-hono-standards.md** - TypeScript + Hono固有のパターン、ベストプラクティス
+        
+        ## 重要チェックポイント
+        
+        ### 型安全性（CLAUDE.md準拠）
+        - **NEVER use `any` type** - any型を発見したら厳しく指摘、unknown型を推奨
+        - **明示的return型** - 全関数でreturn型宣言を確認
+        - **const over let** - 不要なlet宣言を指摘
+        
+        ### Hono固有パターン（typescript-hono-standards.md準拠）
+        - **型付きコンテキスト**: `new Hono<{ Bindings: Bindings }>()` の使用確認
+        - **環境変数型付け**: `c.env`の型安全なアクセス確認
+        - **Service層分離**: routes/でビジネスロジックを書いていないか確認
+        - **レスポンス形式**: `{ success: boolean, data?: T, error?: string }` 形式確認
+        
+        ### プロジェクト構造（typescript-hono-standards.md）
+        ```
+        src/
+        ├── routes/    # Route handlers ONLY
+        ├── services/  # Business logic
+        ├── types/     # Type definitions
+        └── utils/     # Utility functions
+        ```
+        
+        **違反を発見した場合、該当文書のセクションを引用して指摘してください。**
+
+    # TypeScript テストファイル
+    - path: "backend/tests/**/*.ts"
+      instructions: |
+        typescript-hono-standards.mdのテストセクションに基づき、Hono testClientの使用、適切なモック設計を確認してください。
+
+    # Swift/iOS アプリケーション
+    - path: "ios/**/*.swift"
+      instructions: |
+        ## 参照基準文書
+        レビュー時は以下のプロジェクト基準文書を厳密に適用してください：
+        
+        **必読文書:**
+        - **CLAUDE.md** - プロジェクト全体の開発ガイドライン、アーキテクチャ原則
+        - **.claude/swift-coding-standards.md** - Swift固有の詳細な開発基準
+        
+        ## 重要チェックポイント（swift-coding-standards.md準拠）
+        
+        ### 必須要件
+        - **明示的型宣言**: 全プロパティで型明示（`var isLoading: Bool = false`）
+        - **camelCase定数**: `maxRetryCount: Int = 3`（SCREAMING_SNAKE_CASE禁止）
+        - **ファイル長制限**: 400行以下、超過時はコンポーネント抽出要求
+        - **import組織**: アルファベット順整理確認
+        
+        ### SwiftUI（swift-coding-standards.md基準）
+        - **プロパティラッパー選択**: @StateObject（作成・所有）、@ObservedObject（親から受け取り）、@State（ローカルUI状態）の正しい使い分け
+        - **View分解**: 50行超のbodyはコンポーネント抽出
+        - **NavigationStack**: NavigationViewではなくNavigationStackを使用
+        
+        ### 非同期・メモリ管理
+        - **async/await強制**: completion handlerの使用を禁止
+        - **MainActor**: UI更新の@MainActor適用確認
+        - **[weak self]**: [unowned self]ではなく[weak self]を推奨
+        
+        ### HealthKit固有
+        - **可用性チェック**: `HKHealthStore.isHealthDataAvailable()`事前確認
+        - **非同期API**: 全HealthKit操作でasync/await使用
+        - **プライバシー**: 健康データの適切な取り扱い確認
+        
+        **違反を発見した場合、swift-coding-standards.mdの該当セクションを引用して指摘してください。**
+
+    # 設定・ドキュメントファイル
+    - path: "**/*.md"
+      instructions: |
+        ドキュメントの正確性、CLAUDE.mdとの整合性を確認してください。
+
+    - path: "{package.json,tsconfig.json,eslint.config.js,wrangler.toml,.github/**/*.yml}"
+      instructions: |
+        設定ファイルのベストプラクティス準拠、CLAUDE.mdの品質基準との整合性を確認してください。
+
+# ツール統合
+tools:
+  github-checks:
+    enabled: true
+    timeout_ms: 120000
+  markdownlint:
+    enabled: true
+  shellcheck:
+    enabled: true
+
+# トーン指示
+tone_instructions: |
+  - プロフェッショナルで建設的なレビューを行う
+  - 問題発見時は、CLAUDE.mdや.claude/配下の該当文書セクションを引用
+  - セキュリティ・品質問題は明確に指摘し、具体的改善案を提示
+  - ベストプラクティス違反は理由と共に説明

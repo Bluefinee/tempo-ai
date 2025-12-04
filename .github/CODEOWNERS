@@ -1,0 +1,32 @@
+# Global code ownership for Tempo AI project
+# This ensures all changes get proper review and Copilot integration
+
+# Default owners for everything
+* @Bluefinee
+
+# Code quality and configuration files
+CLAUDE.md @Bluefinee
+copilot-instructions.md @Bluefinee
+.github/ @Bluefinee
+scripts/ @Bluefinee
+
+# TypeScript API specific
+backend/ @Bluefinee
+backend/.instructions.md @Bluefinee
+backend/src/ @Bluefinee
+
+# iOS specific
+ios/ @Bluefinee
+ios/.instructions.md @Bluefinee
+ios/TempoAI/ @Bluefinee
+
+# Security and dependency files
+package.json @Bluefinee
+pnpm-lock.yaml @Bluefinee
+*.xcodeproj @Bluefinee
+Podfile @Bluefinee
+Podfile.lock @Bluefinee
+
+# Documentation and guidelines
+*.md @Bluefinee
+guidelines/ @Bluefinee

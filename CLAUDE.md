@@ -1,5 +1,14 @@
 # Development Guidelines
 
+## 📋 Required Reference Documents
+
+**IMPORTANT**: Always consult these coding standards before implementation:
+
+- **Swift Development**: [Swift Coding Standards](.claude/swift-coding-standards.md)
+- **TypeScript + Hono**: [TypeScript Hono Standards](.claude/typescript-hono-standards.md)
+
+These documents contain project-specific best practices, naming conventions, architecture patterns, and quality requirements. Reference them during every implementation task.
+
 ## Philosophy
 
 ### Core Beliefs

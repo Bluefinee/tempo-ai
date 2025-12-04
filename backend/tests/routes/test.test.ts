@@ -16,11 +16,11 @@
  * @since 1.0.0
  */
 
-import { describe, expect, it, beforeEach, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { testRoutes } from '@/routes/test'
 import { getWeather } from '@/services/weather'
-import { handleError } from '@/utils/errors'
 import type { WeatherData } from '@/types/weather'
+import { handleError } from '@/utils/errors'
 
 // Response type definitions
 interface WeatherDataResponse {

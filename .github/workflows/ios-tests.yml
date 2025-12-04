@@ -56,7 +56,10 @@ jobs:
         
       - name: Create iOS Simulator
         run: |
-          DEVICE_UDID=$(xcrun simctl create "Quick-Test-iPhone" "com.apple.CoreSimulator.SimDeviceType.iPhone-15" "com.apple.CoreSimulator.SimRuntime.iOS-17-2")
+          # Use available iOS runtime
+          RUNTIME=$(xcrun simctl list runtimes | grep iOS | tail -1 | sed 's/.*(\([^)]*\)).*/\1/')
+          echo "Using runtime: $RUNTIME"
+          DEVICE_UDID=$(xcrun simctl create "Quick-Test-iPhone" "com.apple.CoreSimulator.SimDeviceType.iPhone-15" "$RUNTIME")
           echo "SIMULATOR_UDID=$DEVICE_UDID" >> $GITHUB_ENV
           xcrun simctl boot "$DEVICE_UDID"
           

@@ -18,7 +18,7 @@
  * @since 1.0.0
  */
 
-import { describe, expect, it, beforeEach, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import app from '../src/index'
 
 // Response type definitions

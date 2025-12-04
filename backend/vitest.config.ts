@@ -9,7 +9,7 @@ export default defineConfig({
     exclude: ['node_modules/**', 'dist/**', '.wrangler/**'],
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'html', 'json-summary'],
+      reporter: ['text', 'html', 'json-summary', 'lcov'],
       reportsDirectory: 'coverage',
       include: ['src/**/*.ts'],
       exclude: [

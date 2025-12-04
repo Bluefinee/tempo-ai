@@ -27,8 +27,8 @@ vi.mock('@/utils/errors')
 
 import { analyzeHealth } from '@/services/ai'
 import { getWeather } from '@/services/weather'
-import { handleError } from '@/utils/errors'
 import type { DailyAdvice } from '@/types/advice'
+import { handleError } from '@/utils/errors'
 
 // Response type definitions
 interface SuccessResponse {

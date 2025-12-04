@@ -2,14 +2,14 @@
  * @fileoverview Health Analysis Service Tests
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import * as aiService from '../../src/services/ai'
 import { performHealthAnalysis } from '../../src/services/health-analysis'
 import * as weatherService from '../../src/services/weather'
-import * as aiService from '../../src/services/ai'
-import { APIError } from '../../src/utils/errors'
+import type { DailyAdvice } from '../../src/types/advice'
 import type { HealthData, UserProfile } from '../../src/types/health'
 import type { WeatherData } from '../../src/types/weather'
-import type { DailyAdvice } from '../../src/types/advice'
+import { APIError } from '../../src/utils/errors'
 
 // Mock dependencies
 vi.mock('../../src/services/weather')

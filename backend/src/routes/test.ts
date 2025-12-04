@@ -10,9 +10,9 @@
  */
 
 import { Hono } from 'hono'
+import type { Bindings } from '../index'
 import { getWeather } from '../services/weather'
 import { handleError } from '../utils/errors'
-import type { Bindings } from '../index'
 
 const ensureJsonRequest = (contentType: string | null | undefined): boolean => {
   if (!contentType) return false

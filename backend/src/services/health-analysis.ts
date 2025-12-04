@@ -10,11 +10,11 @@
  * @since 1.0.0
  */
 
-import type { HealthData, UserProfile } from '../types/health'
 import type { DailyAdvice } from '../types/advice'
-import { getWeather } from './weather'
-import { analyzeHealth } from './ai'
+import type { HealthData, UserProfile } from '../types/health'
 import { APIError } from '../utils/errors'
+import { analyzeHealth } from './ai'
+import { getWeather } from './weather'
 
 /**
  * ヘルスデータ分析のパラメータ型定義

@@ -10,7 +10,6 @@ env:
   NODE_VERSION: "20"
   PNPM_VERSION: "9"
   XCODE_VERSION: "15.2"
-  IOS_DESTINATION: "platform=iOS Simulator,name=iPhone 15,OS=17.0"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -110,134 +109,132 @@ jobs:
         with:
           xcode-version: ${{ env.XCODE_VERSION }}
 
-      - name: Cache Xcode DerivedData
+      - name: Cache Dependencies
         uses: actions/cache@v4
         with:
-          path: ~/Library/Developer/Xcode/DerivedData
-          key: ${{ runner.os }}-xcode-deriveddata-${{ hashFiles('ios/TempoAI/TempoAI.xcodeproj/project.pbxproj') }}
+          path: |
+            ~/Library/Developer/Xcode/DerivedData
+            ~/Library/Caches/SwiftLint
+          key: ${{ runner.os }}-ios-${{ hashFiles('ios/**/*.swift', 'ios/**/*.xcodeproj') }}
           restore-keys: |
-            ${{ runner.os }}-xcode-deriveddata-
+            ${{ runner.os }}-ios-
 
-      - name: Install SwiftLint
+      - name: Install Tools
         run: |
+          # Install SwiftLint if not already installed
           if ! command -v swiftlint &> /dev/null; then
             brew install swiftlint
           fi
-
-      - name: Check if iOS project exists
-        id: ios-check
-        run: |
-          if [ -d "./ios/TempoAI" ]; then
-            echo "ios-exists=true" >> $GITHUB_OUTPUT
-            echo "✅ iOS project found"
-          else
-            echo "ios-exists=false" >> $GITHUB_OUTPUT
-            echo "⚠️ iOS project not found, skipping iOS-specific steps"
+          # Install xcbeautify for better output formatting
+          if ! command -v xcbeautify &> /dev/null; then
+            brew install xcbeautify
           fi
 
+      - name: Validate iOS Project
+        id: validate
+        run: |
+          if [ ! -d "./ios/TempoAI" ]; then
+            echo "::warning::iOS project not found at ./ios/TempoAI"
+            echo "skip=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          echo "✅ iOS project found"
+          echo "skip=false" >> $GITHUB_OUTPUT
+
       - name: Run SwiftLint
-        if: steps.ios-check.outputs.ios-exists == 'true'
+        if: steps.validate.outputs.skip != 'true'
         working-directory: ./ios/TempoAI
-        run: swiftlint --strict
+        run: |
+          swiftlint --strict --reporter github-actions-logging
         continue-on-error: true
 
-      - name: List available simulators
-        if: steps.ios-check.outputs.ios-exists == 'true'
-        run: xcrun simctl list devicetypes && echo "---" && xcrun simctl list runtimes
-
-      - name: Create iOS Simulator
-        if: steps.ios-check.outputs.ios-exists == 'true'
+      - name: Select iOS Device
+        if: steps.validate.outputs.skip != 'true'
+        id: device
         run: |
-          # Use available iOS runtime
-          RUNTIME=$(xcrun simctl list runtimes | grep iOS | tail -1 | sed 's/.*(\([^)]*\)).*/\1/')
-          echo "Using runtime: $RUNTIME"
-          DEVICE_UDID=$(xcrun simctl create "CI-Test-iPhone" "com.apple.CoreSimulator.SimDeviceType.iPhone-15" "$RUNTIME")
-          echo "SIMULATOR_UDID=$DEVICE_UDID" >> $GITHUB_ENV
-          xcrun simctl boot "$DEVICE_UDID"
+          echo "🔍 Detecting available iOS devices..."
+          
+          # Try to find an iPhone Pro model first (usually has better performance)
+          DEVICE_NAME=$(xcrun xctrace list devices 2>&1 | \
+            grep -oE 'iPhone [0-9]+ Pro' | \
+            head -1)
+          
+          # If no Pro model found, use any available iPhone
+          if [ -z "$DEVICE_NAME" ]; then
+            DEVICE_NAME=$(xcrun xctrace list devices 2>&1 | \
+              grep -oE 'iPhone.*?[^\(]+' | \
+              head -1 | \
+              awk '{$1=$1;print}' | \
+              sed -e "s/ Simulator$//")
+          fi
+          
+          if [ -z "$DEVICE_NAME" ]; then
+            echo "❌ No iOS devices available"
+            exit 1
+          fi
+          
+          echo "✅ Selected device: $DEVICE_NAME"
+          echo "destination=platform=iOS Simulator,name=$DEVICE_NAME" >> $GITHUB_OUTPUT
 
-      - name: Wait for simulator to boot
-        if: steps.ios-check.outputs.ios-exists == 'true'
-        run: |
-          timeout=120
-          elapsed=0
-          while [ "$(xcrun simctl list devices | grep "${{ env.SIMULATOR_UDID }}" | grep -o "Booted\|Shutdown")" != "Booted" ]; do
-            if [ $elapsed -ge $timeout ]; then
-              echo "❌ Simulator failed to boot within $timeout seconds"
-              exit 1
-            fi
-            echo "Waiting for simulator to boot... ($elapsed/$timeout)"
-            sleep 5
-            elapsed=$((elapsed + 5))
-          done
-          echo "✅ Simulator booted successfully"
-
-      - name: Build iOS App for Testing
-        if: steps.ios-check.outputs.ios-exists == 'true'
+      - name: Build for Testing
+        if: steps.validate.outputs.skip != 'true'
         working-directory: ./ios/TempoAI
         run: |
+          set -o pipefail
           xcodebuild clean build-for-testing \
             -project TempoAI.xcodeproj \
             -scheme TempoAI \
-            -destination "platform=iOS Simulator,id=${{ env.SIMULATOR_UDID }}" \
+            -destination "${{ steps.device.outputs.destination }}" \
             -configuration Debug \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
-            -quiet
+            -quiet | xcbeautify
 
-      - name: Run iOS Tests
-        if: steps.ios-check.outputs.ios-exists == 'true'
+      - name: Run Tests
+        if: steps.validate.outputs.skip != 'true'
         working-directory: ./ios/TempoAI
         run: |
+          set -o pipefail
           xcodebuild test-without-building \
             -project TempoAI.xcodeproj \
             -scheme TempoAI \
-            -destination "platform=iOS Simulator,id=${{ env.SIMULATOR_UDID }}" \
+            -destination "${{ steps.device.outputs.destination }}" \
             -configuration Debug \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             -enableCodeCoverage YES \
-            -resultBundlePath TestResults.xcresult
+            -resultBundlePath TestResults.xcresult | xcbeautify
 
-      - name: Parse Test Results
-        if: steps.ios-check.outputs.ios-exists == 'true'
+      - name: Generate Coverage Report
+        if: steps.validate.outputs.skip != 'true'
         working-directory: ./ios/TempoAI
         run: |
           if [ -d "TestResults.xcresult" ]; then
-            xcrun xcresulttool get --format json --path TestResults.xcresult > test_results.json
-            echo "✅ iOS tests completed successfully"
+            # Generate JSON coverage report
+            xcrun xccov view --report TestResults.xcresult --json > coverage.json
+            
+            # Extract coverage percentage
+            COVERAGE=$(python3 -c "import json; data = json.load(open('coverage.json')); print(round(data.get('lineCoverage', 0) * 100))")
+            echo "📊 Code Coverage: ${COVERAGE}%"
+            echo "ios-coverage=$COVERAGE" >> $GITHUB_ENV
+            
+            # Generate human-readable coverage report
+            xcrun xccov view --report TestResults.xcresult > coverage.txt
           else
-            echo "❌ No test results found"
-            exit 1
-          fi
-
-      - name: Generate iOS Coverage Report
-        if: steps.ios-check.outputs.ios-exists == 'true'
-        working-directory: ./ios/TempoAI
-        run: |
-          if [ -d "TestResults.xcresult" ]; then
-            xcrun xcresulttool get --format json --path TestResults.xcresult > coverage_results.json
-            echo "📊 iOS coverage report generated"
+            echo "⚠️ No test results found"
           fi
         continue-on-error: true
 
-      - name: Upload iOS Test Results
+      - name: Upload Test Results
+        if: always() && steps.validate.outputs.skip != 'true'
         uses: actions/upload-artifact@v4
-        if: always() && steps.ios-check.outputs.ios-exists == 'true'
         with:
           name: ios-test-results-${{ github.run_id }}
           path: |
             ios/TempoAI/TestResults.xcresult
-            ios/TempoAI/test_results.json
-            ios/TempoAI/coverage_results.json
+            ios/TempoAI/coverage.json
+            ios/TempoAI/coverage.txt
           retention-days: 30
-
-      - name: Cleanup Simulator
-        if: always() && steps.ios-check.outputs.ios-exists == 'true'
-        run: |
-          if [ ! -z "${{ env.SIMULATOR_UDID }}" ]; then
-            xcrun simctl shutdown "${{ env.SIMULATOR_UDID }}" || true
-            xcrun simctl delete "${{ env.SIMULATOR_UDID }}" || true
-          fi
 
   # Release Build (only on main branch)
   ios-release-build:

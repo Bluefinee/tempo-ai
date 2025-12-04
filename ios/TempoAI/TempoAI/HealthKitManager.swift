@@ -2,15 +2,48 @@ import Combine
 import Foundation
 import HealthKit
 
+protocol HealthKitQueryFactory {
+    func createSampleQuery(
+        sampleType: HKSampleType,
+        predicate: NSPredicate?,
+        limit: Int,
+        sortDescriptors: [NSSortDescriptor]?,
+        resultsHandler: @escaping (HKSampleQuery, [HKSample]?, Error?) -> Void
+    ) -> HKSampleQuery
+}
+
+class DefaultHealthKitQueryFactory: HealthKitQueryFactory {
+    func createSampleQuery(
+        sampleType: HKSampleType,
+        predicate: NSPredicate?,
+        limit: Int,
+        sortDescriptors: [NSSortDescriptor]?,
+        resultsHandler: @escaping (HKSampleQuery, [HKSample]?, Error?) -> Void
+    ) -> HKSampleQuery {
+        return HKSampleQuery(
+            sampleType: sampleType,
+            predicate: predicate,
+            limit: limit,
+            sortDescriptors: sortDescriptors,
+            resultsHandler: resultsHandler
+        )
+    }
+}
+
 @MainActor
 class HealthKitManager: ObservableObject {
-    @Published var isAuthorized = false
+    @Published var isAuthorized: Bool = false
     @Published var authorizationStatus: String = "Not Determined"
 
     private let healthStore: HKHealthStore
+    private let queryFactory: HealthKitQueryFactory
 
-    init(healthStore: HKHealthStore = HKHealthStore()) {
+    init(
+        healthStore: HKHealthStore = HKHealthStore(),
+        queryFactory: HealthKitQueryFactory = DefaultHealthKitQueryFactory()
+    ) {
         self.healthStore = healthStore
+        self.queryFactory = queryFactory
     }
 
     private let typesToRead: Set<HKObjectType> = [
@@ -31,22 +64,10 @@ class HealthKitManager: ObservableObject {
 
         try await healthStore.requestAuthorization(toShare: [], read: typesToRead)
 
-        let status = healthStore.authorizationStatus(for: HKObjectType.quantityType(forIdentifier: .stepCount)!)
-
-        switch status {
-        case .sharingAuthorized:
-            isAuthorized = true
-            authorizationStatus = "Authorized"
-        case .sharingDenied:
-            isAuthorized = false
-            authorizationStatus = "Denied"
-        case .notDetermined:
-            isAuthorized = false
-            authorizationStatus = "Not Determined"
-        @unknown default:
-            isAuthorized = false
-            authorizationStatus = "Unknown"
-        }
+        // Note: Read authorization status cannot be determined via authorizationStatus(for:)
+        // We assume authorization was granted if requestAuthorization succeeds without error
+        isAuthorized = true
+        authorizationStatus = "Authorized"
     }
 
     func fetchTodayHealthData() async throws -> HealthData {
@@ -82,12 +103,18 @@ class HealthKitManager: ObservableObject {
         )
 
         return await withCheckedContinuation { continuation in
-            let query = HKSampleQuery(
+            let query = queryFactory.createSampleQuery(
                 sampleType: sleepType,
                 predicate: predicate,
                 limit: HKObjectQueryNoLimit,
                 sortDescriptors: nil
-            ) { _, samples, _ in
+            ) { [weak self] _, samples, _ in
+                guard let self = self else {
+                    let emptySleepData = SleepData(duration: 0, deep: 0, rem: 0, light: 0, awake: 0, efficiency: 0)
+                    continuation.resume(returning: emptySleepData)
+                    return
+                }
+
                 guard let sleepSamples = samples as? [HKCategorySample] else {
                     continuation.resume(returning: self.mockSleepData())
                     return
@@ -121,16 +148,30 @@ class HealthKitManager: ObservableObject {
 
         for sample in sleepSamples {
             let duration = sample.endDate.timeIntervalSince(sample.startDate)
-            totalSleep += duration
 
             switch sample.value {
-            case HKCategoryValueSleepAnalysis.asleep.rawValue:
+            case HKCategoryValueSleepAnalysis.asleepDeep.rawValue:
+                deepSleep += duration
+                totalSleep += duration
+            case HKCategoryValueSleepAnalysis.asleepREM.rawValue:
+                remSleep += duration
+                totalSleep += duration
+            case HKCategoryValueSleepAnalysis.asleepCore.rawValue:
                 lightSleep += duration
+                totalSleep += duration
+            case HKCategoryValueSleepAnalysis.asleep.rawValue:
+                // Handle deprecated .asleep case for backwards compatibility
+                lightSleep += duration
+                totalSleep += duration
             case HKCategoryValueSleepAnalysis.awake.rawValue:
                 awakeTime += duration
+            case HKCategoryValueSleepAnalysis.inBed.rawValue:
+                // In bed but not sleeping - don't count towards total sleep
+                break
             default:
                 // For any other sleep stages, count as light sleep
                 lightSleep += duration
+                totalSleep += duration
             }
         }
 
@@ -160,12 +201,16 @@ class HealthKitManager: ObservableObject {
         )
 
         return await withCheckedContinuation { continuation in
-            let query = HKSampleQuery(
+            let query = queryFactory.createSampleQuery(
                 sampleType: hrvType,
                 predicate: predicate,
                 limit: HKObjectQueryNoLimit,
                 sortDescriptors: nil
-            ) { _, samples, _ in
+            ) { [weak self] _, samples, _ in
+                guard let self = self else {
+                    continuation.resume(returning: HRVData(average: 45, min: 25, max: 68))
+                    return
+                }
 
                 guard let hrvSamples = samples as? [HKQuantitySample], !hrvSamples.isEmpty else {
                     continuation.resume(returning: HRVData(average: 45, min: 25, max: 68))
@@ -190,38 +235,23 @@ class HealthKitManager: ObservableObject {
             return HeartRateData(resting: 62, average: 75, min: 58, max: 145)
         }
 
-        let heartRateType = HKObjectType.quantityType(forIdentifier: .heartRate)!
         let predicate = HKQuery.predicateForSamples(
             withStart: Calendar.current.startOfDay(for: Date()),
             end: Date(),
             options: .strictEndDate
         )
 
-        return await withCheckedContinuation { continuation in
-            let query = HKSampleQuery(
-                sampleType: heartRateType,
-                predicate: predicate,
-                limit: HKObjectQueryNoLimit,
-                sortDescriptors: nil
-            ) { _, samples, _ in
-
-                guard let heartRateSamples = samples as? [HKQuantitySample], !heartRateSamples.isEmpty else {
-                    continuation.resume(returning: HeartRateData(resting: 62, average: 75, min: 58, max: 145))
-                    return
-                }
-
-                let heartRateValues = heartRateSamples.map {
-                    Int($0.quantity.doubleValue(for: HKUnit.count().unitDivided(by: .minute())))
-                }
-                let average = heartRateValues.reduce(0, +) / heartRateValues.count
-                let min = heartRateValues.min() ?? 58
-                let max = heartRateValues.max() ?? 145
-
-                continuation.resume(returning: HeartRateData(resting: 62, average: average, min: min, max: max))
-            }
-
-            healthStore.execute(query)
+        let heartRateValues = await fetchHeartRateValues(predicate: predicate)
+        guard !heartRateValues.isEmpty else {
+            return HeartRateData(resting: 62, average: 75, min: 58, max: 145)
         }
+
+        let average = heartRateValues.reduce(0, +) / heartRateValues.count
+        let min = heartRateValues.min() ?? 58
+        let max = heartRateValues.max() ?? 145
+        let resting = await fetchRestingHeartRate(predicate: predicate) ?? 62
+
+        return HeartRateData(resting: resting, average: average, min: min, max: max)
     }
 
     // MARK: - Activity Data
@@ -278,6 +308,62 @@ class HealthKitManager: ObservableObject {
             ) { _, result, _ in
                 let sum = result?.sumQuantity()?.doubleValue(for: unit) ?? 0
                 continuation.resume(returning: sum)
+            }
+
+            healthStore.execute(query)
+        }
+    }
+
+    private func fetchHeartRateValues(predicate: NSPredicate) async -> [Int] {
+        let heartRateType = HKObjectType.quantityType(forIdentifier: .heartRate)!
+
+        return await withCheckedContinuation { continuation in
+            let query = queryFactory.createSampleQuery(
+                sampleType: heartRateType,
+                predicate: predicate,
+                limit: HKObjectQueryNoLimit,
+                sortDescriptors: nil
+            ) { [weak self] _, samples, _ in
+                guard self != nil else {
+                    continuation.resume(returning: [])
+                    return
+                }
+
+                guard let heartRateSamples = samples as? [HKQuantitySample], !heartRateSamples.isEmpty else {
+                    continuation.resume(returning: [])
+                    return
+                }
+
+                let heartRateValues = heartRateSamples.map {
+                    Int($0.quantity.doubleValue(for: HKUnit.count().unitDivided(by: .minute())))
+                }
+                continuation.resume(returning: heartRateValues)
+            }
+
+            healthStore.execute(query)
+        }
+    }
+
+    private func fetchRestingHeartRate(predicate: NSPredicate) async -> Int? {
+        guard let restingType = HKObjectType.quantityType(forIdentifier: .restingHeartRate) else {
+            return nil
+        }
+
+        return await withCheckedContinuation { continuation in
+            let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)
+            let query = HKSampleQuery(
+                sampleType: restingType,
+                predicate: predicate,
+                limit: 1,
+                sortDescriptors: [sortDescriptor]
+            ) { _, samples, _ in
+                guard let sample = samples?.first as? HKQuantitySample else {
+                    continuation.resume(returning: nil)
+                    return
+                }
+
+                let restingValue = Int(sample.quantity.doubleValue(for: HKUnit.count().unitDivided(by: .minute())))
+                continuation.resume(returning: restingValue)
             }
 
             healthStore.execute(query)

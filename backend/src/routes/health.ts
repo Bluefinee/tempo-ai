@@ -86,10 +86,16 @@ healthRoutes.post('/analyze', async (c): Promise<Response> => {
       )
     }
 
-    // Validate location coordinates type
+    // Validate location coordinates type and range
     if (
       typeof location.latitude !== 'number' ||
-      typeof location.longitude !== 'number'
+      typeof location.longitude !== 'number' ||
+      location.latitude < -90 ||
+      location.latitude > 90 ||
+      location.longitude < -180 ||
+      location.longitude > 180 ||
+      Number.isNaN(location.latitude) ||
+      Number.isNaN(location.longitude)
     ) {
       return c.json(
         {
@@ -130,12 +136,16 @@ healthRoutes.post('/analyze', async (c): Promise<Response> => {
     console.error('Analysis error:', error)
 
     const { message, statusCode } = handleError(error)
+    // Ensure statusCode is a valid HTTP status code and cast to proper type
+    const validStatusCode = (
+      statusCode >= 400 && statusCode <= 599 ? statusCode : 500
+    ) as 400 | 401 | 403 | 404 | 409 | 422 | 429 | 500 | 502 | 503 | 504
     return c.json(
       {
         success: false,
         error: message,
       },
-      statusCode as never,
+      validStatusCode,
     )
   }
 })

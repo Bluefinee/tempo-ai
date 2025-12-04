@@ -485,7 +485,11 @@ describe('Test Routes', () => {
         body: JSON.stringify(requestBody),
       })
 
-      expect(response.status).toBe(500) // This will cause an error when accessing location.latitude
+      expect(response.status).toBe(400) // Now properly validated and returns 400
+      const result = (await response.json()) as ErrorResponse
+      expect(result.error).toBe(
+        'Invalid location: coordinates must be valid numbers within range (lat: -90 to 90, lng: -180 to 180)',
+      )
     })
 
     it('should handle invalid location structure', async () => {
@@ -502,8 +506,11 @@ describe('Test Routes', () => {
         body: JSON.stringify(requestBody),
       })
 
-      // Actually returns 200 because the code doesn't validate the structure
-      expect(response.status).toBe(200)
+      expect(response.status).toBe(400) // Now properly validated and returns 400
+      const result = (await response.json()) as ErrorResponse
+      expect(result.error).toBe(
+        'Invalid location: coordinates must be valid numbers within range (lat: -90 to 90, lng: -180 to 180)',
+      )
     })
 
     it('should validate that all mock advice fields are present', async () => {
@@ -597,8 +604,9 @@ describe('Test Routes', () => {
         body: JSON.stringify({ latitude: 35.6895, longitude: 139.6917 }),
       })
 
-      // Without Content-Type header, may still work but return different status
-      expect([200, 400, 415, 500]).toContain(response.status)
+      // Without Content-Type header, should return 415 Unsupported Media Type
+      // as the server expects application/json but receives no content type
+      expect(response.status).toBe(415)
     })
 
     it('should handle analyze-mock without content-type header', async () => {
@@ -609,8 +617,9 @@ describe('Test Routes', () => {
         }),
       })
 
-      // Without Content-Type header, may still work but return different status
-      expect([200, 400, 415, 500]).toContain(response.status)
+      // Without Content-Type header, should return 415 Unsupported Media Type
+      // as the server expects application/json but receives no content type
+      expect(response.status).toBe(415)
     })
   })
 })

@@ -12,12 +12,18 @@
 import { Hono } from 'hono'
 import { getWeather } from '../services/weather'
 import { handleError } from '../utils/errors'
+import type { Bindings } from '../index'
+
+const ensureJsonRequest = (contentType: string | null | undefined): boolean => {
+  if (!contentType) return false
+  return contentType.toLowerCase().includes('application/json')
+}
 
 /**
  * テスト用APIのルーターインスタンス
  * 開発・デバッグ目的のエンドポイントを管理
  */
-export const testRoutes = new Hono()
+export const testRoutes = new Hono<{ Bindings: Bindings }>()
 
 /**
  * POST /weather
@@ -31,7 +37,15 @@ export const testRoutes = new Hono()
  * @throws {400} 無効な座標が指定された場合
  * @throws {500} 天気API接続エラー
  */
-testRoutes.post('/weather', async (c) => {
+testRoutes.post('/weather', async (c): Promise<Response> => {
+  const contentType = c.req.header('content-type')
+  if (!ensureJsonRequest(contentType)) {
+    return c.json(
+      { error: 'Unsupported Media Type: application/json required' },
+      415,
+    )
+  }
+
   try {
     const body = await c.req.json()
     const { latitude, longitude } = body
@@ -48,7 +62,11 @@ testRoutes.post('/weather', async (c) => {
     })
   } catch (error) {
     const { message, statusCode } = handleError(error)
-    return c.json({ error: message }, statusCode as 500)
+    // Ensure statusCode is a valid HTTP status code and cast to proper type
+    const validStatusCode = (
+      statusCode >= 400 && statusCode <= 599 ? statusCode : 500
+    ) as 400 | 401 | 403 | 404 | 409 | 422 | 429 | 500 | 502 | 503 | 504
+    return c.json({ error: message }, validStatusCode)
   }
 })
 
@@ -63,10 +81,39 @@ testRoutes.post('/weather', async (c) => {
  * @returns モック健康アドバイスとリアル天気データ
  * @throws {500} 天気API接続エラー
  */
-testRoutes.post('/analyze-mock', async (c) => {
+testRoutes.post('/analyze-mock', async (c): Promise<Response> => {
+  const contentType = c.req.header('content-type')
+  if (!ensureJsonRequest(contentType)) {
+    return c.json(
+      { error: 'Unsupported Media Type: application/json required' },
+      415,
+    )
+  }
+
   try {
     const body = await c.req.json()
     const { location } = body
+
+    // Validate location structure
+    if (
+      !location ||
+      typeof location.latitude !== 'number' ||
+      typeof location.longitude !== 'number' ||
+      location.latitude < -90 ||
+      location.latitude > 90 ||
+      location.longitude < -180 ||
+      location.longitude > 180 ||
+      Number.isNaN(location.latitude) ||
+      Number.isNaN(location.longitude)
+    ) {
+      return c.json(
+        {
+          error:
+            'Invalid location: coordinates must be valid numbers within range (lat: -90 to 90, lng: -180 to 180)',
+        },
+        400,
+      )
+    }
 
     // Get real weather data
     const weather = await getWeather(location.latitude, location.longitude)
@@ -145,6 +192,10 @@ testRoutes.post('/analyze-mock', async (c) => {
     })
   } catch (error) {
     const { message, statusCode } = handleError(error)
-    return c.json({ error: message }, statusCode as 500)
+    // Ensure statusCode is a valid HTTP status code and cast to proper type
+    const validStatusCode = (
+      statusCode >= 400 && statusCode <= 599 ? statusCode : 500
+    ) as 400 | 401 | 403 | 404 | 409 | 422 | 429 | 500 | 502 | 503 | 504
+    return c.json({ error: message }, validStatusCode)
   }
 })

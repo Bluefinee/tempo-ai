@@ -61,7 +61,7 @@ struct AnalysisRequest: Codable {
 
 // MARK: - AI Response Models
 struct DailyAdvice: Codable, Identifiable {
-    let id = UUID()
+    var id: UUID = UUID()
     let theme: String
     let summary: String
     let breakfast: MealAdvice
@@ -75,10 +75,27 @@ struct DailyAdvice: Codable, Identifiable {
     let priorityActions: [String]
 
     private enum CodingKeys: String, CodingKey {
-        case theme, summary, breakfast, lunch, dinner, exercise, hydration, breathing
+        case id, theme, summary, breakfast, lunch, dinner, exercise, hydration, breathing
         case sleepPreparation = "sleep_preparation"
         case weatherConsiderations = "weather_considerations"
         case priorityActions = "priority_actions"
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        self.id = try container.decodeIfPresent(UUID.self, forKey: .id) ?? UUID()
+        self.theme = try container.decode(String.self, forKey: .theme)
+        self.summary = try container.decode(String.self, forKey: .summary)
+        self.breakfast = try container.decode(MealAdvice.self, forKey: .breakfast)
+        self.lunch = try container.decode(MealAdvice.self, forKey: .lunch)
+        self.dinner = try container.decode(MealAdvice.self, forKey: .dinner)
+        self.exercise = try container.decode(ExerciseAdvice.self, forKey: .exercise)
+        self.hydration = try container.decode(HydrationAdvice.self, forKey: .hydration)
+        self.breathing = try container.decode(BreathingAdvice.self, forKey: .breathing)
+        self.sleepPreparation = try container.decode(SleepPreparationAdvice.self, forKey: .sleepPreparation)
+        self.weatherConsiderations = try container.decode(WeatherConsiderations.self, forKey: .weatherConsiderations)
+        self.priorityActions = try container.decode([String].self, forKey: .priorityActions)
     }
 }
 
@@ -90,9 +107,15 @@ struct MealAdvice: Codable {
     let avoid: [String]?
 }
 
+enum ExerciseIntensity: String, Codable {
+    case low = "Low"
+    case moderate = "Moderate"
+    case high = "High"
+}
+
 struct ExerciseAdvice: Codable {
     let recommendation: String
-    let intensity: String
+    let intensity: ExerciseIntensity
     let reason: String
     let timing: String
     let avoid: [String]

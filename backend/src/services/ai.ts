@@ -11,16 +11,17 @@
 
 import Anthropic from '@anthropic-ai/sdk'
 import type { DailyAdvice } from '../types/advice'
+import { DailyAdviceSchema } from '../types/advice'
 import type { HealthData, UserProfile } from '../types/health'
 import type { WeatherData } from '../types/weather'
 import { APIError } from '../utils/errors'
 import { buildPrompt } from '../utils/prompts'
 
 // AI設定定数
-const ANTHROPIC_MODEL = 'claude-sonnet-4'
+const ANTHROPIC_MODEL = 'claude-sonnet-4-20250514'
 const PLACEHOLDER_API_KEY = 'sk-ant-api03-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
 const MAX_TOKENS = 4000
-const TEMPERATURE = 0.7
+const TEMPERATURE = 0.3 // Lower temperature for consistent JSON output
 
 /**
  * AI分析関数のパラメータ型定義
@@ -100,56 +101,66 @@ export const analyzeHealth = async (
       )
     }
 
-    // Parse JSON response
-    let advice: DailyAdvice
+    // Parse and validate JSON response using zod schema
     try {
-      advice = JSON.parse(textContent.text) as DailyAdvice
-    } catch (_parseError) {
+      const parsedResponse = JSON.parse(textContent.text) as unknown
+      const validationResult = DailyAdviceSchema.safeParse(parsedResponse)
+
+      if (!validationResult.success) {
+        const details = validationResult.error.issues
+          .map(
+            (issue) => `${issue.path.join('.') || '(root)'}: ${issue.message}`,
+          )
+          .join('; ')
+
+        const validationMessage = `AI response missing required fields: ${details}`
+
+        throw new APIError(
+          validationMessage,
+          502,
+          'INVALID_AI_RESPONSE_STRUCTURE',
+        )
+      }
+
+      return validationResult.data as DailyAdvice
+    } catch (parseError) {
       console.error('Failed to parse AI response:', textContent.text)
+      if (parseError instanceof SyntaxError) {
+        throw new APIError(
+          'AI response is not valid JSON',
+          502,
+          'INVALID_JSON_RESPONSE',
+        )
+      }
+      if (parseError instanceof APIError) {
+        throw parseError
+      }
+      // Zod validation error
       throw new APIError(
-        'AI response is not valid JSON',
+        `AI response validation failed: ${parseError instanceof Error ? parseError.message : 'Unknown validation error'}`,
         502,
-        'INVALID_JSON_RESPONSE',
+        'INVALID_AI_RESPONSE_STRUCTURE',
       )
     }
-
-    // Validate required fields
-    if (
-      !advice.theme ||
-      !advice.summary ||
-      !advice.breakfast ||
-      !advice.exercise
-    ) {
-      throw new APIError(
-        'AI response missing required fields',
-        502,
-        'INCOMPLETE_AI_RESPONSE',
-      )
-    }
-
-    return advice
   } catch (error) {
     if (error instanceof APIError) {
       throw error
     }
 
+    // Check for specific Anthropic SDK errors
+    if (error instanceof Anthropic.AuthenticationError) {
+      throw new APIError('Invalid Claude API key', 401, 'INVALID_API_KEY')
+    }
+
+    if (error instanceof Anthropic.RateLimitError) {
+      throw new APIError(
+        'Claude API rate limit exceeded',
+        429,
+        'RATE_LIMIT_EXCEEDED',
+      )
+    }
+
     if (error instanceof Error) {
-      // Check for specific Anthropic errors
-      if (error.message.includes('authentication')) {
-        throw new APIError('Invalid Claude API key', 401, 'INVALID_API_KEY')
-      }
-
-      if (
-        error.message.includes('quota') ||
-        error.message.includes('rate limit')
-      ) {
-        throw new APIError(
-          'Claude API rate limit exceeded',
-          429,
-          'RATE_LIMIT_EXCEEDED',
-        )
-      }
-
       throw new APIError(
         `AI analysis failed: ${error.message}`,
         502,

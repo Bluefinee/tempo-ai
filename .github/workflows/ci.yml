@@ -1,4 +1,4 @@
-name: Continuous Integration
+name: CI
 
 on:
   push:
@@ -6,154 +6,94 @@ on:
   pull_request:
     branches: [main, develop]
 
-env:
-  NODE_VERSION: "20"
-  PNPM_VERSION: "9"
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  # Backend: TypeScript Linting, Type Checking, Testing, and Building
-  backend-quality:
-    name: Backend Quality Checks
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./backend
+  # Call Backend CI
+  backend:
+    name: Backend
+    uses: ./.github/workflows/backend.yml
+    secrets: inherit
 
-    outputs:
-      coverage-percent: ${{ steps.coverage.outputs.coverage-percent }}
+  # Call iOS CI
+  ios:
+    name: iOS
+    uses: ./.github/workflows/ios.yml
+    secrets: inherit
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+  # Call Coverage reporting (only on main branch)
+  coverage:
+    name: Coverage Report
+    needs: [backend]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    uses: ./.github/workflows/coverage.yml
+    with:
+      coverage-percent: ${{ needs.backend.outputs.coverage-percent }}
+    secrets: inherit
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: "pnpm"
-          cache-dependency-path: "./backend/pnpm-lock.yaml"
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Type check
-        run: pnpm run type-check
-
-      - name: Biome check (lint + format)
-        run: pnpm run check
-
-      - name: Run tests with coverage
-        run: pnpm run test:coverage
-
-      - name: Extract coverage percentage
-        id: coverage
-        run: |
-          if [ -f "coverage/coverage-summary.json" ]; then
-            COVERAGE=$(node -p "Math.round(JSON.parse(require('fs').readFileSync('./coverage/coverage-summary.json')).total.lines.pct)")
-            echo "coverage-percent=$COVERAGE" >> $GITHUB_OUTPUT
-            echo "📊 Test Coverage: $COVERAGE%"
-          else
-            echo "coverage-percent=0" >> $GITHUB_OUTPUT
-            echo "⚠️ No coverage data found"
-          fi
-
-      - name: Build API
-        run: pnpm run build
-
-      - name: Verify build output
-        run: |
-          if [[ ! -f "dist/index.js" ]]; then
-            echo "❌ Build output missing"
-            exit 1
-          fi
-          echo "✅ Build output verified"
-
-      - name: Check bundle size
-        run: |
-          BUNDLE_SIZE=$(stat -f%z dist/index.js 2>/dev/null || stat -c%s dist/index.js)
-          echo "📦 Bundle size: ${BUNDLE_SIZE} bytes"
-          if [[ $BUNDLE_SIZE -gt 5000000 ]]; then
-            echo "⚠️ Warning: Bundle size exceeds 5MB"
-          fi
-
-      - name: Upload coverage reports
-        uses: codecov/codecov-action@v4
-        if: always() && hashFiles('coverage/lcov.info') != ''
-        with:
-          file: ./coverage/lcov.info
-          flags: backend
-          name: backend-coverage
-          fail_ci_if_error: false
-
-
-  # CI Summary
+  # CI Summary - final status check
   ci-summary:
     name: CI Summary
+    needs: [backend, ios]
     runs-on: ubuntu-latest
     if: always()
-    needs: [backend-quality]
 
     steps:
-      - name: Check CI results
+      - name: Check results
         run: |
-          echo "📊 CI Pipeline Summary"
-          echo "====================="
-          echo ""
-          echo "🔧 Backend Quality: ${{ needs.backend-quality.result }}"
-
-          if [[ "${{ needs.backend-quality.outputs.coverage-percent }}" != "" ]]; then
-            echo "📈 Backend Coverage: ${{ needs.backend-quality.outputs.coverage-percent }}%"
-          fi
-
+          echo "🚀 CI Pipeline Results Summary"
+          echo "=============================="
           echo ""
 
-          if [[ "${{ needs.backend-quality.result }}" == "failure" ]]; then
-            echo "❌ CI Pipeline Failed"
-            echo "Please check the individual job logs for details."
-            exit 1
+          # Backend results
+          if [[ "${{ needs.backend.result }}" == "success" ]]; then
+            echo "✅ Backend: All checks passed"
+            echo "   - TypeScript compilation ✅"
+            echo "   - Linting & formatting ✅"  
+            echo "   - Tests & coverage ✅"
+            echo "   - Build verification ✅"
           else
-            echo "✅ CI Pipeline Successful"
-            echo "All quality checks passed!"
+            echo "❌ Backend: Failed (${{ needs.backend.result }})"
           fi
 
-      - name: Comment on PR
-        if: github.event_name == 'pull_request'
-        uses: actions/github-script@v7
-        continue-on-error: true
-        with:
-          script: |
-            const backendStatus = "${{ needs.backend-quality.result }}";
-            const coverage = "${{ needs.backend-quality.outputs.coverage-percent }}";
+          echo ""
 
-            const statusEmoji = (status) => status === 'success' ? '✅' : '❌';
+          # iOS results
+          if [[ "${{ needs.ios.result }}" == "success" ]]; then
+            echo "✅ iOS: All checks passed"
+            echo "   - SwiftLint analysis ✅"
+            echo "   - Code formatting ✅"
+            echo "   - Build validation ✅"
+            echo "   - Unit tests ✅"
+          else
+            echo "❌ iOS: Failed (${{ needs.ios.result }})"
+          fi
 
-            const comment = `
-            ## 🚀 Backend CI Results
+          echo ""
 
-            | Component | Status | Details |
-            |-----------|--------|---------|
-            | Backend Quality | ${statusEmoji(backendStatus)} ${backendStatus} | Type check, lint, test, build |
-            ${coverage ? `| Test Coverage | 📊 ${coverage}% | Test coverage report |` : ''}
+          # Overall status
+          if [[ "${{ needs.backend.result }}" == "success" && "${{ needs.ios.result }}" == "success" ]]; then
+            echo "🎉 Overall CI Status: SUCCESS"
+            echo "All quality checks and tests passed!"
+          else
+            echo "💥 Overall CI Status: FAILURE"
+            echo "One or more checks failed. Please review the logs above."
+            exit 1
+          fi
 
-            ${backendStatus === 'success' ? 
-              '🎉 All quality checks passed! Ready to merge.' : 
-              '⚠️ Backend checks failed. Please review the logs and fix the issues.'}
+      - name: Coverage info
+        if: needs.backend.outputs.coverage-percent != ''
+        run: |
+          echo ""
+          echo "📊 Test Coverage: ${{ needs.backend.outputs.coverage-percent }}%"
 
-            [View detailed logs](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
-            `;
-
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: comment
-            });
+          COVERAGE=${{ needs.backend.outputs.coverage-percent }}
+          if [ "${COVERAGE}" -ge 80 ]; then
+            echo "🎯 Excellent coverage!"
+          elif [ "${COVERAGE}" -ge 60 ]; then
+            echo "⚠️ Good coverage, but room for improvement"
+          else
+            echo "🚨 Coverage below recommended threshold (60%)"
+          fi

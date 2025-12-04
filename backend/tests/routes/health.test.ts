@@ -172,21 +172,6 @@ const mockAdviceResult = {
   priority_actions: ['水分補給', '軽い運動', '早めの就寝'],
 }
 
-// Mock context helper
-const createMockContext = (
-  body: unknown,
-  env: Record<string, string> = {},
-) => ({
-  req: {
-    json: vi.fn().mockResolvedValue(body),
-  },
-  json: vi.fn().mockImplementation((data, status) => ({ data, status })),
-  env: {
-    ANTHROPIC_API_KEY: 'test-api-key',
-    ...env,
-  },
-})
-
 describe('Health Routes', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -199,7 +184,7 @@ describe('Health Routes', () => {
 
   describe('POST /analyze', () => {
     it('should successfully analyze health data with valid request', async () => {
-      createMockContext(validRequestBody)
+      // Setup test context with valid request body
 
       const app = healthRoutes
       const response = await app.request(

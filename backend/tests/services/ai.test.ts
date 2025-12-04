@@ -156,8 +156,6 @@ describe('AI Service', () => {
     vi.clearAllMocks()
   })
 
-  // Removed costly test logic - not currently used
-
   describe('analyzeHealth', () => {
     it('should throw APIError when API key is missing', async () => {
       await expect(

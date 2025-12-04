@@ -13,11 +13,12 @@ import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { healthRoutes } from './routes/health'
 import { testRoutes } from './routes/test'
+import { handleError } from './utils/errors'
 
 /**
  * Cloudflare Workers 環境変数の型定義
  */
-type Bindings = {
+export type Bindings = {
   /** Anthropic Claude API キー */
   ANTHROPIC_API_KEY: string
 }
@@ -74,15 +75,16 @@ app.notFound((c): Response => {
 
 // Global error handler
 app.onError((err, c): Response => {
-  console.error('Unhandled error:', err)
+  const { message, statusCode } = handleError(err)
 
   return c.json(
     {
       success: false,
-      error: 'Internal Server Error - An unexpected error occurred',
+      error: message,
     },
-    500,
+    statusCode as 500,
   )
 })
 
+export { app }
 export default app

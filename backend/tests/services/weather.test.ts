@@ -190,21 +190,17 @@ describe('Weather Service', () => {
     it('should handle network errors', async () => {
       mockFetch.mockRejectedValueOnce(new Error('Network error'))
 
-      await expect(getWeather(35.6895, 139.6917)).rejects.toThrow(APIError)
-
-      await expect(getWeather(35.6895, 139.6917)).rejects.toThrow(
-        'Failed to fetch weather data',
-      )
+      const promise = getWeather(35.6895, 139.6917)
+      await expect(promise).rejects.toThrow(APIError)
+      await expect(promise).rejects.toThrow('Failed to fetch weather data')
     })
 
     it('should handle fetch throwing non-Error objects', async () => {
       mockFetch.mockRejectedValueOnce('string error')
 
-      await expect(getWeather(35.6895, 139.6917)).rejects.toThrow(APIError)
-
-      await expect(getWeather(35.6895, 139.6917)).rejects.toThrow(
-        'Failed to fetch weather data',
-      )
+      const promise = getWeather(35.6895, 139.6917)
+      await expect(promise).rejects.toThrow(APIError)
+      await expect(promise).rejects.toThrow('Failed to fetch weather data')
     })
 
     it('should throw APIError with correct error code for network failures', async () => {
@@ -225,11 +221,9 @@ describe('Weather Service', () => {
         json: () => Promise.reject(new Error('Invalid JSON')),
       })
 
-      await expect(getWeather(35.6895, 139.6917)).rejects.toThrow(APIError)
-
-      await expect(getWeather(35.6895, 139.6917)).rejects.toThrow(
-        'Failed to fetch weather data',
-      )
+      const promise = getWeather(35.6895, 139.6917)
+      await expect(promise).rejects.toThrow(APIError)
+      await expect(promise).rejects.toThrow('Failed to fetch weather data')
     })
 
     it('should preserve APIError when it is already thrown', async () => {

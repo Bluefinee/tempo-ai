@@ -47,6 +47,22 @@ interface PromptParams {
 export const buildPrompt = (params: PromptParams): string => {
   const { healthData, weather, userProfile } = params
 
+  // Input validation
+  if (
+    !healthData?.sleep ||
+    !healthData?.hrv ||
+    !healthData?.heartRate ||
+    !healthData?.activity
+  ) {
+    throw new Error('Invalid healthData: missing required fields')
+  }
+  if (!weather?.current || !weather?.daily) {
+    throw new Error('Invalid weather: missing required fields')
+  }
+  if (!userProfile?.age || !userProfile?.gender || !userProfile?.goals) {
+    throw new Error('Invalid userProfile: missing required fields')
+  }
+
   return `
 Analyze the following health data and weather conditions to provide personalized health advice for today.
 
@@ -59,26 +75,26 @@ USER PROFILE:
 - Exercise Frequency: ${userProfile.exerciseFrequency || 'Not specified'}
 
 HEALTH DATA (Last 24 hours):
-- Sleep Duration: ${healthData.sleep.duration} hours
-- Sleep Quality: Deep ${healthData.sleep.deep}h, REM ${healthData.sleep.rem}h, Light ${healthData.sleep.light}h
-- Sleep Efficiency: ${healthData.sleep.efficiency}%
-- Heart Rate Variability (HRV): ${healthData.hrv.average} ms (min: ${healthData.hrv.min}, max: ${healthData.hrv.max})
-- Resting Heart Rate: ${healthData.heartRate.resting} bpm
-- Average Heart Rate: ${healthData.heartRate.average} bpm
-- Steps: ${healthData.activity.steps}
-- Distance: ${healthData.activity.distance} km
-- Active Calories: ${healthData.activity.calories} kcal
-- Active Minutes: ${healthData.activity.activeMinutes}
+- Sleep Duration: ${healthData.sleep.duration ?? 'N/A'} hours
+- Sleep Quality: Deep ${healthData.sleep.deep ?? 0}h, REM ${healthData.sleep.rem ?? 0}h, Light ${healthData.sleep.light ?? 0}h
+- Sleep Efficiency: ${healthData.sleep.efficiency ?? 'N/A'}%
+- Heart Rate Variability (HRV): ${healthData.hrv.average ?? 'N/A'} ms (min: ${healthData.hrv.min ?? 'N/A'}, max: ${healthData.hrv.max ?? 'N/A'})
+- Resting Heart Rate: ${healthData.heartRate.resting ?? 'N/A'} bpm
+- Average Heart Rate: ${healthData.heartRate.average ?? 'N/A'} bpm
+- Steps: ${healthData.activity.steps ?? 0}
+- Distance: ${healthData.activity.distance ?? 0} km
+- Active Calories: ${healthData.activity.calories ?? 0} kcal
+- Active Minutes: ${healthData.activity.activeMinutes ?? 0}
 
 WEATHER CONDITIONS:
-- Current Temperature: ${weather.current.temperature_2m}°C
-- Feels Like: ${weather.current.apparent_temperature}°C
-- Humidity: ${weather.current.relative_humidity_2m}%
-- Max Temperature Today: ${weather.daily.temperature_2m_max[0]}°C
-- Min Temperature Today: ${weather.daily.temperature_2m_min[0]}°C
-- UV Index: ${weather.daily.uv_index_max[0]}
-- Precipitation: ${weather.current.precipitation}mm
-- Wind Speed: ${weather.current.wind_speed_10m} km/h
+- Current Temperature: ${weather.current.temperature_2m ?? 'N/A'}°C
+- Feels Like: ${weather.current.apparent_temperature ?? 'N/A'}°C
+- Humidity: ${weather.current.relative_humidity_2m ?? 'N/A'}%
+- Max Temperature Today: ${weather.daily.temperature_2m_max?.[0] ?? 'N/A'}°C
+- Min Temperature Today: ${weather.daily.temperature_2m_min?.[0] ?? 'N/A'}°C
+- UV Index: ${weather.daily.uv_index_max?.[0] ?? 'N/A'}
+- Precipitation: ${weather.current.precipitation ?? 0}mm
+- Wind Speed: ${weather.current.wind_speed_10m ?? 'N/A'} km/h
 
 Based on this data, provide comprehensive health advice in the following JSON structure. Be specific and actionable:
 

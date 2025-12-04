@@ -9,6 +9,7 @@ Modern Swift development following Apple's API Design Guidelines, emphasizing ty
 ## 📝 Naming Conventions
 
 ### Types & Properties
+
 ```swift
 // ✅ Types: PascalCase
 struct HealthData { }
@@ -27,6 +28,7 @@ var canFetchData: Bool = false
 ```
 
 ### Constants & Configuration
+
 ```swift
 // ✅ camelCase for Swift constants (not SCREAMING_SNAKE_CASE)
 private let maxRetryCount: Int = 3
@@ -39,6 +41,7 @@ private let apiBaseURL: String = "https://api.tempo-ai.com"
 ## 🔧 Type Safety & Explicit Declarations
 
 ### Explicit Type Requirements
+
 ```swift
 // ✅ ALWAYS declare property types explicitly
 class APIClient: ObservableObject {
@@ -56,6 +59,7 @@ static let shared = APIClient()  // Type unclear
 ```
 
 ### SwiftUI State Management
+
 ```swift
 // ✅ Explicit types for all State properties
 struct HomeView: View {
@@ -70,7 +74,8 @@ struct HomeView: View {
 ## 🏗️ Architecture Patterns
 
 ### File Organization
-```
+
+```text
 TempoAI/
 ├── App/
 │   ├── TempoAIApp.swift       # App entry point
@@ -93,6 +98,7 @@ TempoAI/
 ```
 
 ### View Decomposition (400 line limit)
+
 ```swift
 // ✅ Break down large views
 struct HomeView: View {
@@ -120,6 +126,7 @@ struct HeaderSection: View {
 ## 📏 Code Formatting
 
 ### Line Length & Structure
+
 ```swift
 // ✅ Max 120 characters, logical breaks
 func analyzeHealth(

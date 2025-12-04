@@ -49,8 +49,23 @@ export const getWeather = async (
       )
     }
 
-    const data = (await response.json()) as WeatherData
-    return data
+    const data = (await response.json()) as unknown
+
+    // Basic validation of required fields
+    if (
+      !data ||
+      typeof data !== 'object' ||
+      !('current' in data) ||
+      !('daily' in data)
+    ) {
+      throw new APIError(
+        'Invalid weather data format received from API',
+        503,
+        'WEATHER_DATA_INVALID',
+      )
+    }
+
+    return data as WeatherData
   } catch (error) {
     if (error instanceof APIError) {
       throw error

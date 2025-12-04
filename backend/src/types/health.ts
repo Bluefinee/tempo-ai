@@ -29,11 +29,17 @@ export interface HealthData {
  * HealthKitから取得される睡眠分析結果
  */
 export interface SleepData {
+  /** 睡眠時間（時間単位） */
   duration: number
+  /** 深い睡眠時間（時間単位） */
   deep: number
+  /** REM睡眠時間（時間単位） */
   rem: number
+  /** 浅い睡眠時間（時間単位） */
   light: number
+  /** 覚醒時間（時間単位） */
   awake: number
+  /** 睡眠効率（パーセント） */
   efficiency: number
 }
 
@@ -75,7 +81,7 @@ export interface ActivityData {
  */
 export interface UserProfile {
   age: number
-  gender: string
+  gender: 'male' | 'female' | 'other' | 'prefer_not_to_say'
   goals: string[]
   dietaryPreferences: string
   exerciseHabits: string

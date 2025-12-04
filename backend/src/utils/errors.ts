@@ -28,6 +28,20 @@ export class APIError extends Error {
   ) {
     super(message)
     this.name = 'APIError'
+
+    // Ensure proper prototype chain for instanceof checks
+    Object.setPrototypeOf(this, APIError.prototype)
+
+    // Capture stack trace in V8 environments
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, this.constructor)
+    } else {
+      // Fallback for environments without captureStackTrace
+      const errorStack = new Error(message).stack
+      if (errorStack) {
+        this.stack = errorStack
+      }
+    }
   }
 }
 

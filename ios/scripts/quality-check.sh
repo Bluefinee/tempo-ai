@@ -6,18 +6,33 @@ echo "🔍 Running Swift quality checks..."
 # Check if SwiftLint is installed
 if ! command -v swiftlint &> /dev/null; then
     echo "⚠️ SwiftLint not found. Installing..."
-    brew install swiftlint
+    if command -v brew &> /dev/null; then
+        brew install swiftlint
+    else
+        echo "❌ SwiftLint required but not found and Homebrew unavailable"
+        echo "Install via: brew install swiftlint (macOS) or via your package manager"
+        exit 1
+    fi
 fi
 
 # Check if swift-format is installed
 if ! command -v swift-format &> /dev/null; then
     echo "⚠️ swift-format not found. Installing..."
-    brew install swift-format
+    if command -v brew &> /dev/null; then
+        brew install swift-format
+    else
+        echo "❌ swift-format required but not found and Homebrew unavailable"
+        echo "Install via: brew install swift-format (macOS) or via your package manager"
+        exit 1
+    fi
 fi
 
 # SwiftLint check
 echo "📝 Running SwiftLint..."
-if swiftlint --strict; then
+SWIFTLINT_CACHE_PATH="${PWD}/.swiftlint_cache"
+mkdir -p "$SWIFTLINT_CACHE_PATH"
+export SWIFTLINT_CACHE_PATH
+if swiftlint --strict --no-cache; then
     echo "✅ SwiftLint passed"
 else
     echo "❌ SwiftLint failed"
@@ -35,24 +50,29 @@ else
     exit 1
 fi
 
-# Build check (型チェック相当)
+# Build check (type checking equivalent)
 echo "🔨 Building iOS project..."
-if SIM_OUTPUT=$(xcrun simctl list devices available 2>/dev/null) && [ -n "$SIM_OUTPUT" ]; then
-    SIMULATOR_ID=$(echo "$SIM_OUTPUT" | grep -m 1 "iPhone" | awk -F '[()]' '{print $2}')
-    if [ -n "$SIMULATOR_ID" ]; then
-        DESTINATION="platform=iOS Simulator,id=$SIMULATOR_ID"
-        BUILD_CMD=(xcodebuild -project TempoAI/TempoAI.xcodeproj -scheme TempoAI -destination "$DESTINATION" build)
-    else
-        BUILD_CMD=()
-    fi
-else
-    echo "⚠️ Simulator services unavailable; falling back to generic iOS build"
-    BUILD_CMD=(xcodebuild -project TempoAI/TempoAI.xcodeproj -scheme TempoAI -destination 'generic/platform=iOS' build)
+PROJECT_PATH="TempoAI/TempoAI.xcodeproj"
+SCHEME="TempoAI"
+
+# Validate prerequisites
+if ! command -v xcodebuild >/dev/null 2>&1; then
+    echo "❌ xcodebuild not found"
+    exit 1
 fi
 
-if [ ${#BUILD_CMD[@]} -eq 0 ]; then
-    echo "⚠️ No available simulator detected; falling back to generic iOS build"
-    BUILD_CMD=(xcodebuild -project TempoAI/TempoAI.xcodeproj -scheme TempoAI -destination 'generic/platform=iOS' build)
+if [ ! -d "$PROJECT_PATH" ]; then
+    echo "❌ Project not found at $PROJECT_PATH"
+    exit 1
+fi
+
+# Try to build with simulator if available, otherwise use generic iOS destination
+if SIMULATOR_ID=$(xcrun simctl list devices available 2>/dev/null | grep -m 1 "iPhone" | awk -F '[()]' '{print $2}') && [ -n "$SIMULATOR_ID" ]; then
+    echo "📱 Using iPhone simulator: $SIMULATOR_ID"
+    BUILD_CMD=(xcodebuild -project "$PROJECT_PATH" -scheme "$SCHEME" -destination "platform=iOS Simulator,id=$SIMULATOR_ID" -derivedDataPath "${PWD}/DerivedData" build)
+else
+    echo "⚠️ No simulator available; using generic iOS Simulator destination"
+    BUILD_CMD=(xcodebuild -project "$PROJECT_PATH" -scheme "$SCHEME" -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath "${PWD}/DerivedData" build)
 fi
 
 if "${BUILD_CMD[@]}" > /dev/null 2>&1; then

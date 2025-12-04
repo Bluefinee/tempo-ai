@@ -9,6 +9,14 @@ on:
     # Run security scan daily at 2 AM UTC
     - cron: "0 2 * * *"
 
+env:
+  NODE_VERSION: "20"
+  PNPM_VERSION: "9"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   dependency-audit:
     name: Dependency Security Audit
@@ -18,112 +26,168 @@ jobs:
         working-directory: ./backend
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "18"
+          node-version: ${{ env.NODE_VERSION }}
           cache: "pnpm"
           cache-dependency-path: "./backend/pnpm-lock.yaml"
-
-      - name: Enable Corepack (pnpm)
-        run: corepack enable
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 8
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Security audit
         run: pnpm audit --audit-level high
+        continue-on-error: false
 
-  dependency-review:
-    name: Dependency Review
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
+      - name: Generate audit report
+        if: always()
+        run: |
+          echo "📋 Dependency Audit Summary" > audit-summary.txt
+          echo "=============================" >> audit-summary.txt
+          pnpm audit --json 2>/dev/null | jq -r '
+            if .metadata then
+              "Total vulnerabilities: " + (.metadata.vulnerabilities.total | tostring) + "\n" +
+              "Critical: " + (.metadata.vulnerabilities.critical | tostring) + "\n" +
+              "High: " + (.metadata.vulnerabilities.high | tostring) + "\n" +
+              "Moderate: " + (.metadata.vulnerabilities.moderate | tostring) + "\n" +
+              "Low: " + (.metadata.vulnerabilities.low | tostring)
+            else
+              "No vulnerabilities found"
+            end
+          ' >> audit-summary.txt || echo "No vulnerabilities found" >> audit-summary.txt
+          cat audit-summary.txt
 
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Dependency Review
-        uses: actions/dependency-review-action@v3
+      - name: Upload audit report
+        uses: actions/upload-artifact@v4
+        if: always()
         with:
-          fail-on-severity: high
-          deny-licenses: GPL-2.0, GPL-3.0
+          name: dependency-audit-report-${{ github.run_id }}
+          path: backend/audit-summary.txt
+          retention-days: 30
 
   vulnerability-scan:
     name: Vulnerability Scanning
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@v0.20.0
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          scan-type: "fs"
+          scan-ref: "."
+          format: "table"
+          exit-code: "1"
+          severity: "CRITICAL,HIGH"
+          
+      - name: Run Trivy scanner for SARIF report
+        uses: aquasecurity/trivy-action@0.24.0
+        if: always()
         with:
           scan-type: "fs"
           scan-ref: "."
           format: "sarif"
           output: "trivy-results.sarif"
+          severity: "CRITICAL,HIGH,MEDIUM,LOW"
 
-      - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3
+      - name: Upload Trivy scan results
+        uses: actions/upload-artifact@v4
         if: always()
         with:
-          sarif_file: "trivy-results.sarif"
+          name: trivy-scan-results-${{ github.run_id }}
+          path: trivy-results.sarif
+          retention-days: 30
 
-  codeql-analysis:
-    name: CodeQL Security Analysis
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        language: [javascript-typescript, swift]
-    permissions:
-      actions: read
-      contents: read
-      security-events: write
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
-        with:
-          languages: ${{ matrix.language }}
-
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v3
-
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
-        with:
-          category: "/language:${{ matrix.language }}"
+  # TODO: Enable when GitHub Advanced Security is available
+  # dependency-review:
+  #   name: Dependency Review
+  #   runs-on: ubuntu-latest
+  #   if: github.event_name == 'pull_request'
+  #   steps:
+  #     - name: Checkout Repository
+  #       uses: actions/checkout@v4
+  #     - name: Dependency Review
+  #       uses: actions/dependency-review-action@v4
+  #       with:
+  #         fail-on-severity: high
 
   security-summary:
     name: Security Summary
     runs-on: ubuntu-latest
-    needs: [dependency-audit, vulnerability-scan, codeql-analysis]
+    needs: [dependency-audit, vulnerability-scan]
     if: always()
 
     steps:
       - name: Check security scan results
         run: |
+          echo "🔒 Security Scan Summary"
+          echo "========================"
+          echo ""
+          echo "🔒 Dependency Audit: ${{ needs.dependency-audit.result }}"
+          echo "🔍 Vulnerability Scan: ${{ needs.vulnerability-scan.result }}"
+          echo ""
+          
           if [[ "${{ needs.dependency-audit.result }}" == "failure" || 
-                "${{ needs.vulnerability-scan.result }}" == "failure" || 
-                "${{ needs.codeql-analysis.result }}" == "failure" ]]; then
-            echo "⚠️ Security issues detected"
-            echo "Please review the Security tab for details"
+                "${{ needs.vulnerability-scan.result }}" == "failure" ]]; then
+            echo "⚠️ Security issues detected!"
+            echo ""
+            echo "📋 Next Steps:"
+            echo "1. Review the individual scan logs for details"
+            echo "2. Update vulnerable dependencies where possible"
+            echo "3. Assess risk for any remaining vulnerabilities"
+            echo "4. Consider adding exceptions for false positives"
+            echo ""
+            echo "🔗 Scan artifacts are available in the workflow run"
             exit 1
           else
-            echo "✅ No security issues detected"
-            echo "🔒 Dependency Audit: ${{ needs.dependency-audit.result }}"
-            echo "🔍 Vulnerability Scan: ${{ needs.vulnerability-scan.result }}"
-            echo "🛡️ CodeQL Analysis: ${{ needs.codeql-analysis.result }}"
+            echo "✅ No critical security issues detected"
+            echo ""
+            echo "🔒 All dependency audits passed"
+            echo "🔍 All vulnerability scans passed"
+            echo ""
+            echo "ℹ️  Note: Advanced security features (CodeQL, Dependency Review)"
+            echo "    require GitHub Advanced Security and are currently disabled."
           fi
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const auditStatus = "${{ needs.dependency-audit.result }}";
+            const scanStatus = "${{ needs.vulnerability-scan.result }}";
+            
+            const statusEmoji = (status) => status === 'success' ? '✅' : '❌';
+            
+            const comment = `
+            ## 🔒 Security Scan Results
+            
+            | Check | Status | Description |
+            |-------|--------|-------------|
+            | Dependency Audit | ${statusEmoji(auditStatus)} ${auditStatus} | npm/pnpm audit for vulnerable packages |
+            | Vulnerability Scan | ${statusEmoji(scanStatus)} ${scanStatus} | Trivy filesystem security scan |
+            
+            ${auditStatus === 'success' && scanStatus === 'success' ? 
+              '🎉 No critical security issues detected!' : 
+              '⚠️ Security issues found. Please review the scan results and address any critical vulnerabilities.'}
+            
+            💡 **Tip:** Review the [security scan artifacts](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) for detailed reports.
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });

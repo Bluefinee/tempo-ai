@@ -19,7 +19,10 @@
       "Bash(pnpm test:*)",
       "Bash(./scripts/quality-check-all.sh:*)",
       "Bash(mv:*)",
-      "Bash(xcodebuild:*)"
+      "Bash(xcodebuild:*)",
+      "Bash(gh run list:*)",
+      "Bash(gh pr view:*)",
+      "Bash(python3:*)"
     ],
     "deny": [],
     "ask": []

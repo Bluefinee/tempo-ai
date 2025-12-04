@@ -6,46 +6,322 @@ on:
   pull_request:
     branches: [main, develop]
 
-jobs:
-  # This workflow orchestrates all quality checks
-  quality-gate:
-    name: Quality Gate
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Trigger parallel quality checks
-        run: |
-          echo "🚀 Starting parallel CI pipeline..."
-          echo ""
-          echo "Running workflows:"
-          echo "  📝 Linting & Formatting (lint.yml)"
-          echo "  🧪 Backend Testing (test.yml)" 
-          echo "  📱 iOS Testing (ios-tests.yml)"
-          echo "  🏗️ Build Verification (build.yml)"
-          echo "  🔒 Security Scanning (security.yml)"
-          echo ""
-          echo "⏱️ Expected completion: ~8-12 minutes"
+env:
+  NODE_VERSION: "20"
+  PNPM_VERSION: "9"
+  XCODE_VERSION: "15.2"
+  IOS_DESTINATION: "platform=iOS Simulator,name=iPhone 15,OS=17.0"
 
-  # Meta-job that provides CI status overview
-  integration-status:
-    name: Integration Status
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Backend: TypeScript Linting, Type Checking, Testing, and Building
+  backend-quality:
+    name: Backend Quality Checks
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
+
+    outputs:
+      coverage-percent: ${{ steps.coverage.outputs.coverage-percent }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+          cache-dependency-path: "./backend/pnpm-lock.yaml"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Type check
+        run: pnpm run type-check
+
+      - name: Biome check (lint + format)
+        run: pnpm run check
+
+      - name: Run tests with coverage
+        run: pnpm run test:coverage
+
+      - name: Extract coverage percentage
+        id: coverage
+        run: |
+          if [ -f "coverage/coverage-summary.json" ]; then
+            COVERAGE=$(node -p "Math.round(JSON.parse(require('fs').readFileSync('./coverage/coverage-summary.json')).total.lines.pct)")
+            echo "coverage-percent=$COVERAGE" >> $GITHUB_OUTPUT
+            echo "📊 Test Coverage: $COVERAGE%"
+          else
+            echo "coverage-percent=0" >> $GITHUB_OUTPUT
+            echo "⚠️ No coverage data found"
+          fi
+
+      - name: Build API
+        run: pnpm run build
+
+      - name: Verify build output
+        run: |
+          if [[ ! -f "dist/index.js" ]]; then
+            echo "❌ Build output missing"
+            exit 1
+          fi
+          echo "✅ Build output verified"
+
+      - name: Check bundle size
+        run: |
+          BUNDLE_SIZE=$(stat -f%z dist/index.js 2>/dev/null || stat -c%s dist/index.js)
+          echo "📦 Bundle size: ${BUNDLE_SIZE} bytes"
+          if [[ $BUNDLE_SIZE -gt 5000000 ]]; then
+            echo "⚠️ Warning: Bundle size exceeds 5MB"
+          fi
+
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v4
+        if: always()
+        with:
+          file: ./backend/coverage/lcov.info
+          flags: backend
+          name: backend-coverage
+
+  # iOS: SwiftLint, Testing, and Building
+  ios-quality:
+    name: iOS Quality Checks
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: ${{ env.XCODE_VERSION }}
+
+      - name: Cache Xcode DerivedData
+        uses: actions/cache@v4
+        with:
+          path: ~/Library/Developer/Xcode/DerivedData
+          key: ${{ runner.os }}-xcode-deriveddata-${{ hashFiles('ios/TempoAI/TempoAI.xcodeproj/project.pbxproj') }}
+          restore-keys: |
+            ${{ runner.os }}-xcode-deriveddata-
+
+      - name: Install SwiftLint
+        run: |
+          if ! command -v swiftlint &> /dev/null; then
+            brew install swiftlint
+          fi
+
+      - name: Run SwiftLint
+        working-directory: ./ios/TempoAI
+        run: swiftlint --strict
+        continue-on-error: true
+
+      - name: Create iOS Simulator
+        run: |
+          DEVICE_UDID=$(xcrun simctl create "CI-Test-iPhone" "com.apple.CoreSimulator.SimDeviceType.iPhone-15" "com.apple.CoreSimulator.SimRuntime.iOS-17-2")
+          echo "SIMULATOR_UDID=$DEVICE_UDID" >> $GITHUB_ENV
+          xcrun simctl boot "$DEVICE_UDID"
+
+      - name: Wait for simulator to boot
+        run: |
+          timeout=120
+          elapsed=0
+          while [ "$(xcrun simctl list devices | grep "${{ env.SIMULATOR_UDID }}" | grep -o "Booted\|Shutdown")" != "Booted" ]; do
+            if [ $elapsed -ge $timeout ]; then
+              echo "❌ Simulator failed to boot within $timeout seconds"
+              exit 1
+            fi
+            echo "Waiting for simulator to boot... ($elapsed/$timeout)"
+            sleep 5
+            elapsed=$((elapsed + 5))
+          done
+          echo "✅ Simulator booted successfully"
+
+      - name: Build iOS App for Testing
+        working-directory: ./ios/TempoAI
+        run: |
+          xcodebuild clean build-for-testing \
+            -project TempoAI.xcodeproj \
+            -scheme TempoAI \
+            -destination "platform=iOS Simulator,id=${{ env.SIMULATOR_UDID }}" \
+            -configuration Debug \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            -quiet
+
+      - name: Run iOS Tests
+        working-directory: ./ios/TempoAI
+        run: |
+          xcodebuild test-without-building \
+            -project TempoAI.xcodeproj \
+            -scheme TempoAI \
+            -destination "platform=iOS Simulator,id=${{ env.SIMULATOR_UDID }}" \
+            -configuration Debug \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            -enableCodeCoverage YES \
+            -resultBundlePath TestResults.xcresult
+
+      - name: Parse Test Results
+        working-directory: ./ios/TempoAI
+        run: |
+          if [ -d "TestResults.xcresult" ]; then
+            xcrun xcresulttool get --format json --path TestResults.xcresult > test_results.json
+            echo "✅ iOS tests completed successfully"
+          else
+            echo "❌ No test results found"
+            exit 1
+          fi
+
+      - name: Generate iOS Coverage Report
+        working-directory: ./ios/TempoAI
+        run: |
+          if [ -d "TestResults.xcresult" ]; then
+            xcrun xcresulttool get --format json --path TestResults.xcresult > coverage_results.json
+            echo "📊 iOS coverage report generated"
+          fi
+        continue-on-error: true
+
+      - name: Upload iOS Test Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ios-test-results-${{ github.run_id }}
+          path: |
+            ios/TempoAI/TestResults.xcresult
+            ios/TempoAI/test_results.json
+            ios/TempoAI/coverage_results.json
+          retention-days: 30
+
+      - name: Cleanup Simulator
+        if: always()
+        run: |
+          if [ ! -z "${{ env.SIMULATOR_UDID }}" ]; then
+            xcrun simctl shutdown "${{ env.SIMULATOR_UDID }}" || true
+            xcrun simctl delete "${{ env.SIMULATOR_UDID }}" || true
+          fi
+
+  # Release Build (only on main branch)
+  ios-release-build:
+    name: iOS Release Build
+    runs-on: macos-14
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: [ios-quality]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: ${{ env.XCODE_VERSION }}
+
+      - name: Build Release Archive
+        working-directory: ./ios/TempoAI
+        run: |
+          xcodebuild clean archive \
+            -project TempoAI.xcodeproj \
+            -scheme TempoAI \
+            -configuration Release \
+            -destination "generic/platform=iOS" \
+            -archivePath TempoAI.xcarchive \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            -quiet
+
+      - name: Validate Archive
+        working-directory: ./ios/TempoAI
+        run: |
+          if [ -d "TempoAI.xcarchive" ]; then
+            echo "✅ Archive created successfully"
+            ls -la TempoAI.xcarchive/
+          else
+            echo "❌ Archive creation failed"
+            exit 1
+          fi
+
+      - name: Upload Archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-archive-${{ github.run_id }}
+          path: ios/TempoAI/TempoAI.xcarchive
+          retention-days: 30
+
+  # CI Summary
+  ci-summary:
+    name: CI Summary
     runs-on: ubuntu-latest
     if: always()
-    
+    needs: [backend-quality, ios-quality]
+
     steps:
-      - name: Check overall CI status
+      - name: Check CI results
         run: |
-          echo "📊 CI Pipeline Status Report"
-          echo "=============================="
+          echo "📊 CI Pipeline Summary"
+          echo "====================="
           echo ""
-          echo "🔗 Check individual workflow results:"
-          echo "  - Lint: https://github.com/${{ github.repository }}/actions/workflows/lint.yml"
-          echo "  - Backend Test: https://github.com/${{ github.repository }}/actions/workflows/test.yml"
-          echo "  - iOS Test: https://github.com/${{ github.repository }}/actions/workflows/ios-tests.yml"
-          echo "  - Build: https://github.com/${{ github.repository }}/actions/workflows/build.yml"
-          echo "  - Security: https://github.com/${{ github.repository }}/actions/workflows/security.yml"
+          echo "🔧 Backend Quality: ${{ needs.backend-quality.result }}"
+          echo "📱 iOS Quality: ${{ needs.ios-quality.result }}"
+
+          if [[ "${{ needs.backend-quality.outputs.coverage-percent }}" != "" ]]; then
+            echo "📈 Backend Coverage: ${{ needs.backend-quality.outputs.coverage-percent }}%"
+          fi
+
           echo ""
-          echo "✨ CodeRabbit will review this PR based on:"
-          echo "  - CLAUDE.md project standards"
-          echo "  - .claude/typescript-hono-standards.md"
-          echo "  - .claude/swift-coding-standards.md"
+
+          if [[ "${{ needs.backend-quality.result }}" == "failure" || 
+                "${{ needs.ios-quality.result }}" == "failure" ]]; then
+            echo "❌ CI Pipeline Failed"
+            echo "Please check the individual job logs for details."
+            exit 1
+          else
+            echo "✅ CI Pipeline Successful"
+            echo "All quality checks passed!"
+          fi
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const backendStatus = "${{ needs.backend-quality.result }}";
+            const iosStatus = "${{ needs.ios-quality.result }}";
+            const coverage = "${{ needs.backend-quality.outputs.coverage-percent }}";
+
+            const statusEmoji = (status) => status === 'success' ? '✅' : '❌';
+
+            const comment = `
+            ## 🚀 CI Pipeline Results
+
+            | Component | Status | Details |
+            |-----------|--------|---------|
+            | Backend Quality | ${statusEmoji(backendStatus)} ${backendStatus} | Type check, lint, test, build |
+            | iOS Quality | ${statusEmoji(iosStatus)} ${iosStatus} | SwiftLint, test, build |
+            ${coverage ? `| Backend Coverage | 📊 ${coverage}% | Test coverage report |` : ''}
+
+            ${backendStatus === 'success' && iosStatus === 'success' ? 
+              '🎉 All quality checks passed! Ready to merge.' : 
+              '⚠️ Some checks failed. Please review the logs and fix the issues.'}
+
+            [View detailed logs](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            `;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });

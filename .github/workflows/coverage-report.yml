@@ -8,6 +8,10 @@ on:
     types:
       - completed
 
+env:
+  NODE_VERSION: "20"
+  PNPM_VERSION: "9"
+
 permissions:
   contents: read
   pages: write
@@ -30,20 +34,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "18"
+          node-version: ${{ env.NODE_VERSION }}
           cache: "pnpm"
-          cache-dependency-path: backend/pnpm-lock.yaml
-
-      - name: Enable Corepack (pnpm)
-        run: corepack enable
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 8
+          cache-dependency-path: "./backend/pnpm-lock.yaml"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -73,9 +74,25 @@ jobs:
       - name: Create coverage summary page
         run: |
           mkdir -p ./public
-          cat > ./public/index.html << 'EOF'
+          
+          # Get current timestamp
+          CURRENT_TIME=$(date '+%Y-%m-%d %H:%M:%S UTC')
+          
+          # Determine status emoji based on coverage
+          if [ $COVERAGE -ge 80 ]; then
+            STATUS_EMOJI="✅"
+            STATUS_COLOR="#28a745"
+          elif [ $COVERAGE -ge 60 ]; then
+            STATUS_EMOJI="⚠️"
+            STATUS_COLOR="#ffa500"
+          else
+            STATUS_EMOJI="❌"
+            STATUS_COLOR="#dc3545"
+          fi
+          
+          cat > ./public/index.html << EOF
           <!DOCTYPE html>
-          <html lang="ja">
+          <html lang="en">
           <head>
               <meta charset="UTF-8">
               <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -119,11 +136,13 @@ jobs:
                   .metric h3 {
                       margin: 0 0 10px 0;
                       color: #586069;
+                      font-size: 14px;
+                      font-weight: 600;
                   }
                   .metric .value {
                       font-size: 2em;
                       font-weight: bold;
-                      color: #28a745;
+                      color: $STATUS_COLOR;
                   }
                   .links {
                       margin-top: 30px;
@@ -138,6 +157,7 @@ jobs:
                       text-decoration: none;
                       border-radius: 6px;
                       margin-right: 10px;
+                      margin-bottom: 10px;
                   }
                   .btn:hover {
                       background: #0256cc;
@@ -148,46 +168,57 @@ jobs:
               <div class="container">
                   <div class="header">
                       <h1>🧪 Tempo AI - Test Coverage Report</h1>
-                      <p>自動生成されたテストカバレッジレポート</p>
+                      <p>Automatically generated test coverage report</p>
                       <div class="coverage-badge">
                           <img src="$COVERAGE_BADGE_URL" alt="Coverage Badge">
                       </div>
-                      <p><strong>最終更新:</strong> $(date)</p>
+                      <p><strong>Last Updated:</strong> $CURRENT_TIME</p>
                   </div>
                   
                   <div class="metrics">
                       <div class="metric">
-                          <h3>総合カバレッジ</h3>
+                          <h3>Overall Coverage</h3>
                           <div class="value">$COVERAGE_PERCENT%</div>
                       </div>
                       <div class="metric">
-                          <h3>品質ゲート</h3>
+                          <h3>Quality Gate</h3>
                           <div class="value">80%</div>
                       </div>
                       <div class="metric">
-                          <h3>テスト数</h3>
-                          <div class="value">58+</div>
+                          <h3>Test Status</h3>
+                          <div class="value">$STATUS_EMOJI</div>
                       </div>
                       <div class="metric">
-                          <h3>ステータス</h3>
-                          <div class="value">✅</div>
+                          <h3>Platform</h3>
+                          <div class="value">Backend</div>
                       </div>
                   </div>
                   
-                  <h2>📋 カバレッジ詳細</h2>
-                  <p>詳細なカバレッジレポートは以下のHTMLファイルで確認できます:</p>
+                  <h2>📋 Coverage Details</h2>
+                  <p>Detailed coverage report is available in the HTML files below:</p>
                   
                   <div class="links">
-                      <a href="./html/index.html" class="btn">📄 詳細HTMLレポート</a>
-                      <a href="https://github.com/tempo-ai/tempo-ai" class="btn">📚 GitHub Repository</a>
+                      <a href="./html/index.html" class="btn">📄 Detailed HTML Report</a>
+                      <a href="https://github.com/$GITHUB_REPOSITORY" class="btn">📚 GitHub Repository</a>
+                      <a href="https://github.com/$GITHUB_REPOSITORY/actions" class="btn">🔄 CI/CD Pipeline</a>
                   </div>
                   
-                  <h2>🎯 テスト駆動開発（TDD）統計</h2>
+                  <h2>🎯 Test-Driven Development (TDD) Statistics</h2>
                   <ul>
-                      <li>TypeScript API: 包括的なユニットテスト</li>
-                      <li>iOS App: HealthKit、API、Location マネージャーテスト</li>
-                      <li>統合テスト: エンドツーエンドAPIテスト</li>
-                      <li>品質ゲート: 80%カバレッジ必須</li>
+                      <li><strong>TypeScript API:</strong> Comprehensive unit tests for all endpoints</li>
+                      <li><strong>iOS App:</strong> HealthKit, API, and Location manager tests</li>
+                      <li><strong>Integration Tests:</strong> End-to-end API testing</li>
+                      <li><strong>Quality Gate:</strong> 80% coverage requirement</li>
+                      <li><strong>CI/CD:</strong> Automated testing on every commit</li>
+                  </ul>
+                  
+                  <h2>📊 Coverage Metrics</h2>
+                  <p>This report includes the following metrics:</p>
+                  <ul>
+                      <li>Statement coverage</li>
+                      <li>Branch coverage</li> 
+                      <li>Function coverage</li>
+                      <li>Line coverage</li>
                   </ul>
               </div>
           </body>

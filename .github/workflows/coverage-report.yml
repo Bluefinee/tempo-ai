@@ -79,10 +79,10 @@ jobs:
           CURRENT_TIME=$(date '+%Y-%m-%d %H:%M:%S UTC')
           
           # Determine status emoji based on coverage
-          if [ $COVERAGE -ge 80 ]; then
+          if [ $COVERAGE_PERCENT -ge 80 ]; then
             STATUS_EMOJI="✅"
             STATUS_COLOR="#28a745"
-          elif [ $COVERAGE -ge 60 ]; then
+          elif [ $COVERAGE_PERCENT -ge 60 ]; then
             STATUS_EMOJI="⚠️"
             STATUS_COLOR="#ffa500"
           else

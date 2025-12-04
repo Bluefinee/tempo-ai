@@ -1,0 +1,140 @@
+import Foundation
+
+// MARK: - Health Data Models
+struct HealthData: Codable {
+    let sleep: SleepData
+    let hrv: HRVData
+    let heartRate: HeartRateData
+    let activity: ActivityData
+}
+
+struct SleepData: Codable {
+    let duration: Double
+    let deep: Double
+    let rem: Double
+    let light: Double
+    let awake: Double
+    let efficiency: Int
+}
+
+struct HRVData: Codable {
+    let average: Double
+    let min: Double
+    let max: Double
+}
+
+struct HeartRateData: Codable {
+    let resting: Int
+    let average: Int
+    let min: Int
+    let max: Int
+}
+
+struct ActivityData: Codable {
+    let steps: Int
+    let distance: Double
+    let calories: Int
+    let activeMinutes: Int
+}
+
+// MARK: - Location & User Profile
+struct LocationData: Codable {
+    let latitude: Double
+    let longitude: Double
+}
+
+struct UserProfile: Codable {
+    let age: Int
+    let gender: String
+    let goals: [String]
+    let dietaryPreferences: String
+    let exerciseHabits: String
+    let exerciseFrequency: String
+}
+
+// MARK: - API Request Models
+struct AnalysisRequest: Codable {
+    let healthData: HealthData
+    let location: LocationData
+    let userProfile: UserProfile
+}
+
+// MARK: - AI Response Models
+struct DailyAdvice: Codable, Identifiable {
+    let id = UUID()
+    let theme: String
+    let summary: String
+    let breakfast: MealAdvice
+    let lunch: MealAdvice
+    let dinner: MealAdvice
+    let exercise: ExerciseAdvice
+    let hydration: HydrationAdvice
+    let breathing: BreathingAdvice
+    let sleepPreparation: SleepPreparationAdvice
+    let weatherConsiderations: WeatherConsiderations
+    let priorityActions: [String]
+
+    private enum CodingKeys: String, CodingKey {
+        case theme, summary, breakfast, lunch, dinner, exercise, hydration, breathing
+        case sleepPreparation = "sleep_preparation"
+        case weatherConsiderations = "weather_considerations"
+        case priorityActions = "priority_actions"
+    }
+}
+
+struct MealAdvice: Codable {
+    let recommendation: String
+    let reason: String
+    let examples: [String]?
+    let timing: String?
+    let avoid: [String]?
+}
+
+struct ExerciseAdvice: Codable {
+    let recommendation: String
+    let intensity: String
+    let reason: String
+    let timing: String
+    let avoid: [String]
+}
+
+struct HydrationAdvice: Codable {
+    let target: String
+    let schedule: HydrationSchedule
+    let reason: String
+}
+
+struct HydrationSchedule: Codable {
+    let morning: String
+    let afternoon: String
+    let evening: String
+}
+
+struct BreathingAdvice: Codable {
+    let technique: String
+    let duration: String
+    let frequency: String
+    let instructions: [String]
+}
+
+struct SleepPreparationAdvice: Codable {
+    let bedtime: String
+    let routine: [String]
+    let avoid: [String]
+}
+
+struct WeatherConsiderations: Codable {
+    let warnings: [String]
+    let opportunities: [String]
+}
+
+// MARK: - API Response Models
+struct APIResponse<T: Codable>: Codable {
+    let success: Bool
+    let data: T?
+    let error: String?
+}
+
+struct MockAdviceResponse: Codable {
+    let advice: DailyAdvice
+}

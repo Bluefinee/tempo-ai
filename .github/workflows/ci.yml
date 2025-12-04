@@ -124,15 +124,29 @@ jobs:
             brew install swiftlint
           fi
 
+      - name: Check if iOS project exists
+        id: ios-check
+        run: |
+          if [ -d "./ios/TempoAI" ]; then
+            echo "ios-exists=true" >> $GITHUB_OUTPUT
+            echo "✅ iOS project found"
+          else
+            echo "ios-exists=false" >> $GITHUB_OUTPUT
+            echo "⚠️ iOS project not found, skipping iOS-specific steps"
+          fi
+
       - name: Run SwiftLint
+        if: steps.ios-check.outputs.ios-exists == 'true'
         working-directory: ./ios/TempoAI
         run: swiftlint --strict
         continue-on-error: true
 
       - name: List available simulators
+        if: steps.ios-check.outputs.ios-exists == 'true'
         run: xcrun simctl list devicetypes && echo "---" && xcrun simctl list runtimes
 
       - name: Create iOS Simulator
+        if: steps.ios-check.outputs.ios-exists == 'true'
         run: |
           # Use available iOS runtime
           RUNTIME=$(xcrun simctl list runtimes | grep iOS | tail -1 | sed 's/.*(\([^)]*\)).*/\1/')
@@ -142,6 +156,7 @@ jobs:
           xcrun simctl boot "$DEVICE_UDID"
 
       - name: Wait for simulator to boot
+        if: steps.ios-check.outputs.ios-exists == 'true'
         run: |
           timeout=120
           elapsed=0
@@ -157,6 +172,7 @@ jobs:
           echo "✅ Simulator booted successfully"
 
       - name: Build iOS App for Testing
+        if: steps.ios-check.outputs.ios-exists == 'true'
         working-directory: ./ios/TempoAI
         run: |
           xcodebuild clean build-for-testing \
@@ -169,6 +185,7 @@ jobs:
             -quiet
 
       - name: Run iOS Tests
+        if: steps.ios-check.outputs.ios-exists == 'true'
         working-directory: ./ios/TempoAI
         run: |
           xcodebuild test-without-building \
@@ -182,6 +199,7 @@ jobs:
             -resultBundlePath TestResults.xcresult
 
       - name: Parse Test Results
+        if: steps.ios-check.outputs.ios-exists == 'true'
         working-directory: ./ios/TempoAI
         run: |
           if [ -d "TestResults.xcresult" ]; then
@@ -193,6 +211,7 @@ jobs:
           fi
 
       - name: Generate iOS Coverage Report
+        if: steps.ios-check.outputs.ios-exists == 'true'
         working-directory: ./ios/TempoAI
         run: |
           if [ -d "TestResults.xcresult" ]; then
@@ -203,7 +222,7 @@ jobs:
 
       - name: Upload iOS Test Results
         uses: actions/upload-artifact@v4
-        if: always()
+        if: always() && steps.ios-check.outputs.ios-exists == 'true'
         with:
           name: ios-test-results-${{ github.run_id }}
           path: |
@@ -213,7 +232,7 @@ jobs:
           retention-days: 30
 
       - name: Cleanup Simulator
-        if: always()
+        if: always() && steps.ios-check.outputs.ios-exists == 'true'
         run: |
           if [ ! -z "${{ env.SIMULATOR_UDID }}" ]; then
             xcrun simctl shutdown "${{ env.SIMULATOR_UDID }}" || true
@@ -224,7 +243,7 @@ jobs:
   ios-release-build:
     name: iOS Release Build
     runs-on: macos-14
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push' && needs.ios-quality.result == 'success'
     needs: [ios-quality]
 
     steps:
@@ -302,6 +321,7 @@ jobs:
       - name: Comment on PR
         if: github.event_name == 'pull_request'
         uses: actions/github-script@v7
+        continue-on-error: true
         with:
           script: |
             const backendStatus = "${{ needs.backend-quality.result }}";

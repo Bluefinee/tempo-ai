@@ -1,0 +1,103 @@
+import CoreLocation
+import SwiftUI
+
+// MARK: - Permissions View
+struct PermissionsView: View {
+    let healthKitManager: HealthKitManager
+    let locationManager: LocationManager
+    let onDismiss: () -> Void
+
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 24) {
+                Text("Permissions Required")
+                    .font(.title2)
+                    .fontWeight(.bold)
+
+                VStack(spacing: 16) {
+                    PermissionRow(
+                        icon: "heart.fill",
+                        title: "HealthKit",
+                        description: "Access your health data for personalized advice",
+                        status: healthKitManager.isAuthorized ? "Authorized" : "Not Authorized",
+                        color: healthKitManager.isAuthorized ? .green : .red
+                    )
+
+                    PermissionRow(
+                        icon: "location.fill",
+                        title: "Location",
+                        description: "Get weather information for your area",
+                        status: locationManager.authorizationStatus == .authorizedWhenInUse
+                            ? "Authorized" : "Not Authorized",
+                        color: locationManager.authorizationStatus == .authorizedWhenInUse ? .green : .red
+                    )
+                }
+
+                if !healthKitManager.isAuthorized {
+                    Button("Enable HealthKit") {
+                        Task {
+                            try? await healthKitManager.requestAuthorization()
+                        }
+                    }
+                    .buttonStyle(.borderedProminent)
+                }
+
+                if locationManager.authorizationStatus != .authorizedWhenInUse {
+                    Button("Enable Location") {
+                        locationManager.requestLocation()
+                    }
+                    .buttonStyle(.bordered)
+                }
+
+                Spacer()
+            }
+            .padding()
+            .navigationTitle("Settings")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Done") {
+                        onDismiss()
+                    }
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Permission Row
+struct PermissionRow: View {
+    let icon: String
+    let title: String
+    let description: String
+    let status: String
+    let color: Color
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: icon)
+                .font(.title2)
+                .foregroundColor(.blue)
+                .frame(width: 30)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.headline)
+
+                Text(description)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+
+            Spacer()
+
+            Text(status)
+                .font(.caption)
+                .fontWeight(.medium)
+                .foregroundColor(color)
+        }
+        .padding()
+        .background(.regularMaterial)
+        .cornerRadius(12)
+    }
+}

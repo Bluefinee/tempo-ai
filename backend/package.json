@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
-    "build": "tsc --noEmit",
+    "build": "tsc --project tsconfig.build.json",
     "type-check": "tsc --noEmit --skipLibCheck",
     "lint": "biome lint .",
     "lint:fix": "biome lint --write .",

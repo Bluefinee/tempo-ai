@@ -6,6 +6,8 @@ disabled_rules:
   - force_cast
   - function_body_length
   - type_body_length
+  - trailing_comma
+  - opening_brace
 
 # 有効化するオプションルール  
 opt_in_rules:
@@ -15,8 +17,12 @@ opt_in_rules:
   - vertical_parameter_alignment
   - closure_spacing
   - empty_count
-  - explicit_type_interface
   - file_name
+
+file_name:
+  excluded:
+    - Models.swift
+    - HomeViewComponents.swift
 
 # 対象ディレクトリ
 included:

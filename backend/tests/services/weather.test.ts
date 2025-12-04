@@ -244,6 +244,17 @@ describe('Weather Service', () => {
       }
     })
 
+    it('should throw when weather payload is missing required sections', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ current: {} }),
+      })
+
+      await expect(getWeather(35.6895, 139.6917)).rejects.toThrow(
+        'Invalid weather data format received from API',
+      )
+    })
+
     it('should handle extreme coordinate values', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,

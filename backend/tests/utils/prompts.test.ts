@@ -382,5 +382,50 @@ describe('Prompt Utilities', () => {
       expect(prompt.length).toBeGreaterThan(0)
       expect(prompt.trim().length).toBeGreaterThan(0) // Check trimmed content exists
     })
+
+    it('should throw when required healthData fields are missing', () => {
+      expect(() =>
+        buildPrompt({
+          healthData: {
+            sleep: undefined as unknown as HealthData['sleep'],
+            hrv: mockHealthData.hrv,
+            heartRate: mockHealthData.heartRate,
+            activity: mockHealthData.activity,
+          },
+          weather: mockWeatherData,
+          userProfile: mockUserProfile,
+        }),
+      ).toThrow('Invalid healthData: missing required fields')
+    })
+
+    it('should throw when weather data is missing required sections', () => {
+      expect(() =>
+        buildPrompt({
+          healthData: mockHealthData,
+          weather: {
+            current: undefined as unknown as WeatherData['current'],
+            daily: undefined as unknown as WeatherData['daily'],
+          },
+          userProfile: mockUserProfile,
+        }),
+      ).toThrow('Invalid weather: missing required fields')
+    })
+
+    it('should throw when userProfile is missing required fields', () => {
+      expect(() =>
+        buildPrompt({
+          healthData: mockHealthData,
+          weather: mockWeatherData,
+          userProfile: {
+            age: undefined,
+            gender: undefined,
+            goals: undefined,
+            dietaryPreferences: undefined,
+            exerciseHabits: undefined,
+            exerciseFrequency: undefined,
+          } as unknown as UserProfile,
+        }),
+      ).toThrow('Invalid userProfile: missing required fields')
+    })
   })
 })

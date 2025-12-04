@@ -3,6 +3,10 @@ name: Coverage
 on:
   push:
     branches: [main]
+  pull_request:
+    branches:
+      - main
+      - develop
   workflow_run:
     workflows: ["CI"]
     types:
@@ -23,16 +27,17 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  pull-requests: write
 
 concurrency:
   group: "pages"
   cancel-in-progress: false
 
 jobs:
-  generate-coverage-report:
-    name: 📊 Generate Coverage Report
+  coverage:
+    name: 📊 Coverage Report & Comment
     runs-on: ubuntu-latest
-    if: github.event.workflow_run.conclusion == 'success' || github.event_name == 'push'
+    if: github.event.workflow_run.conclusion == 'success' || github.event_name == 'push' || github.event_name == 'pull_request'
     defaults:
       run:
         working-directory: ./backend
@@ -59,44 +64,41 @@ jobs:
       - name: Generate test coverage
         run: pnpm run test:coverage
 
-      - name: Create coverage badge
+      - name: Create coverage badge and metrics
+        id: coverage
         run: |
-          # Extract coverage percentage
-          COVERAGE=$(node -p "Math.round(JSON.parse(require('fs').readFileSync('./coverage/coverage-summary.json')).total.lines.pct)")
-
-          # Determine badge color
-          if [ "${COVERAGE}" -ge 80 ]; then
-            COLOR="brightgreen"
-          elif [ "${COVERAGE}" -ge 60 ]; then
-            COLOR="yellow"
-          else
-            COLOR="red"
-          fi
-
-          # Create badge URL
-          BADGE_URL="https://img.shields.io/badge/coverage-${COVERAGE}%25-${COLOR}"
-          echo "COVERAGE_BADGE_URL=$BADGE_URL" >> $GITHUB_ENV
-          echo "COVERAGE_PERCENT=$COVERAGE" >> $GITHUB_ENV
+          COVERAGE_JSON=./coverage/coverage-summary.json
+          node -e "
+            const summary = JSON.parse(require('fs').readFileSync('${COVERAGE_JSON}', 'utf8')).total;
+            const pick = (k) => Number(summary[k]?.pct ?? 0).toFixed(2);
+            const out = {
+              statements: pick('statements'),
+              branches: pick('branches'),
+              functions: pick('functions'),
+              lines: pick('lines'),
+            };
+            const badgeColor = out.lines >= 80 ? 'brightgreen' : out.lines >= 60 ? 'yellow' : 'red';
+            console.log(`COVERAGE_BADGE_URL=https://img.shields.io/badge/coverage-${out.lines}%25-${badgeColor}`);
+            for (const [k,v] of Object.entries(out)) {
+              console.log(`${k.toUpperCase()}=${v}`);
+            }
+          " >> "$GITHUB_ENV"
 
       - name: Create coverage summary page
+        if: github.event_name == 'push' || github.event_name == 'workflow_run'
         run: |
           mkdir -p ./public
-          
-          # Get current timestamp
           CURRENT_TIME=$(date '+%Y-%m-%d %H:%M:%S UTC')
-          
-          # Determine status emoji based on coverage
-          if [ "${COVERAGE_PERCENT}" -ge 80 ]; then
+          if [ "${LINES}" -ge 80 ]; then
             STATUS_EMOJI="✅"
             STATUS_COLOR="#28a745"
-          elif [ "${COVERAGE_PERCENT}" -ge 60 ]; then
+          elif [ "${LINES}" -ge 60 ]; then
             STATUS_EMOJI="⚠️"
             STATUS_COLOR="#ffa500"
           else
             STATUS_EMOJI="❌"
             STATUS_COLOR="#dc3545"
           fi
-          
           cat > ./public/index.html << EOF
           <!DOCTYPE html>
           <html lang="en">
@@ -105,70 +107,17 @@ jobs:
               <meta name="viewport" content="width=device-width, initial-scale=1.0">
               <title>Tempo AI - Test Coverage Report</title>
               <style>
-                  body {
-                      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                      line-height: 1.6;
-                      margin: 0;
-                      padding: 20px;
-                      background-color: #f6f8fa;
-                  }
-                  .container {
-                      max-width: 1200px;
-                      margin: 0 auto;
-                      background: white;
-                      border-radius: 8px;
-                      padding: 30px;
-                      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-                  }
-                  .header {
-                      border-bottom: 1px solid #e1e4e8;
-                      padding-bottom: 20px;
-                      margin-bottom: 30px;
-                  }
-                  .coverage-badge {
-                      margin: 10px 0;
-                  }
-                  .metrics {
-                      display: grid;
-                      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                      gap: 20px;
-                      margin: 20px 0;
-                  }
-                  .metric {
-                      padding: 20px;
-                      border-radius: 8px;
-                      text-align: center;
-                      border: 1px solid #e1e4e8;
-                  }
-                  .metric h3 {
-                      margin: 0 0 10px 0;
-                      color: #586069;
-                      font-size: 14px;
-                      font-weight: 600;
-                  }
-                  .metric .value {
-                      font-size: 2em;
-                      font-weight: bold;
-                      color: $STATUS_COLOR;
-                  }
-                  .links {
-                      margin-top: 30px;
-                      padding-top: 20px;
-                      border-top: 1px solid #e1e4e8;
-                  }
-                  .btn {
-                      display: inline-block;
-                      padding: 10px 20px;
-                      background: #0366d6;
-                      color: white;
-                      text-decoration: none;
-                      border-radius: 6px;
-                      margin-right: 10px;
-                      margin-bottom: 10px;
-                  }
-                  .btn:hover {
-                      background: #0256cc;
-                  }
+                  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; margin: 0; padding: 20px; background-color: #f6f8fa; }
+                  .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 8px; padding: 30px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+                  .header { border-bottom: 1px solid #e1e4e8; padding-bottom: 20px; margin-bottom: 30px; }
+                  .coverage-badge { margin: 10px 0; }
+                  .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 20px 0; }
+                  .metric { padding: 20px; border-radius: 8px; text-align: center; border: 1px solid #e1e4e8; }
+                  .metric h3 { margin: 0 0 10px 0; color: #586069; font-size: 14px; font-weight: 600; }
+                  .metric .value { font-size: 2em; font-weight: bold; color: $STATUS_COLOR; }
+                  .links { margin-top: 30px; padding-top: 20px; border-top: 1px solid #e1e4e8; }
+                  .btn { display: inline-block; padding: 10px 20px; background: #0366d6; color: white; text-decoration: none; border-radius: 6px; margin-right: 10px; margin-bottom: 10px; }
+                  .btn:hover { background: #0256cc; }
               </style>
           </head>
           <body>
@@ -183,22 +132,13 @@ jobs:
                   </div>
                   
                   <div class="metrics">
-                      <div class="metric">
-                          <h3>Overall Coverage</h3>
-                          <div class="value">$COVERAGE_PERCENT%</div>
-                      </div>
-                      <div class="metric">
-                          <h3>Quality Gate</h3>
-                          <div class="value">80%</div>
-                      </div>
-                      <div class="metric">
-                          <h3>Test Status</h3>
-                          <div class="value">$STATUS_EMOJI</div>
-                      </div>
-                      <div class="metric">
-                          <h3>Platform</h3>
-                          <div class="value">Backend</div>
-                      </div>
+                      <div class="metric"><h3>Overall Coverage</h3><div class="value">$LINES%</div></div>
+                      <div class="metric"><h3>Statements</h3><div class="value">$STATEMENTS%</div></div>
+                      <div class="metric"><h3>Branches</h3><div class="value">$BRANCHES%</div></div>
+                      <div class="metric"><h3>Functions</h3><div class="value">$FUNCTIONS%</div></div>
+                      <div class="metric"><h3>Quality Gate</h3><div class="value">80%</div></div>
+                      <div class="metric"><h3>Test Status</h3><div class="value">$STATUS_EMOJI</div></div>
+                      <div class="metric"><h3>Platform</h3><div class="value">Backend</div></div>
                   </div>
                   
                   <h2>📋 Coverage Details</h2>
@@ -209,41 +149,79 @@ jobs:
                       <a href="https://github.com/$GITHUB_REPOSITORY" class="btn">📚 GitHub Repository</a>
                       <a href="https://github.com/$GITHUB_REPOSITORY/actions" class="btn">🔄 CI/CD Pipeline</a>
                   </div>
-                  
-                  <h2>🎯 Test-Driven Development (TDD) Statistics</h2>
-                  <ul>
-                      <li><strong>TypeScript API:</strong> Comprehensive unit tests for all endpoints</li>
-                      <li><strong>iOS App:</strong> HealthKit, API, and Location manager tests</li>
-                      <li><strong>Integration Tests:</strong> End-to-end API testing</li>
-                      <li><strong>Quality Gate:</strong> 80% coverage requirement</li>
-                      <li><strong>CI/CD:</strong> Automated testing on every commit</li>
-                  </ul>
-                  
-                  <h2>📊 Coverage Metrics</h2>
-                  <p>This report includes the following metrics:</p>
-                  <ul>
-                      <li>Statement coverage</li>
-                      <li>Branch coverage</li> 
-                      <li>Function coverage</li>
-                      <li>Line coverage</li>
-                  </ul>
               </div>
           </body>
           </html>
           EOF
 
       - name: Copy HTML coverage report
+        if: github.event_name == 'push' || github.event_name == 'workflow_run'
         run: |
+          mkdir -p ./public/html
           cp -r ./coverage/html ./public/
 
       - name: Setup Pages
+        if: github.event_name == 'push' || github.event_name == 'workflow_run'
         uses: actions/configure-pages@v4
 
       - name: Upload to Pages
+        if: github.event_name == 'push' || github.event_name == 'workflow_run'
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./backend/public
 
       - name: Deploy to GitHub Pages
+        if: github.event_name == 'push' || github.event_name == 'workflow_run'
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Comment coverage on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const {
+              STATEMENTS,
+              BRANCHES,
+              FUNCTIONS,
+              LINES,
+              COVERAGE_BADGE_URL,
+            } = process.env;
+
+            const body = `
+📊 **Backend Coverage**
+
+![Coverage Badge](${COVERAGE_BADGE_URL})
+
+- Statements: ${STATEMENTS}%
+- Branches: ${BRANCHES}%
+- Functions: ${FUNCTIONS}%
+- Lines: ${LINES}%
+
+_Generated by \`coverage.yml\`_
+            `;
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const marker = 'Backend Coverage';
+            const existing = comments.find((c) => c.user?.login === 'github-actions[bot]' && c.body?.includes(marker));
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }

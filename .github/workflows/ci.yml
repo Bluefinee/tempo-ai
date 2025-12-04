@@ -9,7 +9,6 @@ on:
 env:
   NODE_VERSION: "20"
   PNPM_VERSION: "9"
-  XCODE_VERSION: "15.2"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -95,200 +94,13 @@ jobs:
           name: backend-coverage
           fail_ci_if_error: false
 
-  # iOS: SwiftLint, Testing, and Building
-  ios-quality:
-    name: iOS Quality Checks
-    runs-on: macos-14
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Xcode
-        uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: ${{ env.XCODE_VERSION }}
-
-      - name: Cache Dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/Library/Developer/Xcode/DerivedData
-            ~/Library/Caches/SwiftLint
-          key: ${{ runner.os }}-ios-${{ hashFiles('ios/**/*.swift', 'ios/**/*.xcodeproj') }}
-          restore-keys: |
-            ${{ runner.os }}-ios-
-
-      - name: Install Tools
-        run: |
-          # Install SwiftLint if not already installed
-          if ! command -v swiftlint &> /dev/null; then
-            brew install swiftlint
-          fi
-          # Install xcbeautify for better output formatting
-          if ! command -v xcbeautify &> /dev/null; then
-            brew install xcbeautify
-          fi
-
-      - name: Validate iOS Project
-        id: validate
-        run: |
-          if [ ! -d "./ios/TempoAI" ]; then
-            echo "::warning::iOS project not found at ./ios/TempoAI"
-            echo "skip=true" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-          echo "✅ iOS project found"
-          echo "skip=false" >> $GITHUB_OUTPUT
-
-      - name: Run SwiftLint
-        if: steps.validate.outputs.skip != 'true'
-        working-directory: ./ios/TempoAI
-        run: |
-          swiftlint --strict --reporter github-actions-logging
-        continue-on-error: true
-
-      - name: Select iOS Device
-        if: steps.validate.outputs.skip != 'true'
-        id: device
-        run: |
-          echo "🔍 Detecting available iOS devices..."
-          
-          # Try to find an iPhone Pro model first (usually has better performance)
-          DEVICE_NAME=$(xcrun xctrace list devices 2>&1 | \
-            grep -oE 'iPhone [0-9]+ Pro' | \
-            head -1)
-          
-          # If no Pro model found, use any available iPhone
-          if [ -z "$DEVICE_NAME" ]; then
-            DEVICE_NAME=$(xcrun xctrace list devices 2>&1 | \
-              grep -oE 'iPhone.*?[^\(]+' | \
-              head -1 | \
-              awk '{$1=$1;print}' | \
-              sed -e "s/ Simulator$//")
-          fi
-          
-          if [ -z "$DEVICE_NAME" ]; then
-            echo "❌ No iOS devices available"
-            exit 1
-          fi
-          
-          echo "✅ Selected device: $DEVICE_NAME"
-          echo "destination=platform=iOS Simulator,name=$DEVICE_NAME" >> $GITHUB_OUTPUT
-
-      - name: Build for Testing
-        if: steps.validate.outputs.skip != 'true'
-        working-directory: ./ios/TempoAI
-        run: |
-          set -o pipefail
-          xcodebuild clean build-for-testing \
-            -project TempoAI.xcodeproj \
-            -scheme TempoAI \
-            -destination "${{ steps.device.outputs.destination }}" \
-            -configuration Debug \
-            CODE_SIGNING_ALLOWED=NO \
-            CODE_SIGNING_REQUIRED=NO \
-            -quiet | xcbeautify
-
-      - name: Run Tests
-        if: steps.validate.outputs.skip != 'true'
-        working-directory: ./ios/TempoAI
-        run: |
-          set -o pipefail
-          xcodebuild test-without-building \
-            -project TempoAI.xcodeproj \
-            -scheme TempoAI \
-            -destination "${{ steps.device.outputs.destination }}" \
-            -configuration Debug \
-            CODE_SIGNING_ALLOWED=NO \
-            CODE_SIGNING_REQUIRED=NO \
-            -enableCodeCoverage YES \
-            -resultBundlePath TestResults.xcresult | xcbeautify
-
-      - name: Generate Coverage Report
-        if: steps.validate.outputs.skip != 'true'
-        working-directory: ./ios/TempoAI
-        run: |
-          if [ -d "TestResults.xcresult" ]; then
-            # Generate JSON coverage report
-            xcrun xccov view --report TestResults.xcresult --json > coverage.json
-            
-            # Extract coverage percentage
-            COVERAGE=$(python3 -c "import json; data = json.load(open('coverage.json')); print(round(data.get('lineCoverage', 0) * 100))")
-            echo "📊 Code Coverage: ${COVERAGE}%"
-            echo "ios-coverage=$COVERAGE" >> $GITHUB_ENV
-            
-            # Generate human-readable coverage report
-            xcrun xccov view --report TestResults.xcresult > coverage.txt
-          else
-            echo "⚠️ No test results found"
-          fi
-        continue-on-error: true
-
-      - name: Upload Test Results
-        if: always() && steps.validate.outputs.skip != 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: ios-test-results-${{ github.run_id }}
-          path: |
-            ios/TempoAI/TestResults.xcresult
-            ios/TempoAI/coverage.json
-            ios/TempoAI/coverage.txt
-          retention-days: 30
-
-  # Release Build (only on main branch)
-  ios-release-build:
-    name: iOS Release Build
-    runs-on: macos-14
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push' && needs.ios-quality.result == 'success'
-    needs: [ios-quality]
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Xcode
-        uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: ${{ env.XCODE_VERSION }}
-
-      - name: Build Release Archive
-        working-directory: ./ios/TempoAI
-        run: |
-          xcodebuild clean archive \
-            -project TempoAI.xcodeproj \
-            -scheme TempoAI \
-            -configuration Release \
-            -destination "generic/platform=iOS" \
-            -archivePath TempoAI.xcarchive \
-            CODE_SIGNING_ALLOWED=NO \
-            CODE_SIGNING_REQUIRED=NO \
-            -quiet
-
-      - name: Validate Archive
-        working-directory: ./ios/TempoAI
-        run: |
-          if [ -d "TempoAI.xcarchive" ]; then
-            echo "✅ Archive created successfully"
-            ls -la TempoAI.xcarchive/
-          else
-            echo "❌ Archive creation failed"
-            exit 1
-          fi
-
-      - name: Upload Archive
-        uses: actions/upload-artifact@v4
-        with:
-          name: ios-archive-${{ github.run_id }}
-          path: ios/TempoAI/TempoAI.xcarchive
-          retention-days: 30
 
   # CI Summary
   ci-summary:
     name: CI Summary
     runs-on: ubuntu-latest
     if: always()
-    needs: [backend-quality, ios-quality]
+    needs: [backend-quality]
 
     steps:
       - name: Check CI results
@@ -297,7 +109,6 @@ jobs:
           echo "====================="
           echo ""
           echo "🔧 Backend Quality: ${{ needs.backend-quality.result }}"
-          echo "📱 iOS Quality: ${{ needs.ios-quality.result }}"
 
           if [[ "${{ needs.backend-quality.outputs.coverage-percent }}" != "" ]]; then
             echo "📈 Backend Coverage: ${{ needs.backend-quality.outputs.coverage-percent }}%"
@@ -305,8 +116,7 @@ jobs:
 
           echo ""
 
-          if [[ "${{ needs.backend-quality.result }}" == "failure" || 
-                "${{ needs.ios-quality.result }}" == "failure" ]]; then
+          if [[ "${{ needs.backend-quality.result }}" == "failure" ]]; then
             echo "❌ CI Pipeline Failed"
             echo "Please check the individual job logs for details."
             exit 1
@@ -322,23 +132,21 @@ jobs:
         with:
           script: |
             const backendStatus = "${{ needs.backend-quality.result }}";
-            const iosStatus = "${{ needs.ios-quality.result }}";
             const coverage = "${{ needs.backend-quality.outputs.coverage-percent }}";
 
             const statusEmoji = (status) => status === 'success' ? '✅' : '❌';
 
             const comment = `
-            ## 🚀 CI Pipeline Results
+            ## 🚀 Backend CI Results
 
             | Component | Status | Details |
             |-----------|--------|---------|
             | Backend Quality | ${statusEmoji(backendStatus)} ${backendStatus} | Type check, lint, test, build |
-            | iOS Quality | ${statusEmoji(iosStatus)} ${iosStatus} | SwiftLint, test, build |
-            ${coverage ? `| Backend Coverage | 📊 ${coverage}% | Test coverage report |` : ''}
+            ${coverage ? `| Test Coverage | 📊 ${coverage}% | Test coverage report |` : ''}
 
-            ${backendStatus === 'success' && iosStatus === 'success' ? 
+            ${backendStatus === 'success' ? 
               '🎉 All quality checks passed! Ready to merge.' : 
-              '⚠️ Some checks failed. Please review the logs and fix the issues.'}
+              '⚠️ Backend checks failed. Please review the logs and fix the issues.'}
 
             [View detailed logs](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
             `;

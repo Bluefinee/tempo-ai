@@ -24,6 +24,9 @@ jobs:
           cache: "pnpm"
           cache-dependency-path: "./backend/pnpm-lock.yaml"
 
+      - name: Enable Corepack (pnpm)
+        run: corepack enable
+
       - name: Install pnpm
         uses: pnpm/action-setup@v2
         with:
@@ -43,7 +46,7 @@ jobs:
     runs-on: macos-latest
     defaults:
       run:
-        working-directory: ./ios
+        working-directory: ./ios/TempoAI
 
     steps:
       - uses: actions/checkout@v4
@@ -56,12 +59,10 @@ jobs:
 
       - name: Run SwiftLint
         run: |
-          cd TempoAI
           swiftlint --strict
 
       - name: SwiftLint Report
         run: |
-          cd TempoAI
           swiftlint --reporter json > swiftlint-report.json || true
           echo "SwiftLint violations count: $(cat swiftlint-report.json | jq length)"
 

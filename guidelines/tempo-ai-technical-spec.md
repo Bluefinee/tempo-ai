@@ -17,10 +17,9 @@
 6. [データベース設計](#データベース設計)
 7. [API設計](#api設計)
 8. [AI統合](#ai統合)
-9. [開発フェーズ詳細](#開発フェーズ詳細)
-10. [セキュリティ](#セキュリティ)
-11. [テスト戦略](#テスト戦略)
-12. [デプロイメント](#デプロイメント)
+9. [セキュリティ](#セキュリティ)
+10. [テスト戦略](#テスト戦略)
+11. [デプロイメント](#デプロイメント)
 
 ---
 
@@ -173,7 +172,7 @@ const response = await fetch('https://api.anthropic.com/...');
 | 通知 | UserNotifications | - |
 | 位置情報 | CoreLocation | - |
 
-**追加ライブラリ（Phase 3以降）:**
+**追加ライブラリ:**
 - **Charts**: グラフ表示（Apple純正）
 
 ---
@@ -184,27 +183,35 @@ const response = await fetch('https://api.anthropic.com/...');
 |---------|------|-----------|
 | プラットフォーム | Cloudflare Workers | Latest |
 | ランタイム | V8 JavaScript Engine | Latest |
-| フレームワーク | Hono | 4.x |
-| 言語 | TypeScript | 5.x |
-| AI | Claude API | Sonnet 4.5 |
+| フレームワーク | Hono | 4.10+ |
+| 言語 | TypeScript | 5.9+ |
+| バリデーション | Zod | 4.1+ |
+| AI | Claude API (Anthropic) | Sonnet 4 |
 | 天気 | Open-Meteo API | - |
-| DB接続 | Hyperdrive | - |
-| デプロイツール | Wrangler | 3.x |
+| デプロイツール | Wrangler | 4.51+ |
+| Lint/Format | Biome | 2.3+ |
+| テストフレームワーク | Vitest | 4.0+ |
+| カバレッジ | @vitest/coverage-v8 | 4.0+ |
 
 **主要な依存関係:**
 ```json
 {
   "dependencies": {
-    "hono": "^4.0.0",
-    "@anthropic-ai/sdk": "^0.9.0",
-    "@prisma/client": "^5.0.0",
-    "@prisma/adapter-pg": "^5.0.0",
-    "pg": "^8.16.3"
+    "@anthropic-ai/sdk": "^0.71.0",
+    "hono": "^4.10.7",
+    "zod": "^4.1.13"
   },
   "devDependencies": {
-    "wrangler": "^3.0.0",
-    "@cloudflare/workers-types": "^4.0.0",
-    "prisma": "^5.0.0"
+    "@biomejs/biome": "^2.3.8",
+    "@cloudflare/workers-types": "^4.20251202.0",
+    "@stryker-mutator/core": "^8.6.0",
+    "@stryker-mutator/typescript-checker": "^8.6.0",
+    "@stryker-mutator/vitest-runner": "^8.6.0",
+    "@types/node": "^24.10.1",
+    "@vitest/coverage-v8": "^4.0.15",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.15",
+    "wrangler": "^4.51.0"
   }
 }
 ```
@@ -230,19 +237,19 @@ const response = await fetch('https://api.anthropic.com/...');
 | Cloudflare Hyperdrive | DB接続最適化 | Workers Paidに含まれる |
 | Supabase | PostgreSQLデータベース | 500MB, 無制限リクエスト |
 | GitHub | バージョン管理 | 無料 |
-| GitHub Actions | CI/CD（将来） | 2,000分/月 |
+| GitHub Actions | CI/CD Pipeline | 2,000分/月 |
 
-**Phase 1-2のコスト:**
-- Cloudflare Workers: **無料**（100,000 req/日で十分）
-- Supabase: **無料**（500MBで十分）
+**開発・運用コスト:**
+- Cloudflare Workers: **無料枠**（100,000 req/日）
+- Supabase: **無料枠**（500MB）  
 - Claude API: 従量課金（~$10-20/月）
-- **合計: $10-20/月**
+- **開発環境: $10-20/月**
 
-**Phase 3+ 有料プラン移行時:**
-- Cloudflare Workers Paid: **$5/月**
-- Supabase: **無料**
+**本格運用時のコスト:**
+- Cloudflare Workers Paid: **$5/月** (有料プラン移行時)
+- Supabase: **無料枠継続可能**
 - Claude API: ~$10-20/月
-- **合計: $15-25/月**
+- **本格運用: $15-25/月**
 
 ---
 
@@ -3554,41 +3561,74 @@ wrangler deploy
 
 ---
 
-#### 継続的デプロイ（GitHub Actions）
+#### CI/CD パイプライン（GitHub Actions）
 
-**`.github/workflows/deploy.yml`**
+**現在の構成:**
 
+1. **`.github/workflows/ci.yml`** - メインCI統括ワークフロー
+2. **`.github/workflows/backend.yml`** - TypeScript backend CI (Hono + Cloudflare Workers)
+3. **`.github/workflows/ios.yml`** - iOS CI (SwiftLint, Build, Test)
+4. **`.github/workflows/security.yml`** - セキュリティスキャン
+5. **`.github/workflows/coverage.yml`** - テストカバレッジ報告
+
+**バックエンドCI (`.github/workflows/backend.yml`):**
 ```yaml
-name: Deploy to Cloudflare Workers
+name: Backend CI
 
 on:
   push:
-    branches:
-      - main
+    branches: [main, develop]
+    paths: ['backend/**']
+  pull_request:
+    branches: [main, develop]
+    paths: ['backend/**']
 
 jobs:
-  deploy:
+  backend:
+    name: Backend Quality & Tests
     runs-on: ubuntu-latest
-    name: Deploy
-    
+    defaults:
+      run:
+        working-directory: ./backend
+
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
-      
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: "9"
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-      
+          node-version: "20"
+          cache: "pnpm"
+
       - name: Install dependencies
-        run: npm ci
-      
-      - name: Deploy to Cloudflare Workers
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: pnpm install --frozen-lockfile
+
+      - name: Type check
+        run: pnpm run type-check
+
+      - name: Biome check (lint + format)
+        run: pnpm run check
+
+      - name: Run tests with coverage
+        run: pnpm run test:coverage
+
+      - name: Build API
+        run: pnpm run build
 ```
+
+**主要な開発ツール:**
+- **Package Manager**: pnpm (高速、効率的)
+- **Lint/Format**: Biome (ESLint + Prettier の代替、高速)
+- **Testing**: Vitest (高速、型安全)
+- **Coverage**: @vitest/coverage-v8
+- **Node.js**: v20 (LTS)
+- **TypeScript**: 5.9+
 
 **Secrets設定（GitHubリポジトリ）:**
 1. Settings → Secrets and variables → Actions
@@ -3600,12 +3640,15 @@ jobs:
 
 ### デプロイ戦略
 
-#### Phase 1（MVP）: 手動デプロイ
+#### 手動デプロイ
 ```bash
+# バックエンドAPI
+cd backend
+pnpm run build
 wrangler deploy
 ```
 
-#### Phase 2+: 自動デプロイ
+#### 自動デプロイ (GitHub Actions)
 ```bash
 git push origin main
 # GitHub Actionsが自動デプロイ

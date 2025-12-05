@@ -55,7 +55,8 @@
     "deny": [],
     "ask": [],
     "additionalDirectories": [
-      "/private/tmp"
+      "/private/tmp",
+      "/Users/masakazuiwahara/Development"
     ]
   }
 }

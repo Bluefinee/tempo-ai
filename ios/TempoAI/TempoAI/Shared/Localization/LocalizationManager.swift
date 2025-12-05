@@ -13,18 +13,13 @@ import Combine
 /// Centralized localization manager for the TempoAI application
 /// Manages language preferences and provides localized string access
 /// Supports Japanese (default) and English languages
-@MainActor
 class LocalizationManager: ObservableObject {
 
     /// Shared singleton instance
-    static let shared: LocalizationManager = {
-        MainActor.assumeIsolated {
-            LocalizationManager()
-        }
-    }()
+    static let shared: LocalizationManager = LocalizationManager()
 
     /// Published property for reactive UI updates
-    @Published var currentLanguage: SupportedLanguage
+    @Published @MainActor var currentLanguage: SupportedLanguage
 
     /// Supported languages enumeration
     enum SupportedLanguage: String, CaseIterable, Identifiable {
@@ -60,7 +55,7 @@ class LocalizationManager: ObservableObject {
     }
 
     /// UserDefaults key for persisting language preference
-    private static let userLanguageKey: String = "user_language_preference"
+    private nonisolated static let userLanguageKey: String = "user_language_preference"
 
     /// Initialize with saved preference or system default
     private init() {
@@ -68,15 +63,16 @@ class LocalizationManager: ObservableObject {
         if let savedLanguage = UserDefaults.standard.string(forKey: Self.userLanguageKey),
             let language = SupportedLanguage(rawValue: savedLanguage)
         {
-            self.currentLanguage = language
+            self._currentLanguage = Published(initialValue: language)
         } else {
             // Default to Japanese as specified in requirements
-            self.currentLanguage = .japanese
+            self._currentLanguage = Published(initialValue: .japanese)
         }
     }
 
     /// Set the current language and persist the preference
     /// - Parameter language: The language to set as current
+    @MainActor
     func setLanguage(_ language: SupportedLanguage) {
         currentLanguage = language
 
@@ -92,8 +88,12 @@ class LocalizationManager: ObservableObject {
     }
 
     /// Get the effective language code (resolving system default)
-    var effectiveLanguageCode: String {
-        switch currentLanguage {
+    private nonisolated var effectiveLanguageCode: String {
+        // Access current language synchronously via UserDefaults
+        let savedLanguage = UserDefaults.standard.string(forKey: Self.userLanguageKey) ?? "ja"
+        let language = SupportedLanguage(rawValue: savedLanguage) ?? .japanese
+        
+        switch language {
         case .systemDefault:
             // Use system locale, fallback to Japanese
             let systemLanguage = Locale.current.language.languageCode?.identifier ?? "ja"
@@ -106,21 +106,29 @@ class LocalizationManager: ObservableObject {
     }
 
     /// Check if current language is Japanese
-    var isJapanese: Bool {
+    nonisolated var isJapanese: Bool {
         effectiveLanguageCode == "ja"
     }
 
     /// Check if current language is English
-    var isEnglish: Bool {
+    nonisolated var isEnglish: Bool {
         effectiveLanguageCode == "en"
     }
 
     /// Get localized string for the given key
     /// - Parameter key: The localization key
     /// - Returns: Localized string for the current language
-    func localizedString(for key: String) -> String {
+    nonisolated func localizedString(for key: String) -> String {
         let languageCode = effectiveLanguageCode
+        return Self.loadLocalizedString(key, languageCode: languageCode)
+    }
 
+    /// Private helper method to load localized strings from bundles
+    /// - Parameters:
+    ///   - key: The localization key
+    ///   - languageCode: The language code (e.g., "ja", "en")
+    /// - Returns: Localized string or fallback to main bundle
+    nonisolated static func loadLocalizedString(_ key: String, languageCode: String) -> String {
         // Attempt to load from language-specific bundle
         if let path = Bundle.main.path(forResource: languageCode, ofType: "lproj"),
             let bundle = Bundle(path: path)
@@ -168,16 +176,7 @@ extension String {
             languageCode = "en"
         }
 
-        if let path = Bundle.main.path(forResource: languageCode, ofType: "lproj"),
-            let bundle = Bundle(path: path)
-        {
-            let localizedString = NSLocalizedString(self, bundle: bundle, comment: "")
-            if localizedString != self {
-                return localizedString
-            }
-        }
-
-        return NSLocalizedString(self, comment: "")
+        return LocalizationManager.loadLocalizedString(self, languageCode: languageCode)
     }
 }
 

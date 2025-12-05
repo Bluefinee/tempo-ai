@@ -57,7 +57,8 @@
       "Bash(./scripts/dev-commands.sh test-all:*)",
       "Bash(./scripts/fix-all.sh:*)",
       "Bash(swift-format:*)",
-      "mcp__serena__think_about_collected_information"
+      "mcp__serena__think_about_collected_information",
+      "Bash(make:*)"
     ],
     "deny": [],
     "ask": [],

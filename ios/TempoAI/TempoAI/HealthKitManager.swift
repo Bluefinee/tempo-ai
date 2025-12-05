@@ -2,6 +2,10 @@ import Combine
 import Foundation
 import HealthKit
 
+extension Notification.Name {
+    static let healthKitDataUpdated = Notification.Name("healthKitDataUpdated")
+}
+
 protocol HealthKitQueryFactory {
     func createSampleQuery(
         sampleType: HKSampleType,
@@ -70,33 +74,20 @@ class HealthKitManager: ObservableObject {
 
         try await healthStore.requestAuthorization(toShare: [], read: typesToRead)
 
-        // Note: Read authorization status cannot be determined via authorizationStatus(for:)
-        // We assume authorization was granted if requestAuthorization succeeds without error
         isAuthorized = true
         authorizationStatus = "Authorized"
     }
 
     func fetchTodayHealthData() async throws -> HealthData {
-        guard isAuthorized else {
-            throw HealthKitError.notAuthorized
-        }
-
-        async let sleepData = fetchSleepData()
-        async let hrvData = fetchHRVData()
-        async let heartRateData = fetchHeartRateData()
-        async let activityData = fetchActivityData()
-
-        return try await HealthData(
-            sleep: sleepData,
-            hrv: hrvData,
-            heartRate: heartRateData,
-            activity: activityData
+        guard isAuthorized else { throw HealthKitError.notAuthorized }
+        async let (sleep, hrv, heartRate, activity) = (
+            fetchSleepData(), fetchHRVData(), fetchHeartRateData(), fetchActivityData()
         )
+        return try await HealthData(sleep: sleep, hrv: hrv, heartRate: heartRate, activity: activity)
     }
 
     // MARK: - Sleep Data
     private func fetchSleepData() async throws -> SleepData {
-        // For simulator or when no data is available, return mock data
         if !HKHealthStore.isHealthDataAvailable() || !isAuthorized {
             return mockSleepData()
         }
@@ -146,54 +137,33 @@ class HealthKitManager: ObservableObject {
     }
 
     private func processSleepSamples(_ sleepSamples: [HKCategorySample]) -> SleepData {
-        var totalSleep: TimeInterval = 0
-        var deepSleep: TimeInterval = 0
-        var remSleep: TimeInterval = 0
-        var lightSleep: TimeInterval = 0
-        var awakeTime: TimeInterval = 0
+        var totals = (total: 0.0, deep: 0.0, rem: 0.0, light: 0.0, awake: 0.0)
 
         for sample in sleepSamples {
             let duration = sample.endDate.timeIntervalSince(sample.startDate)
-
             switch sample.value {
             case HKCategoryValueSleepAnalysis.asleepDeep.rawValue:
-                deepSleep += duration
-                totalSleep += duration
+                totals.deep += duration
+                totals.total += duration
             case HKCategoryValueSleepAnalysis.asleepREM.rawValue:
-                remSleep += duration
-                totalSleep += duration
-            case HKCategoryValueSleepAnalysis.asleepCore.rawValue:
-                lightSleep += duration
-                totalSleep += duration
-            case HKCategoryValueSleepAnalysis.asleep.rawValue:
-                // Handle deprecated .asleep case for backwards compatibility
-                lightSleep += duration
-                totalSleep += duration
+                totals.rem += duration
+                totals.total += duration
+            case HKCategoryValueSleepAnalysis.asleepCore.rawValue, HKCategoryValueSleepAnalysis.asleep.rawValue:
+                totals.light += duration
+                totals.total += duration
             case HKCategoryValueSleepAnalysis.awake.rawValue:
-                awakeTime += duration
-            case HKCategoryValueSleepAnalysis.inBed.rawValue:
-                // In bed but not sleeping - don't count towards total sleep
-                break
+                totals.awake += duration
             default:
-                // For any other sleep stages, count as light sleep
-                lightSleep += duration
-                totalSleep += duration
+                totals.light += duration
+                totals.total += duration
             }
         }
 
-        let efficiency = totalSleep > 0 ? Int((totalSleep / (totalSleep + awakeTime)) * 100) : 92
-
-        return SleepData(
-            duration: totalSleep / 3600,
-            deep: deepSleep / 3600,
-            rem: remSleep / 3600,
-            light: lightSleep / 3600,
-            awake: awakeTime / 3600,
-            efficiency: efficiency
-        )
+        let efficiency = totals.total > 0 ? (totals.total / (totals.total + totals.awake)) * 100 : 92
+        return SleepData(duration: totals.total / 3600, deep: totals.deep / 3600, rem: totals.rem / 3600,
+                         light: totals.light / 3600, awake: totals.awake / 3600, efficiency: efficiency)
     }
 
-    // MARK: - HRV Data
     private func fetchHRVData() async throws -> HRVData {
         if !HKHealthStore.isHealthDataAvailable() || !isAuthorized {
             return HRVData(average: 45, min: 25, max: 68)
@@ -235,7 +205,6 @@ class HealthKitManager: ObservableObject {
         }
     }
 
-    // MARK: - Heart Rate Data
     private func fetchHeartRateData() async throws -> HeartRateData {
         if !HKHealthStore.isHealthDataAvailable() || !isAuthorized {
             return HeartRateData(resting: 62, average: 75, min: 58, max: 145)
@@ -257,10 +226,9 @@ class HealthKitManager: ObservableObject {
         let max = heartRateValues.max() ?? 145
         let resting = await fetchRestingHeartRate(predicate: predicate) ?? 62
 
-        return HeartRateData(resting: resting, average: average, min: min, max: max)
+        return HeartRateData(resting: Double(resting), average: Double(average), min: Double(min), max: Double(max))
     }
 
-    // MARK: - Activity Data
     private func fetchActivityData() async throws -> ActivityData {
         if !HKHealthStore.isHealthDataAvailable() || !isAuthorized {
             return ActivityData(steps: 8234, distance: 6.2, calories: 420, activeMinutes: 35)
@@ -272,16 +240,16 @@ class HealthKitManager: ObservableObject {
         async let activeMinutes = fetchActiveMinutes()
 
         return try await ActivityData(
-            steps: steps,
+            steps: Double(steps),
             distance: distance,
-            calories: calories,
-            activeMinutes: activeMinutes
+            calories: Double(calories),
+            activeMinutes: Double(activeMinutes)
         )
     }
 
-    private func fetchSteps() async throws -> Int {
+    private func fetchSteps() async throws -> Double {
         let stepsType = HKObjectType.quantityType(forIdentifier: .stepCount)!
-        return Int(await fetchQuantitySum(for: stepsType, unit: .count()))
+        return await fetchQuantitySum(for: stepsType, unit: .count())
     }
 
     private func fetchDistance() async throws -> Double {
@@ -289,14 +257,14 @@ class HealthKitManager: ObservableObject {
         return await fetchQuantitySum(for: distanceType, unit: .meter()) / 1000  // Convert to kilometers
     }
 
-    private func fetchCalories() async throws -> Int {
+    private func fetchCalories() async throws -> Double {
         let caloriesType = HKObjectType.quantityType(forIdentifier: .activeEnergyBurned)!
-        return Int(await fetchQuantitySum(for: caloriesType, unit: .kilocalorie()))
+        return await fetchQuantitySum(for: caloriesType, unit: .kilocalorie())
     }
 
-    private func fetchActiveMinutes() async throws -> Int {
+    private func fetchActiveMinutes() async throws -> Double {
         let activeMinutesType = HKObjectType.quantityType(forIdentifier: .appleExerciseTime)!
-        return Int(await fetchQuantitySum(for: activeMinutesType, unit: .minute()))
+        return await fetchQuantitySum(for: activeMinutesType, unit: .minute())
     }
 
     private func fetchQuantitySum(for quantityType: HKQuantityType, unit: HKUnit) async -> Double {
@@ -379,6 +347,39 @@ class HealthKitManager: ObservableObject {
 
             healthStore.execute(query)
         }
+    }
+
+    // MARK: - Real-time Data Monitoring
+
+    private var backgroundObserverQueries: [HKObserverQuery] = []
+
+    /// Start background observation of health data changes
+    func startBackgroundDataObservation() {
+        guard isAuthorized else { return }
+        let types: [HKSampleType] = [
+            .quantityType(forIdentifier: .heartRateVariabilitySDNN),
+            .quantityType(forIdentifier: .stepCount),
+            .categoryType(forIdentifier: .sleepAnalysis),
+        ].compactMap { $0 }
+        for type in types {
+            let query = HKObserverQuery(sampleType: type, predicate: nil) { _, _, error in
+                if error == nil {
+                    Task { @MainActor in
+                        NotificationCenter.default.post(name: .healthKitDataUpdated, object: nil)
+                    }
+                }
+            }
+            backgroundObserverQueries.append(query)
+            healthStore.execute(query)
+        }
+    }
+
+    /// Stop background observation
+    func stopBackgroundDataObservation() {
+        for query in backgroundObserverQueries {
+            healthStore.stop(query)
+        }
+        backgroundObserverQueries.removeAll()
     }
 }
 

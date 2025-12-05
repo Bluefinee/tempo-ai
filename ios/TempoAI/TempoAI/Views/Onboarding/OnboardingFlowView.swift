@@ -125,13 +125,13 @@ struct HealthKitPermissionPageView: View {
             Spacer()
 
             VStack(spacing: 12) {
-                Button(action: {
+                Button {
                     isRequesting = true
                     Task {
                         await viewModel.requestHealthKitPermission()
                         isRequesting = false
                     }
-                }) {
+                } label: {
                     HStack {
                         if isRequesting {
                             ProgressView()
@@ -219,13 +219,13 @@ struct LocationPermissionPageView: View {
             Spacer()
 
             VStack(spacing: 12) {
-                Button(action: {
+                Button {
                     isRequesting = true
                     Task {
                         await viewModel.requestLocationPermission()
                         isRequesting = false
                     }
-                }) {
+                } label: {
                     HStack {
                         if isRequesting {
                             ProgressView()

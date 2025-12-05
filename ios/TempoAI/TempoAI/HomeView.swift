@@ -2,38 +2,7 @@ import SwiftUI
 
 @MainActor
 struct HomeView: View {
-    @StateObject private var healthKitManager: HealthKitManager = HealthKitManager()
-    @StateObject private var locationManager: LocationManager = LocationManager()
-    @ObservedObject private var apiClient: APIClient = APIClient.shared
-
-    @State private var todayAdvice: DailyAdvice?
-    @State private var isLoading: Bool = false
-    @State private var errorMessage: String?
-    @State private var showingPermissions: Bool = false
-    @State private var isMockData: Bool = false
-
-    private let userProfile: UserProfile = UserProfile(
-        age: 28,
-        gender: "male",
-        goals: ["fatigue_recovery", "focus"],
-        dietaryPreferences: "No restrictions",
-        exerciseHabits: "Regular weight training",
-        exerciseFrequency: "weekly"
-    )
-
-    private var timeBasedGreeting: String {
-        let hour = Calendar.current.component(.hour, from: Date())
-        switch hour {
-        case 5 ..< 12:
-            return "Good morning!"
-        case 12 ..< 17:
-            return "Good afternoon!"
-        case 17 ..< 22:
-            return "Good evening!"
-        default:
-            return "Good night!"
-        }
-    }
+    @StateObject private var viewModel = HomeViewModel()
 
     var body: some View {
         NavigationStack {
@@ -41,70 +10,86 @@ struct HomeView: View {
                 VStack(spacing: 20) {
                     headerSection
 
-                    if isLoading {
+                    if viewModel.isAnyLoading && !viewModel.hasData {
                         LoadingView()
-                    } else if let errorMessage = errorMessage {
+                    } else if let errorMessage = viewModel.errorMessage {
                         ErrorView(message: errorMessage) {
-                            await refreshAdvice()
-                        }
-                    } else if let advice = todayAdvice {
-                        VStack(spacing: 12) {
-                            if isMockData {
-                                HStack {
-                                    Image(systemName: "exclamationmark.triangle.fill")
-                                        .foregroundColor(.orange)
-                                        .accessibilityIdentifier(UIIdentifiers.HomeView.mockDataIcon)
-                                    Text("Using simulated data (API unavailable)")
-                                        .font(.caption)
-                                        .foregroundColor(.orange)
-                                        .accessibilityIdentifier(UIIdentifiers.HomeView.mockDataText)
-                                }
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 8)
-                                .background(.orange.opacity(0.1))
-                                .cornerRadius(8)
-                                .accessibilityIdentifier(UIIdentifiers.HomeView.mockDataBanner)
-                            }
-
-                            AdviceView(advice: advice)
+                            await viewModel.refreshAll()
                         }
                     } else {
-                        EmptyStateView {
-                            await refreshAdvice()
-                        }
+                        contentSection
                     }
                 }
                 .padding()
             }
             .accessibilityIdentifier(UIIdentifiers.HomeView.scrollView)
-            .navigationTitle("Today")
+            .navigationTitle(NSLocalizedString("tab_today", comment: "Today"))
             .navigationBarTitleDisplayMode(.large)
             .refreshable {
-                await refreshAdvice()
+                await viewModel.refreshAll()
             }
             .accessibilityIdentifier(UIIdentifiers.HomeView.refreshControl)
             .task {
-                await setupPermissions()
+                await viewModel.initialize()
             }
-            .sheet(isPresented: $showingPermissions) {
+            .sheet(isPresented: $viewModel.showingPermissions) {
                 PermissionsView(
-                    healthKitManager: healthKitManager,
-                    locationManager: locationManager,
-                    onDismiss: {
-                        showingPermissions = false
-                        Task {
-                            await refreshAdvice()
-                        }
-                    }
+                    healthKitManager: HealthKitManager(),
+                    locationManager: LocationManager(),
+                    onDismiss: viewModel.dismissPermissions
                 )
             }
         }
     }
 
+    @ViewBuilder
+    private var contentSection: some View {
+        VStack(spacing: 16) {
+            // Mock data banner
+            if viewModel.shouldShowMockBanner {
+                mockDataBanner
+            }
+
+            // Health status card
+            if let healthAnalysis = viewModel.healthAnalysis {
+                HealthStatusCard(
+                    healthAnalysis: healthAnalysis,
+                    isLoading: viewModel.isLoadingHealth
+                )
+            }
+
+            // Advice section
+            if let advice = viewModel.todayAdvice {
+                AdviceView(advice: advice)
+            } else if !viewModel.isLoadingAdvice {
+                EmptyStateView {
+                    await viewModel.refreshAdvice()
+                }
+            }
+        }
+    }
+
+    private var mockDataBanner: some View {
+        HStack {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .foregroundColor(.orange)
+                .accessibilityIdentifier(UIIdentifiers.HomeView.mockDataIcon)
+            Text(NSLocalizedString("home_mock_data_banner", comment: "Using demo data"))
+                .font(.caption)
+                .foregroundColor(.orange)
+                .accessibilityIdentifier(UIIdentifiers.HomeView.mockDataText)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .background(.orange.opacity(0.1))
+        .cornerRadius(8)
+        .accessibilityIdentifier(UIIdentifiers.HomeView.mockDataBanner)
+    }
+
     private var headerSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text(timeBasedGreeting)
+                Text(viewModel.timeBasedGreeting)
                     .font(.title2)
                     .fontWeight(.semibold)
                     .accessibilityIdentifier(UIIdentifiers.HomeView.greetingText)
@@ -112,7 +97,7 @@ struct HomeView: View {
                 Spacer()
 
                 Button {
-                    showingPermissions = true
+                    viewModel.showPermissions()
                 } label: {
                     Image(systemName: "gear")
                         .font(.title3)
@@ -120,7 +105,7 @@ struct HomeView: View {
                 .accessibilityIdentifier(UIIdentifiers.HomeView.settingsButton)
             }
 
-            Text("Here's your personalized health advice for today")
+            Text(NSLocalizedString("home_subtitle", comment: "Personalized health advice based on your data"))
                 .font(.subheadline)
                 .foregroundColor(.secondary)
                 .accessibilityIdentifier(UIIdentifiers.HomeView.subtitleText)
@@ -128,66 +113,12 @@ struct HomeView: View {
         .accessibilityIdentifier(UIIdentifiers.HomeView.headerSection)
     }
 
-    private func setupPermissions() async {
-        do {
-            try await healthKitManager.requestAuthorization()
-            locationManager.requestLocation()
-        } catch {
-            errorMessage = "HealthKit setup failed: \(error.localizedDescription)"
-            return
-        }
-    }
-
-    private func refreshAdvice() async {
-        isLoading = true
-        errorMessage = nil
-
-        defer {
-            isLoading = false
-        }
-
-        do {
-            let healthData = try await healthKitManager.fetchTodayHealthData()
-
-            guard let locationData = locationManager.locationData else {
-                throw APIError.serverError("Location data not available")
-            }
-
-            // Try real API first, fallback to mock in DEBUG builds
-            do {
-                let advice = try await apiClient.analyzeHealth(
-                    healthData: healthData,
-                    location: locationData,
-                    userProfile: userProfile
-                )
-                todayAdvice = advice
-                isMockData = false
-            } catch {
-                #if DEBUG
-                    print("Real API failed, using mock data: \(error.localizedDescription)")
-                #endif
-
-                #if DEBUG
-                    // Fallback to mock API in DEBUG builds only
-                    let advice = try await apiClient.analyzeHealthMock(
-                        healthData: healthData,
-                        location: locationData,
-                        userProfile: userProfile
-                    )
-                    todayAdvice = advice
-                    isMockData = true
-                #else
-                    // In production, show the actual error
-                    throw error
-                #endif
-            }
-
-        } catch {
-            errorMessage = error.localizedDescription
-        }
-    }
 }
 
-#Preview {
+#Preview("Home Screen") {
+    HomeView()
+}
+
+#Preview("With Health Data") {
     HomeView()
 }

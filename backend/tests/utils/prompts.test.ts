@@ -96,7 +96,7 @@ describe('Prompt Utilities', () => {
       expect(prompt).toContain('HEALTH DATA (Last 24 hours):')
       expect(prompt).toContain('WEATHER CONDITIONS:')
       expect(prompt).toContain(
-        'Based on this data, provide comprehensive health advice',
+        'Based on this data and historical context, provide comprehensive health advice',
       )
     })
 

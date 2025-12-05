@@ -7,11 +7,13 @@ import SwiftUI
 /// including HRV, sleep quality, activity levels, and heart rate patterns. Each status
 /// provides specific color coding and localized messaging for the user interface.
 enum HealthStatus: String, CaseIterable, Codable {
+    // swiftlint:disable redundant_string_enum_value
     case optimal = "optimal"  // 🟢 絶好調
     case good = "good"  // 🟡 良好
     case care = "care"  // 🟠 ケアモード
     case rest = "rest"  // 🔴 休息モード
     case unknown = "unknown"  // ⚪ 分析中
+    // swiftlint:enable redundant_string_enum_value
 
     /// Primary color associated with this health status
     var color: Color {
@@ -223,10 +225,12 @@ struct HealthAnalysis: Codable {
 
 /// Data quality indicator for health analysis
 enum DataQuality: String, CaseIterable, Codable {
+    // swiftlint:disable redundant_string_enum_value
     case excellent = "excellent"
     case good = "good"
     case fair = "fair"
     case poor = "poor"
+    // swiftlint:enable redundant_string_enum_value
 
     var score: Double {
         switch self {

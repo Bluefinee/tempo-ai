@@ -1,6 +1,8 @@
+import Combine
 import CoreLocation
 import Foundation
 import HealthKit
+import SwiftUI
 
 /// Unified permission management system for HealthKit and Location services.
 ///

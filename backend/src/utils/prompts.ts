@@ -23,6 +23,10 @@ export interface PromptParams {
   weather: WeatherData
   /** ユーザープロファイル情報 */
   userProfile: UserProfile
+  /** 過去のアドバイス履歴（Phase 2以降で実装） */
+  recentAdviceHistory?: string
+  /** 週次健康パターン（Phase 2以降で実装） */
+  weeklyHealthPatterns?: string
 }
 
 /**
@@ -46,7 +50,13 @@ export interface PromptParams {
  * @returns Claude AI用の構造化プロンプト文字列
  */
 export const buildPrompt = (params: PromptParams): string => {
-  const { healthData, weather, userProfile } = params
+  const {
+    healthData,
+    weather,
+    userProfile,
+    recentAdviceHistory,
+    weeklyHealthPatterns,
+  } = params
 
   // Input validation
   if (
@@ -109,7 +119,13 @@ WEATHER CONDITIONS:
 - Precipitation: ${weather.current.precipitation ?? 0}mm
 - Wind Speed: ${weather.current.wind_speed_10m ?? 'N/A'} km/h
 
-Based on this data, provide comprehensive health advice in the following JSON structure. Be specific and actionable:
+RECENT ADVICE HISTORY (Last 7 days):
+${recentAdviceHistory || 'Building your personal advice history - this is your first or early advice generation.'}
+
+WEEKLY HEALTH PATTERNS:
+${weeklyHealthPatterns || 'Analyzing your health patterns - patterns will emerge as we collect more data over time.'}
+
+Based on this data and historical context, provide comprehensive health advice in the following JSON structure. Be specific and actionable:
 
 {
   "theme": "Short theme for today (e.g., 'Recovery Day', 'Energy Boost Day', 'Balanced Activity Day')",
@@ -178,5 +194,7 @@ Important guidelines:
 4. Factor in weather for outdoor activities and hydration needs
 5. Provide exact times and quantities where possible
 6. Tailor food recommendations to support the user's goals
+7. Use historical context when available to build on previous recommendations and avoid repetitive patterns
+8. Consider weekly health patterns to suggest progressive or recovery-focused approaches
 `
 }

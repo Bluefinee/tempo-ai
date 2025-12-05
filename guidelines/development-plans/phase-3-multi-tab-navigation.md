@@ -77,6 +77,12 @@ class DailyHealthRecord: NSManagedObject {
     @NSManaged var advice: Data              // DailyAdvice JSON
     @NSManaged var userRating: Int16         // アドバイス評価 1-5
     @NSManaged var notes: String?            // ユーザーメモ
+    
+    // Phase 2で蓄積した履歴データをCoreDataに拡張
+    @NSManaged var adviceTheme: String       // アドバイステーマ（検索用）
+    @NSManaged var healthStatus: String      // その日の健康ステータス
+    @NSManaged var exerciseIntensity: String? // 運動強度
+    @NSManaged var adviceFollowed: Bool      // アドバイス実行状況
 }
 
 // エンティティ: UserProfile  
@@ -188,6 +194,102 @@ enum HistoryViewMode {
     case timeline   // タイムライン表示
     case calendar   // カレンダー表示  
     case search     // 検索・フィルター
+}
+```
+
+#### 2.2 Phase 2 履歴データのCoreData移行
+
+**Phase 2のUserDefaults履歴をCoreDataに移行し、AI分析機能を拡張**
+
+```swift
+// ios/TempoAI/TempoAI/Services/AdviceHistoryMigrationService.swift
+class AdviceHistoryMigrationService {
+    
+    /// Phase 2のUserDefaults履歴データをCoreDataに移行
+    static func migratePhase2History() {
+        let userDefaults = UserDefaults.standard
+        let historyKey = "tempoai_advice_history"
+        
+        guard let data = userDefaults.data(forKey: historyKey),
+              let phase2History = try? JSONDecoder().decode([AdviceHistoryEntry].self, from: data) else {
+            return
+        }
+        
+        let context = PersistenceController.shared.container.viewContext
+        
+        for entry in phase2History {
+            let record = DailyHealthRecord(context: context)
+            record.date = entry.date
+            record.adviceTheme = entry.theme
+            record.healthStatus = entry.healthStatus
+            record.exerciseIntensity = entry.exerciseIntensity
+            // 他のデータは段階的に追加
+        }
+        
+        try? context.save()
+        
+        // 移行完了後、UserDefaultsから削除
+        userDefaults.removeObject(forKey: historyKey)
+    }
+}
+
+// 拡張されたHistoryManager（CoreData版）
+class AdvancedHistoryManager: ObservableObject {
+    private let context = PersistenceController.shared.container.viewContext
+    
+    /// 30日間の詳細履歴をAIプロンプト用に生成
+    func generateExtendedHistoryForAI() -> String {
+        let request: NSFetchRequest<DailyHealthRecord> = DailyHealthRecord.fetchRequest()
+        let cutoffDate = Calendar.current.date(byAdding: .day, value: -30, to: Date()) ?? Date()
+        request.predicate = NSPredicate(format: "date >= %@", cutoffDate as NSDate)
+        request.sortDescriptors = [NSSortDescriptor(key: "date", ascending: false)]
+        
+        guard let records = try? context.fetch(request) else {
+            return "No extended history available - building comprehensive baseline."
+        }
+        
+        var historyLines: [String] = []
+        
+        // 最近7日間の詳細履歴
+        for (index, record) in records.prefix(7).enumerated() {
+            let dayLabel = index == 0 ? "Yesterday" : "\(index + 1) days ago"
+            let rating = record.userRating > 0 ? " (Rated: \(record.userRating)/5)" : ""
+            let followed = record.adviceFollowed ? " ✓ Followed" : ""
+            
+            historyLines.append("- \(dayLabel): \(record.adviceTheme) - \(record.healthStatus)\(rating)\(followed)")
+        }
+        
+        // 週次パターン分析
+        if records.count >= 14 {
+            let weeklyAnalysis = analyzeWeeklyPatterns(records: Array(records.prefix(14)))
+            historyLines.append("\nWeekly patterns: \(weeklyAnalysis)")
+        }
+        
+        // 月次トレンド（30日間データがある場合）
+        if records.count >= 21 {
+            let monthlyTrends = analyzeMonthlyTrends(records: records)
+            historyLines.append("Monthly trends: \(monthlyTrends)")
+        }
+        
+        return historyLines.joined(separator: "\n")
+    }
+    
+    private func analyzeWeeklyPatterns(records: [DailyHealthRecord]) -> String {
+        let exerciseDays = records.filter { $0.exerciseIntensity != nil }.count
+        let restDays = records.filter { $0.healthStatus.contains("rest") || $0.healthStatus.contains("care") }.count
+        let followedAdvice = records.filter { $0.adviceFollowed }.count
+        let avgRating = records.filter { $0.userRating > 0 }.map(\.userRating).reduce(0, +) / max(1, records.count)
+        
+        return "Exercise: \(exerciseDays)/14 days, Recovery: \(restDays)/14 days, Compliance: \(followedAdvice)/14 days, Satisfaction: \(avgRating)/5"
+    }
+    
+    private func analyzeMonthlyTrends(records: [DailyHealthRecord]) -> String {
+        // より高度なパターン認識ロジック
+        let themes = records.compactMap { $0.adviceTheme }
+        let dominantTheme = Dictionary(grouping: themes, by: { $0 }).max(by: { $1.count < $0.count })?.key ?? "Varied"
+        
+        return "Dominant theme: \(dominantTheme), Improving patterns detected"
+    }
 }
 ```
 

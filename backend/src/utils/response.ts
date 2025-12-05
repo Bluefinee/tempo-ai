@@ -82,7 +82,10 @@ export const createErrorResponse = (message: string): ErrorResponse => ({
  * @param error - バリデーションエラー
  * @returns HTTPレスポンス
  */
-export const createValidationErrorResponse = (c: Context, error: ValidationError): Response => {
+export const createValidationErrorResponse = (
+  c: Context,
+  error: ValidationError,
+): Response => {
   // Use the same direct approach to avoid type assertion issues
   const validStatusCode = (() => {
     switch (error.statusCode) {
@@ -106,7 +109,19 @@ export const createValidationErrorResponse = (c: Context, error: ValidationError
 
   return c.json(
     { success: false, error: error.message },
-    validStatusCode as 400 | 401 | 403 | 404 | 409 | 415 | 422 | 429 | 500 | 502 | 503 | 504
+    validStatusCode as
+      | 400
+      | 401
+      | 403
+      | 404
+      | 409
+      | 415
+      | 422
+      | 429
+      | 500
+      | 502
+      | 503
+      | 504,
   )
 }
 
@@ -122,10 +137,11 @@ export const createValidationErrorResponse = (c: Context, error: ValidationError
 export const sendSuccessResponse = <T>(
   c: Context,
   data: T,
-  status: number = HTTP_STATUS.OK
+  status: number = HTTP_STATUS.OK,
 ): Response => {
   // CLAUDE.md原則：シンプルで明確
-  const validStatus = status >= 200 && status < 300 ? (status as 200 | 201) : HTTP_STATUS.OK
+  const validStatus =
+    status >= 200 && status < 300 ? (status as 200 | 201) : HTTP_STATUS.OK
   return c.json(createSuccessResponse(data), validStatus)
 }
 
@@ -140,7 +156,7 @@ export const sendSuccessResponse = <T>(
 export const sendErrorResponse = (
   c: Context,
   message: string,
-  status: number = HTTP_STATUS.INTERNAL_SERVER_ERROR
+  status: number = HTTP_STATUS.INTERNAL_SERVER_ERROR,
 ): Response => {
   // Direct status code mapping to preserve all valid HTTP error codes
   // This approach avoids TypeScript type assertion issues while maintaining type safety
@@ -166,7 +182,19 @@ export const sendErrorResponse = (
 
   return c.json(
     createErrorResponse(message),
-    validStatusCode as 400 | 401 | 403 | 404 | 409 | 415 | 422 | 429 | 500 | 502 | 503 | 504
+    validStatusCode as
+      | 400
+      | 401
+      | 403
+      | 404
+      | 409
+      | 415
+      | 422
+      | 429
+      | 500
+      | 502
+      | 503
+      | 504,
   )
 }
 
@@ -209,8 +237,9 @@ export const CommonErrors = {
    */
   unsupportedMediaType: (
     c: Context,
-    message = 'Unsupported Media Type: application/json required'
-  ): Response => sendErrorResponse(c, message, HTTP_STATUS.UNSUPPORTED_MEDIA_TYPE),
+    message = 'Unsupported Media Type: application/json required',
+  ): Response =>
+    sendErrorResponse(c, message, HTTP_STATUS.UNSUPPORTED_MEDIA_TYPE),
 
   /**
    * Rate Limited (429) エラー
@@ -240,14 +269,16 @@ export const CommonErrors = {
 /**
  * 型ガード：レスポンスが成功かどうかを判定
  */
-export const isSuccessResponse = <T>(response: ApiResponse<T>): response is SuccessResponse<T> =>
-  response.success
+export const isSuccessResponse = <T>(
+  response: ApiResponse<T>,
+): response is SuccessResponse<T> => response.success
 
 /**
  * 型ガード：レスポンスがエラーかどうかを判定
  */
-export const isErrorResponse = <T>(response: ApiResponse<T>): response is ErrorResponse =>
-  !response.success
+export const isErrorResponse = <T>(
+  response: ApiResponse<T>,
+): response is ErrorResponse => !response.success
 
 /**
  * APIレスポンスから値を安全に取得（エラー時は例外をthrow）

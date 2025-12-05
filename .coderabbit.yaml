@@ -171,16 +171,6 @@ reviews:
       instructions: |
         設定ファイルのベストプラクティス準拠、CLAUDE.mdの品質基準との整合性を確認してください。
 
-# ツール統合
-tools:
-  github-checks:
-    enabled: true
-    timeout_ms: 120000
-  markdownlint:
-    enabled: true
-  shellcheck:
-    enabled: true
-
 # トーン指示
 tone_instructions: |
   - プロフェッショナルで建設的なレビューを行う

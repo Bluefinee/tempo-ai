@@ -50,12 +50,16 @@
       "Bash(npx biome:*)",
       "Bash(npm test)",
       "Bash(npm test:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "mcp__serena__initial_instructions",
+      "mcp__serena__list_memories",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": [],
     "additionalDirectories": [
-      "/private/tmp"
+      "/private/tmp",
+      "/Users/masakazuiwahara/Development"
     ]
   }
 }

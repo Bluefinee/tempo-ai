@@ -8,25 +8,62 @@
 
 import XCTest
 
+/**
+ * Base class for UI tests providing common setup, helper methods, and utilities
+ * for reliable UI automation testing. This class handles app launch, element
+ * interaction, waiting mechanisms, and test environment configuration.
+ *
+ * ## Key Features
+ * - Automatic app launch with test environment setup
+ * - Comprehensive element waiting and interaction methods
+ * - Error handling and retry mechanisms
+ * - Screenshot capture utilities
+ * - Tab navigation helpers
+ * - Pull-to-refresh gesture support
+ *
+ * ## Usage
+ * Extend this class for specific UI test suites:
+ * ```swift
+ * final class HomeViewUITests: BaseUITest {
+ *     func testHomeViewFeature() {
+ *         // Test implementation using inherited helper methods
+ *     }
+ * }
+ * ```
+ */
 class BaseUITest: XCTestCase {
     
+    /// The main application instance for UI testing
     var app: XCUIApplication!
     
+    /**
+     * Sets up the test environment before each test method execution.
+     * Configures the application with test-specific environment variables
+     * and launches the app for UI automation.
+     *
+     * - Throws: Test setup errors if app launch fails
+     */
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.
         continueAfterFailure = false
         
         app = XCUIApplication()
         
-        // Enable UI testing mode
+        // Enable UI testing mode for predictable app behavior
         app.launchEnvironment["UI_TESTING"] = "1"
         
-        // Disable animations for more stable tests
+        // Disable animations for more stable and faster tests
         app.launchEnvironment["UITESTING_DISABLE_ANIMATIONS"] = "1"
         
         app.launch()
     }
 
+    /**
+     * Cleans up test resources after each test method execution.
+     * Ensures proper cleanup of app instance and test state.
+     *
+     * - Throws: Cleanup errors if resource deallocation fails
+     */
     override func tearDownWithError() throws {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
         app = nil
@@ -73,56 +110,144 @@ class BaseUITest: XCTestCase {
     /// Safely taps an element after ensuring it exists and is hittable
     /// - Parameter element: The UI element to tap
     /// - Parameter timeout: Maximum time to wait for element
-    func safeTap(_ element: XCUIElement, timeout: TimeInterval = 5.0) {
-        XCTAssertTrue(waitForElement(element, timeout: timeout), "Element should exist before tapping")
-        XCTAssertTrue(waitForElementToBeHittable(element, timeout: timeout), "Element should be hittable before tapping")
-        element.tap()
-    }
-    
-    /// Scrolls to find and tap an element
-    /// - Parameters:
-    ///   - element: The UI element to find and tap
-    ///   - scrollView: The scroll view to search in (optional)
-    func scrollToAndTap(_ element: XCUIElement, in scrollView: XCUIElement? = nil) {
-        let targetScrollView = scrollView ?? app.scrollViews.firstMatch
-        
-        // Try to find the element first without scrolling
-        if element.exists && element.isHittable {
-            element.tap()
+    /// - Parameter retryCount: Number of retry attempts if tap fails
+    func safeTap(_ element: XCUIElement, timeout: TimeInterval = 5.0, retryCount: Int = 2) {
+        guard waitForElement(element, timeout: timeout) else {
+            XCTFail("Element does not exist: \(element.debugDescription)")
             return
         }
         
-        // Scroll to find the element
-        var attempts = 0
-        let maxAttempts = 10
+        guard waitForElementToBeHittable(element, timeout: timeout) else {
+            XCTFail("Element is not hittable: \(element.debugDescription)")
+            return
+        }
         
-        while !element.isHittable && attempts < maxAttempts {
-            targetScrollView.swipeUp()
+        var attempts = 0
+        while attempts <= retryCount {
+            do {
+                element.tap()
+                // Small delay to ensure tap was processed
+                usleep(100_000) // 0.1 second
+                return
+            } catch {
+                attempts += 1
+                if attempts > retryCount {
+                    XCTFail("Failed to tap element after \(retryCount + 1) attempts: \(error.localizedDescription)")
+                    return
+                }
+                // Wait a bit before retrying
+                usleep(500_000) // 0.5 second
+            }
+        }
+    }
+    
+    /// Scrolls to find and tap an element with comprehensive error handling
+    /// - Parameters:
+    ///   - element: The UI element to find and tap
+    ///   - scrollView: The scroll view to search in (optional)
+    ///   - timeout: Maximum time to spend searching
+    func scrollToAndTap(_ element: XCUIElement, in scrollView: XCUIElement? = nil, timeout: TimeInterval = 10.0) {
+        let targetScrollView = scrollView ?? app.scrollViews.firstMatch
+        
+        // Verify scroll view exists
+        guard targetScrollView.exists else {
+            XCTFail("Scroll view does not exist for scrolling to element")
+            return
+        }
+        
+        // Try to find the element first without scrolling
+        if element.exists && element.isHittable {
+            safeTap(element)
+            return
+        }
+        
+        let startTime = Date()
+        var attempts = 0
+        let maxAttempts = 15
+        var lastElementFound = false
+        
+        while Date().timeIntervalSince(startTime) < timeout && attempts < maxAttempts {
+            // Check if element became visible
+            if element.exists {
+                lastElementFound = true
+                if element.isHittable {
+                    safeTap(element)
+                    return
+                }
+            }
+            
+            // Try scrolling up first
+            do {
+                targetScrollView.swipeUp()
+                usleep(300_000) // 0.3 second wait after swipe
+            } catch {
+                // If scrolling fails, try alternative approach
+                if attempts < maxAttempts / 2 {
+                    targetScrollView.swipeDown()
+                    usleep(300_000)
+                }
+            }
+            
             attempts += 1
             
+            // Check again after scrolling
             if element.exists && element.isHittable {
-                element.tap()
+                safeTap(element)
                 return
             }
         }
         
-        XCTFail("Could not find and tap element after scrolling")
+        // Provide detailed failure information
+        let errorMessage = lastElementFound ? 
+            "Element was found but not hittable after scrolling for \(timeout) seconds (\(attempts) attempts)" :
+            "Element was not found after scrolling for \(timeout) seconds (\(attempts) attempts)"
+        
+        XCTFail(errorMessage + ": \(element.debugDescription)")
     }
     
-    /// Verifies that a specific tab is selected
-    /// - Parameter tabIdentifier: The accessibility identifier of the tab
+    /**
+     * Verifies that a specific tab is currently selected in the tab bar
+     *
+     * - Parameter tabIdentifier: The accessibility identifier or label of the tab to verify
+     * - Note: This method will fail the test if the tab doesn't exist or isn't selected
+     */
     func verifyTabSelected(_ tabIdentifier: String) {
         let tab = app.tabBars.buttons[tabIdentifier]
         XCTAssertTrue(waitForElement(tab), "Tab should exist")
         XCTAssertTrue(tab.isSelected, "Tab should be selected")
     }
     
-    /// Switches to a specific tab
+    /// Switches to a specific tab with error handling
     /// - Parameter tabIdentifier: The accessibility identifier of the tab
-    func switchToTab(_ tabIdentifier: String) {
+    /// - Parameter timeout: Maximum time to wait for tab switch
+    func switchToTab(_ tabIdentifier: String, timeout: TimeInterval = 5.0) {
         let tab = app.tabBars.buttons[tabIdentifier]
-        safeTap(tab)
-        verifyTabSelected(tabIdentifier)
+        
+        guard tab.exists else {
+            XCTFail("Tab with identifier '\(tabIdentifier)' does not exist")
+            return
+        }
+        
+        safeTap(tab, timeout: timeout)
+        
+        // Wait for tab switch to complete
+        let startTime = Date()
+        while Date().timeIntervalSince(startTime) < timeout {
+            if tab.isSelected {
+                return
+            }
+            usleep(100_000) // 0.1 second
+        }
+        
+        // If verification fails, try one more time
+        if !tab.isSelected {
+            safeTap(tab, timeout: timeout)
+            usleep(500_000) // 0.5 second wait
+            
+            if !tab.isSelected {
+                XCTFail("Tab '\(tabIdentifier)' was not selected after tapping")
+            }
+        }
     }
     
     /// Verifies that an error view is displayed with the retry button
@@ -149,155 +274,165 @@ class BaseUITest: XCTestCase {
                       "Empty state action button should be visible")
     }
     
-    /// Takes a screenshot with a descriptive name
+    /// Takes a screenshot with a descriptive name and error handling
     /// - Parameter name: The name for the screenshot
-    func takeScreenshot(name: String) {
-        let screenshot = XCUIScreen.main.screenshot()
-        let attachment = XCTAttachment(screenshot: screenshot)
-        attachment.name = name
-        attachment.lifetime = .keepAlways
-        add(attachment)
+    /// - Parameter includeTimestamp: Whether to include timestamp in name
+    func takeScreenshot(name: String, includeTimestamp: Bool = true) {
+        do {
+            let screenshot = XCUIScreen.main.screenshot()
+            let attachment = XCTAttachment(screenshot: screenshot)
+            
+            let finalName = includeTimestamp ? 
+                "\(name) - \(DateFormatter.localizedString(from: Date(), dateStyle: .none, timeStyle: .medium))" : 
+                name
+            
+            attachment.name = finalName
+            attachment.lifetime = .keepAlways
+            add(attachment)
+            
+        } catch {
+            print("Failed to capture screenshot '\(name)': \(error.localizedDescription)")
+            // Don't fail test for screenshot issues, just log
+        }
     }
     
     /// Waits for the app to finish loading (no loading indicators visible)
     /// - Parameter timeout: Maximum time to wait
     func waitForAppToFinishLoading(timeout: TimeInterval = 10.0) {
         let loadingView = app.otherElements[UIIdentifiers.HomeViewComponents.loadingView]
-        if loadingView.exists {
-            waitForElementToDisappear(loadingView, timeout: timeout)
+        let loadingSpinner = app.otherElements[UIIdentifiers.HomeViewComponents.loadingSpinner]
+        
+        let startTime = Date()
+        while Date().timeIntervalSince(startTime) < timeout {
+            // Check if any loading indicators are visible
+            let hasLoadingView = loadingView.exists && loadingView.isHittable
+            let hasLoadingSpinner = loadingSpinner.exists && loadingSpinner.isHittable
+            
+            if !hasLoadingView && !hasLoadingSpinner {
+                // Wait a bit more to ensure loading is truly finished
+                usleep(500_000) // 0.5 second
+                
+                // Double check
+                if !loadingView.exists && !loadingSpinner.exists {
+                    return
+                }
+            }
+            
+            usleep(200_000) // 0.2 second between checks
+        }
+        
+        // Log warning if loading didn't finish in time
+        if loadingView.exists || loadingSpinner.exists {
+            print("Warning: App may still be loading after \(timeout) seconds timeout")
         }
         
         // Wait a bit more for any animations to finish
         Thread.sleep(forTimeInterval: 0.5)
     }
     
-    /// Pulls to refresh on the home screen
-    func performPullToRefresh() {
-        let scrollView = app.scrollViews[UIIdentifiers.HomeView.scrollView]
-        XCTAssertTrue(waitForElement(scrollView), "Scroll view should exist")
+    /// Performs pull-to-refresh gesture with error handling
+    /// - Parameter scrollView: Optional specific scroll view to refresh
+    func performPullToRefresh(on scrollView: XCUIElement? = nil) {
+        let targetScrollView = scrollView ?? app.scrollViews[UIIdentifiers.HomeView.scrollView]
         
-        // Perform pull-to-refresh gesture
-        let startPoint = scrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.2))
-        let endPoint = scrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.8))
-        startPoint.press(forDuration: 0.1, thenDragTo: endPoint)
-    }
-}
-
-// MARK: - UIIdentifiers Helper
-
-/// Import UIIdentifiers for UI testing
-/// This allows the test files to access the same identifiers used in the main app
-private enum UIIdentifiers {
-    enum ContentView {
-        static let todayTab = "contentView.tab.today"
-        static let historyTab = "contentView.tab.history"
-        static let trendsTab = "contentView.tab.trends"
-        static let profileTab = "contentView.tab.profile"
-        static let tabView = "contentView.tabView"
-    }
-    
-    enum HomeView {
-        static let navigationTitle = "homeView.navigation.title"
-        static let greetingText = "homeView.greeting.text"
-        static let settingsButton = "homeView.settings.button"
-        static let subtitleText = "homeView.subtitle.text"
-        static let scrollView = "homeView.scrollView"
-        static let headerSection = "homeView.header.section"
-        static let refreshControl = "homeView.refresh.control"
-        static let mockDataBanner = "homeView.mockData.banner"
-        static let mockDataIcon = "homeView.mockData.icon"
-        static let mockDataText = "homeView.mockData.text"
+        guard waitForElement(targetScrollView, timeout: 5.0) else {
+            XCTFail("Scroll view should exist for pull-to-refresh")
+            return
+        }
         
-        static func greetingText(for timeOfDay: String) -> String {
-            return "homeView.greeting.\(timeOfDay.lowercased())"
+        // Ensure scroll view is at the top for pull-to-refresh to work
+        targetScrollView.swipeDown()
+        usleep(300_000) // 0.3 second wait
+        
+        do {
+            // Perform pull-to-refresh gesture
+            let startPoint = targetScrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.2))
+            let endPoint = targetScrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.8))
+            
+            startPoint.press(forDuration: 0.1, thenDragTo: endPoint)
+            
+            // Wait for refresh to start
+            usleep(500_000) // 0.5 second
+            
+        } catch {
+            XCTFail("Failed to perform pull-to-refresh gesture: \(error.localizedDescription)")
         }
     }
     
-    enum HomeViewComponents {
-        static let loadingView = "homeViewComponents.loading.view"
-        static let loadingText = "homeViewComponents.loading.text"
-        static let loadingSpinner = "homeViewComponents.loading.spinner"
-        static let errorView = "homeViewComponents.error.view"
-        static let errorIcon = "homeViewComponents.error.icon"
-        static let errorTitle = "homeViewComponents.error.title"
-        static let errorMessage = "homeViewComponents.error.message"
-        static let errorRetryButton = "homeViewComponents.error.retry.button"
-        static let emptyStateView = "homeViewComponents.emptyState.view"
-        static let emptyStateIcon = "homeViewComponents.emptyState.icon"
-        static let emptyStateTitle = "homeViewComponents.emptyState.title"
-        static let emptyStateMessage = "homeViewComponents.emptyState.message"
-        static let emptyStateActionButton = "homeViewComponents.emptyState.action.button"
-        static let adviceCard = "homeViewComponents.advice.card"
-        static let adviceCardContent = "homeViewComponents.advice.card.content"
-    }
+    // MARK: - Advanced Helper Methods
     
-    enum AdviceView {
-        static let mainView = "adviceView.main.view"
-        static let scrollView = "adviceView.scrollView"
-        static let themeSummaryCard = "adviceView.themeSummary.card"
-        static let themeSummaryIcon = "adviceView.themeSummary.icon"
-        static let themeSummaryTitle = "adviceView.themeSummary.title"
-        static let themeSummaryContent = "adviceView.themeSummary.content"
-        static let weatherCard = "adviceView.weather.card"
-        static let weatherIcon = "adviceView.weather.icon"
-        static let weatherTitle = "adviceView.weather.title"
-        static let mealCardsSection = "adviceView.meals.section"
-        static let breakfastCard = "adviceView.meal.breakfast.card"
-        static let lunchCard = "adviceView.meal.lunch.card"
-        static let dinnerCard = "adviceView.meal.dinner.card"
-        static let exerciseCard = "adviceView.exercise.card"
-        static let sleepCard = "adviceView.sleep.card"
-        static let breathingCard = "adviceView.breathing.card"
-    }
-    
-    enum PermissionsView {
-        static let mainView = "permissionsView.main.view"
-        static let navigationTitle = "permissionsView.navigation.title"
-        static let scrollView = "permissionsView.scrollView"
-        static let headerTitle = "permissionsView.header.title"
-        static let headerSubtitle = "permissionsView.header.subtitle"
-        static let permissionsList = "permissionsView.permissions.list"
-        static let dismissButton = "permissionsView.dismiss.button"
-        static let healthKitRow = "permissionsView.healthKit.row"
-        static let healthKitButton = "permissionsView.healthKit.button"
-        static let locationRow = "permissionsView.location.row"
-        static let locationButton = "permissionsView.location.button"
+    /// Waits for any one of multiple elements to appear
+    /// - Parameters:
+    ///   - elements: Array of elements to wait for
+    ///   - timeout: Maximum time to wait
+    /// - Returns: The first element that appeared, or nil if none appeared
+    @discardableResult
+    func waitForAnyElement(_ elements: [XCUIElement], timeout: TimeInterval = 5.0) -> XCUIElement? {
+        let startTime = Date()
         
-        static func permissionStatus(for permissionType: String) -> String {
-            return "permissionsView.\(permissionType.lowercased()).status"
+        while Date().timeIntervalSince(startTime) < timeout {
+            for element in elements {
+                if element.exists {
+                    return element
+                }
+            }
+            usleep(100_000) // 0.1 second
         }
         
-        static func permissionButton(for permissionType: String) -> String {
-            return "permissionsView.\(permissionType.lowercased()).button"
-        }
+        return nil
     }
     
-    enum PlaceholderView {
-        static let mainView = "placeholderView.main.view"
-        static let icon = "placeholderView.icon"
-        static let title = "placeholderView.title"
-        static let message = "placeholderView.message"
-    }
-    
-    enum ProfileView {
-        static let mainView = "profileView.main.view"
-        static let navigationTitle = "profileView.navigation.title"
+    /// Retry a block of code multiple times with delay
+    /// - Parameters:
+    ///   - maxAttempts: Maximum number of attempts
+    ///   - delay: Delay between attempts in seconds
+    ///   - action: The action to retry
+    /// - Returns: True if action succeeded, false otherwise
+    @discardableResult
+    func retry(maxAttempts: Int = 3, delay: TimeInterval = 1.0, action: () throws -> Bool) -> Bool {
+        var attempts = 0
         
-        static func profileRow(for rowType: String) -> String {
-            return "profileView.row.\(rowType.lowercased())"
+        while attempts < maxAttempts {
+            do {
+                if try action() {
+                    return true
+                }
+            } catch {
+                print("Retry attempt \(attempts + 1) failed: \(error.localizedDescription)")
+            }
+            
+            attempts += 1
+            if attempts < maxAttempts {
+                Thread.sleep(forTimeInterval: delay)
+            }
         }
+        
+        return false
     }
     
-    enum Common {
-        static let navigationBackButton = "common.navigation.back.button"
-        static let closeButton = "common.close.button"
-        static let doneButton = "common.done.button"
-        static let cancelButton = "common.cancel.button"
-        static let saveButton = "common.save.button"
-        static let alertView = "common.alert.view"
-        static let alertTitle = "common.alert.title"
-        static let alertMessage = "common.alert.message"
-        static let alertOKButton = "common.alert.ok.button"
-        static let alertCancelButton = "common.alert.cancel.button"
+    /// Dismisses any alerts that might be present
+    func dismissAnyAlerts() {
+        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        let alerts = springboard.alerts
+        
+        if alerts.count > 0 {
+            let alert = alerts.firstMatch
+            if alert.buttons["Allow"].exists {
+                alert.buttons["Allow"].tap()
+            } else if alert.buttons["OK"].exists {
+                alert.buttons["OK"].tap()
+            } else if alert.buttons["Cancel"].exists {
+                alert.buttons["Cancel"].tap()
+            }
+        }
+        
+        // Also check for app alerts
+        let appAlerts = app.alerts
+        if appAlerts.count > 0 {
+            let alert = appAlerts.firstMatch
+            if alert.buttons["OK"].exists {
+                alert.buttons["OK"].tap()
+            }
+        }
     }
 }

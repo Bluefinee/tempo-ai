@@ -116,7 +116,7 @@ struct PermissionRow: View {
                 .font(.title2)
                 .foregroundColor(.blue)
                 .frame(width: 30)
-                .accessibilityIdentifier(UIIdentifiers.PermissionsView.permissionStatus(for: title.lowercased()))
+                // Icon doesn't need individual identifier - it's part of the row
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
@@ -133,7 +133,7 @@ struct PermissionRow: View {
                 .font(.caption)
                 .fontWeight(.medium)
                 .foregroundColor(color)
-                .accessibilityIdentifier(UIIdentifiers.PermissionsView.permissionStatus(for: title.lowercased()))
+                .accessibilityIdentifier(UIIdentifiers.PermissionsView.permissionStatus(for: title))
         }
         .padding()
         .background(.regularMaterial)

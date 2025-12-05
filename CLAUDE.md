@@ -33,6 +33,7 @@ Break complex work into 3-5 stages. Document in `IMPLEMENTATION_PLAN.md`:
 
 ```markdown
 ## Stage N: [Name]
+
 **Goal**: [Specific deliverable]
 **Success Criteria**: [Testable outcomes]
 **Tests**: [Specific test cases]
@@ -72,14 +73,14 @@ Break complex work into 3-5 stages. Document in `IMPLEMENTATION_PLAN.md`:
 
 ```typescript
 // ❌ Bad
-const getData = (id: any) => fetch(`/api/${id}`).then(res => res.json())
+const getData = (id: any) => fetch(`/api/${id}`).then((res) => res.json());
 
 // ✅ Good
 const getData = async (id: string): Promise<UserData> => {
-  const response = await fetch(`/api/${id}`)
-  if (!response.ok) throw new Error(`Failed: ${response.statusText}`)
-  return response.json()
-}
+  const response = await fetch(`/api/${id}`);
+  if (!response.ok) throw new Error(`Failed: ${response.statusText}`);
+  return response.json();
+};
 ```
 
 #### Function Style
@@ -91,7 +92,7 @@ const getData = async (id: string): Promise<UserData> => {
 // ✅ Prefer
 export const processUser = (user: User): ProcessedUser => {
   // ...
-}
+};
 ```
 
 #### DRY Principle
@@ -102,12 +103,14 @@ export const processUser = (user: User): ProcessedUser => {
 
 ```typescript
 // ❌ Bad - Repeated validation
-const validateEmail = (email: string): boolean => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
-const validateUserEmail = (email: string): boolean => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+const validateEmail = (email: string): boolean =>
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+const validateUserEmail = (email: string): boolean =>
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
 // ✅ Good - Single implementation
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-export const isValidEmail = (email: string): boolean => EMAIL_REGEX.test(email)
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+export const isValidEmail = (email: string): boolean => EMAIL_REGEX.test(email);
 ```
 
 ### Comments Policy
@@ -127,11 +130,11 @@ export const isValidEmail = (email: string): boolean => EMAIL_REGEX.test(email)
 ```typescript
 // ❌ Bad
 // Get user by ID
-const getUser = (id: string) => users.find(u => u.id === id)
+const getUser = (id: string) => users.find((u) => u.id === id);
 
 // ✅ Good - Self-documenting
-const getUserById = (id: string): User | undefined => 
-  users.find(user => user.id === id)
+const getUserById = (id: string): User | undefined =>
+  users.find((user) => user.id === id);
 
 // ✅ Good - Explains "why"
 /**
@@ -141,7 +144,9 @@ const getUserById = (id: string): User | undefined =>
 const fetchWithRetry = async <T>(
   fetcher: () => Promise<T>,
   maxRetries = 3
-): Promise<T> => { /* ... */ }
+): Promise<T> => {
+  /* ... */
+};
 ```
 
 ### JSDoc for Public APIs
@@ -149,7 +154,7 @@ const fetchWithRetry = async <T>(
 ```typescript
 /**
  * Processes health data from multiple sources
- * 
+ *
  * @param userId - Unique identifier for the user
  * @param options - Configuration options
  * @returns Promise resolving to health report
@@ -160,7 +165,7 @@ export const generateHealthReport = async (
   options: ReportOptions
 ): Promise<HealthReport> => {
   // Implementation
-}
+};
 ```
 
 ### Error Handling
@@ -177,8 +182,8 @@ class ValidationError extends Error {
     public readonly field: string,
     public readonly value: unknown
   ) {
-    super(message)
-    this.name = 'ValidationError'
+    super(message);
+    this.name = "ValidationError";
   }
 }
 ```
@@ -231,4 +236,3 @@ When multiple valid approaches exist:
 - Keep comments minimal and purposeful
 - Commit working code incrementally
 - Stop after 3 failed attempts and reassess
-- 4のPRにおいて、code rabbitがコメントでレビュー指摘をしてくれているのですが、全て詳細にguidelines/code-rabbit-reviewsにアウトプットしていただけますか？guidelines/code-rabbit-reviews/20241204-2255-code-rabbit-review-results.txtがお手本です

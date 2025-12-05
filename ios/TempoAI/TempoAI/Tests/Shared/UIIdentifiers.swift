@@ -35,9 +35,12 @@ enum UIIdentifiers {
         static let mockDataIcon = "homeView.mockData.icon"
         static let mockDataText = "homeView.mockData.text"
         
-        // Helper function for dynamic greeting identifiers
+        /// Helper function for dynamic greeting identifiers
+        /// - Parameter timeOfDay: The time of day (e.g., "morning", "afternoon")
+        /// - Returns: A unique greeting identifier string
         static func greetingText(for timeOfDay: String) -> String {
-            return "homeView.greeting.\(timeOfDay.lowercased())"
+            let sanitizedTimeOfDay = timeOfDay.lowercased().replacingOccurrences(of: " ", with: "")
+            return "homeView.greeting.\(sanitizedTimeOfDay)"
         }
     }
     
@@ -66,9 +69,12 @@ enum UIIdentifiers {
         static let adviceCard = "homeViewComponents.advice.card"
         static let adviceCardContent = "homeViewComponents.advice.card.content"
         
-        // Helper function for dynamic error messages
+        /// Helper function for dynamic error messages
+        /// - Parameter errorType: The type of error (e.g., "network", "server")
+        /// - Returns: A unique error message identifier string
         static func errorMessage(for errorType: String) -> String {
-            return "homeViewComponents.error.message.\(errorType)"
+            let sanitizedErrorType = errorType.lowercased().replacingOccurrences(of: " ", with: "")
+            return "homeViewComponents.error.message.\(sanitizedErrorType)"
         }
     }
     
@@ -125,17 +131,30 @@ enum UIIdentifiers {
         static let breathingAdvice = "adviceView.breathing.advice"
         static let breathingStartButton = "adviceView.breathing.start.button"
         
-        // Helper functions for dynamic meal card identifiers
+        /// Helper functions for dynamic meal card identifiers
+        
+        /// Generates meal card identifier
+        /// - Parameter mealType: The type of meal (e.g., "breakfast", "lunch")
+        /// - Returns: A unique meal card identifier string
         static func mealCard(for mealType: String) -> String {
-            return "adviceView.meal.\(mealType.lowercased()).card"
+            let sanitizedMealType = mealType.lowercased().replacingOccurrences(of: " ", with: "")
+            return "adviceView.meal.\(sanitizedMealType).card"
         }
         
+        /// Generates meal title identifier
+        /// - Parameter mealType: The type of meal
+        /// - Returns: A unique meal title identifier string
         static func mealTitle(for mealType: String) -> String {
-            return "adviceView.meal.\(mealType.lowercased()).title"
+            let sanitizedMealType = mealType.lowercased().replacingOccurrences(of: " ", with: "")
+            return "adviceView.meal.\(sanitizedMealType).title"
         }
         
+        /// Generates meal advice identifier
+        /// - Parameter mealType: The type of meal
+        /// - Returns: A unique meal advice identifier string
         static func mealAdvice(for mealType: String) -> String {
-            return "adviceView.meal.\(mealType.lowercased()).advice"
+            let sanitizedMealType = mealType.lowercased().replacingOccurrences(of: " ", with: "")
+            return "adviceView.meal.\(sanitizedMealType).advice"
         }
     }
     
@@ -165,13 +184,22 @@ enum UIIdentifiers {
         static let locationStatus = "permissionsView.location.status"
         static let locationButton = "permissionsView.location.button"
         
-        // Helper functions for permission status
+        /// Helper functions for permission-related identifiers
+        
+        /// Generates permission status identifier
+        /// - Parameter permissionType: The type of permission (e.g., "HealthKit", "Location")
+        /// - Returns: A unique permission status identifier string
         static func permissionStatus(for permissionType: String) -> String {
-            return "permissionsView.\(permissionType.lowercased()).status"
+            let sanitizedType = permissionType.lowercased().replacingOccurrences(of: " ", with: "")
+            return "permissionsView.\(sanitizedType).status"
         }
         
+        /// Generates permission button identifier
+        /// - Parameter permissionType: The type of permission
+        /// - Returns: A unique permission button identifier string
         static func permissionButton(for permissionType: String) -> String {
-            return "permissionsView.\(permissionType.lowercased()).button"
+            let sanitizedType = permissionType.lowercased().replacingOccurrences(of: " ", with: "")
+            return "permissionsView.\(sanitizedType).button"
         }
     }
     
@@ -182,9 +210,12 @@ enum UIIdentifiers {
         static let title = "placeholderView.title"
         static let message = "placeholderView.message"
         
-        // Helper function for different placeholder types
+        /// Helper function for different placeholder types
+        /// - Parameter feature: The feature name (e.g., "history", "trends")
+        /// - Returns: A unique placeholder identifier string
         static func placeholder(for feature: String) -> String {
-            return "placeholderView.\(feature.lowercased())"
+            let sanitizedFeature = feature.lowercased().replacingOccurrences(of: " ", with: "")
+            return "placeholderView.\(sanitizedFeature)"
         }
     }
     
@@ -193,9 +224,12 @@ enum UIIdentifiers {
         static let mainView = "profileView.main.view"
         static let navigationTitle = "profileView.navigation.title"
         
-        // Helper function for profile rows
+        /// Helper function for profile rows
+        /// - Parameter rowType: The type of profile row (e.g., "age", "gender")
+        /// - Returns: A unique profile row identifier string
         static func profileRow(for rowType: String) -> String {
-            return "profileView.row.\(rowType.lowercased())"
+            let sanitizedRowType = rowType.lowercased().replacingOccurrences(of: " ", with: "")
+            return "profileView.row.\(sanitizedRowType)"
         }
     }
     
@@ -226,9 +260,12 @@ enum UIIdentifiers {
         static let mockDataEnabled = "testEnvironment.mockData.enabled"
         static let testModeIndicator = "testEnvironment.testMode.indicator"
         
-        // Helper function for test state indicators
+        /// Helper function for test state indicators
+        /// - Parameter state: The test state (e.g., "loading", "error")
+        /// - Returns: A unique test state identifier string
         static func testState(for state: String) -> String {
-            return "testEnvironment.state.\(state.lowercased())"
+            let sanitizedState = state.lowercased().replacingOccurrences(of: " ", with: "")
+            return "testEnvironment.state.\(sanitizedState)"
         }
     }
 }
@@ -243,7 +280,8 @@ extension UIIdentifiers {
     ///   - index: The index of the item in the list
     /// - Returns: A unique identifier string
     static func listItem(prefix: String, index: Int) -> String {
-        return "\(prefix).item.\(index)"
+        let sanitizedPrefix = prefix.lowercased().replacingOccurrences(of: " ", with: "")
+        return "\(sanitizedPrefix).item.\(index)"
     }
     
     /// Generates a unique identifier for cards with dynamic content
@@ -252,7 +290,9 @@ extension UIIdentifiers {
     ///   - identifier: A unique identifier for the content
     /// - Returns: A unique identifier string
     static func dynamicCard(cardType: String, identifier: String) -> String {
-        return "\(cardType).card.\(identifier)"
+        let sanitizedCardType = cardType.lowercased().replacingOccurrences(of: " ", with: "")
+        let sanitizedIdentifier = identifier.lowercased().replacingOccurrences(of: " ", with: "")
+        return "\(sanitizedCardType).card.\(sanitizedIdentifier)"
     }
     
     /// Generates a state-dependent identifier
@@ -261,6 +301,17 @@ extension UIIdentifiers {
     ///   - state: The current state
     /// - Returns: A state-specific identifier
     static func stateDependentIdentifier(_ baseIdentifier: String, state: String) -> String {
-        return "\(baseIdentifier).\(state.lowercased())"
+        let sanitizedState = state.lowercased().replacingOccurrences(of: " ", with: "")
+        return "\(baseIdentifier).\(sanitizedState)"
+    }
+    
+    /// Sanitizes input strings for consistent identifier generation
+    /// - Parameter input: The input string to sanitize
+    /// - Returns: A sanitized string suitable for use in identifiers
+    private static func sanitizeInput(_ input: String) -> String {
+        return input.lowercased()
+            .replacingOccurrences(of: " ", with: "")
+            .replacingOccurrences(of: "-", with: "")
+            .replacingOccurrences(of: "_", with: "")
     }
 }

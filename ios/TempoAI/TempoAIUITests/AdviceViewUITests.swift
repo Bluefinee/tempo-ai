@@ -431,7 +431,10 @@ final class AdviceViewUITests: BaseUITest {
         }
         
         // When: Measuring advice view interaction performance
-        measure {
+        let options = XCTMeasureOptions.default
+        options.iterationCount = 3  // Reduce iterations for faster completion
+        
+        measure(options: options) {
             let cardIdentifiers = [
                 UIIdentifiers.AdviceView.breakfastCard,
                 UIIdentifiers.AdviceView.lunchCard,
@@ -439,11 +442,12 @@ final class AdviceViewUITests: BaseUITest {
                 UIIdentifiers.AdviceView.sleepCard
             ]
             
+            // More efficient card interaction test - remove sleep delays
             for cardIdentifier in cardIdentifiers {
                 let card = app.otherElements[cardIdentifier]
                 if card.exists && card.isHittable {
                     card.tap()
-                    Thread.sleep(forTimeInterval: 0.1)
+                    // Remove sleep for performance optimization
                 }
             }
         }

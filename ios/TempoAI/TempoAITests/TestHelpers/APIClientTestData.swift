@@ -79,7 +79,7 @@ extension APIClientTestData {
             ),
             exercise: ExerciseAdvice(
                 recommendation: "有酸素運動30分",
-                intensity: "Moderate",
+                intensity: .moderate,
                 reason: "回復状態が良好",
                 timing: "午前10時頃",
                 avoid: ["高強度運動"]

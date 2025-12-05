@@ -1,5 +1,6 @@
 import SwiftUI
 
+@MainActor
 struct HomeView: View {
     @StateObject private var healthKitManager: HealthKitManager = HealthKitManager()
     @StateObject private var locationManager: LocationManager = LocationManager()
@@ -17,7 +18,7 @@ struct HomeView: View {
         goals: ["fatigue_recovery", "focus"],
         dietaryPreferences: "No restrictions",
         exerciseHabits: "Regular weight training",
-        exerciseFrequency: "active"
+        exerciseFrequency: "weekly"
     )
 
     private var timeBasedGreeting: String {

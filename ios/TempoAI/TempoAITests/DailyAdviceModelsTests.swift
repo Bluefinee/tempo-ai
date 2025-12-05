@@ -7,7 +7,7 @@ final class DailyAdviceModelsTests: XCTestCase {
 
     func testDailyAdviceCreation() {
         // Given: Valid advice components
-        let dailyAdvice = TestHelpers.createMockDailyAdvice()
+        let dailyAdvice = APIClientTestData.createMockDailyAdvice()
 
         // Then: Should create valid advice with unique ID
         XCTAssertNotNil(dailyAdvice.id)
@@ -26,8 +26,8 @@ final class DailyAdviceModelsTests: XCTestCase {
 
     func testDailyAdviceUniqueIDs() {
         // Given: Multiple daily advice instances
-        let advice1 = TestHelpers.createMockDailyAdvice()
-        let advice2 = TestHelpers.createMockDailyAdvice()
+        let advice1 = APIClientTestData.createMockDailyAdvice()
+        let advice2 = APIClientTestData.createMockDailyAdvice()
 
         // Then: Should have unique IDs
         XCTAssertNotEqual(advice1.id, advice2.id)
@@ -73,7 +73,7 @@ final class DailyAdviceModelsTests: XCTestCase {
         // Given: Exercise advice
         let exerciseAdvice = ExerciseAdvice(
             recommendation: "軽いジョギング",
-            intensity: "Moderate",
+            intensity: .moderate,
             reason: "心肺機能向上",
             timing: "午前中",
             avoid: ["高強度トレーニング", "長時間運動"]
@@ -81,7 +81,7 @@ final class DailyAdviceModelsTests: XCTestCase {
 
         // Then: Should maintain all fields
         XCTAssertEqual(exerciseAdvice.recommendation, "軽いジョギング")
-        XCTAssertEqual(exerciseAdvice.intensity, "Moderate")
+        XCTAssertEqual(exerciseAdvice.intensity, .moderate)
         XCTAssertEqual(exerciseAdvice.reason, "心肺機能向上")
         XCTAssertEqual(exerciseAdvice.timing, "午前中")
         XCTAssertEqual(exerciseAdvice.avoid.count, 2)

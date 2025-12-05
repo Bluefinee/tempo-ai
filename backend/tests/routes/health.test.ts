@@ -21,11 +21,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { healthRoutes } from '@/routes/health'
 
 // Mock services
-vi.mock('@/services/ai')
+vi.mock('@/services/health-advice')
 vi.mock('@/services/weather')
 vi.mock('@/utils/errors')
 
-import { analyzeHealth } from '@/services/ai'
+import { generateHealthAdvice } from '@/services/health-advice'
 import { getWeather } from '@/services/weather'
 import type { DailyAdvice } from '@/types/advice'
 import { handleError } from '@/utils/errors'
@@ -50,7 +50,7 @@ interface StatusResponse {
   }
 }
 
-const mockAnalyzeHealth = vi.mocked(analyzeHealth)
+const mockGenerateHealthAdvice = vi.mocked(generateHealthAdvice)
 const mockGetWeather = vi.mocked(getWeather)
 const mockHandleError = vi.mocked(handleError)
 
@@ -93,7 +93,7 @@ const validRequestBody = {
     goals: ['疲労回復', '集中力向上'],
     dietaryPreferences: 'バランス重視',
     exerciseHabits: '週3回ジム',
-    exerciseFrequency: '3回/週',
+    exerciseFrequency: 'weekly',
   },
 }
 
@@ -178,14 +178,12 @@ describe('Health Routes', () => {
 
     // Default successful mocks
     mockGetWeather.mockResolvedValue(mockWeatherData)
-    mockAnalyzeHealth.mockResolvedValue(mockAdviceResult)
+    mockGenerateHealthAdvice.mockResolvedValue(mockAdviceResult)
     mockHandleError.mockReturnValue({ message: 'Test error', statusCode: 500 })
   })
 
   describe('POST /analyze', () => {
     it('should successfully analyze health data with valid request', async () => {
-      // Setup test context with valid request body
-
       const app = healthRoutes
       const response = await app.request(
         '/analyze',
@@ -405,8 +403,10 @@ describe('Health Routes', () => {
       expect(response.status).toBe(500)
     })
 
-    it('should handle AI analysis errors', async () => {
-      mockAnalyzeHealth.mockRejectedValueOnce(new Error('AI analysis failed'))
+    it('should handle health advice generation errors', async () => {
+      mockGenerateHealthAdvice.mockRejectedValueOnce(
+        new Error('Health advice generation failed'),
+      )
 
       const app = healthRoutes
       const response = await app.request(
@@ -441,8 +441,8 @@ describe('Health Routes', () => {
       // Verify weather service called with correct coordinates
       expect(mockGetWeather).toHaveBeenCalledWith(35.6895, 139.6917)
 
-      // Verify AI service called with correct parameters
-      expect(mockAnalyzeHealth).toHaveBeenCalledWith({
+      // Verify health advice service called with correct parameters
+      expect(mockGenerateHealthAdvice).toHaveBeenCalledWith({
         healthData: validRequestBody.healthData,
         weather: mockWeatherData,
         userProfile: validRequestBody.userProfile,

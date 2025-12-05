@@ -7,7 +7,7 @@ final class JSONSerializationTests: XCTestCase {
 
     func testHealthDataJSONSerialization() throws {
         // Given: Health data model
-        let healthData = TestHelpers.createMockHealthData()
+        let healthData = APIClientTestData.createMockHealthData()
 
         // When: Encoding to JSON
         let jsonData = try JSONEncoder().encode(healthData)
@@ -39,7 +39,7 @@ final class JSONSerializationTests: XCTestCase {
 
     func testDailyAdviceJSONSerialization() throws {
         // Given: Daily advice model
-        let dailyAdvice = TestHelpers.createMockDailyAdvice()
+        let dailyAdvice = APIClientTestData.createMockDailyAdvice()
 
         // When: Encoding to JSON
         let jsonData = try JSONEncoder().encode(dailyAdvice)
@@ -57,9 +57,9 @@ final class JSONSerializationTests: XCTestCase {
     func testAnalysisRequestJSONSerialization() throws {
         // Given: Analysis request
         let request = AnalysisRequest(
-            healthData: TestHelpers.createMockHealthData(),
+            healthData: APIClientTestData.createMockHealthData(),
             location: LocationData(latitude: 35.6895, longitude: 139.6917),
-            userProfile: TestHelpers.createMockUserProfile()
+            userProfile: APIClientTestData.createMockUserProfile()
         )
 
         // When: Encoding to JSON

@@ -41,6 +41,11 @@ struct ActivityData: Codable {
 struct LocationData: Codable {
     let latitude: Double
     let longitude: Double
+
+    var isValid: Bool {
+        latitude >= -90.0 && latitude <= 90.0 && longitude >= -180.0 && longitude <= 180.0 && !latitude.isInfinite
+            && !latitude.isNaN && !longitude.isInfinite && !longitude.isNaN
+    }
 }
 
 struct UserProfile: Codable {
@@ -61,7 +66,7 @@ struct AnalysisRequest: Codable {
 
 // MARK: - AI Response Models
 struct DailyAdvice: Codable, Identifiable {
-    var id: UUID = UUID()
+    let id: UUID
     let theme: String
     let summary: String
     let breakfast: MealAdvice
@@ -96,6 +101,35 @@ struct DailyAdvice: Codable, Identifiable {
         self.sleepPreparation = try container.decode(SleepPreparationAdvice.self, forKey: .sleepPreparation)
         self.weatherConsiderations = try container.decode(WeatherConsiderations.self, forKey: .weatherConsiderations)
         self.priorityActions = try container.decode([String].self, forKey: .priorityActions)
+    }
+
+    // Memberwise initializer for testing and previews
+    init(
+        id: UUID = UUID(),
+        theme: String,
+        summary: String,
+        breakfast: MealAdvice,
+        lunch: MealAdvice,
+        dinner: MealAdvice,
+        exercise: ExerciseAdvice,
+        hydration: HydrationAdvice,
+        breathing: BreathingAdvice,
+        sleepPreparation: SleepPreparationAdvice,
+        weatherConsiderations: WeatherConsiderations,
+        priorityActions: [String]
+    ) {
+        self.id = id
+        self.theme = theme
+        self.summary = summary
+        self.breakfast = breakfast
+        self.lunch = lunch
+        self.dinner = dinner
+        self.exercise = exercise
+        self.hydration = hydration
+        self.breathing = breathing
+        self.sleepPreparation = sleepPreparation
+        self.weatherConsiderations = weatherConsiderations
+        self.priorityActions = priorityActions
     }
 }
 

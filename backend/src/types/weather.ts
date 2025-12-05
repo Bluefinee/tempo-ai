@@ -9,6 +9,8 @@
  * @since 1.0.0
  */
 
+import { z } from 'zod'
+
 /**
  * Open-Meteo APIから取得される天気データ
  * 現在の気象データと今日の予報データを含む
@@ -53,3 +55,29 @@ export interface WeatherData {
     precipitation_sum: number[]
   }
 }
+
+/**
+ * Zod schema for WeatherData validation
+ */
+export const WeatherDataSchema = z.object({
+  current: z.object({
+    time: z.string(),
+    temperature_2m: z.number(),
+    relative_humidity_2m: z.number(),
+    apparent_temperature: z.number(),
+    precipitation: z.number(),
+    rain: z.number(),
+    weather_code: z.number(),
+    cloud_cover: z.number(),
+    wind_speed_10m: z.number(),
+  }),
+  daily: z.object({
+    time: z.array(z.string()),
+    temperature_2m_max: z.array(z.number()),
+    temperature_2m_min: z.array(z.number()),
+    sunrise: z.array(z.string()),
+    sunset: z.array(z.string()),
+    uv_index_max: z.array(z.number()),
+    precipitation_sum: z.array(z.number()),
+  }),
+})

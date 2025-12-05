@@ -38,8 +38,12 @@ class APIClient: ObservableObject {
                 throw APIError.invalidResponse
             }
 
-            if httpResponse.statusCode == 200 {
-                return try JSONDecoder().decode(T.self, from: data)
+            if (200 ... 299).contains(httpResponse.statusCode) {
+                do {
+                    return try JSONDecoder().decode(T.self, from: data)
+                } catch {
+                    throw APIError.decodingError
+                }
             } else {
                 throw APIError.httpError(httpResponse.statusCode)
             }
@@ -130,7 +134,7 @@ class APIClient: ObservableObject {
                 throw APIError.invalidResponse
             }
 
-            if httpResponse.statusCode == 200 {
+            if (200 ... 299).contains(httpResponse.statusCode) {
                 do {
                     let healthStatusResponse = try JSONDecoder().decode(HealthStatusResponse.self, from: data)
                     return healthStatusResponse.status

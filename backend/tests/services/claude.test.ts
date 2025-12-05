@@ -1,15 +1,15 @@
 /**
- * @fileoverview AI Service Unit Tests
+ * @fileoverview Claude API Integration Service Unit Tests
  *
- * このファイルは、Claude AI分析サービス（@/services/ai）のユニットテストを担当します。
- * ヘルスデータ、天気データ、ユーザープロファイルを基にした健康アドバイス生成機能、
- * Anthropic API との連携、およびエラーハンドリングを検証します。
+ * このファイルは、Claude API統合サービス（@/services/claude）のユニットテストを担当します。
+ * Anthropic Claude APIとの純粋な統合機能に焦点を当て、
+ * ヘルスケアドメインロジックは除外されています。
  *
  * テスト対象:
- * - analyzeHealth関数 - AIによるヘルス分析
+ * - callClaude関数 - Claude API呼び出し
  * - Anthropic Claude API統合
  * - APIキー検証とエラーハンドリング
- * - プロンプト生成とAIレスポンス処理
+ * - AIレスポンス処理とバリデーション
  * - カスタムfetch関数の統合
  * - レスポンス形式の検証
  *
@@ -18,72 +18,10 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { analyzeHealth } from '@/services/ai'
-import type { HealthData, UserProfile } from '@/types/health'
-import type { WeatherData } from '@/types/weather'
+import { callClaude } from '@/services/claude'
 import { APIError } from '@/utils/errors'
 
 // No module mocking needed - we'll use custom fetch
-
-const mockHealthData: HealthData = {
-  sleep: {
-    duration: 7.5,
-    deep: 1.2,
-    rem: 1.8,
-    light: 4.5,
-    awake: 0,
-    efficiency: 88,
-  },
-  hrv: {
-    average: 45.2,
-    min: 38.1,
-    max: 52.7,
-  },
-  heartRate: {
-    resting: 58,
-    average: 72,
-    min: 55,
-    max: 85,
-  },
-  activity: {
-    steps: 8234,
-    distance: 6.2,
-    calories: 420,
-    activeMinutes: 35,
-  },
-}
-
-const mockUserProfile: UserProfile = {
-  age: 30,
-  gender: 'male',
-  goals: ['疲労回復', '集中力向上'],
-  dietaryPreferences: 'バランス重視',
-  exerciseHabits: '週3回ジム',
-  exerciseFrequency: '3回/週',
-}
-
-const mockWeatherData: WeatherData = {
-  current: {
-    time: '2024-01-01T12:00',
-    temperature_2m: 22.5,
-    apparent_temperature: 24.1,
-    relative_humidity_2m: 65,
-    precipitation: 0,
-    rain: 0,
-    weather_code: 1,
-    cloud_cover: 25,
-    wind_speed_10m: 8.2,
-  },
-  daily: {
-    time: ['2024-01-01'],
-    temperature_2m_max: [26.3],
-    temperature_2m_min: [18.7],
-    sunrise: ['06:30'],
-    sunset: ['18:45'],
-    uv_index_max: [6.8],
-    precipitation_sum: [0],
-  },
-}
 
 const mockValidAdvice = {
   theme: 'バランス調整の日',
@@ -151,18 +89,16 @@ const mockValidAdvice = {
   ],
 }
 
-describe('AI Service', () => {
+describe('Claude API Service', () => {
   beforeEach(async () => {
     vi.clearAllMocks()
   })
 
-  describe('analyzeHealth', () => {
+  describe('callClaude', () => {
     it('should throw APIError when API key is missing', async () => {
       await expect(
-        analyzeHealth({
-          healthData: mockHealthData,
-          weather: mockWeatherData,
-          userProfile: mockUserProfile,
+        callClaude({
+          prompt: 'Test prompt',
           apiKey: '',
         }),
       ).rejects.toThrow(APIError)
@@ -170,16 +106,14 @@ describe('AI Service', () => {
 
     it('should throw APIError when API key is placeholder', async () => {
       await expect(
-        analyzeHealth({
-          healthData: mockHealthData,
-          weather: mockWeatherData,
-          userProfile: mockUserProfile,
+        callClaude({
+          prompt: 'Test prompt',
           apiKey: 'sk-ant-api03-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
         }),
       ).rejects.toThrow('Claude API key not configured')
     })
 
-    it('should successfully analyze health data with valid inputs', async () => {
+    it('should successfully call Claude API with valid inputs', async () => {
       const mockFetch = vi.fn().mockResolvedValue({
         ok: true,
         status: 200,
@@ -203,10 +137,8 @@ describe('AI Service', () => {
         }),
       } as Response)
 
-      const result = await analyzeHealth({
-        healthData: mockHealthData,
-        weather: mockWeatherData,
-        userProfile: mockUserProfile,
+      const result = await callClaude({
+        prompt: 'Test health analysis prompt',
         apiKey: 'sk-ant-api03-valid-key-12345',
         customFetch: mockFetch as typeof fetch,
       })
@@ -247,10 +179,8 @@ describe('AI Service', () => {
       } as Response)
 
       await expect(
-        analyzeHealth({
-          healthData: mockHealthData,
-          weather: mockWeatherData,
-          userProfile: mockUserProfile,
+        callClaude({
+          prompt: 'Test health analysis prompt',
           apiKey: 'sk-ant-api03-valid-key-12345',
           customFetch: mockFetch as typeof fetch,
         }),
@@ -282,10 +212,8 @@ describe('AI Service', () => {
       } as Response)
 
       await expect(
-        analyzeHealth({
-          healthData: mockHealthData,
-          weather: mockWeatherData,
-          userProfile: mockUserProfile,
+        callClaude({
+          prompt: 'Test health analysis prompt',
           apiKey: 'sk-ant-api03-valid-key-12345',
           customFetch: mockFetch as typeof fetch,
         }),
@@ -323,10 +251,8 @@ describe('AI Service', () => {
       } as Response)
 
       await expect(
-        analyzeHealth({
-          healthData: mockHealthData,
-          weather: mockWeatherData,
-          userProfile: mockUserProfile,
+        callClaude({
+          prompt: 'Test health analysis prompt',
           apiKey: 'sk-ant-api03-valid-key-12345',
           customFetch: mockFetch as typeof fetch,
         }),
@@ -338,10 +264,8 @@ describe('AI Service', () => {
       const mockFetch = vi.fn().mockRejectedValue(authError)
 
       await expect(
-        analyzeHealth({
-          healthData: mockHealthData,
-          weather: mockWeatherData,
-          userProfile: mockUserProfile,
+        callClaude({
+          prompt: 'Test health analysis prompt',
           apiKey: 'sk-ant-api03-invalid-key',
           customFetch: mockFetch as typeof fetch,
         }),
@@ -353,10 +277,8 @@ describe('AI Service', () => {
       const mockFetch = vi.fn().mockRejectedValue(rateLimitError)
 
       await expect(
-        analyzeHealth({
-          healthData: mockHealthData,
-          weather: mockWeatherData,
-          userProfile: mockUserProfile,
+        callClaude({
+          prompt: 'Test health analysis prompt',
           apiKey: 'sk-ant-api03-valid-key-12345',
           customFetch: mockFetch as typeof fetch,
         }),
@@ -368,10 +290,8 @@ describe('AI Service', () => {
       const mockFetch = vi.fn().mockRejectedValue(unknownError)
 
       await expect(
-        analyzeHealth({
-          healthData: mockHealthData,
-          weather: mockWeatherData,
-          userProfile: mockUserProfile,
+        callClaude({
+          prompt: 'Test health analysis prompt',
           apiKey: 'sk-ant-api03-valid-key-12345',
           customFetch: mockFetch as typeof fetch,
         }),

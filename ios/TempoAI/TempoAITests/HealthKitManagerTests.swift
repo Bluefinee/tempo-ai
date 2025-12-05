@@ -19,41 +19,9 @@
 
 import HealthKit
 import XCTest
+
 @testable import TempoAI
 
-class MockHealthKitQueryFactory: HealthKitQueryFactory {
-    var capturedResultsHandlers: [(HKSampleQuery, [HKSample]?, Error?) -> Void] = []
-    var capturedQueries: [HKSampleQuery] = []
-
-    func createSampleQuery(
-        sampleType: HKSampleType,
-        predicate: NSPredicate?,
-        limit: Int,
-        sortDescriptors: [NSSortDescriptor]?,
-        resultsHandler: @escaping (HKSampleQuery, [HKSample]?, Error?) -> Void
-    ) -> HKSampleQuery {
-        let query = HKSampleQuery(
-            sampleType: sampleType,
-            predicate: predicate,
-            limit: limit,
-            sortDescriptors: sortDescriptors
-        ) { _, _, _ in
-            // Empty handler - we'll use capturedResultsHandlers instead
-        }
-
-        capturedQueries.append(query)
-        capturedResultsHandlers.append(resultsHandler)
-
-        return query
-    }
-
-    func triggerHandler(at index: Int, with samples: [HKSample]?, error: Error? = nil) {
-        guard index < capturedResultsHandlers.count && index < capturedQueries.count else { return }
-        let handler = capturedResultsHandlers[index]
-        let query = capturedQueries[index]
-        handler(query, samples, error)
-    }
-}
 
 @MainActor
 final class HealthKitManagerTests: XCTestCase {
@@ -311,20 +279,24 @@ final class HealthKitManagerTests: XCTestCase {
         await setupAuthorizedManager()
         setupMockQueryResponses()
 
-        // When: Testing performance
-        measure {
-            let expectation = XCTestExpectation(description: "Health data fetch")
-
+        // When: Testing performance with proper async handling
+        let options = XCTMeasureOptions()
+        options.iterationCount = 5
+        
+        measure(options: options) {
+            let semaphore = DispatchSemaphore(value: 0)
+            
             Task {
                 do {
                     _ = try await healthKitManager.fetchTodayHealthData()
-                    expectation.fulfill()
+                    semaphore.signal()
                 } catch {
                     XCTFail("Performance test failed: \(error)")
+                    semaphore.signal()
                 }
             }
-
-            wait(for: [expectation], timeout: 5.0)
+            
+            semaphore.wait()
         }
     }
 
@@ -364,162 +336,3 @@ final class HealthKitManagerTests: XCTestCase {
     }
 }
 
-// MARK: - Mock Classes
-
-class MockHealthKitStore: HealthKitStoreProtocol {
-    var isHealthDataAvailableResult = true
-    var authorizationStatusResult: HKAuthorizationStatus = .notDetermined
-    var requestAuthorizationCalled = false
-    var requestAuthorizationError: Error?
-    var executedQueries: [HKQuery] = []
-    var mockQueryResults: [String: Any] = [:]
-
-    static func isHealthDataAvailable() -> Bool {
-        // This will be controlled by the instance variable
-        return true // Default, but we'll override in tests
-    }
-
-    func authorizationStatus(for type: HKObjectType) -> HKAuthorizationStatus {
-        return authorizationStatusResult
-    }
-
-    func requestAuthorization(toShare typesToShare: Set<HKSampleType>?, read typesToRead: Set<HKObjectType>?) async throws {
-        requestAuthorizationCalled = true
-
-        if let error = requestAuthorizationError {
-            throw error
-        }
-
-        // Simulate authorization granted
-        authorizationStatusResult = .sharingAuthorized
-    }
-
-    func execute(_ query: HKQuery) {
-        executedQueries.append(query)
-
-        // Simulate query execution with mock results
-        DispatchQueue.main.async {
-            if let sampleQuery = query as? HKSampleQuery {
-                self.handleSampleQuery(sampleQuery)
-            } else if let statisticsQuery = query as? HKStatisticsQuery {
-                self.handleStatisticsQuery(statisticsQuery)
-            }
-        }
-    }
-
-    private func handleSampleQuery(_ query: HKSampleQuery) {
-        var samples: [HKSample] = []
-
-        // Create mock samples based on query type
-        if query.sampleType.identifier == HKCategoryTypeIdentifier.sleepAnalysis.rawValue {
-            samples = createMockSleepSamples()
-        } else if query.sampleType.identifier == HKQuantityTypeIdentifier.heartRateVariabilitySDNN.rawValue {
-            samples = createMockHRVSamples()
-        } else if query.sampleType.identifier == HKQuantityTypeIdentifier.heartRate.rawValue {
-            samples = createMockHeartRateSamples()
-        }
-
-        // Use MockQueryFactory to handle results instead of direct resultsHandler access
-    }
-
-    private func handleStatisticsQuery(_ query: HKStatisticsQuery) {
-        let mockValue: Double
-
-        switch query.quantityType.identifier {
-        case HKQuantityTypeIdentifier.stepCount.rawValue:
-            mockValue = 8234
-        case HKQuantityTypeIdentifier.distanceWalkingRunning.rawValue:
-            mockValue = 6200 // meters
-        case HKQuantityTypeIdentifier.activeEnergyBurned.rawValue:
-            mockValue = 420
-        case HKQuantityTypeIdentifier.appleExerciseTime.rawValue:
-            mockValue = 35
-        default:
-            mockValue = 0
-        }
-
-        let quantity = HKQuantity(unit: query.quantityType.canonicalUnit, doubleValue: mockValue)
-        let statistics = MockHKStatistics(sumQuantity: quantity)
-
-        query.resultsHandler?(query, statistics, nil)
-    }
-
-    private func createMockSleepSamples() -> [HKCategorySample] {
-        let sleepType = HKObjectType.categoryType(forIdentifier: .sleepAnalysis)!
-        let startDate = Calendar.current.date(byAdding: .hour, value: -8, to: Date()) ?? Date()
-        let endDate = Date()
-
-        let sample = HKCategorySample(
-            type: sleepType,
-            value: HKCategoryValueSleepAnalysis.asleep.rawValue,
-            start: startDate,
-            end: endDate
-        )
-
-        return [sample]
-    }
-
-    private func createMockHRVSamples() -> [HKQuantitySample] {
-        let hrvType = HKObjectType.quantityType(forIdentifier: .heartRateVariabilitySDNN)!
-        let unit = HKUnit.secondUnit(with: .milli)
-        let quantity = HKQuantity(unit: unit, doubleValue: 45.2)
-        let startDate = Date()
-
-        let sample = HKQuantitySample(
-            type: hrvType,
-            quantity: quantity,
-            start: startDate,
-            end: startDate
-        )
-
-        return [sample]
-    }
-
-    private func createMockHeartRateSamples() -> [HKQuantitySample] {
-        let heartRateType = HKObjectType.quantityType(forIdentifier: .heartRate)!
-        let unit = HKUnit.count().unitDivided(by: .minute())
-        let quantity = HKQuantity(unit: unit, doubleValue: 75)
-        let startDate = Date()
-
-        let sample = HKQuantitySample(
-            type: heartRateType,
-            quantity: quantity,
-            start: startDate,
-            end: startDate
-        )
-
-        return [sample]
-    }
-}
-
-class MockHKStatistics: HKStatistics {
-    private let _sumQuantity: HKQuantity?
-
-    init(sumQuantity: HKQuantity?) {
-        self._sumQuantity = sumQuantity
-        super.init()
-    }
-
-    override func sumQuantity() -> HKQuantity? {
-        return _sumQuantity
-    }
-}
-
-// MARK: - Test Helpers
-
-extension HealthKitManagerTests {
-    func setupAuthorizedManager() async {
-        mockHealthStore.isHealthDataAvailableResult = true
-        mockHealthStore.authorizationStatusResult = .sharingAuthorized
-        try? await healthKitManager.requestAuthorization()
-    }
-
-    func setupMockQueryResponses() {
-        // Reset previous queries
-        mockHealthStore.executedQueries.removeAll()
-    }
-
-    func withMockData<T>(_ block: () throws -> T) rethrows -> T {
-        return try block()
-    }
-}

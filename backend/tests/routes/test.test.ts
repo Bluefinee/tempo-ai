@@ -275,7 +275,7 @@ describe('Test Routes', () => {
         body: 'invalid json',
       })
 
-      expect(response.status).toBe(500) // Hono throws internal server error for invalid JSON
+      expect(response.status).toBe(400) // Invalid JSON should return 400 Bad Request
     })
 
     it('should handle empty request body', async () => {
@@ -558,7 +558,7 @@ describe('Test Routes', () => {
         body: 'invalid json',
       })
 
-      expect(response.status).toBe(500) // Hono throws internal server error for invalid JSON
+      expect(response.status).toBe(400) // Invalid JSON should return 400 Bad Request
     })
   })
 

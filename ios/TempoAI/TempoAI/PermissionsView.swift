@@ -7,8 +7,8 @@ struct PermissionsView: View {
     let locationManager: LocationManager
     let onDismiss: () -> Void
 
-    @State private var showErrorAlert = false
-    @State private var alertMessage = ""
+    @State private var showErrorAlert: Bool = false
+    @State private var alertMessage: String = ""
 
     private var isLocationAuthorized: Bool {
         locationManager.authorizationStatus == .authorizedWhenInUse
@@ -73,6 +73,12 @@ struct PermissionsView: View {
                     Button("Done") {
                         onDismiss()
                     }
+                }
+            }
+            .onChange(of: locationManager.errorMessage) { _, newValue in
+                if let error = newValue {
+                    alertMessage = error
+                    showErrorAlert = true
                 }
             }
             .alert("Permission Error", isPresented: $showErrorAlert) {

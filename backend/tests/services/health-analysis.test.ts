@@ -3,7 +3,7 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import * as aiService from '../../src/services/ai'
+import * as healthAdviceService from '../../src/services/health-advice'
 import { performHealthAnalysis } from '../../src/services/health-analysis'
 import * as weatherService from '../../src/services/weather'
 import type { DailyAdvice } from '../../src/types/advice'
@@ -13,10 +13,12 @@ import { APIError } from '../../src/utils/errors'
 
 // Mock dependencies
 vi.mock('../../src/services/weather')
-vi.mock('../../src/services/ai')
+vi.mock('../../src/services/health-advice')
 
 const mockGetWeather = vi.mocked(weatherService.getWeather)
-const mockAnalyzeHealth = vi.mocked(aiService.analyzeHealth)
+const mockGenerateHealthAdvice = vi.mocked(
+  healthAdviceService.generateHealthAdvice,
+)
 
 describe('Health Analysis Service', () => {
   const mockHealthData: HealthData = {
@@ -53,7 +55,7 @@ describe('Health Analysis Service', () => {
     goals: ['疲労回復', '集中力向上'],
     dietaryPreferences: 'バランス重視',
     exerciseHabits: '週3回ジム',
-    exerciseFrequency: '3回/週',
+    exerciseFrequency: 'weekly',
   }
 
   const mockWeatherData: WeatherData = {
@@ -135,7 +137,7 @@ describe('Health Analysis Service', () => {
   describe('performHealthAnalysis', () => {
     it('should successfully analyze health data with valid inputs', async () => {
       mockGetWeather.mockResolvedValueOnce(mockWeatherData)
-      mockAnalyzeHealth.mockResolvedValueOnce(mockAdvice)
+      mockGenerateHealthAdvice.mockResolvedValueOnce(mockAdvice)
 
       const result = await performHealthAnalysis({
         healthData: mockHealthData,
@@ -145,7 +147,7 @@ describe('Health Analysis Service', () => {
       })
 
       expect(mockGetWeather).toHaveBeenCalledWith(35.6895, 139.6917)
-      expect(mockAnalyzeHealth).toHaveBeenCalledWith({
+      expect(mockGenerateHealthAdvice).toHaveBeenCalledWith({
         healthData: mockHealthData,
         weather: mockWeatherData,
         userProfile: mockUserProfile,
@@ -199,7 +201,7 @@ describe('Health Analysis Service', () => {
 
       it('should accept valid edge coordinates', async () => {
         mockGetWeather.mockResolvedValueOnce(mockWeatherData)
-        mockAnalyzeHealth.mockResolvedValueOnce(mockAdvice)
+        mockGenerateHealthAdvice.mockResolvedValueOnce(mockAdvice)
 
         await expect(
           performHealthAnalysis({
@@ -230,10 +232,14 @@ describe('Health Analysis Service', () => {
       ).rejects.toThrow(weatherError)
     })
 
-    it('should propagate AI service errors', async () => {
-      const aiError = new APIError('AI analysis failed', 502, 'AI_ERROR')
+    it('should propagate health advice service errors', async () => {
+      const healthAdviceError = new APIError(
+        'Health advice generation failed',
+        502,
+        'HEALTH_ADVICE_ERROR',
+      )
       mockGetWeather.mockResolvedValueOnce(mockWeatherData)
-      mockAnalyzeHealth.mockRejectedValueOnce(aiError)
+      mockGenerateHealthAdvice.mockRejectedValueOnce(healthAdviceError)
 
       await expect(
         performHealthAnalysis({
@@ -242,7 +248,7 @@ describe('Health Analysis Service', () => {
           userProfile: mockUserProfile,
           apiKey: 'valid-api-key',
         }),
-      ).rejects.toThrow(aiError)
+      ).rejects.toThrow(healthAdviceError)
     })
   })
 })

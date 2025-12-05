@@ -95,7 +95,7 @@ final class LocationManagerDataTests: XCTestCase {
             locationManager.errorMessage = nil
 
             // When: Each error occurs
-            locationManager.locationManager(CLLocationManager(), didFailWithError: error)
+            locationManager.locationManager(mockCLLocationManager, didFailWithError: error)
 
             // Then: Should set appropriate error message
             XCTAssertNotNil(locationManager.errorMessage)
@@ -118,7 +118,7 @@ final class LocationManagerDataTests: XCTestCase {
 
         if initialLocation != nil {
             // If we have a location, error should be cleared
-            // (unless there's a more recent error)
+            XCTAssertNil(locationManager.errorMessage, "Error should be cleared when location is available")
         }
     }
 
@@ -133,7 +133,7 @@ final class LocationManagerDataTests: XCTestCase {
 
         // Then: Simulate authorization granted
         mockCLLocationManager.authorizationStatusResult = .authorizedWhenInUse
-        locationManager.locationManagerDidChangeAuthorization(CLLocationManager())
+        locationManager.locationManagerDidChangeAuthorization(mockCLLocationManager)
 
         // Should now request location
         XCTAssertEqual(locationManager.authorizationStatus, .authorizedWhenInUse)
@@ -151,7 +151,7 @@ final class LocationManagerDataTests: XCTestCase {
 
         // Then: Simulate authorization denied
         mockCLLocationManager.authorizationStatusResult = .denied
-        locationManager.locationManagerDidChangeAuthorization(CLLocationManager())
+        locationManager.locationManagerDidChangeAuthorization(mockCLLocationManager)
 
         // Should set error and not request location
         XCTAssertEqual(locationManager.authorizationStatus, .denied)

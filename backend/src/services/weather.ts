@@ -10,7 +10,9 @@
  */
 
 import type { WeatherData } from '../types/weather'
+import { WeatherDataSchema } from '../types/weather'
 import { APIError } from '../utils/errors'
+// 型安全なレスポンス処理は直接実装
 
 /**
  * 指定位置の天気データを取得
@@ -25,10 +27,7 @@ import { APIError } from '../utils/errors'
  * @throws {APIError} Open-Meteo APIが利用できない場合
  * @throws {APIError} ネットワークエラーまたは無効な座標の場合
  */
-export const getWeather = async (
-  latitude: number,
-  longitude: number,
-): Promise<WeatherData> => {
+export const getWeather = async (latitude: number, longitude: number): Promise<WeatherData> => {
   const url =
     'https://api.open-meteo.com/v1/forecast?' +
     `latitude=${latitude}&longitude=${longitude}&` +
@@ -45,36 +44,43 @@ export const getWeather = async (
       throw new APIError(
         `Weather API failed with status ${response.status}`,
         503,
-        'WEATHER_API_ERROR',
+        'WEATHER_API_ERROR'
       )
     }
 
-    const data = (await response.json()) as unknown
-
-    // Basic validation of required fields
-    if (
-      !data ||
-      typeof data !== 'object' ||
-      !('current' in data) ||
-      !('daily' in data)
-    ) {
-      throw new APIError(
-        'Invalid weather data format received from API',
-        503,
-        'WEATHER_DATA_INVALID',
-      )
+    // レスポンスを文字列として取得
+    let responseText: string
+    try {
+      responseText = await response.text()
+    } catch (_error) {
+      throw new APIError('Failed to read weather API response', 503, 'WEATHER_FETCH_ERROR')
     }
 
-    return data as WeatherData
+    // JSON解析
+    let parsed: unknown
+    try {
+      parsed = JSON.parse(responseText)
+    } catch (_parseError) {
+      throw new APIError('Invalid JSON response from weather API', 503, 'WEATHER_DATA_INVALID')
+    }
+
+    // Zodスキーマによる検証
+    const validationResult = WeatherDataSchema.safeParse(parsed)
+    if (!validationResult.success) {
+      const firstIssue = validationResult.error.issues[0]
+      const details = firstIssue
+        ? `${firstIssue.path.join('.') || '(root)'}: ${firstIssue.message}`
+        : 'Validation failed'
+
+      throw new APIError(`Invalid weather data format: ${details}`, 503, 'WEATHER_DATA_INVALID')
+    }
+
+    return validationResult.data
   } catch (error) {
     if (error instanceof APIError) {
       throw error
     }
 
-    throw new APIError(
-      'Failed to fetch weather data',
-      503,
-      'WEATHER_FETCH_ERROR',
-    )
+    throw new APIError('Failed to fetch weather data', 503, 'WEATHER_FETCH_ERROR')
   }
 }

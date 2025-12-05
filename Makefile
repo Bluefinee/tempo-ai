@@ -86,7 +86,6 @@ test-coverage:
 # ミューテーションテスト（コストセーフ）
 test-mutation:
 	@echo "🧬 Running mutation testing (cost-safe)..."
-	@cd backend && pnpm add -D @stryker-mutator/core @stryker-mutator/vitest-runner @stryker-mutator/typescript-checker
 	@echo "💡 Note: Using mocked APIs to avoid costs"
 	@cd backend && ENABLE_COSTLY_TESTS=false npx stryker run --mutate 'src/**/*.ts' --test-runner vitest
 	@echo "✅ Mutation testing completed!"

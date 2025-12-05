@@ -101,7 +101,10 @@ final class LocationManagerAuthorizationTests: XCTestCase {
 
     func testRequestLocationWhenUnknownStatus() {
         // Given: Authorization status is unknown
-        let unknownStatus = CLAuthorizationStatus(rawValue: 999) ?? .notDetermined
+        guard let unknownStatus = CLAuthorizationStatus(rawValue: 999) else {
+            XCTFail("Expected to create unknown status with rawValue 999")
+            return
+        }
         mockCLLocationManager.authorizationStatusResult = unknownStatus
         locationManager.authorizationStatus = unknownStatus
 

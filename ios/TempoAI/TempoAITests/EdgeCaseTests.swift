@@ -75,8 +75,8 @@ final class EdgeCaseTests: XCTestCase {
     func testExtremeCoordinatesWithAPI() {
         // Given: Extreme but valid coordinates for API testing
         let extremeLocation = LocationData(latitude: -89.5, longitude: 179.5) // Near South Pole
-        let mockHealthData = TestHelpers.createMockHealthData()
-        let mockUserProfile = TestHelpers.createMockUserProfile()
+        let mockHealthData = APIClientTestData.createMockHealthData()
+        let mockUserProfile = APIClientTestData.createMockUserProfile()
 
         // When: Creating analysis request with extreme coordinates
         let analysisRequest = AnalysisRequest(
@@ -107,7 +107,7 @@ final class EdgeCaseTests: XCTestCase {
         let analysisRequest = AnalysisRequest(
             healthData: extremeHealthData,
             location: TestHelpers.createMockLocationData(),
-            userProfile: TestHelpers.createMockUserProfile()
+            userProfile: APIClientTestData.createMockUserProfile()
         )
 
         // Then: Should handle extreme values gracefully

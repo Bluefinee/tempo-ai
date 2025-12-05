@@ -60,7 +60,9 @@ private struct WeatherCard: View {
     var body: some View {
         AdviceCard(
             title: "Weather Considerations",
-            content: advice.weatherConsiderations.warnings.first ?? "No weather warnings today",
+            content: advice.weatherConsiderations.warnings.isEmpty
+                ? "No weather warnings today"
+                : advice.weatherConsiderations.warnings.joined(separator: "\n"),
             color: .orange,
             icon: "cloud.sun.fill"
         )

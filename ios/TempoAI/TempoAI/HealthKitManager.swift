@@ -46,16 +46,22 @@ class HealthKitManager: ObservableObject {
         self.queryFactory = queryFactory
     }
 
-    private let typesToRead: Set<HKObjectType> = [
-        HKObjectType.categoryType(forIdentifier: .sleepAnalysis)!,
-        HKObjectType.quantityType(forIdentifier: .heartRateVariabilitySDNN)!,
-        HKObjectType.quantityType(forIdentifier: .restingHeartRate)!,
-        HKObjectType.quantityType(forIdentifier: .heartRate)!,
-        HKObjectType.quantityType(forIdentifier: .stepCount)!,
-        HKObjectType.quantityType(forIdentifier: .distanceWalkingRunning)!,
-        HKObjectType.quantityType(forIdentifier: .activeEnergyBurned)!,
-        HKObjectType.quantityType(forIdentifier: .appleExerciseTime)!,
-    ]
+    private var typesToRead: Set<HKObjectType> {
+        let quantityIdentifiers: [HKQuantityTypeIdentifier] = [
+            .heartRateVariabilitySDNN, .restingHeartRate, .heartRate,
+            .stepCount, .distanceWalkingRunning, .activeEnergyBurned, .appleExerciseTime,
+        ]
+        var types: Set<HKObjectType> = Set()
+        for identifier in quantityIdentifiers {
+            if let type = HKObjectType.quantityType(forIdentifier: identifier) {
+                types.insert(type)
+            }
+        }
+        if let sleepType = HKObjectType.categoryType(forIdentifier: .sleepAnalysis) {
+            types.insert(sleepType)
+        }
+        return types
+    }
 
     func requestAuthorization() async throws {
         guard HKHealthStore.isHealthDataAvailable() else {
@@ -351,12 +357,17 @@ class HealthKitManager: ObservableObject {
 
         return await withCheckedContinuation { continuation in
             let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)
-            let query = HKSampleQuery(
+            let query = queryFactory.createSampleQuery(
                 sampleType: restingType,
                 predicate: predicate,
                 limit: 1,
                 sortDescriptors: [sortDescriptor]
-            ) { _, samples, _ in
+            ) { [weak self] _, samples, _ in
+                guard self != nil else {
+                    continuation.resume(returning: nil)
+                    return
+                }
+
                 guard let sample = samples?.first as? HKQuantitySample else {
                     continuation.resume(returning: nil)
                     return
@@ -387,6 +398,3 @@ enum HealthKitError: Error, LocalizedError {
         }
     }
 }
-
-// The previous protocol-based abstraction was removed because HKHealthStore
-// does not currently expose async authorization APIs that match our protocol.

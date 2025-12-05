@@ -56,7 +56,7 @@ const mockUserProfile: UserProfile = {
   goals: ['疲労回復', '集中力向上'],
   dietaryPreferences: 'バランス重視',
   exerciseHabits: '週3回ジム',
-  exerciseFrequency: '3回/週',
+  exerciseFrequency: 'weekly',
 }
 
 const mockWeatherData: WeatherData = {
@@ -112,7 +112,7 @@ describe('Prompt Utilities', () => {
       expect(prompt).toContain('Goals: 疲労回復, 集中力向上')
       expect(prompt).toContain('Dietary Preferences: バランス重視')
       expect(prompt).toContain('Exercise Habits: 週3回ジム')
-      expect(prompt).toContain('Exercise Frequency: 3回/週')
+      expect(prompt).toContain('Exercise Frequency: weekly')
     })
 
     it('should include health data metrics', () => {
@@ -224,9 +224,9 @@ describe('Prompt Utilities', () => {
         age: 25,
         gender: 'female',
         goals: ['健康維持'],
-        dietaryPreferences: 'なし',
-        exerciseHabits: 'なし',
-        exerciseFrequency: 'なし',
+        dietaryPreferences: 'never',
+        exerciseHabits: 'never',
+        exerciseFrequency: 'never',
       }
 
       const prompt = buildPrompt({
@@ -238,9 +238,9 @@ describe('Prompt Utilities', () => {
       expect(prompt).toContain('Age: 25')
       expect(prompt).toContain('Gender: female')
       expect(prompt).toContain('Goals: 健康維持')
-      expect(prompt).toContain('Dietary Preferences: なし')
-      expect(prompt).toContain('Exercise Habits: なし')
-      expect(prompt).toContain('Exercise Frequency: なし')
+      expect(prompt).toContain('Dietary Preferences: never')
+      expect(prompt).toContain('Exercise Habits: never')
+      expect(prompt).toContain('Exercise Frequency: never')
     })
 
     it('should handle empty goals array', () => {

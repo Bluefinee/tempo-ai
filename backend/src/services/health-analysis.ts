@@ -10,10 +10,11 @@
  * @since 1.0.0
  */
 
-import type { DailyAdvice } from '../types/advice'
+import type { z } from 'zod'
 import type { HealthData, UserProfile } from '../types/health'
+import type { DailyAdviceSchema } from '../types/advice'
 import { APIError } from '../utils/errors'
-import { analyzeHealth } from './ai'
+import { generateHealthAdvice } from './health-advice'
 import { getWeather } from './weather'
 
 /**
@@ -56,7 +57,7 @@ const validateCoordinates = (latitude: number, longitude: number): void => {
     throw new APIError(
       'Invalid coordinates: latitude must be -90 to 90, longitude must be -180 to 180',
       400,
-      'INVALID_COORDINATES',
+      'INVALID_COORDINATES'
     )
   }
 }
@@ -72,24 +73,19 @@ const validateCoordinates = (latitude: number, longitude: number): void => {
  * @throws {APIError} バリデーションエラー、天気API エラー、AI分析エラー
  */
 export const performHealthAnalysis = async (
-  params: AnalyzeHealthParams,
-): Promise<DailyAdvice> => {
+  params: AnalyzeHealthParams
+): Promise<z.infer<typeof DailyAdviceSchema>> => {
   // 座標バリデーション
   validateCoordinates(params.location.latitude, params.location.longitude)
 
   // 天気データ取得
-  const weather = await getWeather(
-    params.location.latitude,
-    params.location.longitude,
-  )
+  const weather = await getWeather(params.location.latitude, params.location.longitude)
 
-  // AI分析実行
-  const advice = await analyzeHealth({
+  // ヘルスアドバイス生成
+  return await generateHealthAdvice({
     healthData: params.healthData,
     weather,
     userProfile: params.userProfile,
     apiKey: params.apiKey,
   })
-
-  return advice
 }

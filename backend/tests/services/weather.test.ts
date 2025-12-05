@@ -57,7 +57,7 @@ describe('Weather Service', () => {
     it('should successfully fetch weather data with valid coordinates', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve(mockWeatherResponse),
+        text: () => Promise.resolve(JSON.stringify(mockWeatherResponse)),
       })
 
       const result = await getWeather(35.6895, 139.6917)
@@ -74,7 +74,7 @@ describe('Weather Service', () => {
     it('should include all required weather parameters in URL', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve(mockWeatherResponse),
+        text: () => Promise.resolve(JSON.stringify(mockWeatherResponse)),
       })
 
       await getWeather(35.6895, 139.6917)
@@ -98,7 +98,7 @@ describe('Weather Service', () => {
     it('should handle positive coordinates correctly', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve(mockWeatherResponse),
+        text: () => Promise.resolve(JSON.stringify(mockWeatherResponse)),
       })
 
       await getWeather(40.7128, -74.006) // New York
@@ -111,7 +111,7 @@ describe('Weather Service', () => {
     it('should handle negative coordinates correctly', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve(mockWeatherResponse),
+        text: () => Promise.resolve(JSON.stringify(mockWeatherResponse)),
       })
 
       await getWeather(-33.8688, 151.2093) // Sydney
@@ -124,7 +124,7 @@ describe('Weather Service', () => {
     it('should handle zero coordinates correctly', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve(mockWeatherResponse),
+        text: () => Promise.resolve(JSON.stringify(mockWeatherResponse)),
       })
 
       await getWeather(0, 0) // Null Island
@@ -218,12 +218,12 @@ describe('Weather Service', () => {
     it('should handle JSON parsing errors from response', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.reject(new Error('Invalid JSON')),
+        text: () => Promise.resolve('invalid json{'),
       })
 
       const promise = getWeather(35.6895, 139.6917)
       await expect(promise).rejects.toThrow(APIError)
-      await expect(promise).rejects.toThrow('Failed to fetch weather data')
+      await expect(promise).rejects.toThrow('Invalid JSON response from weather API')
     })
 
     it('should preserve APIError when it is already thrown', async () => {
@@ -251,14 +251,14 @@ describe('Weather Service', () => {
       })
 
       await expect(getWeather(35.6895, 139.6917)).rejects.toThrow(
-        'Invalid weather data format received from API',
+        'Invalid weather data format',
       )
     })
 
     it('should handle extreme coordinate values', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve(mockWeatherResponse),
+        text: () => Promise.resolve(JSON.stringify(mockWeatherResponse)),
       })
 
       // Test extreme but valid coordinates
@@ -272,7 +272,7 @@ describe('Weather Service', () => {
     it('should handle decimal precision in coordinates', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve(mockWeatherResponse),
+        text: () => Promise.resolve(JSON.stringify(mockWeatherResponse)),
       })
 
       // Test high precision coordinates

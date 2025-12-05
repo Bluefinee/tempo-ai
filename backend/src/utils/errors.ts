@@ -76,3 +76,56 @@ export const handleError = (
     statusCode: 500,
   }
 }
+
+/**
+ * Valid HTTP error status codes that can be returned by Hono
+ */
+export type ValidStatusCode =
+  | 400
+  | 401
+  | 403
+  | 404
+  | 409
+  | 415
+  | 422
+  | 429
+  | 500
+  | 502
+  | 503
+  | 504
+
+/**
+ * Normalizes HTTP status codes to ensure they're within valid error range
+ *
+ * @param statusCode - The status code to normalize
+ * @returns A valid HTTP error status code (400-599) or 500 if invalid
+ */
+export const normalizeStatusCode = (statusCode: number): number =>
+  statusCode >= 400 && statusCode <= 599 ? statusCode : 500
+
+/**
+ * Converts a numeric status code to a valid Hono-compatible status code type
+ *
+ * @param statusCode - The status code to convert
+ * @returns A valid ValidStatusCode for use with Hono responses
+ */
+export const toValidStatusCode = (statusCode: number): ValidStatusCode => {
+  // Direct comparison for performance and clarity
+  switch (statusCode) {
+    case 400:
+    case 401:
+    case 403:
+    case 404:
+    case 409:
+    case 415:
+    case 422:
+    case 429:
+    case 500:
+    case 502:
+    case 503:
+    case 504:
+      return statusCode
+    default:
+      return 500
+  }
+}

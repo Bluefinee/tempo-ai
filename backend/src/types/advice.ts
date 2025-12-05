@@ -194,3 +194,7 @@ export const DailyAdviceSchema = z.object({
   weather_considerations: WeatherConsiderationsSchema,
   priority_actions: z.array(z.string()).min(1),
 })
+
+// Note: Interfaces above provide TypeScript types
+// Zod schemas below provide runtime validation
+// Both coexist for development convenience

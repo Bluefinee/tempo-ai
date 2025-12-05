@@ -11,11 +11,12 @@
 
 import type { HealthData, UserProfile } from '../types/health'
 import type { WeatherData } from '../types/weather'
+import { APIError } from './errors'
 
 /**
  * プロンプト生成関数のパラメータ型定義
  */
-interface PromptParams {
+export interface PromptParams {
   /** HealthKitから取得したヘルスデータ */
   healthData: HealthData
   /** Open-Meteoから取得した天気データ */
@@ -54,13 +55,25 @@ export const buildPrompt = (params: PromptParams): string => {
     !healthData?.heartRate ||
     !healthData?.activity
   ) {
-    throw new Error('Invalid healthData: missing required fields')
+    throw new APIError(
+      'Invalid healthData: missing required fields',
+      400,
+      'INVALID_HEALTH_DATA',
+    )
   }
   if (!weather?.current || !weather?.daily) {
-    throw new Error('Invalid weather: missing required fields')
+    throw new APIError(
+      'Invalid weather: missing required fields',
+      400,
+      'INVALID_WEATHER_DATA',
+    )
   }
   if (!userProfile?.age || !userProfile?.gender || !userProfile?.goals) {
-    throw new Error('Invalid userProfile: missing required fields')
+    throw new APIError(
+      'Invalid userProfile: missing required fields',
+      400,
+      'INVALID_USER_PROFILE',
+    )
   }
 
   return `

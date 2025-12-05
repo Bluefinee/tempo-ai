@@ -7,9 +7,9 @@ final class ModelsTests: XCTestCase {
 
     func testAnalysisRequestCreation() {
         // Given: Valid components
-        let healthData = TestHelpers.createMockHealthData()
+        let healthData = APIClientTestData.createMockHealthData()
         let location = LocationData(latitude: 35.6895, longitude: 139.6917)
-        let userProfile = TestHelpers.createMockUserProfile()
+        let userProfile = APIClientTestData.createMockUserProfile()
 
         // When: Creating analysis request
         let request = AnalysisRequest(

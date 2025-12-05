@@ -13,14 +13,8 @@ import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { healthRoutes } from './routes/health'
 import { testRoutes } from './routes/test'
-
-/**
- * Cloudflare Workers 環境変数の型定義
- */
-type Bindings = {
-  /** Anthropic Claude API キー */
-  ANTHROPIC_API_KEY: string
-}
+import type { Bindings } from './types/bindings'
+import { handleError, toValidStatusCode } from './utils/errors'
 
 /**
  * メインアプリケーションインスタンス
@@ -42,7 +36,11 @@ app.use(
 app.route('/api/health', healthRoutes)
 
 // Test routes (development only)
-app.route('/api/test', testRoutes)
+// biome-ignore lint/complexity/useLiteralKeys: TypeScript strict mode requires bracket notation for process.env
+const nodeEnv = process.env['NODE_ENV'] || 'development'
+if (nodeEnv !== 'production') {
+  app.route('/api/test', testRoutes)
+}
 
 // Root endpoint
 app.get('/', (c): Response => {
@@ -74,15 +72,17 @@ app.notFound((c): Response => {
 
 // Global error handler
 app.onError((err, c): Response => {
-  console.error('Unhandled error:', err)
+  const { message, statusCode } = handleError(err)
+  const validStatusCode = toValidStatusCode(statusCode)
 
   return c.json(
     {
       success: false,
-      error: 'Internal Server Error - An unexpected error occurred',
+      error: message,
     },
-    500,
+    validStatusCode,
   )
 })
 
+export { app }
 export default app

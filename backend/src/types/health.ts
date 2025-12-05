@@ -9,6 +9,8 @@
  * @since 1.0.0
  */
 
+import { z } from 'zod'
+
 /**
  * HealthKitから取得される包括的なヘルスデータ
  * AI分析に必要なすべての健康指標を含む
@@ -29,11 +31,17 @@ export interface HealthData {
  * HealthKitから取得される睡眠分析結果
  */
 export interface SleepData {
+  /** 睡眠時間（時間単位） */
   duration: number
+  /** 深い睡眠時間（時間単位） */
   deep: number
+  /** REM睡眠時間（時間単位） */
   rem: number
+  /** 浅い睡眠時間（時間単位） */
   light: number
+  /** 覚醒時間（時間単位） */
   awake: number
+  /** 睡眠効率（パーセント） */
   efficiency: number
 }
 
@@ -75,9 +83,47 @@ export interface ActivityData {
  */
 export interface UserProfile {
   age: number
-  gender: string
+  gender: 'male' | 'female' | 'other' | 'prefer_not_to_say'
   goals: string[]
   dietaryPreferences: string
   exerciseHabits: string
-  exerciseFrequency: string
+  exerciseFrequency: 'daily' | 'weekly' | 'monthly' | 'rarely' | 'never'
 }
+
+// Zod schemas for runtime validation
+export const HealthDataSchema = z.object({
+  sleep: z.object({
+    duration: z.number().min(0),
+    deep: z.number().min(0),
+    rem: z.number().min(0),
+    light: z.number().min(0),
+    awake: z.number().min(0),
+    efficiency: z.number().min(0).max(100),
+  }),
+  hrv: z.object({
+    average: z.number().positive(),
+    min: z.number().positive(),
+    max: z.number().positive(),
+  }),
+  heartRate: z.object({
+    resting: z.number().positive(),
+    average: z.number().positive(),
+    min: z.number().positive(),
+    max: z.number().positive(),
+  }),
+  activity: z.object({
+    steps: z.number().int().min(0),
+    distance: z.number().min(0),
+    calories: z.number().int().min(0),
+    activeMinutes: z.number().int().min(0),
+  }),
+})
+
+export const UserProfileSchema = z.object({
+  age: z.number().int().positive(),
+  gender: z.enum(['male', 'female', 'other', 'prefer_not_to_say']),
+  goals: z.array(z.string()), // Empty goals allowed - matches iOS validation
+  dietaryPreferences: z.string().min(1),
+  exerciseHabits: z.string().min(1),
+  exerciseFrequency: z.enum(['daily', 'weekly', 'monthly', 'rarely', 'never']),
+})

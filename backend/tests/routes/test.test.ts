@@ -30,48 +30,50 @@ interface WeatherDataResponse {
 
 interface MockAnalysisResponse {
   success: boolean
-  message: string
-  advice: {
-    theme: string
-    summary: string
-    breakfast: {
-      recommendation: string
-      reason: string
-      examples: string[]
+  data: {
+    message: string
+    advice: {
+      theme: string
+      summary: string
+      breakfast: {
+        recommendation: string
+        reason: string
+        examples: string[]
+      }
+      lunch: {
+        recommendation: string
+        reason: string
+        timing: string
+        examples: string[]
+        avoid: string[]
+      }
+      dinner: {
+        recommendation: string
+        reason: string
+        timing: string
+        examples: string[]
+        avoid: string[]
+      }
+      hydration: {
+        target: string
+        reason: string
+      }
+      sleep_preparation: {
+        bedtime: string
+        routine: string[]
+        avoid: string[]
+      }
+      weather_considerations: {
+        warnings: string[]
+        opportunities: string[]
+      }
+      priority_actions: string[]
     }
-    lunch: {
-      recommendation: string
-      reason: string
-      timing: string
-      examples: string[]
-      avoid: string[]
+    weather_summary?: {
+      temperature: number
+      humidity: number
+      uv_index: number
     }
-    dinner: {
-      recommendation: string
-      reason: string
-      timing: string
-      examples: string[]
-      avoid: string[]
-    }
-    hydration: {
-      target: string
-      reason: string
-    }
-    sleep_preparation: {
-      bedtime: string
-      routine: string[]
-      avoid: string[]
-    }
-    weather_considerations: {
-      warnings: string[]
-      opportunities: string[]
-    }
-    priority_actions: string[]
-  }
-  weather_summary?: {
-    temperature: number
-    humidity: number
-    uv_index: number
   }
 }
 
@@ -140,8 +142,10 @@ describe('Test Routes', () => {
 
       expect(result).toEqual({
         success: true,
-        weather: mockWeatherData,
-        message: 'Weather API integration working correctly',
+        data: {
+          weather: mockWeatherData,
+          message: 'Weather API integration working correctly',
+        },
       })
 
       expect(mockGetWeather).toHaveBeenCalledWith(35.6895, 139.6917)
@@ -160,7 +164,7 @@ describe('Test Routes', () => {
 
       expect(response.status).toBe(400)
       const result = (await response.json()) as ErrorResponse
-      expect(result.error).toBe('Invalid latitude/longitude')
+      expect(result.error).toContain('Validation failed:')
     })
 
     it('should return 400 when longitude is missing', async () => {
@@ -176,7 +180,7 @@ describe('Test Routes', () => {
 
       expect(response.status).toBe(400)
       const result = (await response.json()) as ErrorResponse
-      expect(result.error).toBe('Invalid latitude/longitude')
+      expect(result.error).toContain('Validation failed:')
     })
 
     it('should return 400 when latitude is not a number', async () => {
@@ -193,7 +197,7 @@ describe('Test Routes', () => {
 
       expect(response.status).toBe(400)
       const result = (await response.json()) as ErrorResponse
-      expect(result.error).toBe('Invalid latitude/longitude')
+      expect(result.error).toContain('Validation failed:')
     })
 
     it('should return 400 when longitude is not a number', async () => {
@@ -210,7 +214,7 @@ describe('Test Routes', () => {
 
       expect(response.status).toBe(400)
       const result = (await response.json()) as ErrorResponse
-      expect(result.error).toBe('Invalid latitude/longitude')
+      expect(result.error).toContain('Validation failed:')
     })
 
     it('should handle extreme valid coordinates', async () => {
@@ -249,7 +253,7 @@ describe('Test Routes', () => {
       mockGetWeather.mockRejectedValueOnce(new Error('Weather API failed'))
       mockHandleError.mockReturnValueOnce({
         message: 'Weather API failed',
-        statusCode: 503,
+        statusCode: 500,
       })
 
       const requestBody = {
@@ -263,7 +267,7 @@ describe('Test Routes', () => {
         body: JSON.stringify(requestBody),
       })
 
-      expect(response.status).toBe(503)
+      expect(response.status).toBe(500)
       const result = (await response.json()) as ErrorResponse
       expect(result.error).toBe('Weather API failed')
     })
@@ -275,7 +279,7 @@ describe('Test Routes', () => {
         body: 'invalid json',
       })
 
-      expect(response.status).toBe(500) // Hono throws internal server error for invalid JSON
+      expect(response.status).toBe(400) // Invalid JSON should return 400 Bad Request
     })
 
     it('should handle empty request body', async () => {
@@ -287,7 +291,7 @@ describe('Test Routes', () => {
 
       expect(response.status).toBe(400)
       const result = (await response.json()) as ErrorResponse
-      expect(result.error).toBe('Invalid latitude/longitude')
+      expect(result.error).toContain('Validation failed:')
     })
   })
 
@@ -310,12 +314,12 @@ describe('Test Routes', () => {
       const result = (await response.json()) as MockAnalysisResponse
 
       expect(result.success).toBe(true)
-      expect(result.message).toBe(
+      expect(result.data.message).toBe(
         'Mock analysis complete with real weather data',
       )
 
       // Verify mock advice structure
-      expect(result.advice).toMatchObject({
+      expect(result.data.advice).toMatchObject({
         theme: 'Test Day',
         summary:
           'This is a test response. Weather data was successfully retrieved and integrated.',
@@ -379,7 +383,7 @@ describe('Test Routes', () => {
       })
 
       // Verify weather summary
-      expect(result.weather_summary).toEqual({
+      expect(result.data.weather_summary).toEqual({
         temperature: mockWeatherData.current.temperature_2m,
         humidity: mockWeatherData.current.relative_humidity_2m,
         uv_index: mockWeatherData.daily.uv_index_max[0],
@@ -438,13 +442,13 @@ describe('Test Routes', () => {
       expect(response.status).toBe(200)
       const result = (await response.json()) as MockAnalysisResponse
 
-      expect(result.weather_summary).toEqual({
+      expect(result.data.weather_summary).toEqual({
         temperature: 15.5,
         humidity: 80,
         uv_index: 4.2,
       })
 
-      expect(result.advice.weather_considerations.warnings[0]).toContain(
+      expect(result.data.advice.weather_considerations.warnings[0]).toContain(
         '15.5°C',
       )
     })
@@ -455,7 +459,7 @@ describe('Test Routes', () => {
       )
       mockHandleError.mockReturnValueOnce({
         message: 'Weather service unavailable',
-        statusCode: 503,
+        statusCode: 500,
       })
 
       const requestBody = {
@@ -471,7 +475,7 @@ describe('Test Routes', () => {
         body: JSON.stringify(requestBody),
       })
 
-      expect(response.status).toBe(503)
+      expect(response.status).toBe(500)
       const result = (await response.json()) as ErrorResponse
       expect(result.error).toBe('Weather service unavailable')
     })
@@ -485,7 +489,9 @@ describe('Test Routes', () => {
         body: JSON.stringify(requestBody),
       })
 
-      expect(response.status).toBe(500) // This will cause an error when accessing location.latitude
+      expect(response.status).toBe(400) // Now properly validated and returns 400
+      const result = (await response.json()) as ErrorResponse
+      expect(result.error).toContain('Validation failed:')
     })
 
     it('should handle invalid location structure', async () => {
@@ -502,8 +508,9 @@ describe('Test Routes', () => {
         body: JSON.stringify(requestBody),
       })
 
-      // Actually returns 200 because the code doesn't validate the structure
-      expect(response.status).toBe(200)
+      expect(response.status).toBe(400) // Now properly validated and returns 400
+      const result = (await response.json()) as ErrorResponse
+      expect(result.error).toContain('Validation failed:')
     })
 
     it('should validate that all mock advice fields are present', async () => {
@@ -539,8 +546,10 @@ describe('Test Routes', () => {
       ]
 
       requiredFields.forEach((field) => {
-        expect(result.advice).toHaveProperty(field)
-        expect((result.advice as Record<string, unknown>)[field]).toBeDefined()
+        expect(result.data.advice).toHaveProperty(field)
+        expect(
+          (result.data.advice as Record<string, unknown>)[field],
+        ).toBeDefined()
       })
     })
 
@@ -551,7 +560,7 @@ describe('Test Routes', () => {
         body: 'invalid json',
       })
 
-      expect(response.status).toBe(500) // Hono throws internal server error for invalid JSON
+      expect(response.status).toBe(400) // Invalid JSON should return 400 Bad Request
     })
   })
 
@@ -597,8 +606,9 @@ describe('Test Routes', () => {
         body: JSON.stringify({ latitude: 35.6895, longitude: 139.6917 }),
       })
 
-      // Without Content-Type header, may still work but return different status
-      expect([200, 400, 415, 500]).toContain(response.status)
+      // Without Content-Type header, should return 415 Unsupported Media Type
+      // as the server expects application/json but receives no content type
+      expect(response.status).toBe(415)
     })
 
     it('should handle analyze-mock without content-type header', async () => {
@@ -609,8 +619,9 @@ describe('Test Routes', () => {
         }),
       })
 
-      // Without Content-Type header, may still work but return different status
-      expect([200, 400, 415, 500]).toContain(response.status)
+      // Without Content-Type header, should return 415 Unsupported Media Type
+      // as the server expects application/json but receives no content type
+      expect(response.status).toBe(415)
     })
   })
 })

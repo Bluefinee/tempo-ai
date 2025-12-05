@@ -35,6 +35,7 @@ reviews:
 
   # パスフィルター - レビュー対象外
   path_filters:
+    # ビルド・依存関係ファイル
     - "!node_modules/**"
     - "!.wrangler/**"
     - "!dist/**"
@@ -43,9 +44,47 @@ reviews:
     - "!*.min.js"
     - "!package-lock.json"
     - "!pnpm-lock.yaml"
+    
+    # Xcode関連
     - "!*.xcworkspace/**"
     - "!*.xcodeproj/project.xcworkspace/**"
     - "!*.xcodeproj/xcuserdata/**"
+    - "!DerivedData/**"
+    
+    # ドキュメント・設定ファイル（レビュー不要）
+    - "!**/*.md"
+    - "!**/*.txt"
+    - "!**/*.rst"
+    - "!LICENSE*"
+    - "!CHANGELOG*"
+    - "!AUTHORS*"
+    - "!CONTRIBUTORS*"
+    
+    # 設定・メタファイル
+    - "!.gitignore"
+    - "!.gitattributes"
+    - "!.editorconfig"
+    - "!.prettierrc*"
+    - "!.eslintrc*"
+    - "!*.log"
+    - "!*.env*"
+    
+    # アセット・メディアファイル
+    - "!**/*.png"
+    - "!**/*.jpg"
+    - "!**/*.jpeg"
+    - "!**/*.gif"
+    - "!**/*.svg"
+    - "!**/*.ico"
+    - "!**/*.pdf"
+    
+    # データファイル
+    - "!**/*.json"
+    - "!**/*.xml"
+    - "!**/*.plist"
+    - "!**/*.csv"
+    - "!**/*.yaml"
+    - "!**/*.yml"
 
   # パス別レビュー指示 - 既存指示ファイルを参照
   path_instructions:

@@ -1,7 +1,7 @@
 import SwiftUI
 
 // MARK: - Loading View
-struct LoadingView: View {
+internal struct LoadingView: View {
     var body: some View {
         VStack(spacing: 16) {
             ProgressView()
@@ -16,7 +16,7 @@ struct LoadingView: View {
 }
 
 // MARK: - Error View
-struct ErrorView: View {
+internal struct ErrorView: View {
     let message: String
     let onRetry: () async -> Void
 
@@ -48,7 +48,7 @@ struct ErrorView: View {
 }
 
 // MARK: - Empty State View
-struct EmptyStateView: View {
+internal struct EmptyStateView: View {
     let onRefresh: () async -> Void
 
     var body: some View {
@@ -79,7 +79,7 @@ struct EmptyStateView: View {
 }
 
 // MARK: - Advice Card Component
-struct AdviceCard: View {
+internal struct AdviceCard: View {
     let title: String
     let content: String
     let color: Color
@@ -91,6 +91,7 @@ struct AdviceCard: View {
                 Image(systemName: icon)
                     .foregroundColor(color)
                     .font(.title2)
+                    .accessibilityHidden(true)
 
                 Text(title)
                     .font(.headline)
@@ -107,5 +108,8 @@ struct AdviceCard: View {
         .padding()
         .background(color.opacity(0.1))
         .cornerRadius(12)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(title). \(content)")
+        .accessibilityAddTraits(.isStaticText)
     }
 }

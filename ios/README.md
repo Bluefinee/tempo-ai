@@ -1,38 +1,42 @@
 # 📱 Tempo AI - iOS アプリ
 
-HealthKitデータと天気情報を活用したパーソナライズ健康アドバイスアプリ
+HealthKit データと天気情報を活用したパーソナライズ健康アドバイスアプリ
 
 ## 🎯 概要
 
-Tempo AI iOSアプリは、ユーザーのHealthKitデータ（睡眠、心拍変動、活動量など）と現在の天気情報を組み合わせて、AIが生成するパーソナライズされた健康アドバイスを毎日提供します。
+Tempo AI iOS アプリは、ユーザーの HealthKit データ（睡眠、心拍変動、活動量など）と現在の天気情報を組み合わせて、AI が生成するパーソナライズされた健康アドバイスを毎日提供します。
 
 ## ✨ 主な機能
 
-### 📊 HealthKit統合
+### 📊 HealthKit 統合
+
 - 睡眠分析（時間、深度、REM、効率）
 - 心拍変動（HRV）データ
 - 心拍数（安静時・平均）
 - 活動データ（歩数、距離、カロリー）
 
 ### 🌡️ 天気連動
+
 - 位置情報ベースの天気取得
 - 天気を考慮した健康アドバイス
 
-### 🤖 AI分析
-- Claude AIによる高度な健康データ分析
+### 🤖 AI 分析
+
+- Claude AI による高度な健康データ分析
 - 個人の状態に最適化された具体的アドバイス
 
 ### 📱 ユーザー体験
+
 - **Today（ホーム）**: 今日のアドバイス表示
-- **History**: 過去の推奨事項（Phase 3で実装）
-- **Trends**: データトレンド分析（Phase 4で実装）
+- **History**: 過去の推奨事項（Phase 3 で実装）
+- **Trends**: データトレンド分析（Phase 4 で実装）
 - **Profile**: ユーザー設定とプロフィール
 
 ## 🛠 技術スタック
 
 - **言語**: Swift 5.9+
 - **UI**: SwiftUI
-- **最小iOS**: 16.0
+- **最小 iOS**: 16.0
 - **フレームワーク**:
   - HealthKit（ヘルスデータ）
   - CoreLocation（位置情報）
@@ -61,43 +65,48 @@ ios/
 
 1. **Xcode 15+** がインストールされている
 2. **macOS Sonoma 14+**
-3. **iPhone実機**（HealthKitはシミュレーターでは制限あり）
+3. **iPhone 実機**（HealthKit はシミュレーターでは制限あり）
 
 ### インストール手順
 
 1. **リポジトリクローン**
+
    ```bash
-   git clone https://github.com/your-repo/tempo-ai.git
+   git clone https://github.com/Bluefinee/tempo-ai.git
    cd tempo-ai/ios
    ```
 
-2. **Xcodeでプロジェクトを開く**
+2. **Xcode でプロジェクトを開く**
+
    ```bash
    open TempoAI.xcodeproj
    ```
 
-3. **APIサーバー起動**（別ターミナル）
+3. **API サーバー起動**（別ターミナル）
+
    ```bash
    cd ../backend
    npm run dev
    ```
 
 4. **開発チーム設定**
-   - Xcodeで Signing & Capabilities
+
+   - Xcode で Signing & Capabilities
    - 開発チームを選択
-   - Bundle Identifierを変更（必要に応じて）
+   - Bundle Identifier を変更（必要に応じて）
 
 5. **実機でビルド&実行**
-   - iPhone実機を接続
+   - iPhone 実機を接続
    - ⌘R でビルド&実行
 
 ## 🔧 開発設定
 
-### API接続設定
+### API 接続設定
 
-アプリはDebugビルドで自動的にローカルAPIサーバー（`http://localhost:8787`）に接続します。
+アプリは Debug ビルドで自動的にローカル API サーバー（`http://localhost:8787`）に接続します。
 
 **APIClient.swift:**
+
 ```swift
 #if DEBUG
 self.baseURL = "http://localhost:8787/api"  // ローカル開発
@@ -138,13 +147,13 @@ self.baseURL = "https://tempo-ai-backend.workers.dev/api"  // 本番環境
 
 ### 実機テスト
 
-1. **HealthKitデータ**がある実機を使用
+1. **HealthKit データ**がある実機を使用
 2. **ヘルスアプリ**で睡眠データを確認
 3. **設定 > プライバシーとセキュリティ > 位置情報サービス**が有効
 
 ### シミュレーターテスト
 
-HealthKitデータが制限されるため、モックデータが使用されます：
+HealthKit データが制限されるため、モックデータが使用されます：
 
 ```swift
 // HealthKitManager.swift でモックデータを返す
@@ -160,7 +169,7 @@ return SleepData(
 
 ## 🔍 デバッグ
 
-### API接続確認
+### API 接続確認
 
 ```swift
 // APIClient.swift
@@ -169,21 +178,23 @@ func testConnection() async -> Bool
 
 ### ログ確認
 
-- Xcodeコンソールでネットワーク通信ログ
-- Console.appでシステムログ
+- Xcode コンソールでネットワーク通信ログ
+- Console.app でシステムログ
 
 ### 一般的な問題
 
-1. **HealthKit権限エラー**
+1. **HealthKit 権限エラー**
+
    - 設定アプリ > プライバシーとセキュリティ > ヘルスケア
-   - Tempo AIの権限を確認
+   - Tempo AI の権限を確認
 
 2. **位置情報エラー**
-   - 設定アプリ > プライバシーとセキュリティ > 位置情報サービス
-   - Tempo AIが「App使用中のみ」で許可されているか確認
 
-3. **API接続エラー**
-   - ローカルAPIサーバーが起動しているか確認
+   - 設定アプリ > プライバシーとセキュリティ > 位置情報サービス
+   - Tempo AI が「App 使用中のみ」で許可されているか確認
+
+3. **API 接続エラー**
+   - ローカル API サーバーが起動しているか確認
    - `http://localhost:8787` にアクセス可能か確認
 
 ## 🎨 UI デザイン
@@ -203,25 +214,29 @@ func testConnection() async -> Bool
 ## 🔮 ロードマップ
 
 ### Phase 1 ✅
-- 基本UI実装
-- HealthKit統合
-- API通信
+
+- 基本 UI 実装
+- HealthKit 統合
+- API 通信
 - 今日のアドバイス表示
 
 ### Phase 2（Week 3-4）
-- UX改善
+
+- UX 改善
 - アニメーション追加
 - エラーハンドリング強化
 - オンボーディング
 
 ### Phase 3（Week 5-6）
+
 - 履歴機能
 - データベース統合
-- 7日間のアドバイス保存
+- 7 日間のアドバイス保存
 
 ### Phase 4（Week 7-8+）
+
 - トレンドグラフ
-- Apple Watch対応
+- Apple Watch 対応
 - 通知カスタマイズ
 
 ## 🏗️ アーキテクチャ
@@ -247,28 +262,22 @@ struct HomeView: View {
 
 - **UserDefaults**: プロフィール、キャッシュ
 - **HealthKit**: リアルタイム健康データ
-- **API**: AIアドバイス生成
+- **API**: AI アドバイス生成
 
 ## 📝 注意事項
 
 ### Apple Review Guidelines
 
-- HealthKitデータの適切な使用説明
+- HealthKit データの適切な使用説明
 - 医療アドバイスではない旨の明記
 - プライバシーポリシーの準備
 
 ### セキュリティ
 
-- HealthKitデータはデバイスローカル保持
-- API通信は一時的、即座に削除
+- HealthKit データはデバイスローカル保持
+- API 通信は一時的、即座に削除
 - 個人識別情報の送信なし
 
-## 📄 ライセンス
+```
 
-現在はプライベート開発中
-
----
-
-**開発者**: Tempo AI Team  
-**最終更新**: 2024年12月4日  
-**バージョン**: 1.0.0 (MVP)
+```

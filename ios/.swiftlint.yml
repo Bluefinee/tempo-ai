@@ -3,11 +3,10 @@
 # 除外するルール
 disabled_rules:
   - trailing_whitespace
-  - force_cast
   - function_body_length
   - type_body_length
   - trailing_comma
-  - opening_brace
+  - opening_brace  # Managed by swift-format; disabled to avoid conflicts
 
 # 有効化するオプションルール  
 opt_in_rules:

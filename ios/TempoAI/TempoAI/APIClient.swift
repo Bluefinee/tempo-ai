@@ -17,18 +17,10 @@ class APIClient: ObservableObject {
         self.urlSession = urlSession
     }
 
-    func analyzeHealth(
-        healthData: HealthData,
-        location: LocationData,
-        userProfile: UserProfile
-    ) async throws -> DailyAdvice {
-        let request = AnalysisRequest(
-            healthData: healthData,
-            location: location,
-            userProfile: userProfile
-        )
-
-        let url = URL(string: "\(baseURL)/health/analyze")!
+    private func performRequest<T: Codable>(endpoint: String, request: AnalysisRequest) async throws -> T {
+        guard let url = URL(string: "\(baseURL)/\(endpoint)") else {
+            throw APIError.invalidURL
+        }
         var urlRequest = URLRequest(url: url)
         urlRequest.httpMethod = "POST"
         urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -46,12 +38,11 @@ class APIClient: ObservableObject {
                 throw APIError.invalidResponse
             }
 
-            if httpResponse.statusCode == 200 {
-                let apiResponse = try JSONDecoder().decode(APIResponse<DailyAdvice>.self, from: data)
-                if let advice = apiResponse.data {
-                    return advice
-                } else {
-                    throw APIError.serverError(apiResponse.error ?? "Unknown error")
+            if (200 ... 299).contains(httpResponse.statusCode) {
+                do {
+                    return try JSONDecoder().decode(T.self, from: data)
+                } catch {
+                    throw APIError.decodingError
                 }
             } else {
                 throw APIError.httpError(httpResponse.statusCode)
@@ -64,51 +55,63 @@ class APIClient: ObservableObject {
         }
     }
 
-    func analyzeHealthMock(
+    // MARK: - Private Helper Methods
+
+    private func createAnalysisRequest(
+        healthData: HealthData,
+        location: LocationData,
+        userProfile: UserProfile
+    ) -> AnalysisRequest {
+        return AnalysisRequest(
+            healthData: healthData,
+            location: location,
+            userProfile: userProfile
+        )
+    }
+
+    // MARK: - Public API Methods
+
+    func analyzeHealth(
         healthData: HealthData,
         location: LocationData,
         userProfile: UserProfile
     ) async throws -> DailyAdvice {
-        let request = AnalysisRequest(
+        let request = createAnalysisRequest(
             healthData: healthData,
             location: location,
             userProfile: userProfile
         )
 
-        let url = URL(string: "\(baseURL)/test/analyze-mock")!
-        var urlRequest = URLRequest(url: url)
-        urlRequest.httpMethod = "POST"
-        urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
-
-        do {
-            urlRequest.httpBody = try JSONEncoder().encode(request)
-        } catch {
-            throw APIError.encodingError
-        }
-
-        do {
-            let (data, response) = try await urlSession.data(for: urlRequest)
-
-            guard let httpResponse = response as? HTTPURLResponse else {
-                throw APIError.invalidResponse
-            }
-
-            if httpResponse.statusCode == 200 {
-                let mockResponse = try JSONDecoder().decode(MockAdviceResponse.self, from: data)
-                return mockResponse.advice
-            } else {
-                throw APIError.httpError(httpResponse.statusCode)
-            }
-
-        } catch let error as APIError {
-            throw error
-        } catch {
-            throw APIError.networkError(error.localizedDescription)
+        let apiResponse: APIResponse<DailyAdvice> = try await performRequest(
+            endpoint: "health/analyze",
+            request: request
+        )
+        if let advice = apiResponse.data {
+            return advice
+        } else {
+            throw APIError.serverError(apiResponse.error ?? "Unknown error")
         }
     }
 
+    func analyzeHealthMock(
+        healthData: HealthData,
+        location: LocationData,
+        userProfile: UserProfile
+    ) async throws -> DailyAdvice {
+        let request = createAnalysisRequest(
+            healthData: healthData,
+            location: location,
+            userProfile: userProfile
+        )
+
+        let mockResponse: MockAdviceResponse = try await performRequest(endpoint: "test/analyze-mock", request: request)
+        return mockResponse.advice
+    }
+
     func testConnection() async -> Bool {
-        let url = URL(string: baseURL.replacingOccurrences(of: "/api", with: ""))!
+        guard let url = URL(string: baseURL.replacingOccurrences(of: "/api", with: "")) else {
+            return false
+        }
 
         do {
             let (_, response) = try await urlSession.data(from: url)
@@ -120,7 +123,9 @@ class APIClient: ObservableObject {
     }
 
     func checkHealthStatus() async throws -> String {
-        let url = URL(string: "\(baseURL)/health/status")!
+        guard let url = URL(string: "\(baseURL)/health/status") else {
+            throw APIError.invalidURL
+        }
 
         do {
             let (data, response) = try await urlSession.data(from: url)
@@ -129,13 +134,13 @@ class APIClient: ObservableObject {
                 throw APIError.invalidResponse
             }
 
-            if httpResponse.statusCode == 200 {
-                if let jsonObject = try JSONSerialization.jsonObject(with: data) as? [String: Any],
-                    let status = jsonObject["status"] as? String
-                {
-                    return status
+            if (200 ... 299).contains(httpResponse.statusCode) {
+                do {
+                    let healthStatusResponse = try JSONDecoder().decode(HealthStatusResponse.self, from: data)
+                    return healthStatusResponse.status
+                } catch {
+                    throw APIError.decodingError
                 }
-                return "Unknown status"
             } else {
                 throw APIError.httpError(httpResponse.statusCode)
             }
@@ -146,6 +151,10 @@ class APIClient: ObservableObject {
             throw APIError.networkError(error.localizedDescription)
         }
     }
+}
+
+struct HealthStatusResponse: Codable {
+    let status: String
 }
 
 enum APIError: Error, LocalizedError {

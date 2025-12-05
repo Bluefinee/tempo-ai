@@ -10,11 +10,12 @@
  * @since 1.0.0
  */
 
+import type { z } from 'zod'
+import type { DailyAdviceSchema } from '../types/advice'
 import type { HealthData, UserProfile } from '../types/health'
-import type { DailyAdvice } from '../types/advice'
-import { getWeather } from './weather'
-import { analyzeHealth } from './ai'
 import { APIError } from '../utils/errors'
+import { generateHealthAdvice } from './health-advice'
+import { getWeather } from './weather'
 
 /**
  * ヘルスデータ分析のパラメータ型定義
@@ -73,7 +74,7 @@ const validateCoordinates = (latitude: number, longitude: number): void => {
  */
 export const performHealthAnalysis = async (
   params: AnalyzeHealthParams,
-): Promise<DailyAdvice> => {
+): Promise<z.infer<typeof DailyAdviceSchema>> => {
   // 座標バリデーション
   validateCoordinates(params.location.latitude, params.location.longitude)
 
@@ -83,13 +84,11 @@ export const performHealthAnalysis = async (
     params.location.longitude,
   )
 
-  // AI分析実行
-  const advice = await analyzeHealth({
+  // ヘルスアドバイス生成
+  return await generateHealthAdvice({
     healthData: params.healthData,
     weather,
     userProfile: params.userProfile,
     apiKey: params.apiKey,
   })
-
-  return advice
 }

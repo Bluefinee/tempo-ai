@@ -1,5 +1,5 @@
 # Tempo AI Project Quality Management
-.PHONY: help check fix install setup ci api ios clean test
+.PHONY: help check fix install setup ci api ios clean test test-coverage test-mutation test-real-api test-performance ci-full dev-api status
 
 # デフォルトターゲット
 help:
@@ -49,6 +49,9 @@ ios:
 # 初期セットアップ
 setup:
 	@echo "⚙️ Setting up development environment..."
+	@echo "Checking dependencies..."
+	@command -v brew >/dev/null 2>&1 || { echo "❌ Error: Homebrew is required but not installed. Visit https://brew.sh"; exit 1; }
+	@command -v pnpm >/dev/null 2>&1 || { echo "❌ Error: pnpm is required but not installed. Run 'npm install -g pnpm'"; exit 1; }
 	@echo "Installing Homebrew dependencies..."
 	@brew install swiftlint swift-format
 	@echo "Installing Node.js dependencies..."
@@ -83,7 +86,6 @@ test-coverage:
 # ミューテーションテスト（コストセーフ）
 test-mutation:
 	@echo "🧬 Running mutation testing (cost-safe)..."
-	@cd backend && pnpm add -D @stryker-mutator/core @stryker-mutator/vitest-runner @stryker-mutator/typescript-checker
 	@echo "💡 Note: Using mocked APIs to avoid costs"
 	@cd backend && ENABLE_COSTLY_TESTS=false npx stryker run --mutate 'src/**/*.ts' --test-runner vitest
 	@echo "✅ Mutation testing completed!"
@@ -92,7 +94,11 @@ test-mutation:
 test-real-api:
 	@echo "💸 WARNING: This will use real APIs and incur costs!"
 	@echo "💰 Estimated cost: ~$0.10-0.50 per run"
-	@read -p "Continue? (y/N): " confirm && [ "$$confirm" = "y" ]
+	@if [ -t 0 ] && [ "$$CI" != "true" ]; then \
+		read -p "Continue? (y/N): " confirm && [ "$$confirm" = "y" ]; \
+	else \
+		echo "🤖 CI environment detected - skipping interactive prompt"; \
+	fi
 	@echo "🚨 Running tests with REAL API calls..."
 	@cd backend && ENABLE_COSTLY_TESTS=true pnpm run test
 	@echo "✅ Real API testing completed!"

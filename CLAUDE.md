@@ -231,3 +231,4 @@ When multiple valid approaches exist:
 - Keep comments minimal and purposeful
 - Commit working code incrementally
 - Stop after 3 failed attempts and reassess
+- 4のPRにおいて、code rabbitがコメントでレビュー指摘をしてくれているのですが、全て詳細にguidelines/code-rabbit-reviewsにアウトプットしていただけますか？guidelines/code-rabbit-reviews/20241204-2255-code-rabbit-review-results.txtがお手本です

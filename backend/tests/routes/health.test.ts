@@ -21,11 +21,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { healthRoutes } from '@/routes/health'
 
 // Mock services
-vi.mock('@/services/ai')
+vi.mock('@/services/health-advice')
 vi.mock('@/services/weather')
 vi.mock('@/utils/errors')
 
-import { analyzeHealth } from '@/services/ai'
+import { generateHealthAdvice } from '@/services/health-advice'
 import { getWeather } from '@/services/weather'
 import type { DailyAdvice } from '@/types/advice'
 import { handleError } from '@/utils/errors'
@@ -50,7 +50,7 @@ interface StatusResponse {
   }
 }
 
-const mockAnalyzeHealth = vi.mocked(analyzeHealth)
+const mockGenerateHealthAdvice = vi.mocked(generateHealthAdvice)
 const mockGetWeather = vi.mocked(getWeather)
 const mockHandleError = vi.mocked(handleError)
 
@@ -93,7 +93,7 @@ const validRequestBody = {
     goals: ['疲労回復', '集中力向上'],
     dietaryPreferences: 'バランス重視',
     exerciseHabits: '週3回ジム',
-    exerciseFrequency: '3回/週',
+    exerciseFrequency: 'weekly',
   },
 }
 
@@ -172,35 +172,18 @@ const mockAdviceResult = {
   priority_actions: ['水分補給', '軽い運動', '早めの就寝'],
 }
 
-// Mock context helper
-const createMockContext = (
-  body: unknown,
-  env: Record<string, string> = {},
-) => ({
-  req: {
-    json: vi.fn().mockResolvedValue(body),
-  },
-  json: vi.fn().mockImplementation((data, status) => ({ data, status })),
-  env: {
-    ANTHROPIC_API_KEY: 'test-api-key',
-    ...env,
-  },
-})
-
 describe('Health Routes', () => {
   beforeEach(() => {
     vi.clearAllMocks()
 
     // Default successful mocks
     mockGetWeather.mockResolvedValue(mockWeatherData)
-    mockAnalyzeHealth.mockResolvedValue(mockAdviceResult)
+    mockGenerateHealthAdvice.mockResolvedValue(mockAdviceResult)
     mockHandleError.mockReturnValue({ message: 'Test error', statusCode: 500 })
   })
 
   describe('POST /analyze', () => {
     it('should successfully analyze health data with valid request', async () => {
-      createMockContext(validRequestBody)
-
       const app = healthRoutes
       const response = await app.request(
         '/analyze',
@@ -262,9 +245,7 @@ describe('Health Routes', () => {
       expect(response.status).toBe(400)
       const result = (await response.json()) as ErrorResponse
       expect(result.success).toBe(false)
-      expect(result.error).toBe(
-        'Missing required fields: healthData, location, userProfile',
-      )
+      expect(result.error).toContain('Validation failed:')
     })
 
     it('should return 400 when location is missing', async () => {
@@ -289,9 +270,7 @@ describe('Health Routes', () => {
       expect(response.status).toBe(400)
       const result = (await response.json()) as ErrorResponse
       expect(result.success).toBe(false)
-      expect(result.error).toBe(
-        'Missing required fields: healthData, location, userProfile',
-      )
+      expect(result.error).toContain('Validation failed:')
     })
 
     it('should return 400 when userProfile is missing', async () => {
@@ -316,9 +295,7 @@ describe('Health Routes', () => {
       expect(response.status).toBe(400)
       const result = (await response.json()) as ErrorResponse
       expect(result.success).toBe(false)
-      expect(result.error).toBe(
-        'Missing required fields: healthData, location, userProfile',
-      )
+      expect(result.error).toContain('Validation failed:')
     })
 
     it('should return 400 for invalid latitude type', async () => {
@@ -346,9 +323,7 @@ describe('Health Routes', () => {
       expect(response.status).toBe(400)
       const result = (await response.json()) as ErrorResponse
       expect(result.success).toBe(false)
-      expect(result.error).toBe(
-        'Invalid coordinates: latitude must be -90 to 90, longitude must be -180 to 180',
-      )
+      expect(result.error).toContain('Validation failed:')
     })
 
     it('should return 400 for invalid longitude type', async () => {
@@ -376,9 +351,7 @@ describe('Health Routes', () => {
       expect(response.status).toBe(400)
       const result = (await response.json()) as ErrorResponse
       expect(result.success).toBe(false)
-      expect(result.error).toBe(
-        'Invalid coordinates: latitude must be -90 to 90, longitude must be -180 to 180',
-      )
+      expect(result.error).toContain('Validation failed:')
     })
 
     it('should return 500 when ANTHROPIC_API_KEY is missing', async () => {
@@ -420,8 +393,15 @@ describe('Health Routes', () => {
       expect(response.status).toBe(500)
     })
 
-    it('should handle AI analysis errors', async () => {
-      mockAnalyzeHealth.mockRejectedValueOnce(new Error('AI analysis failed'))
+    it('should handle health advice generation errors', async () => {
+      const testError = new Error('Health advice generation failed')
+      mockGenerateHealthAdvice.mockRejectedValueOnce(testError)
+
+      // Mock handleError to verify it's called with the correct error
+      mockHandleError.mockReturnValueOnce({
+        message: 'Health advice generation failed',
+        statusCode: 500,
+      })
 
       const app = healthRoutes
       const response = await app.request(
@@ -436,7 +416,14 @@ describe('Health Routes', () => {
         },
       )
 
+      // Verify status code and response format
       expect(response.status).toBe(500)
+      const result = (await response.json()) as ErrorResponse
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('Health advice generation failed')
+
+      // Verify handleError was called with the original error
+      expect(mockHandleError).toHaveBeenCalledWith(testError)
     })
 
     it('should call services with correct parameters', async () => {
@@ -456,8 +443,8 @@ describe('Health Routes', () => {
       // Verify weather service called with correct coordinates
       expect(mockGetWeather).toHaveBeenCalledWith(35.6895, 139.6917)
 
-      // Verify AI service called with correct parameters
-      expect(mockAnalyzeHealth).toHaveBeenCalledWith({
+      // Verify health advice service called with correct parameters
+      expect(mockGenerateHealthAdvice).toHaveBeenCalledWith({
         healthData: validRequestBody.healthData,
         weather: mockWeatherData,
         userProfile: validRequestBody.userProfile,

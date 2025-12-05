@@ -32,29 +32,35 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
 
     // MARK: - CLLocationManagerDelegate
 
-    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-        authorizationStatus = locationManager.authorizationStatus
+    nonisolated func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        Task { @MainActor in
+            authorizationStatus = locationManager.authorizationStatus
 
-        switch authorizationStatus {
-        case .authorizedWhenInUse, .authorizedAlways:
-            locationManager.requestLocation()
-        case .denied, .restricted:
-            errorMessage = "Location access denied"
-        case .notDetermined:
-            break
-        @unknown default:
-            break
+            switch authorizationStatus {
+            case .authorizedWhenInUse, .authorizedAlways:
+                locationManager.requestLocation()
+            case .denied, .restricted:
+                errorMessage = "Location access denied"
+            case .notDetermined:
+                break
+            @unknown default:
+                break
+            }
         }
     }
 
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+    nonisolated func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else { return }
-        self.location = location
-        errorMessage = nil
+        Task { @MainActor in
+            self.location = location
+            errorMessage = nil
+        }
     }
 
-    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        errorMessage = "Failed to get location: \(error.localizedDescription)"
+    nonisolated func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        Task { @MainActor in
+            errorMessage = "Failed to get location: \(error.localizedDescription)"
+        }
     }
 
     var locationData: LocationData? {

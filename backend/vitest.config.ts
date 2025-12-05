@@ -1,7 +1,7 @@
-import { defineConfig } from 'vitest/config'
+import { defineConfig, type UserConfig } from 'vitest/config'
 import path from 'path'
 
-export default defineConfig({
+export default defineConfig((): UserConfig => ({
   test: {
     environment: 'node',
     globals: true,
@@ -38,4 +38,4 @@ export default defineConfig({
       '@/utils': path.resolve(__dirname, 'src/utils'),
     },
   },
-})
+}))

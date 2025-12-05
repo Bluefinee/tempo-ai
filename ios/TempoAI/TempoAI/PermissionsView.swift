@@ -7,6 +7,14 @@ struct PermissionsView: View {
     let locationManager: LocationManager
     let onDismiss: () -> Void
 
+    @State private var showErrorAlert: Bool = false
+    @State private var alertMessage: String = ""
+
+    private var isLocationAuthorized: Bool {
+        locationManager.authorizationStatus == .authorizedWhenInUse
+            || locationManager.authorizationStatus == .authorizedAlways
+    }
+
     var body: some View {
         NavigationStack {
             VStack(spacing: 24) {
@@ -27,22 +35,28 @@ struct PermissionsView: View {
                         icon: "location.fill",
                         title: "Location",
                         description: "Get weather information for your area",
-                        status: locationManager.authorizationStatus == .authorizedWhenInUse
-                            ? "Authorized" : "Not Authorized",
-                        color: locationManager.authorizationStatus == .authorizedWhenInUse ? .green : .red
+                        status: isLocationAuthorized ? "Authorized" : "Not Authorized",
+                        color: isLocationAuthorized ? .green : .red
                     )
                 }
 
                 if !healthKitManager.isAuthorized {
                     Button("Enable HealthKit") {
                         Task {
-                            try? await healthKitManager.requestAuthorization()
+                            do {
+                                try await healthKitManager.requestAuthorization()
+                            } catch {
+                                await MainActor.run {
+                                    alertMessage = "HealthKit authorization failed: \(error.localizedDescription)"
+                                    showErrorAlert = true
+                                }
+                            }
                         }
                     }
                     .buttonStyle(.borderedProminent)
                 }
 
-                if locationManager.authorizationStatus != .authorizedWhenInUse {
+                if !isLocationAuthorized {
                     Button("Enable Location") {
                         locationManager.requestLocation()
                     }
@@ -54,12 +68,23 @@ struct PermissionsView: View {
             .padding()
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
+            .toolbar(content: {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Done") {
                         onDismiss()
                     }
                 }
+            })
+            .onChange(of: locationManager.errorMessage) { newValue in
+                if let error = newValue {
+                    alertMessage = error
+                    showErrorAlert = true
+                }
+            }
+            .alert("Permission Error", isPresented: $showErrorAlert) {
+                Button("OK") {}
+            } message: {
+                Text(alertMessage)
             }
         }
     }

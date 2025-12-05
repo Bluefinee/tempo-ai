@@ -1,0 +1,1699 @@
+Starting CodeRabbit review in plain text mode...
+
+Connecting to review service
+Setting up
+Analyzing
+Reviewing
+
+============================================================================
+File: .github/CODEOWNERS
+Line: 5
+Type: nitpick
+
+Comment:
+All subsequent patterns are functionally redundant with this default rule.
+
+GitHub CODEOWNERS uses last-matching-rule semantics. Since line 5 assigns * @Bluefinee (matching all files), lines 8–22 all restate the same owner and have no effect on code review routing.
+
+Consider one of the following approaches:
+1. Remove redundant patterns (lines 8–22) if they serve no documentation purpose.
+2. Make patterns meaningful by assigning different owners or teams to specific areas (e.g., scripts/ @team-devops, .github/ @team-infra).
+3. Keep patterns for documentation but add a comment explaining that this file serves as a reference guide despite functional redundancy.
+
+Prompt for AI Agent:
+In .github/CODEOWNERS around line 5, the catch-all rule "* @Bluefinee" makes all later patterns (lines 8–22) functionally redundant; remove those redundant patterns OR replace them with meaningful, more specific patterns that map directories/files to the appropriate owners (e.g., "scripts/ @team-devops", ".github/ @team-infra") OR keep them but add a clarifying comment above the block stating they are present for documentation/reference only so reviewers understand intent.
+
+
+
+============================================================================
+File: ios/TempoAI/TempoAI.xcodeproj/project.pbxproj
+Line: 249
+Type: potential_issue
+
+Comment:
+Remove hardcoded DEVELOPMENT_TEAM; use environment-specific configuration.
+
+The DEVELOPMENT_TEAM is hardcoded to U32B3M6LNG in both Debug and Release configurations. Committing team IDs prevents code sharing across different development teams and creates friction for contributors outside the primary team. This should be managed via build settings that vary by environment (e.g., Xcode configuration files, local build overrides, or CI/CD-injected values).
+
+
+Consider one of these approaches:
+1. Remove the hardcoded value and let Xcode prompt during first build
+2. Use an xcconfig file (e.g., Config/Local.xcconfig) that is gitignored and set locally per developer
+3. Inject via build environment variables in CI/CD pipelines
+
+Example Config/Local.xcconfig (add to .gitignore):
+DEVELOPMENT_TEAM = U32B3M6LNG
+
+
+Then reference in the project or target:
+
+#include "Config/Local.xcconfig"
+
+
+
+Also applies to: 292-292
+
+
+
+
+============================================================================
+File: .github/CODEOWNERS
+Line: 1 to 22
+Type: potential_issue
+
+Comment:
+Consider mitigating single-point-of-failure risk in code review.
+
+Currently, all code paths are assigned exclusively to @Bluefinee, creating a bottleneck for reviews and a bus factor risk. 
+
+Recommended improvements:
+- Assign secondary reviewers or teams to critical areas (security, dependencies, health-analysis, weather, AI integrations mentioned in the PR context).
+- Use GitHub team syntax, e.g., *.xcodeproj @tempo-ai/ios-maintainers or fallback to @Bluefinee.
+- Consider whether the explicit patterns on lines 8–22 should name different owners or teams for specific subsystems.
+
+
+
+
+Would you like me to suggest a refactored CODEOWNERS structure that distributes ownership across teams or adds secondary reviewers for critical areas?
+
+Prompt for AI Agent:
+In .github/CODEOWNERS around lines 1 to 22, the file assigns all ownership to a single user which creates a single-point-of-failure for reviews; update the CODEOWNERS to add secondary reviewers and team entries for critical areas (security, dependency files, iOS, documentation, AI integrations) using GitHub team syntax (e.g., assign @org/team as primary and fall back to @Bluefinee where appropriate), split ownership by path patterns (package.json, pnpm-lock.yaml, *.xcodeproj, Podfile, docs/, guidelines/, scripts/) and add at least one team per critical subsystem so changes require review from both a team and the individual owner.
+
+
+
+============================================================================
+File: backend/tests/utils/validation.test.ts
+Line: 25 to 41
+Type: potential_issue
+
+Comment:
+コーディング規約違反：any型の使用と戻り値型の欠落
+
+このヘルパー関数には2つの規約違反があります：
+
+1. Line 40: as anyキャストを使用していますが、コーディングガイドラインで「NEVER use any type」と明確に禁止されています。
+2. Line 25: 関数の明示的な戻り値型が欠落しています。ガイドラインでは「Always declare explicit return types for functions」が求められています。
+
+
+
+次のように修正してください：
+
++// Hono Context型の定義（テスト用）
++type MockContext = {
++  req: {
++    header: ReturnType
++    text: ReturnType
++  }
++}
++
+-const createMockContext = (
++const createMockContext = (
+   headers: Record = {},
+   text: string = '{}',
+   shouldThrow = false,
+-) => {
++): MockContext => {
+   const mockReq = {
+     header: vi.fn((name: string) => headers[name]),
+     text: vi.fn(async () => {
+       if (shouldThrow) {
+         throw new Error('Read error')
+       }
+       return text
+     }),
+   }
+
+-  return { req: mockReq } as any
++  return { req: mockReq }
+ }
+
+
+Based on coding guidelines: /*.{ts,tsx} rules.
+
+Prompt for AI Agent:
+In backend/tests/utils/validation.test.ts around lines 25 to 41, replace the use of "as any" and add an explicit return type: declare a specific interface/type for the mock context (e.g. MockRequest/MockContext) describing req.header(name: string): string | undefined and req.text(): Promise, then annotate createMockContext to return that type; implement the mock object to conform to the interface (using vi.fn with proper function signatures) so there is no use of any and the function has an explicit return type.
+
+
+
+============================================================================
+File: ios/TempoAI/TempoAITests/APIClientTests.swift
+Line: 288 to 317
+Type: nitpick
+
+Comment:
+HTTPステータスコードテストの改善提案
+
+テストは機能していますが、各ステータスコードに対してより具体的なエラーメッセージの検証を追加することを検討してください。また、429 (Rate Limit) に対しては特別なハンドリングが必要な場合があります。
+
+
+
+
+============================================================================
+File: backend/tests/services/ai.test.ts
+Line: 183 to 223
+Type: potential_issue
+
+Comment:
+型アサーションが型安全性を損なっています
+
+Lines 204と211でas Responseおよびas typeof fetchの型アサーションが使用されていますが、これによりTypeScriptの型チェックが回避され、モックオブジェクトと実際の型との不整合が検出されなくなります。
+
+より安全なアプローチとして、適切な型定義を使用することを推奨します：
+
+
+
+-      } as Response)
++      } as Partial)
+
+       const result = await analyzeHealth({
+         healthData: mockHealthData,
+         weather: mockWeatherData,
+         userProfile: mockUserProfile,
+         apiKey: 'sk-ant-api03-valid-key-12345',
+-        customFetch: mockFetch as typeof fetch,
++        customFetch: mockFetch as unknown as typeof fetch,
+       })
+
+
+または、適切な型定義を持つヘルパー関数を作成することも検討してください：
+
+const createMockResponse = (body: unknown): Partial => ({
+  ok: true,
+  status: 200,
+  statusText: 'OK',
+  headers: new Headers({ 'content-type': 'application/json' }),
+  json: async () => body,
+})
+
+
+As per coding guidelines, TypeScript type safety should be maintained without bypassing the type system.
+
+Prompt for AI Agent:
+backend/tests/services/ai.test.ts around lines 183 to 223: two unsafe type assertions (lines ~204 and ~211) use as Response and as typeof fetch, bypassing TypeScript safety; replace them by creating properly typed mocks (e.g., a helper that returns Partial or a Jest-mocked Response with typed json(), ok, status, headers) and by typing the fetch mock as jest.MockedFunction (or using ReturnType/Parameters helpers) so the mock shape matches the real types instead of asserting; update the test to use the helper/mock types and remove the as assertions.
+
+
+
+============================================================================
+File: backend/tests/types/test-requests.js
+Line: 1 to 32
+Type: potential_issue
+
+Comment:
+クリティカル: JavaScriptファイルがTypeScriptプロジェクトに含まれています
+
+このファイルは.js拡張子を使用していますが、コーディングガイドラインによるとbackend配下の全てのファイルは.tsである必要があります。
+
+さらに、以下の問題があります：
+- 型アノテーションが欠落
+- 明示的な戻り値の型宣言なし
+- アロー関数ではなく関数式を使用（Lines 11, 22）
+
+
+
+このファイルをTypeScriptに変換してください：
+
+/
+ * @fileoverview Test-specific Request Type Definitions
+ *
+ * Type definitions and validation functions for test API endpoints only.
+ * These types are separate from production types and may have relaxed constraints.
+ *
+ * @author Tempo AI Team
+ * @since 1.0.0
+ */
+
+interface WeatherTestRequest {
+  latitude: number
+  longitude: number
+}
+
+interface AnalyzeTestRequest {
+  location: {
+    latitude: number
+    longitude: number
+  }
+}
+
+/
+ * Weather test request validation with relaxed type constraints
+ */
+export const isWeatherTestRequest = (data: unknown): data is WeatherTestRequest => {
+  return (
+    typeof data === 'object' &&
+    data !== null &&
+    'latitude' in data &&
+    'longitude' in data &&
+    typeof (data as WeatherTestRequest).latitude === 'number' &&
+    typeof (data as WeatherTestRequest).longitude === 'number' &&
+    (data as WeatherTestRequest).latitude >= -90 &&
+    (data as WeatherTestRequest).latitude = -180 &&
+    (data as WeatherTestRequest).longitude  {
+  return (
+    typeof data === 'object' &&
+    data !== null &&
+    'location' in data &&
+    typeof (data as AnalyzeTestRequest).location === 'object' &&
+    (data as AnalyzeTestRequest).location !== null &&
+    typeof (data as AnalyzeTestRequest).location.latitude === 'number' &&
+    typeof (data as AnalyzeTestRequest).location.longitude === 'number' &&
+    (data as AnalyzeTestRequest).location.latitude >= -90 &&
+    (data as AnalyzeTestRequest).location.latitude = -180 &&
+    (data as AnalyzeTestRequest).location.longitude <= 180 &&
+    !Number.isNaN((data as AnalyzeTestRequest).location.latitude) &&
+    !Number.isNaN((data as AnalyzeTestRequest).location.longitude)
+  )
+}
+
+
+ファイル名もtest-requests.js → test-requests.tsに変更してください。
+
+参考:
+- コーディングガイドライン: NEVER use any type in TypeScript - use unknown if type is truly unknown
+- コーディングガイドライン: Always declare explicit return types for functions in TypeScript
+- コーディングガイドライン: ALWAYS use arrow functions consistently throughout the codebase
+- CLAUDE.md: プロジェクトはTypeScript strict modeで、any型の使用禁止
+
+Prompt for AI Agent:
+In backend/tests/types/test-requests.js (lines 1-32): rename the file to test-requests.ts and convert to TypeScript by adding explicit interfaces WeatherTestRequest and AnalyzeTestRequest, change both function expressions to arrow functions, use data: unknown and explicit type predicate return types (data is WeatherTestRequest / data is AnalyzeTestRequest), perform robust runtime checks (ensure typeof data === 'object' && data !== null, use 'in' checks for properties, cast to the appropriate interface when checking nested numeric fields), validate numeric ranges and NaN using Number.isNaN, and export the arrow functions; ensure no use of any and that the file typechecks under strict mode.
+
+
+
+============================================================================
+File: backend/src/utils/validation.ts
+Line: 13
+Type: potential_issue
+
+Comment:
+重大: type-onlyインポートが不適切（ランタイムエラー）
+
+Line 13でzをtype-onlyインポートしていますが、zは以下の箇所でランタイムに使用されています：
+- Line 60: z.ZodSchema パラメータ型として使用
+- Line 106: schema.safeParse(parsed) ランタイムメソッド呼び出し
+
+type-onlyインポートはコンパイル時に削除されるため、ランタイムエラーが発生します。
+
+
+
+修正案を適用してください：
+
+ import type { Context } from 'hono'
+-import type { z } from 'zod'
++import { z } from 'zod'
+ import { ensureJsonRequest } from './contentType'
+
+Prompt for AI Agent:
+In backend/src/utils/validation.ts around line 13, the file currently uses a type-only import "import type { z } from 'zod'" which is removed at compile time but z is used at runtime (e.g. z.ZodSchema and schema.safeParse). Replace the type-only import with a runtime import (for example import { z } from 'zod' or import * as z from 'zod') so z is available at runtime, leaving any existing type annotations unchanged.
+
+
+
+============================================================================
+File: ios/TempoAI/TempoAI/PermissionsView.swift
+Line: 18 to 84
+Type: nitpick
+
+Comment:
+PermissionsView の body が50行を超えています
+
+swift-coding-standards.md の「View分解: 50行超のbodyはコンポーネント抽出」に基づき、body が約65行あります。HealthKit と Location のパーミッションセクションを個別のサブビューに分割することを検討してください。
+
+
+
++    // MARK: - Subviews
++    
++    @ViewBuilder
++    private var healthKitSection: some View {
++        PermissionRow(
++            icon: "heart.fill",
++            title: "HealthKit",
++            description: "Access your health data for personalized advice",
++            status: healthKitManager.isAuthorized ? "Authorized" : "Not Authorized",
++            color: healthKitManager.isAuthorized ? .green : .red
++        )
++        
++        if !healthKitManager.isAuthorized {
++            Button("Enable HealthKit") {
++                Task {
++                    do {
++                        try await healthKitManager.requestAuthorization()
++                    } catch {
++                        await MainActor.run {
++                            alertMessage = "HealthKit authorization failed: \(error.localizedDescription)"
++                            showErrorAlert = true
++                        }
++                    }
++                }
++            }
++            .buttonStyle(.borderedProminent)
++        }
++    }
+
+
+
+
+============================================================================
+File: backend/tests/services/ai.test.ts
+Line: 160 to 180
+Type: nitpick
+
+Comment:
+APIキー検証のテストロジックは適切ですが、戻り値の型宣言が不足しています
+
+コーディングガイドラインでは「Always declare explicit return types for functions in TypeScript」が要求されています。テスト関数にも明示的な戻り値の型（: Promise）を追加することを推奨します。
+
+
+
+例:
+-    it('should throw APIError when API key is missing', async () => {
++    it('should throw APIError when API key is missing', async (): Promise => {
+
+
+As per coding guidelines, explicit return types should be declared for all functions.
+
+Prompt for AI Agent:
+In backend/tests/services/ai.test.ts around lines 160 to 180, the API key validation test functions are missing explicit return type annotations; update each async test function to declare ": Promise" as its return type (e.g., const testName = async (): Promise => { ... } or add the type to the function declaration used by your test framework) so all test functions have explicit TypeScript return types per the coding guidelines.
+
+
+
+============================================================================
+File: ios/TempoAI/TempoAI/PermissionsView.swift
+Line: 59 to 64
+Type: potential_issue
+
+Comment:
+LocationManager のエラーメッセージが表示されていません
+
+LocationManager.swift (lines 19-30) を確認すると、位置情報アクセスが拒否された場合に errorMessage が設定されますが、PermissionsView ではこのエラーメッセージを監視・表示していません。ユーザーにフィードバックが提供されません。
+
+
+
++    // Add observation of location error
++    .onChange(of: locationManager.errorMessage) { _, newValue in
++        if let error = newValue {
++            alertMessage = error
++            showErrorAlert = true
++        }
++    }
+
+Prompt for AI Agent:
+In ios/TempoAI/TempoAI/PermissionsView.swift around lines 59 to 64, the view shows the "Enable Location" button when location is not authorized but does not observe or display LocationManager.errorMessage; update PermissionsView to observe the LocationManager's published errorMessage (ensure the view has the LocationManager as an @StateObject or @ObservedObject instance passed in), add a conditional Text view beneath the button that displays errorMessage when non-empty with appropriate styling (e.g., red, smaller font), and make sure LocationManager publishes error changes on the main thread so the UI updates immediately.
+
+
+
+============================================================================
+File: backend/src/index.ts
+Line: 45 to 46
+Type: potential_issue
+
+Comment:
+テストルートの本番環境での無効化を検討してください。
+
+/api/testルートは開発・テスト用と記載されていますが、無条件でマウントされています。本番環境ではセキュリティリスクとなる可能性があるため、環境変数による条件付きマウントを推奨します。
+
+
+
+ // Health routes
+ app.route('/api/health', healthRoutes)
+
+-// Test routes (development only)
+-app.route('/api/test', testRoutes)
++// Test routes (development only)
++if (process.env.NODE_ENV !== 'production') {
++  app.route('/api/test', testRoutes)
++}
+
+
+※ Cloudflare Workers環境では、環境変数を使用するか、ビルド時の条件分岐が必要です。
+
+Prompt for AI Agent:
+In backend/src/index.ts around lines 45-46, the test route (/api/test) is mounted unconditionally which is a production risk; update the code to mount that route only when an environment flag indicates non-production (e.g., NODE_ENV !== 'production' or a specific ENABLE_TEST_ROUTE=true), and default to disabled in production; for Cloudflare Workers ensure the same condition is evaluated via the Worker env or build-time flag so the route is not registered in production builds.
+
+
+
+============================================================================
+File: ios/TempoAI/TempoAITests/HealthKitManagerTests.swift
+Line: 510 to 524
+Type: potential_issue
+
+Comment:
+重複定義: Test Helper拡張が別ファイルにも存在します。
+
+HealthKitManagerTestsの拡張メソッド（setupAuthorizedManager, setupMockQueryResponses, withMockData）はTestHelpers/HealthKitTestHelpers.swiftにも同一内容で定義されています。この重複を解消してください。
+
+Prompt for AI Agent:
+In ios/TempoAI/TempoAITests/HealthKitManagerTests.swift around lines 510 to 524, there are duplicate test helper extension methods (setupAuthorizedManager, setupMockQueryResponses, withMockData) that are already defined in TestHelpers/HealthKitTestHelpers.swift; remove the redundant extension from this test file and update any local references to use the shared TestHelpers implementation (ensure the test target imports the TestHelpers module/file if needed), delete the duplicate methods in HealthKitManagerTests.swift, and run the test suite to confirm no missing symbols remain.
+
+
+
+============================================================================
+File: ios/TempoAI/TempoAITests/TestHelpers/HealthKitTestHelpers.swift
+Line: 29 to 43
+Type: potential_issue
+
+Comment:
+HealthKitManagerTestsの重複拡張について。
+
+これらのヘルパーメソッドはHealthKitManagerTests.swift（lines 510-524）にも同一内容で定義されています。重複を解消するため、HealthKitManagerTests.swift側の定義を削除し、このファイルのみを使用してください。
+
+Prompt for AI Agent:
+In ios/TempoAI/TempoAITests/TestHelpers/HealthKitTestHelpers.swift around lines 29 to 43, the helper extensions (setupAuthorizedManager, setupMockQueryResponses, withMockData) are duplicated in HealthKitManagerTests.swift at lines 510-524; remove the duplicate definitions from HealthKitManagerTests.swift (lines 510-524) and keep only the implementations in this TestHelpers file, then run tests/compile to ensure no references break and adjust any internal test imports or access levels if needed.
+
+
+
+============================================================================
+File: ios/TempoAI/TempoAITests/TestHelpers.swift
+Line: 64 to 68
+Type: nitpick
+
+Comment:
+単位表記の一貫性
+
+target: "2.5L" と schedule 内の "500ml" で単位表記が異なります（大文字/小文字のL、mlの使用）。これは意図的かもしれませんが、一貫性を確認してください。
+
+
+
+             hydration: HydrationAdvice(
+-                target: "2.5L",
+-                schedule: HydrationSchedule(morning: "500ml", afternoon: "1000ml", evening: "1000ml"),
++                target: "2.5",
++                schedule: HydrationSchedule(morning: "500", afternoon: "1000", evening: "1000"),
+                 reason: "活動量に対応"
+             ),
+
+Prompt for AI Agent:
+In ios/TempoAI/TempoAITests/TestHelpers.swift around lines 64 to 68, the test data uses inconsistent unit notation ("2.5L" vs "500ml"); standardize the units across the fixture by choosing a single format (e.g., use "L" with uppercase or "l"/"ml" lowercase consistently, or convert all to milliliters like "2500ml"/"500ml"), update the target and schedule entries to match that chosen convention, and run tests to confirm no parsing/validation expectations break.
+
+
+
+============================================================================
+File: backend/src/services/ai.ts
+Line: 92 to 144
+Type: nitpick
+
+Comment:
+型安全性とバリデーションの優れた実装！
+
+レスポンス処理が非常に堅牢で、型安全性を完璧に維持しています：
+
+コーディングガイドライン準拠:
+- ✓ unknown型の使用（Line 106: NEVER use any type - use unknown instead）
+- ✓ Zodスキーマによる厳密なバリデーション
+- ✓ 詳細なエラーメッセージと具体的なエラーコード
+
+特に、バリデーションエラー時にZodのissuesから詳細なエラー情報を抽出し（Lines 110-114）、デバッグ可能なメッセージを生成している点が素晴らしいです。
+
+オプショナルな最適化提案:
+Line 125のas DailyAdvice型アサーションは、ZodのsafeParseが成功した時点でvalidationResult.dataは既に適切な型に推論されているため、技術的には冗長です。ただし、これは非常に軽微な点であり、明示的な型の可読性のために残す判断も妥当です。
+
+
+
+
+-      return validationResult.data as DailyAdvice
++      return validationResult.data
+
+Prompt for AI Agent:
+In backend/src/services/ai.ts around lines 92 to 144, there's a redundant type assertion at line 125 where validationResult.data is cast with "as DailyAdvice" even though Zod's safeParse success already narrows the type; remove the unnecessary "as DailyAdvice" cast and use validationResult.data directly (or keep the cast only if you prefer explicitness for readability).
+
+
+
+============================================================================
+File: ios/TempoAI/TempoAITests/HealthKitManagerTests.swift
+Line: 1 to 525
+Type: refactor_suggestion
+
+Comment:
+ファイル長制限超過: 400行を超えています。
+
+このファイルは約525行あり、swift-coding-standards.mdで定義された400行制限を超えています。テストの可読性と保守性を向上させるため、以下のコンポーネントを別ファイルに抽出してください：
+
+- MockHealthKitQueryFactory → Mocks/MockHealthKitQueryFactory.swift
+- MockHealthKitStore → 既存の Mocks/MockHealthKitStore.swift と統合
+- MockHKStatistics → TestHelpers/HealthKitTestHelpers.swift の MockStatistics と統合
+
+
+
+As per coding guidelines (swift-coding-standards.md): ファイル長制限 400行以下、超過時はコンポーネント抽出要求。
+
+
+
+
+============================================================================
+File: ios/TempoAI/TempoAITests/HealthKitManagerTests.swift
+Line: 369 to 493
+Type: potential_issue
+
+Comment:
+重複定義: MockHealthKitStoreが別ファイルにも存在します。
+
+MockHealthKitStoreクラスはios/TempoAI/TempoAITests/Mocks/MockHealthKitStore.swiftにも定義されています。この重複定義はコンパイルエラーまたは予期しない動作を引き起こす可能性があります。
+
+このファイル内の定義を削除し、既存のモックファイルを使用してください。
+
+Prompt for AI Agent:
+In ios/TempoAI/TempoAITests/HealthKitManagerTests.swift around lines 369 to 493, there is a duplicate definition of MockHealthKitStore which also exists in ios/TempoAI/TempoAITests/Mocks/MockHealthKitStore.swift; remove the MockHealthKitStore class definition from this file and ensure tests reference the existing mock (import or adjust test targets if necessary) so the single mock implementation in Mocks/MockHealthKitStore.swift is used throughout.
+
+
+
+============================================================================
+File: ios/TempoAI/TempoAITests/Mocks/MockHealthKitStore.swift
+Line: 40 to 51
+Type: nitpick
+
+Comment:
+DispatchQueue.main.asyncの使用について。
+
+executeメソッド内でDispatchQueue.main.asyncを使用していますが、クラスに@MainActorアノテーションがありません。テストの一貫性のため、@MainActorの付与を検討してください。
+
+
+
+As per coding guidelines (swift-coding-standards.md): MainActor - UI更新の@MainActor適用確認。
+
+Prompt for AI Agent:
+In ios/TempoAI/TempoAITests/Mocks/MockHealthKitStore.swift around lines 40–51, the execute(_:) method dispatches work to DispatchQueue.main.async but the class lacks @MainActor, which can cause inconsistent test behavior; annotate the MockHealthKitStore with @MainActor (or mark the execute(_:) method @MainActor) so its logic runs on the main actor, and then you can remove the explicit DispatchQueue.main.async call (or keep it if you prefer but ensure actor annotation is present) to ensure main-thread/test consistency.
+
+
+
+============================================================================
+File: backend/src/index.ts
+Line: 76 to 87
+Type: nitpick
+
+Comment:
+statusCodeの型アサーションについて。
+
+Line 85のstatusCode as 500は、HonoのStatusCode型制約を満たすための回避策です。より安全な実装として、toValidStatusCodeユーティリティ関数の使用を検討してください。
+
+
+
++import { handleError, toValidStatusCode } from './utils/errors'
++
+ // Global error handler
+ app.onError((err, c): Response => {
+   const { message, statusCode } = handleError(err)
+
+   return c.json(
+     {
+       success: false,
+       error: message,
+     },
+-    statusCode as 500,
++    toValidStatusCode(statusCode),
+   )
+ })
+
+
+toValidStatusCode関数（backend/src/utils/errors.ts lines 111-130で定義）は、有効なHTTPステータスコードのみを返すことを保証します。
+
+Prompt for AI Agent:
+In backend/src/index.ts around lines 76 to 87, the current return uses a type assertion statusCode as 500 to satisfy Hono's StatusCode constraint; replace that assertion by passing the result of the existing toValidStatusCode utility (defined in backend/src/utils/errors.ts lines 111-130) into c.json so the response uses a validated status code. Ensure you call toValidStatusCode(statusCode) (or default through it) and use its return value as the HTTP status when calling c.json, removing the unsafe type assertion.
+
+
+
+============================================================================
+File: ios/TempoAI/TempoAITests/LocationProfileTests.swift
+Line: 10 to 11
+Type: nitpick
+
+Comment:
+明示的型宣言の追加を推奨します。
+
+swift-coding-standards.mdの「明示的型宣言」ルールに基づき、ローカル変数にも型を明示することを推奨します。
+
+
+
+-        let latitude = 35.6895
+-        let longitude = 139.6917
++        let latitude: Double = 35.6895
++        let longitude: Double = 139.6917
+
+Prompt for AI Agent:
+In ios/TempoAI/TempoAITests/LocationProfileTests.swift around lines 10 to 11, the local variables latitude and longitude are declared without explicit types; add explicit type annotations (e.g., let latitude: Double = 35.6895 and let longitude: Double = 139.6917) to comply with the project's "explicit type declaration" rule for local variables.
+
+
+
+============================================================================
+File: backend/tests/routes/health.test.ts
+Line: 90 to 98
+Type: potential_issue
+
+Comment:
+userProfileのexerciseFrequencyがバックエンド型定義と不整合です。
+
+backend/src/types/health.tsではexerciseFrequencyは'daily' | 'weekly' | 'monthly' | 'rarely' | 'never'ですが、テストデータでは'3回/週'を使用しています。これにより実際のバリデーションが正しくテストされない可能性があります。
+
+
+
+   userProfile: {
+     age: 30,
+     gender: 'male',
+     goals: ['疲労回復', '集中力向上'],
+     dietaryPreferences: 'バランス重視',
+     exerciseHabits: '週3回ジム',
+-    exerciseFrequency: '3回/週',
++    exerciseFrequency: 'weekly',
+   },
+
+Prompt for AI Agent:
+In backend/tests/routes/health.test.ts around lines 90 to 98, the test fixture’s userProfile.exerciseFrequency uses a non-conforming value ('3回/週'), which doesn't match the backend type union ('daily' | 'weekly' | 'monthly' | 'rarely' | 'never'); update the test data to use one of the allowed string literals (for example 'weekly') so the test validates against the real type, and if you need to keep a human-readable label move that to a separate display field or add a comment mapping it to the enum value.
+
+
+
+============================================================================
+File: backend/tests/services/weather.test.ts
+Line: 247 to 256
+Type: potential_issue
+
+Comment:
+問題: エラーメッセージの不一致
+
+Line 253-255でエラーメッセージ'Invalid weather data format received from API'を期待していますが、実際のサービス（backend/src/services/weather.ts:46-50）は'Invalid weather data format: ...'という形式を返します。
+
+
+
+期待するエラーメッセージを実装に合わせて修正してください：
+
+       await expect(getWeather(35.6895, 139.6917)).rejects.toThrow(
+-        'Invalid weather data format received from API',
++        /Invalid weather data format:/,
+       )
+
+
+正規表現を使用することで、詳細なバリデーションメッセージの違いにも対応できます。
+
+Prompt for AI Agent:
+In backend/tests/services/weather.test.ts around lines 247 to 256, the test expects the exact message 'Invalid weather data format received from API' but the service throws messages prefixed with 'Invalid weather data format: ...'; update the test to match the implementation by using a regex or a partial match (for example assert the thrown error message matches /Invalid weather data format/ or use toThrowMatching with that regex) so the test accepts the actual error text produced by backend/src/services/weather.ts.
+
+
+
+============================================================================
+File: ios/TempoAI/TempoAI/HomeView.swift
+Line: 156 to 172
+Type: nitpick
+
+Comment:
+連続する#if DEBUGブロックを統合できます。
+
+2つの#if DEBUGブロックが連続しており、1つに統合することで可読性が向上します。
+
+
+
+             } catch {
+                 #if DEBUG
+                     print("Real API failed, using mock data: \(error.localizedDescription)")
+-                #endif
+-
+-                #if DEBUG
+-                    // Fallback to mock API in DEBUG builds only
+                     let advice = try await apiClient.analyzeHealthMock(
+                         healthData: healthData,
+                         location: locationData,
+                         userProfile: userProfile
+                     )
+                     todayAdvice = advice
+                     isMockData = true
+                 #else
+                     // In production, show the actual error
+                     throw error
+                 #endif
+             }
+
+Prompt for AI Agent:
+In ios/TempoAI/TempoAI/HomeView.swift around lines 156 to 172, two consecutive #if DEBUG blocks should be merged: combine the debug-only print("Real API failed...") and the mock fallback (let advice = try await apiClient.analyzeHealthMock(...), set todayAdvice and isMockData = true) into a single #if DEBUG section, leaving a single #else that rethrows the error for production; ensure the #if/#else/#endif directives remain balanced and the catch logic preserves behavior.
+
+
+
+============================================================================
+File: backend/tests/routes/health.test.ts
+Line: 389 to 425
+Type: nitpick
+
+Comment:
+エラーハンドリングテストでエラーメッセージも検証することを推奨します。
+
+ステータスコードのみの検証では、エラーメッセージの回帰を検出できません。ErrorResponseのerrorフィールドも検証することで、ユーザー向けエラーメッセージの品質を保証できます。
+
+
+
+     it('should handle weather service errors', async () => {
+       mockGetWeather.mockRejectedValueOnce(new Error('Weather API failed'))
+       // ... request code ...
+       expect(response.status).toBe(500)
++      const result = (await response.json()) as ErrorResponse
++      expect(result.success).toBe(false)
++      expect(result.error).toBeDefined()
+     })
+
+Prompt for AI Agent:
+In backend/tests/routes/health.test.ts around lines 389 to 425, the two error-handling tests only assert HTTP 500 but should also verify the ErrorResponse.error payload; update each test to parse the JSON response body and assert the error field contains the expected message (e.g., for the mockRejectedValueOnce test assert error includes "Health advice generation failed"), and for the other 500-case assert the error field contains an appropriate descriptive message; keep assertions tight (exact equality or contains) so regressions to the user-facing message are detected.
+
+
+
+============================================================================
+File: backend/tests/services/weather.test.ts
+Line: 58 to 72
+Type: potential_issue
+
+Comment:
+重大な問題: モックがサービスの実装と不一致です
+
+Line 60でjson: () => Promise.resolve(mockWeatherResponse)をモックしていますが、実際のサービス実装（backend/src/services/weather.ts:41-48）ではresponse.text()を使用してからJSON.parseしています。
+
+この不一致により、テストは成功しても実際の動作を正確に検証できていません。
+
+
+
+以下のように修正して、実際のサービスの動作を正確に模倣してください：
+
+     mockFetch.mockResolvedValueOnce({
+       ok: true,
+-      json: () => Promise.resolve(mockWeatherResponse),
++      text: () => Promise.resolve(JSON.stringify(mockWeatherResponse)),
+     })
+
+
+同様の修正を他のテストケース（Lines 75-96, 99-109, 111-122, 124-135, 259-270, 272-284）にも適用してください。
+
+参考: typescript-hono-standards.mdのテストセクションでは、実装と一致した正確なモック設計が推奨されています。
+
+Prompt for AI Agent:
+In backend/tests/services/weather.test.ts around lines 58 to 72, the mock response uses json(): Promise.resolve(...) but the service under test calls response.text() then JSON.parse(), so update the mock to implement text(): () => Promise.resolve(JSON.stringify(mockWeatherResponse)) to mirror real behavior; apply the same change to the other indicated test ranges (lines 75-96, 99-109, 111-122, 124-135, 259-270, 272-284) so every mockFetch returns a text() that resolves to the JSON string instead of a json() function.
+
+
+
+============================================================================
+File: backend/tests/services/weather.test.ts
+Line: 218 to 227
+Type: potential_issue
+
+Comment:
+問題: JSON解析エラーのテストがサービス実装と不一致
+
+Line 221でjson: () => Promise.reject(new Error('Invalid JSON'))をモックしていますが、実際のサービスはtext()の後にJSON.parseを呼び出すため、このテストは正しい動作を検証していません。
+
+
+
+以下のように修正してください：
+
+       mockFetch.mockResolvedValueOnce({
+         ok: true,
+-        json: () => Promise.reject(new Error('Invalid JSON')),
++        text: () => Promise.resolve('invalid json{'),
+       })
+ 
+       const promise = getWeather(35.6895, 139.6917)
+       await expect(promise).rejects.toThrow(APIError)
+-      await expect(promise).rejects.toThrow('Failed to fetch weather data')
++      await expect(promise).rejects.toThrow('Invalid JSON response from weather API')
+
+Prompt for AI Agent:
+In backend/tests/services/weather.test.ts around lines 218 to 227, the test currently mocks response.json() to reject, but the service implementation calls response.text() and then JSON.parse(text), so this does not exercise the real JSON.parse failure path; update the mock to provide ok: true and a text: () => Promise.resolve('INVALID_JSON') (an invalid JSON string) so that the service's JSON.parse throws, and keep the assertions that the promise rejects with APIError and the 'Failed to fetch weather data' message.
+
+
+
+============================================================================
+File: ios/TempoAI/TempoAITests/Mocks/MockHealthKitStore.swift
+Line: 68 to 103
+Type: potential_issue
+
+Comment:
+handleStatisticsQueryも同様に結果配信が不完全です。
+
+handleStatisticsQueryでMockStatisticsを生成していますが、コメントにあるようにresultsHandlerにアクセスできないため、結果が配信されません。
+
+この制限により、統計クエリを使用するテストは期待通りに動作しない可能性があります。テスト設計の見直しを検討してください。
+
+Prompt for AI Agent:
+In ios/TempoAI/TempoAITests/Mocks/MockHealthKitStore.swift around lines 68–103, handleStatisticsQuery only constructs a MockStatistics but never delivers it because HKStatisticsQuery.resultsHandler is private; fix by making the query execution injectable so the mock can invoke the results handler: modify the mock query type (used by tests) to capture and expose the resultsHandler closure when the query is created, add a public method on MockHealthKitStore like executeStatisticsQuery(_ query: HKStatisticsQuery, with statistics: HKStatistics?) that calls the captured resultsHandler with the created MockStatistics (or nil/error), and update tests to use this method or create the mock query via the mock factory so the handler is available — this lets handleStatisticsQuery produce the HKQuantity/HKStatistics and deliver it via the exposed resultsHandler rather than leaving results undelivered.
+
+
+
+============================================================================
+File: ios/TempoAI/TempoAI/HomeView.swift
+Line: 4 to 6
+Type: nitpick
+
+Comment:
+@ObservedObjectではなく@StateObjectを使用することを検討してください。
+
+APIClient.sharedはシングルトンですが、@ObservedObjectはViewの再生成時に再サブスクライブします。@StateObjectは所有権を持ち、Viewのライフサイクルを通じて安定します。
+
+swift-coding-standards.mdより：「@StateObject（作成・所有）、@ObservedObject（親から受け取り）」
+
+
+
+ struct HomeView: View {
+     @StateObject private var healthKitManager: HealthKitManager = HealthKitManager()
+     @StateObject private var locationManager: LocationManager = LocationManager()
+-    @ObservedObject private var apiClient: APIClient = APIClient.shared
++    @StateObject private var apiClient: APIClient = APIClient.shared
+
+
+ただし、APIClientがObservableObjectとして適切に実装されており、@Publishedプロパティを持つことを確認してください。シングルトンとして既に存在するインスタンスを@StateObjectで初期化する場合の挙動に注意が必要です。
+
+Prompt for AI Agent:
+In ios/TempoAI/TempoAI/HomeView.swift around lines 4 to 6, the reviewer asks to use @StateObject instead of @ObservedObject for the shared APIClient to avoid re-subscribing when the view is recreated; change the property declaration to own the singleton via @StateObject (initialize via wrappedValue = APIClient.shared or equivalent StateObject initialization), ensure APIClient conforms to ObservableObject and exposes state via @Published properties, and avoid recreating a new APIClient instance in the view (use the existing shared instance).
+
+
+
+============================================================================
+File: backend/src/services/weather.ts
+Line: 28 to 80
+Type: nitpick
+
+Comment:
+LGTM！型安全性とエラーハンドリングが適切に実装されています。
+
+CLAUDE.md準拠チェック:
+- ✓ any型を使用せずunknownで型安全性を確保
+- ✓ 明示的な戻り値型 Promise を宣言
+- ✓ constとアロー関数を使用
+- ✓ 名前付きエクスポート
+- ✓ 公開APIのJSDocが完備
+
+typescript-hono-standards.md準拠チェック:
+- ✓ Service層として適切に分離
+- ✓ カスタムエラー型（APIError）で構造化されたエラーハンドリング
+
+改善提案（オプショナル）:
+
+Lines 55-66の基本的な構造検証は良い第一歩ですが、実運用ではより厳密な検証が推奨されます。Zodなどのランタイムバリデーションライブラリの使用を検討してください。
+
+import { z } from 'zod'
+
+const WeatherDataSchema = z.object({
+  current: z.object({
+    temperature_2m: z.number(),
+    // ... other fields
+  }),
+  daily: z.object({
+    // ... fields
+  })
+})
+
+// Then in the function:
+const validatedData = WeatherDataSchema.parse(data)
+return validatedData
+
+Prompt for AI Agent:
+In backend/src/services/weather.ts around lines 55 to 66, the current basic structure validation should be replaced with a strict Zod runtime schema check: import z from 'zod' (or your project's zod export), define a WeatherDataSchema that precisely models the expected current and daily fields (numbers, arrays, nested objects, etc.), then replace the manual safeParse/validation block with WeatherDataSchema.parse(parsed) (or use safeParse and forward the zod error details into APIError) so the function returns the fully validated typed object.
+
+
+
+============================================================================
+File: backend/src/types/requests.ts
+Line: 51 to 56
+Type: nitpick
+
+Comment:
+DRY原則: LocationSchemaの再利用を検討してください。
+
+WeatherTestRequestSchemaのlatitudeとlongitudeはLocationSchemaと同じ検証ルールを持っています。LocationSchemaを再利用することで、コードの重複を減らし、検証ルールの一貫性を保証できます。
+
+
+
+ export const WeatherTestRequestSchema = z.object({
+-  / 緯度 */
+-  latitude: z.number().min(-90).max(90),
+-  / 経度 */
+-  longitude: z.number().min(-180).max(180),
++  ...LocationSchema.shape,
+ })
+
+
+または、より明示的に：
+
+export const WeatherTestRequestSchema = LocationSchema
+
+Prompt for AI Agent:
+In backend/src/types/requests.ts around lines 51 to 56, WeatherTestRequestSchema duplicates latitude/longitude validation that already exists in LocationSchema; replace the inline z.object with a reuse of LocationSchema (either assign WeatherTestRequestSchema = LocationSchema or export it as LocationSchema) so the same validation rules are shared and duplication is removed, keeping imports/exports consistent.
+
+
+
+============================================================================
+File: backend/src/services/health-advice.ts
+Line: 94 to 105
+Type: nitpick
+
+Comment:
+claudeParamsオブジェクト構築を簡潔化できます。
+
+条件付きプロパティ追加は、スプレッド構文で簡潔に記述可能です。
+
+
+
+-    const claudeParams: {
+-      prompt: string
+-      apiKey: string
+-      customFetch?: typeof fetch
+-    } = {
+-      prompt,
+-      apiKey: params.apiKey,
+-    }
+-
+-    if (params.customFetch) {
+-      claudeParams.customFetch = params.customFetch
+-    }
+-
+-    const advice = await callClaude(claudeParams)
++    const advice = await callClaude({
++      prompt,
++      apiKey: params.apiKey,
++      ...(params.customFetch && { customFetch: params.customFetch }),
++    })
+
+Prompt for AI Agent:
+In backend/src/services/health-advice.ts around lines 94 to 105, the claudeParams object is built then mutated to add customFetch conditionally; replace this with a single object literal that uses spread to include customFetch only when present (e.g. include ...(params.customFetch ? { customFetch: params.customFetch } : {})) while preserving the existing type annotation and values for prompt and apiKey.
+
+
+
+============================================================================
+File: ios/TempoAI/TempoAITests/HealthKitManagerTests.swift
+Line: 333 to 340
+Type: potential_issue
+
+Comment:
+メモリ管理テストのロジックに問題があります。
+
+このテストはweakManagerがnilになることを期待しているコメントがありますが、実際のアサーションはXCTAssertNotNilです。テストの意図と実装が矛盾しています。
+
+
+
+     func testHealthKitManagerMemoryManagement() {
+         weak var weakManager = healthKitManager
+         healthKitManager = nil
+
+-        // In a real test environment, we might need to trigger garbage collection
+-        // For now, just ensure the manager can be deallocated
+-        XCTAssertNotNil(weakManager) // Still referenced by the test
++        // weak参照が解放されていることを確認
++        XCTAssertNil(weakManager, "HealthKitManager should be deallocated when no strong references exist")
+     }
+
+Prompt for AI Agent:
+In ios/TempoAI/TempoAITests/HealthKitManagerTests.swift around lines 333 to 340, the test comment says weakManager should be nil but the assertion uses XCTAssertNotNil; update the test to match intent by replacing XCTAssertNotNil(weakManager) with XCTAssertNil(weakManager) (or adjust the comment and expected behavior if the test should assert non-nil), and ensure you nil out strong references before the assertion so the weak reference can become nil.
+
+
+
+============================================================================
+File: ios/TempoAI/TempoAITests/TestHelpers/HealthKitTestHelpers.swift
+Line: 41 to 43
+Type: nitpick
+
+Comment:
+withMockDataヘルパーの用途を明確化してください。
+
+現在の実装は単にブロックを実行して結果を返すだけで、特別なモックセットアップを行っていません。将来的にモックコンテキストの設定が必要な場合は、ここに追加できますが、現状ではblock()を直接呼び出すのと同等です。
+
+このヘルパーの意図された用途をドキュメントコメントで明確にすることを推奨します。
+
+
+
++    /// モックデータコンテキスト内でブロックを実行します。
++    /// 将来的にモック環境のセットアップ/クリーンアップが必要な場合に拡張できます。
++    /// - Parameter block: 実行するブロック
++    /// - Returns: ブロックの戻り値
+     func withMockData(_ block: () throws -> T) rethrows -> T {
+         return try block()
+     }
+
+Prompt for AI Agent:
+ios/TempoAI/TempoAITests/TestHelpers/HealthKitTestHelpers.swift around lines 41 to 43: the withMockData helper currently just invokes and returns the supplied block which is functionally identical to calling block() directly; add a concise documentation comment above the function that states its intended purpose (e.g., a test helper that provides a stable place to set up/tear down HealthKit mock context in the future and that currently just executes the block), include example usage and note that mock setup can be added here later, and keep the comment brief and focused so readers understand why the wrapper exists and when to extend it.
+
+
+
+============================================================================
+File: ios/TempoAI/TempoAITests/HealthKitManagerTests.swift
+Line: 495 to 506
+Type: potential_issue
+
+Comment:
+HKStatisticsのサブクラス化に問題があります。
+
+HKStatisticsはinit()パラメータなしのイニシャライザを持たず、super.init()の呼び出しはコンパイルエラーになります。HKStatisticsはHealthKitフレームワークの内部クラスであり、直接サブクラス化は推奨されません。
+
+TestHelpers/HealthKitTestHelpers.swiftに定義されているMockStatisticsプロトコルベースのアプローチを使用してください。
+
+
+
+-class MockHKStatistics: HKStatistics {
+-    private let _sumQuantity: HKQuantity?
+-
+-    init(sumQuantity: HKQuantity?) {
+-        self._sumQuantity = sumQuantity
+-        super.init()
+-    }
+-
+-    override func sumQuantity() -> HKQuantity? {
+-        return _sumQuantity
+-    }
+-}
+
+Prompt for AI Agent:
+In ios/TempoAI/TempoAITests/HealthKitManagerTests.swift around lines 495-506, the test currently subclasses HKStatistics which is invalid because HKStatistics has no parameterless init and should not be subclassed; replace this with the MockStatistics protocol approach from TestHelpers/HealthKitTestHelpers.swift: remove the HKStatistics subclass, implement a mock type that conforms to MockStatistics (implementing required properties/methods used in tests), update test setup to instantiate that mock instead of the HKStatistics subclass, and ensure any creation helpers in HealthKitTestHelpers are reused so tests compile and behave the same.
+
+
+
+============================================================================
+File: ios/TempoAI/TempoAITests/HealthKitManagerTests.swift
+Line: 309 to 329
+Type: nitpick
+
+Comment:
+パフォーマンステストでの非同期処理の改善を推奨します。
+
+measureブロック内でのTaskとXCTestExpectationの組み合わせは、正確なパフォーマンス測定に適していない場合があります。XCTestの非同期パフォーマンステストAPIの使用を検討してください。
+
+
+
+-    func testFetchHealthDataPerformance() async throws {
+-        // Given: Authorized manager
+-        await setupAuthorizedManager()
+-        setupMockQueryResponses()
+-
+-        // When: Testing performance
+-        measure {
+-            let expectation = XCTestExpectation(description: "Health data fetch")
+-
+-            Task {
+-                do {
+-                    _ = try await healthKitManager.fetchTodayHealthData()
+-                    expectation.fulfill()
+-                } catch {
+-                    XCTFail("Performance test failed: \(error)")
+-                }
+-            }
+-
+-            wait(for: [expectation], timeout: 5.0)
+-        }
+-    }
++    func testFetchHealthDataPerformance() async throws {
++        // Given: Authorized manager
++        await setupAuthorizedManager()
++        setupMockQueryResponses()
++
++        // When: Testing performance using async measure
++        await measure {
++            _ = try? await healthKitManager.fetchTodayHealthData()
++        }
++    }
+
+Prompt for AI Agent:
+ios/TempoAI/TempoAITests/HealthKitManagerTests.swift lines 309-329: the review warns that using Task + XCTestExpectation inside a performance measure is unreliable; refactor the test to use XCTest's async performance APIs instead — perform any setup (authorization, mock responses) outside the measurement block, then use XCTest's measure (or measureMetrics/measurePerformance API that supports async) to await healthKitManager.fetchTodayHealthData() directly inside the measured closure, remove the Task/expectation machinery, and ensure you measure only the await call so the timing is accurate.
+
+
+
+============================================================================
+File: ios/TempoAI/TempoAITests/LocationManagerAuthorizationTests.swift
+Line: 102 to 116
+Type: potential_issue
+
+Comment:
+未知のauthorization statusのテストは適切ですが、ファイル末尾に重複コードがあります。
+
+CLAuthorizationStatus(rawValue: 999)で未知のステータスをシミュレートするアプローチは適切です。しかし、Lines 117-119にLines 114-116と同じコードが重複して存在しています。
+
+
+
+重複行を削除してください：
+
+         XCTAssertEqual(locationManager.errorMessage, "Unknown location authorization status.")
+     }
+ }
+-        XCTAssertEqual(locationManager.errorMessage, "Unknown location authorization status.")
+-    }
+-}
+
+Prompt for AI Agent:
+In ios/TempoAI/TempoAITests/LocationManagerAuthorizationTests.swift around lines 102 to 116, the test testRequestLocationWhenUnknownStatus correctly simulates an unknown CLAuthorizationStatus using CLAuthorizationStatus(rawValue: 999) but contains duplicated assertions/code repeated again at lines 117–119; remove the duplicated block (lines 117–119) so the test only contains the single set of XCTAssertFalse assertions and ends without redundant duplicate code.
+
+
+
+============================================================================
+File: backend/src/services/health-analysis.ts
+Line: 45 to 62
+Type: nitpick
+
+Comment:
+座標検証ロジックの再利用可能性
+
+validateCoordinatesはutils/validation.tsに移動して再利用可能にすることを検討してください。
+
+
+
+// backend/src/utils/validation.ts に移動
+export const validateCoordinates = (latitude: number, longitude: number): void => {
+  // ... existing implementation
+}
+
+Prompt for AI Agent:
+In backend/src/services/health-analysis.ts around lines 45 to 62, the validateCoordinates function should be moved to a shared utility to improve reuse and decouple validation from the service; extract the function into backend/src/utils/validation.ts exporting validateCoordinates(latitude: number, longitude: number): void with the same implementation and tests, then import and use this exported function in health-analysis.ts (replace the local implementation with an import), update any references and exports accordingly, and ensure linter/type checks and unit tests still pass.
+
+
+
+============================================================================
+File: ios/TempoAI/TempoAITests/Mocks/MockHealthKitStore.swift
+Line: 53 to 66
+Type: potential_issue
+
+Comment:
+モッククエリハンドラが結果を配信していません。
+
+handleSampleQueryメソッドはサンプルを生成しますが、実際にresultsHandlerを呼び出していません。コメントには「MockQueryFactoryを使用する」と記載されていますが、その連携が実装されていないようです。
+
+テストが期待通りに動作するためには、何らかの方法でクエリ結果をコールバックに配信する必要があります。
+
+
+
+     private func handleSampleQuery(_ query: HKSampleQuery) {
+         var samples: [HKSample] = []
+
+         // Create mock samples based on query type
+         if query.sampleType.identifier == HKCategoryTypeIdentifier.sleepAnalysis.rawValue {
+             samples = createMockSleepSamples()
+         } else if query.sampleType.identifier == HKQuantityTypeIdentifier.heartRateVariabilitySDNN.rawValue {
+             samples = createMockHRVSamples()
+         } else if query.sampleType.identifier == HKQuantityTypeIdentifier.heartRate.rawValue {
+             samples = createMockHeartRateSamples()
+         }
+
+-        // Use MockQueryFactory to handle results instead of direct resultsHandler access
++        // Note: HKSampleQueryのresultsHandlerは直接アクセスできないため、
++        // MockHealthKitQueryFactoryを通じてtriggerHandlerを呼び出す必要があります。
++        // テスト側でMockHealthKitQueryFactory.triggerHandler()を使用してください。
+     }
+
+Prompt for AI Agent:
+ios/TempoAI/TempoAITests/Mocks/MockHealthKitStore.swift around lines 53–66: handleSampleQuery builds mock samples but never delivers them to the query callback; call the query's results handler (or the MockQueryFactory helper referenced in the comment) with the generated samples and nil error so tests receive the results — invoke the delivery on the appropriate queue (main or the same queue the real HKSampleQuery would call back on), pass an empty array rather than nil when no samples, and prefer using MockQueryFactory.shared.deliverResults(for: query, samples: samples, error: nil) (or query.resultsHandler(query, samples, nil) if MockQueryFactory is not available).
+
+
+
+============================================================================
+File: backend/src/routes/test.ts
+Line: 64 to 69
+Type: refactor_suggestion
+
+Comment:
+ステータスコード検証ロジックの重複
+
+backend/src/utils/errors.tsに既存のtoValidStatusCode関数があります。DRY原則に従い、この重複ロジックを削除してください。
+
+
+
+typescript-hono-standards.md/CLAUDE.md準拠のため、以下のように修正してください：
+
++import { handleError, toValidStatusCode } from '../utils/errors'
+
+   } catch (error) {
+     const { message, statusCode } = handleError(error)
+-    // Ensure statusCode is a valid HTTP status code and cast to proper type
+-    const validStatusCode = (
+-      statusCode >= 400 && statusCode <= 599 ? statusCode : 500
+-    ) as 400 | 401 | 403 | 404 | 409 | 422 | 429 | 500 | 502 | 503 | 504
+-    return c.json({ error: message }, validStatusCode)
++    return c.json({ error: message }, toValidStatusCode(statusCode))
+   }
+
+Prompt for AI Agent:
+In backend/src/routes/test.ts around lines 64 to 69, the file contains duplicated status-code validation logic; remove that duplicate and instead import and call the existing toValidStatusCode function from backend/src/utils/errors.ts; update the top-of-file imports to include toValidStatusCode, replace the inline validation with a call to toValidStatusCode where the status code is determined, and ensure any variable names and error handling align with the helper's return/throws so the route follows typescript-hono-standards.md/CLAUDE.md and DRY principles.
+
+
+
+============================================================================
+File: ios/scripts/quality-check.sh
+Line: 78 to 84
+Type: nitpick
+
+Comment:
+ビルド出力の抑制が診断を困難にする可能性があります
+
+ビルド失敗時の診断のため、エラー出力は保持することを推奨します。
+
+
+
+以下のように修正してエラー出力を保持することを検討してください：
+
+-if "${BUILD_CMD[@]}" > /dev/null 2>&1; then
++if "${BUILD_CMD[@]}" 2>&1 | grep -q "BUILD SUCCEEDED"; then
+     echo "✅ iOS project builds successfully"
+ else
+     echo "❌ iOS project build failed"
++    echo "💡 Rerun without redirection to see full output"
+     echo "💡 Check Xcode for compilation errors"
+     exit 1
+ fi
+
+Prompt for AI Agent:
+In ios/scripts/quality-check.sh around lines 78–84, the script currently prints a generic failure message and exits, which discards the build output needed for diagnosis; modify the build invocation so it does not discard stderr/stdout (remove any redirection to /dev/null), or capture the full build output to a temp log and on failure print that log (or stream output live with tee), and ensure you preserve and propagate the actual build exit code when exiting the script so callers see the real failure status.
+
+
+
+============================================================================
+File: backend/src/routes/test.ts
+Line: 194 to 199
+Type: refactor_suggestion
+
+Comment:
+ステータスコード検証ロジックの重複（2箇所目）
+
+Line 64-69と同じ問題です。toValidStatusCode関数を使用してください。
+
+
+
+   } catch (error) {
+     const { message, statusCode } = handleError(error)
+-    // Ensure statusCode is a valid HTTP status code and cast to proper type
+-    const validStatusCode = (
+-      statusCode >= 400 && statusCode <= 599 ? statusCode : 500
+-    ) as 400 | 401 | 403 | 404 | 409 | 422 | 429 | 500 | 502 | 503 | 504
+-    return c.json({ error: message }, validStatusCode)
++    return c.json({ error: message }, toValidStatusCode(statusCode))
+   }
+
+Prompt for AI Agent:
+In backend/src/routes/test.ts around lines 194 to 199, there is duplicated status-code validation logic (same as lines 64–69); replace this duplicated validation with a call to the existing toValidStatusCode function. Import or ensure toValidStatusCode is available in this file, call it with the incoming status value, and use its return (or handle its error/undefined behavior) to set the response status or return a validation error instead of re-implementing the checks inline.
+
+
+
+============================================================================
+File: backend/tests/app.test.ts
+Line: 88 to 101
+Type: nitpick
+
+Comment:
+タイムスタンプのテストにflakiness懸念があります
+
+Lines 92-93でsetTimeoutを使用してタイムスタンプの変化をテストしていますが、CI環境では不安定になる可能性があります。
+
+より確実な代替案を検討してください:
+
+it('should always return current timestamp', async () => {
+  const response1 = await app.request('/')
+  const result1 = (await response1.json()) as TimestampResponse
+  const timestamp1 = new Date(result1.data.timestamp)
+
+  const response2 = await app.request('/')
+  const result2 = (await response2.json()) as TimestampResponse
+  const timestamp2 = new Date(result2.data.timestamp)
+
+  // Timestamps should be equal or timestamp2 should be later
+  expect(timestamp2.getTime()).toBeGreaterThanOrEqual(timestamp1.getTime())
+})
+
+
+10msの遅延は確実性に欠けるため、直接比較で十分です。
+
+Prompt for AI Agent:
+In backend/tests/app.test.ts around lines 88 to 101, the test introduces flakiness by using a 10ms setTimeout to force a timestamp change; remove the artificial delay and instead perform two immediate requests, parse both timestamps into Date objects (or ms since epoch) and assert that the second timestamp is greater than or equal to the first (timestamp2.getTime() >= timestamp1.getTime()), ensuring the test deterministically verifies monotonic or equal timestamps without timing sleeps.
+
+
+
+============================================================================
+File: backend/src/utils/response.ts
+Line: 40 to 53
+Type: nitpick
+
+Comment:
+HTTP_STATUSに504 (Gateway Timeout) を追加してください。
+
+backend/src/utils/errors.tsのtoValidStatusCode関数では504がサポートされていますが、ここでは定義されていません。一貫性のために追加してください。
+
+
+
+ export const HTTP_STATUS = {
+   OK: 200,
+   CREATED: 201,
+   BAD_REQUEST: 400,
+   UNAUTHORIZED: 401,
+   FORBIDDEN: 403,
+   NOT_FOUND: 404,
+   CONFLICT: 409,
+   UNSUPPORTED_MEDIA_TYPE: 415,
+   RATE_LIMITED: 429,
+   INTERNAL_SERVER_ERROR: 500,
+   BAD_GATEWAY: 502,
+   SERVICE_UNAVAILABLE: 503,
++  GATEWAY_TIMEOUT: 504,
+ } as const
+
+Prompt for AI Agent:
+In backend/src/utils/response.ts around lines 40 to 53, the HTTP_STATUS constant is missing the 504 (Gateway Timeout) status which causes inconsistency with toValidStatusCode in backend/src/utils/errors.ts; add an entry for GATEWAY_TIMEOUT: 504 to the HTTP_STATUS object, keeping the same formatting/style as the other entries and preserving the as const annotation.
+
+
+
+============================================================================
+File: ios/TempoAI/TempoAITests/LocationManagerDataTests.swift
+Line: 176 to 183
+Type: potential_issue
+
+Comment:
+メモリ管理テストのロジックが矛盾しています。
+
+weakManagerがまだself（テストインスタンス）から参照されているため、XCTAssertNotNilは常に成功します。これは実際のメモリ管理テストとして機能しません。
+
+
+
+このテストを修正するか、有効なメモリ管理テストに置き換えてください：
+
+ func testLocationManagerMemoryManagement() {
+-    weak var weakManager = locationManager
+-    locationManager = nil
+-
+-    // Note: In a real test environment, we might need to trigger garbage collection
+-    // For now, just ensure the manager can be deallocated
+-    XCTAssertNotNil(weakManager) // Still referenced by the test
++    var strongManager: LocationManager? = LocationManager(locationManager: MockCLLocationManager())
++    weak var weakManager = strongManager
++    
++    XCTAssertNotNil(weakManager)
++    strongManager = nil
++    
++    // After releasing strong reference, weak reference should be nil
++    XCTAssertNil(weakManager, "LocationManager should be deallocated when no strong references exist")
+ }
+
+Prompt for AI Agent:
+In ios/TempoAI/TempoAITests/LocationManagerDataTests.swift around lines 176 to 183, the test sets a weak reference to self.locationManager then immediately asserts not-nil, which is wrong because the test still holds a strong reference; change the test to create a local strong instance inside an autoreleasepool (or local scope), capture a weak reference to that local instance, nil out the strong reference, pump the run loop (or exit the autoreleasepool) to allow deallocation, and then assert that the weak reference is nil to verify proper deallocation; alternatively, replace the test with a valid memory-leak assertion using XCTestExpectation and deinit signaling from a test-only delegate.
+
+
+
+============================================================================
+File: backend/src/routes/health.ts
+Line: 138 to 149
+Type: refactor_suggestion
+
+Comment:
+toValidStatusCodeユーティリティを使用してDRY原則に準拠してください。
+
+backend/src/utils/errors.tsに既にtoValidStatusCode関数が存在しています。手動のステータスコード検証とキャストを重複させる代わりに、このユーティリティを再利用してください。
+
+
+
+-    const { message, statusCode } = handleError(error)
+-    // Ensure statusCode is a valid HTTP status code and cast to proper type
+-    const validStatusCode = (
+-      statusCode >= 400 && statusCode <= 599 ? statusCode : 500
+-    ) as 400 | 401 | 403 | 404 | 409 | 422 | 429 | 500 | 502 | 503 | 504
++    const { message, statusCode } = handleError(error)
++    const validStatusCode = toValidStatusCode(statusCode)
+
+
+Line 15でインポートを更新：
+
+-import { handleError } from '../utils/errors'
++import { handleError, toValidStatusCode } from '../utils/errors'
+
+Prompt for AI Agent:
+In backend/src/routes/health.ts around lines 138 to 149, the code duplicates manual status-code validation/casting instead of using the existing toValidStatusCode utility; update the import on line 15 to import toValidStatusCode from backend/src/utils/errors.ts, then replace the manual checks/casts in the 138–149 block with a single call to toValidStatusCode(status) and use its returned value for the response status; ensure you handle any fallback/undefined behavior the utility provides so the response still uses a safe default.
+
+
+
+============================================================================
+File: backend/tests/types/test-types.ts
+Line: 57 to 69
+Type: potential_issue
+
+Comment:
+型ガードでany型の使用を避けてください
+
+Line 57でもany型が使用されています。unknownに変更することで型安全性を向上できます。
+
+
+
+-export const isAnalyzeTestRequest = (data: any): data is AnalyzeTestRequest => {
++export const isAnalyzeTestRequest = (data: unknown): data is AnalyzeTestRequest => {
+   return (
++    data !== null &&
++    typeof data === 'object' &&
++    'location' in data &&
+-    data?.location &&
++    (data as { location: unknown }).location !== null &&
++    typeof (data as { location: unknown }).location === 'object' &&
+     // ... rest with proper type narrowing
+   )
+ }
+
+Prompt for AI Agent:
+In backend/tests/types/test-types.ts around lines 57 to 69, the type guard currently accepts an any parameter which reduces type safety; change the function signature to accept data: unknown (i.e. export const isAnalyzeTestRequest = (data: unknown): data is AnalyzeTestRequest => { ... }) and keep the existing runtime checks as-is (optional chaining and typeof checks) so the guard safely narrows unknown to AnalyzeTestRequest without using any.
+
+
+
+============================================================================
+File: ios/TempoAI/TempoAITests/Mocks/MockHealthKitQueryFactory.swift
+Line: 33 to 38
+Type: nitpick
+
+Comment:
+テストの失敗を明示的にすべきです
+
+Line 34のguard文で範囲外のインデックスをサイレントに無視していますが、テストモックでは予期しない呼び出しを検出できる方が望ましいです。
+
+テストの信頼性を高めるため、以下の修正を検討してください:
+
+ func triggerHandler(at index: Int, with samples: [HKSample]?, error: Error? = nil) {
+-    guard index < capturedResultsHandlers.count && index < capturedQueries.count else { return }
++    guard index < capturedResultsHandlers.count && index < capturedQueries.count else {
++        XCTFail("Invalid handler index: \(index). Only \(capturedResultsHandlers.count) handlers captured.")
++        return
++    }
+     let handler = capturedResultsHandlers[index]
+     let query = capturedQueries[index]
+     handler(query, samples, error)
+ }
+
+Prompt for AI Agent:
+In ios/TempoAI/TempoAITests/Mocks/MockHealthKitQueryFactory.swift around lines 33 to 38, the guard currently swallows out-of-range indices silently; update it to fail the test explicitly when an unexpected index is used by replacing the silent return with an explicit test failure (e.g., call XCTFail with a descriptive message and return, or use preconditionFailure/fatalError if preferred) so unexpected calls are surfaced during tests and include index, capturedResultsHandlers.count and capturedQueries.count in the message for debugging.
+
+
+
+============================================================================
+File: backend/tests/types/test-types.ts
+Line: 40 to 52
+Type: potential_issue
+
+Comment:
+テストファイルでもany型は避けるべきです
+
+Line 40のパラメータでany型が使用されていますが、unknownを使用することでテストコードでも型安全性を保つことができます。
+
+As per coding guidelines: "NEVER use any type - use unknown instead"
+
+たとえテスト専用ファイルであっても、unknownを使用することで型安全性の恩恵を受けられます。
+
+
+
+以下の修正を適用してください:
+
+-export const isWeatherTestRequest = (data: any): data is WeatherTestRequest => {
++export const isWeatherTestRequest = (data: unknown): data is WeatherTestRequest => {
+   return (
+     data &&
++    typeof data === 'object' &&
++    data !== null &&
++    'latitude' in data &&
++    'longitude' in data &&
+-    typeof data.latitude === 'number' &&
+-    typeof data.longitude === 'number' &&
++    typeof (data as { latitude: unknown; longitude: unknown }).latitude === 'number' &&
++    typeof (data as { latitude: unknown; longitude: unknown }).longitude === 'number' &&
+-    data.latitude >= -90 &&
++    (data as WeatherTestRequest).latitude >= -90 &&
+     // ... rest of checks
+   )
+ }
+
+Prompt for AI Agent:
+In backend/tests/types/test-types.ts around lines 40 to 52, the type guard currently accepts a parameter typed as any; change the parameter type to unknown and add a defensive check that data is a non-null object (e.g., typeof data === 'object' && data !== null) before accessing properties, then keep the existing property checks (typeof data.latitude === 'number', etc.) and NaN checks so the function remains a proper type predicate for WeatherTestRequest.
+
+
+
+============================================================================
+File: backend/tests/utils/response.test.ts
+Line: 28 to 35
+Type: potential_issue
+
+Comment:
+any 型の使用を排除してください
+
+Lines 29および34でany型が使用されていますが、コーディングガイドラインに明確に違反しています。
+
+違反箇所:
+- Line 29: data: any パラメータ
+- Line 34: as any 型アサーション
+
+As per coding guidelines: "NEVER use any type in TypeScript - use unknown if type is truly unknown"
+
+
+
+以下の修正を適用してください:
+
+-const createMockContext = () => {
+-  const mockJson = vi.fn((data: any, status?: number) => ({
++const createMockContext = (): { json: ReturnType } => {
++  const mockJson = vi.fn((data: unknown, status?: number) => ({
+     data,
+     status: status || 200,
+   }))
+ 
+-  return { json: mockJson } as any
++  return { json: mockJson }
+ }
+
+Prompt for AI Agent:
+In backend/tests/utils/response.test.ts around lines 28 to 35, remove the use of the any type: change the mockJson parameter from data: any to data: unknown, give vi.fn an explicit function type (e.g. vi.fn { data: unknown; status: number }>(...)) so the mock’s return value is typed, and replace the final "as any" assertion with a properly typed object (for example returning { json: mockJson } as { json: (data: unknown, status?: number) => { data: unknown; status: number } } or define a small interface/type for the mock context and assert to that); this ensures no any usages remain and preserves correct typings for tests.
+
+
+
+============================================================================
+File: backend/src/utils/response.ts
+Line: 103 to 112
+Type: potential_issue
+
+Comment:
+成功レスポンスのステータスコード処理ロジックに問題があります。
+
+現在のロジックでは、2xxステータスコード（例：201 Created）がすべて200に変換されてしまいます。これは意図した動作ではない可能性があります。
+
+
+
+ export const sendSuccessResponse = (
+   c: Context,
+   data: T,
+   status: number = HTTP_STATUS.OK,
+ ): Response => {
+-  // CLAUDE.md原則：シンプルで明確
+-  const validStatus =
+-    status >= 200 && status = 200 && status < 300 ? status : HTTP_STATUS.OK
++  return c.json(createSuccessResponse(data), validStatus as 200 | 201)
+ }
+
+Prompt for AI Agent:
+In backend/src/utils/response.ts around lines 103 to 112, the success response logic currently collapses any 2xx status to 200; change the validStatus calculation to preserve the original 2xx status (i.e., if status is >=200 and <300 use status) and only call toValidStatusCode(status) for non-2xx values, then pass that preserved/validated status into c.json; ensure the default remains HTTP_STATUS.OK when no status is provided.
+
+
+
+============================================================================
+File: ios/TempoAI/TempoAITests/TestHelpers/APIClientTestData.swift
+Line: 13 to 118
+Type: refactor_suggestion
+
+Comment:
+構造の順序を修正してください
+
+Lines 13-114でextensionが定義され、その後Line 116でstructが定義されていますが、通常はstruct定義を先に行います。
+
+As per coding guidelines (swift-coding-standards.md): コードの可読性と保守性のため、型定義を先に行うべきです。
+
+
+
+以下のように再構成してください:
+
+ import Foundation
+ @testable import TempoAI
+ 
++struct APIClientTestData {
++    // This struct acts as a namespace for the static methods below
++}
++
+ extension APIClientTestData {
+     static func createMockHealthData() -> HealthData {
+         // ... existing implementation
+     }
+     // ... rest of methods
+ }
+-
+-struct APIClientTestData {
+-    // This struct acts as a namespace for the static methods above
+-}
+
+Prompt for AI Agent:
+ios/TempoAI/TempoAITests/TestHelpers/APIClientTestData.swift lines 13-118: the file currently defines an extension for APIClientTestData before the APIClientTestData struct itself which violates the guideline to declare types before their extensions; fix by moving the struct APIClientTestData definition to appear before the extension (or merge the extension contents into the original struct as static methods), then update any references/spacing to ensure the static factory methods remain unchanged and the file compiles.
+
+
+
+============================================================================
+File: backend/tests/types/test-types.ts
+Line: 74 to 88
+Type: potential_issue
+
+Comment:
+レスポンス型でanyの使用を排除してください
+
+Lines 76と85-87でany型が使用されていますが、ジェネリック型のデフォルトとして使用しても型安全性を損ないます。
+
+
+
+ export interface TestResponse {
+   success: boolean
+-  data?: any
++  data?: unknown
+   error?: string
+ }
+
+-export interface SuccessResponse {
++export interface SuccessResponse {
+   success: true
+   data: T
+ }
+
+Prompt for AI Agent:
+In backend/tests/types/test-types.ts around lines 74 to 88, the response interfaces use the any type (lines 76 and 85-87); change them to be type-safe by removing any — make TestResponse generic (e.g., TestResponse) and set data?: T instead of any, and change SuccessResponse default to T = unknown (data: T). Update any other references/usages to pass an explicit type or accept the unknown default and narrow it where used.
+
+
+
+============================================================================
+File: ios/TempoAI/TempoAI/APIClient.swift
+Line: 41 to 45
+Type: potential_issue
+
+Comment:
+HTTPステータスコード200のみを成功として扱うのは制限的すぎます。
+
+現在の実装ではstatusCode == 200のみをチェックしていますが、201 (Created)、204 (No Content)などの他の2xxステータスコードも有効な成功レスポンスです。
+
+
+
+-            if httpResponse.statusCode == 200 {
++            if (200...299).contains(httpResponse.statusCode) {
+                 return try JSONDecoder().decode(T.self, from: data)
+             } else {
+                 throw APIError.httpError(httpResponse.statusCode)
+             }
+
+Prompt for AI Agent:
+In ios/TempoAI/TempoAI/APIClient.swift around lines 41 to 45, the success check currently only considers statusCode == 200; change it to accept the whole 2xx range by using (200...299).contains(httpResponse.statusCode). Additionally, explicitly handle 204 No Content (and other cases with empty response body): if the status is 204 (or data.isEmpty) return or map to an appropriate empty/no-content result (e.g., throw/return a dedicated APIError.noContent or return a sensible default for T when applicable) otherwise attempt JSONDecoder().decode(T.self, from: data) and map decoding failures to APIError.decodingError.
+
+
+
+============================================================================
+File: ios/TempoAI/TempoAI/LocationManager.swift
+Line: 35 to 58
+Type: nitpick
+
+Comment:
+Delegate メソッドのシグネチャに不一致があります
+
+Lines 35, 50, 56のdelegateメソッドがCLLocationManager型のパラメータを受け取っていますが、クラス内部ではCLLocationManagerProtocolを使用しています。
+
+これにより、プロトコルベースの抽象化が部分的に損なわれていますが、CLLocationManagerDelegateプロトコルの要件であるため変更できません。現在の実装は正しいです。
+
+ただし、delegate内部での使用をプロトコル経由に統一することを推奨します：
+
+ func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+-    authorizationStatus = locationManager.authorizationStatus
++    authorizationStatus = self.locationManager.authorizationStatus
+     
+     switch authorizationStatus {
+     case .authorizedWhenInUse, .authorizedAlways:
+-        locationManager.requestLocation()
++        self.locationManager.requestLocation()
+     // ...
+ }
+
+
+これにより、プロトコル経由のアクセスであることが明確になります。
+
+Prompt for AI Agent:
+In ios/TempoAI/TempoAI/LocationManager.swift around lines 35 to 58, the delegate method signatures must remain CLLocationManager types but internal usage should consistently go through the CLLocationManagerProtocol abstraction; change uses of the concrete property to use the delegate parameter cast to the protocol (e.g. replace locationManager.authorizationStatus and locationManager.requestLocation() with (manager as CLLocationManagerProtocol).authorizationStatus and (manager as CLLocationManagerProtocol).requestLocation()), ensuring any calls or property reads inside these delegate methods use the protocol-typed manager via casting rather than the concrete property.
+
+
+
+Review completed ✔

@@ -160,3 +160,6 @@ ENV/
 # Claude Code configuration and standards
 !.claude/
 !.claude/**
+
+.serena
+.guidelines/

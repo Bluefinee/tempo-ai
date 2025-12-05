@@ -1,37 +1,33 @@
 /**
- * @fileoverview AI Analysis Service
+ * @fileoverview Claude API Integration Service
  *
- * Claude AIを使用したヘルスデータ分析サービス。
- * HealthKitデータ、天気情報、ユーザープロファイルを統合して
- * パーソナライズされた健康アドバイスを生成します。
+ * Anthropic Claude API専用の統合サービス。
+ * プロンプトを受け取ってClaude APIに送信し、レスポンスを処理します。
+ * ヘルスケアドメインロジックは別サービスに分離されています。
  *
  * @author Tempo AI Team
  * @since 1.0.0
  */
 
 import Anthropic from '@anthropic-ai/sdk'
-import type { DailyAdvice } from '../types/advice'
-import type { HealthData, UserProfile } from '../types/health'
-import type { WeatherData } from '../types/weather'
+import type { z } from 'zod'
+import { DailyAdviceSchema } from '../types/advice'
 import { APIError } from '../utils/errors'
-import { buildPrompt } from '../utils/prompts'
+
+// 型安全なJSONパース処理は直接実装（Zodスキーマとの統合）
 
 // AI設定定数
-const ANTHROPIC_MODEL = 'claude-sonnet-4'
+const ANTHROPIC_MODEL = 'claude-sonnet-4-20250514'
 const PLACEHOLDER_API_KEY = 'sk-ant-api03-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
 const MAX_TOKENS = 4000
-const TEMPERATURE = 0.7
+const TEMPERATURE = 0.3 // Lower temperature for consistent JSON output
 
 /**
- * AI分析関数のパラメータ型定義
+ * Claude API呼び出し関数のパラメータ型定義
  */
-interface AnalyzeParams {
-  /** HealthKitから取得したヘルスデータ */
-  healthData: HealthData
-  /** Open-Meteoから取得した天気データ */
-  weather: WeatherData
-  /** ユーザープロファイル情報 */
-  userProfile: UserProfile
+interface ClaudeParams {
+  /** Claude APIに送信するプロンプト */
+  prompt: string
   /** Anthropic Claude APIキー */
   apiKey: string
   /** カスタムfetch関数（テスト用） */
@@ -39,15 +35,13 @@ interface AnalyzeParams {
 }
 
 /**
- * ヘルスデータをAI分析してパーソナライズされたアドバイスを生成
+ * Claude APIにプロンプトを送信してDailyAdviceを生成
  *
- * HealthKitデータ、天気情報、ユーザープロファイルを統合してClaude AIで分析し、
- * その日の健康に関する具体的で実行可能なアドバイスを提供します。
+ * プロンプト文字列を受け取ってClaude APIに送信し、
+ * 構造化されたDailyAdviceレスポンスを返します。
  *
- * @param params - 分析に必要なパラメータ
- * @param params.healthData - HealthKitから取得したヘルスメトリクス
- * @param params.weather - 現在位置の天気データ
- * @param params.userProfile - ユーザーの基本情報
+ * @param params - Claude API呼び出しに必要なパラメータ
+ * @param params.prompt - Claude APIに送信するプロンプト文字列
  * @param params.apiKey - Anthropic Claude APIキー
  * @param params.customFetch - テスト用のカスタムfetch関数
  * @returns パーソナライズされた健康アドバイス
@@ -55,9 +49,9 @@ interface AnalyzeParams {
  * @throws {APIError} AI応答が無効な形式の場合
  * @throws {APIError} レート制限に達した場合
  */
-export const analyzeHealth = async (
-  params: AnalyzeParams,
-): Promise<DailyAdvice> => {
+export const callClaude = async (
+  params: ClaudeParams,
+): Promise<z.infer<typeof DailyAdviceSchema>> => {
   if (!params.apiKey || params.apiKey === PLACEHOLDER_API_KEY) {
     throw new APIError(
       'Claude API key not configured. Please set ANTHROPIC_API_KEY environment variable.',
@@ -72,8 +66,6 @@ export const analyzeHealth = async (
       ...(params.customFetch && { fetch: params.customFetch }),
     })
 
-    const prompt = buildPrompt(params)
-
     const message = await anthropic.messages.create({
       model: ANTHROPIC_MODEL,
       max_tokens: MAX_TOKENS,
@@ -83,7 +75,7 @@ export const analyzeHealth = async (
       messages: [
         {
           role: 'user',
-          content: prompt,
+          content: params.prompt,
         },
       ],
     })
@@ -100,12 +92,15 @@ export const analyzeHealth = async (
       )
     }
 
-    // Parse JSON response
-    let advice: DailyAdvice
+    // 型安全なJSONパースとバリデーション
+    let parsed: unknown
     try {
-      advice = JSON.parse(textContent.text) as DailyAdvice
+      parsed = JSON.parse(textContent.text)
     } catch (_parseError) {
-      console.error('Failed to parse AI response:', textContent.text)
+      console.error(
+        'Failed to parse AI response. Length:',
+        textContent.text.length,
+      )
       throw new APIError(
         'AI response is not valid JSON',
         502,
@@ -113,43 +108,44 @@ export const analyzeHealth = async (
       )
     }
 
-    // Validate required fields
-    if (
-      !advice.theme ||
-      !advice.summary ||
-      !advice.breakfast ||
-      !advice.exercise
-    ) {
+    // Zodスキーマによる検証
+    const validationResult = DailyAdviceSchema.safeParse(parsed)
+
+    if (!validationResult.success) {
+      const firstIssue = validationResult.error.issues[0]
+      const field = firstIssue
+        ? firstIssue.path.join('.') || '(root)'
+        : '(unknown)'
+      const message = firstIssue ? firstIssue.message : 'Validation failed'
+
+      const validationMessage = `AI response missing required fields: ${message} (field: ${field})`
       throw new APIError(
-        'AI response missing required fields',
+        validationMessage,
         502,
-        'INCOMPLETE_AI_RESPONSE',
+        'INVALID_AI_RESPONSE_STRUCTURE',
       )
     }
 
-    return advice
+    return validationResult.data
   } catch (error) {
     if (error instanceof APIError) {
       throw error
     }
 
+    // Check for specific Anthropic SDK errors
+    if (error instanceof Anthropic.AuthenticationError) {
+      throw new APIError('Invalid Claude API key', 401, 'INVALID_API_KEY')
+    }
+
+    if (error instanceof Anthropic.RateLimitError) {
+      throw new APIError(
+        'Claude API rate limit exceeded',
+        429,
+        'RATE_LIMIT_EXCEEDED',
+      )
+    }
+
     if (error instanceof Error) {
-      // Check for specific Anthropic errors
-      if (error.message.includes('authentication')) {
-        throw new APIError('Invalid Claude API key', 401, 'INVALID_API_KEY')
-      }
-
-      if (
-        error.message.includes('quota') ||
-        error.message.includes('rate limit')
-      ) {
-        throw new APIError(
-          'Claude API rate limit exceeded',
-          429,
-          'RATE_LIMIT_EXCEEDED',
-        )
-      }
-
       throw new APIError(
         `AI analysis failed: ${error.message}`,
         502,

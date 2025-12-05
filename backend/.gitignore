@@ -5,3 +5,8 @@ dist/
 .env
 .DS_Store
 *.log
+.backup/
+coverage/
+.turbo/
+.guidelines/
+*.tsbuildinfo

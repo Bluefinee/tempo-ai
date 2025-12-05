@@ -9,6 +9,8 @@
  * @since 1.0.0
  */
 
+import { z } from 'zod'
+
 /**
  * 1日の包括的な健康アドバイス
  * AI分析の結果として生成される、パーソナライズされた健康ガイダンス
@@ -43,10 +45,15 @@ export interface DailyAdvice {
  * 朝食、昼食、夕食それぞれの推奨事項を定義
  */
 export interface MealAdvice {
+  /** 推奨される食事内容 */
   recommendation: string
+  /** 推奨理由 */
   reason: string
+  /** 具体的な食事例 */
   examples?: string[]
+  /** 推奨される食事時間 */
   timing?: string
+  /** 避けるべき食品 */
   avoid?: string[]
 }
 
@@ -105,3 +112,89 @@ export interface WeatherConsiderations {
   warnings: string[]
   opportunities: string[]
 }
+
+// Zod Schema Definitions for Type-Safe Validation
+
+/**
+ * 食事に関するアドバイスのzodスキーマ
+ */
+export const MealAdviceSchema = z.object({
+  recommendation: z.string().min(1),
+  reason: z.string().min(1),
+  examples: z.array(z.string()).optional(),
+  timing: z.string().optional(),
+  avoid: z.array(z.string()).optional(),
+})
+
+/**
+ * 運動に関するアドバイスのzodスキーマ
+ */
+export const ExerciseAdviceSchema = z.object({
+  recommendation: z.string().min(1),
+  intensity: z.enum(['Low', 'Moderate', 'High']),
+  reason: z.string().min(1),
+  timing: z.string().min(1),
+  avoid: z.array(z.string()),
+})
+
+/**
+ * 水分補給に関するアドバイスのzodスキーマ
+ */
+export const HydrationAdviceSchema = z.object({
+  target: z.string().min(1),
+  schedule: z.object({
+    morning: z.string().min(1),
+    afternoon: z.string().min(1),
+    evening: z.string().min(1),
+  }),
+  reason: z.string().min(1),
+})
+
+/**
+ * 呼吸法に関するアドバイスのzodスキーマ
+ */
+export const BreathingAdviceSchema = z.object({
+  technique: z.string().min(1),
+  duration: z.string().min(1),
+  frequency: z.string().min(1),
+  instructions: z.array(z.string()).min(1),
+})
+
+/**
+ * 睡眠準備に関するアドバイスのzodスキーマ
+ */
+export const SleepPreparationSchema = z.object({
+  bedtime: z.string().min(1),
+  routine: z.array(z.string()).min(1),
+  avoid: z.array(z.string()),
+})
+
+/**
+ * 天気を考慮したアドバイスのzodスキーマ
+ */
+export const WeatherConsiderationsSchema = z.object({
+  warnings: z.array(z.string()),
+  opportunities: z.array(z.string()),
+})
+
+/**
+ * DailyAdviceのzodスキーマ
+ * AI応答のバリデーションとパースに使用
+ */
+export const DailyAdviceSchema = z.object({
+  theme: z.string().min(1),
+  summary: z.string().min(1),
+  breakfast: MealAdviceSchema,
+  lunch: MealAdviceSchema,
+  dinner: MealAdviceSchema,
+  exercise: ExerciseAdviceSchema,
+  hydration: HydrationAdviceSchema,
+  breathing: BreathingAdviceSchema,
+  sleep_preparation: SleepPreparationSchema,
+  weather_considerations: WeatherConsiderationsSchema,
+  priority_actions: z.array(z.string()).min(1),
+})
+
+// Note: Interfaces above provide TypeScript types
+// Zod schemas below provide runtime validation
+// Both coexist for development convenience

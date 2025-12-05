@@ -11,13 +11,23 @@
 
 import { Hono } from 'hono'
 import { getWeather } from '../services/weather'
+import type { Bindings } from '../types/bindings'
+import {
+  AnalyzeTestRequestSchema,
+  WeatherTestRequestSchema,
+} from '../types/requests'
 import { handleError } from '../utils/errors'
+import {
+  createValidationErrorResponse,
+  sendSuccessResponse,
+} from '../utils/response'
+import { isValidationSuccess, validateRequestBody } from '../utils/validation'
 
 /**
  * テスト用APIのルーターインスタンス
  * 開発・デバッグ目的のエンドポイントを管理
  */
-export const testRoutes = new Hono()
+export const testRoutes = new Hono<{ Bindings: Bindings }>()
 
 /**
  * POST /weather
@@ -31,24 +41,32 @@ export const testRoutes = new Hono()
  * @throws {400} 無効な座標が指定された場合
  * @throws {500} 天気API接続エラー
  */
-testRoutes.post('/weather', async (c) => {
+testRoutes.post('/weather', async (c): Promise<Response> => {
   try {
-    const body = await c.req.json()
-    const { latitude, longitude } = body
+    // 型安全なリクエストボディ検証
+    const validationResult = await validateRequestBody(
+      c,
+      WeatherTestRequestSchema,
+    )
 
-    if (typeof latitude !== 'number' || typeof longitude !== 'number') {
-      return c.json({ error: 'Invalid latitude/longitude' }, 400)
+    if (!isValidationSuccess(validationResult)) {
+      return createValidationErrorResponse(c, validationResult.error)
     }
 
+    const { latitude, longitude } = validationResult.data
+
     const weather = await getWeather(latitude, longitude)
-    return c.json({
-      success: true,
+    return sendSuccessResponse(c, {
       weather,
       message: 'Weather API integration working correctly',
     })
   } catch (error) {
     const { message, statusCode } = handleError(error)
-    return c.json({ error: message }, statusCode as 500)
+    // Direct status code approach
+    if (statusCode >= 500) {
+      return c.json({ error: message }, 500)
+    }
+    return c.json({ error: message }, 400)
   }
 })
 
@@ -63,10 +81,19 @@ testRoutes.post('/weather', async (c) => {
  * @returns モック健康アドバイスとリアル天気データ
  * @throws {500} 天気API接続エラー
  */
-testRoutes.post('/analyze-mock', async (c) => {
+testRoutes.post('/analyze-mock', async (c): Promise<Response> => {
   try {
-    const body = await c.req.json()
-    const { location } = body
+    // 型安全なリクエストボディ検証
+    const validationResult = await validateRequestBody(
+      c,
+      AnalyzeTestRequestSchema,
+    )
+
+    if (!isValidationSuccess(validationResult)) {
+      return createValidationErrorResponse(c, validationResult.error)
+    }
+
+    const { location } = validationResult.data
 
     // Get real weather data
     const weather = await getWeather(location.latitude, location.longitude)
@@ -133,8 +160,7 @@ testRoutes.post('/analyze-mock', async (c) => {
       ],
     }
 
-    return c.json({
-      success: true,
+    return sendSuccessResponse(c, {
       advice: mockAdvice,
       weather_summary: {
         temperature: weather.current.temperature_2m,
@@ -145,6 +171,10 @@ testRoutes.post('/analyze-mock', async (c) => {
     })
   } catch (error) {
     const { message, statusCode } = handleError(error)
-    return c.json({ error: message }, statusCode as 500)
+    // Direct status code approach
+    if (statusCode >= 500) {
+      return c.json({ error: message }, 500)
+    }
+    return c.json({ error: message }, 400)
   }
 })

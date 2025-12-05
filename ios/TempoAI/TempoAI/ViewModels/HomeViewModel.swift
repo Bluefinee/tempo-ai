@@ -308,11 +308,6 @@ final class HomeViewModel: ObservableObject {
     }
 }
 
-// MARK: - Notification Names
-
-extension Notification.Name {
-    static let healthKitDataUpdated = Notification.Name("healthKitDataUpdated")
-}
 
 // MARK: - Preview Support
 

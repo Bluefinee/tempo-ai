@@ -198,9 +198,9 @@ final class PermissionManager: NSObject, ObservableObject {
 
 // MARK: - CLLocationManagerDelegate
 
-extension PermissionManager: CLLocationManagerDelegate {
+extension PermissionManager: @preconcurrency CLLocationManagerDelegate {
 
-    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+    nonisolated func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         let status = PermissionStatus.from(clStatus: manager.authorizationStatus)
 
         Task { @MainActor in

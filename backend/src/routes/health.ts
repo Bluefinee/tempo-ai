@@ -14,7 +14,7 @@ import { Hono } from 'hono'
 import { performHealthAnalysis } from '../services/health-analysis'
 import type { Bindings } from '../types/bindings'
 import { AnalyzeRequestSchema } from '../types/requests'
-import { handleError, toValidStatusCode } from '../utils/errors'
+import { handleError } from '../utils/errors'
 import {
   CommonErrors,
   createValidationErrorResponse,

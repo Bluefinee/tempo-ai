@@ -10,7 +10,6 @@
  */
 
 import type { Context } from 'hono'
-import { toValidStatusCode } from './errors'
 import type { ValidationError } from './validation'
 
 /**
@@ -89,7 +88,7 @@ export const createValidationErrorResponse = (
 ): Response => {
   // TypeScript Hono Standards準拠：シンプルで明確なエラーレスポンス
   const statusCode = error.statusCode
-  
+
   // Direct status code approach without normalization
   if (statusCode === 400) {
     return c.json({ success: false, error: error.message }, 400)
@@ -141,8 +140,17 @@ export const sendErrorResponse = (
   if (status === 415) {
     return c.json(createErrorResponse(message), 415)
   }
-  if (status === 401 || status === 403 || status === 404 || status === 409 || status === 429) {
-    return c.json(createErrorResponse(message), status as 401 | 403 | 404 | 409 | 429)
+  if (
+    status === 401 ||
+    status === 403 ||
+    status === 404 ||
+    status === 409 ||
+    status === 429
+  ) {
+    return c.json(
+      createErrorResponse(message),
+      status as 401 | 403 | 404 | 409 | 429,
+    )
   }
   return c.json(createErrorResponse(message), 400)
 }

@@ -33,41 +33,41 @@ interface MockAnalysisResponse {
   data: {
     message: string
     advice: {
-    theme: string
-    summary: string
-    breakfast: {
-      recommendation: string
-      reason: string
-      examples: string[]
-    }
-    lunch: {
-      recommendation: string
-      reason: string
-      timing: string
-      examples: string[]
-      avoid: string[]
-    }
-    dinner: {
-      recommendation: string
-      reason: string
-      timing: string
-      examples: string[]
-      avoid: string[]
-    }
-    hydration: {
-      target: string
-      reason: string
-    }
-    sleep_preparation: {
-      bedtime: string
-      routine: string[]
-      avoid: string[]
-    }
-    weather_considerations: {
-      warnings: string[]
-      opportunities: string[]
-    }
-    priority_actions: string[]
+      theme: string
+      summary: string
+      breakfast: {
+        recommendation: string
+        reason: string
+        examples: string[]
+      }
+      lunch: {
+        recommendation: string
+        reason: string
+        timing: string
+        examples: string[]
+        avoid: string[]
+      }
+      dinner: {
+        recommendation: string
+        reason: string
+        timing: string
+        examples: string[]
+        avoid: string[]
+      }
+      hydration: {
+        target: string
+        reason: string
+      }
+      sleep_preparation: {
+        bedtime: string
+        routine: string[]
+        avoid: string[]
+      }
+      weather_considerations: {
+        warnings: string[]
+        opportunities: string[]
+      }
+      priority_actions: string[]
     }
     weather_summary?: {
       temperature: number
@@ -164,7 +164,9 @@ describe('Test Routes', () => {
 
       expect(response.status).toBe(400)
       const result = (await response.json()) as ErrorResponse
-      expect(result.error).toBe('Validation failed: Invalid input: expected number, received undefined')
+      expect(result.error).toBe(
+        'Validation failed: Invalid input: expected number, received undefined',
+      )
     })
 
     it('should return 400 when longitude is missing', async () => {
@@ -180,7 +182,9 @@ describe('Test Routes', () => {
 
       expect(response.status).toBe(400)
       const result = (await response.json()) as ErrorResponse
-      expect(result.error).toBe('Validation failed: Invalid input: expected number, received undefined')
+      expect(result.error).toBe(
+        'Validation failed: Invalid input: expected number, received undefined',
+      )
     })
 
     it('should return 400 when latitude is not a number', async () => {
@@ -197,7 +201,9 @@ describe('Test Routes', () => {
 
       expect(response.status).toBe(400)
       const result = (await response.json()) as ErrorResponse
-      expect(result.error).toBe('Validation failed: Invalid input: expected number, received string')
+      expect(result.error).toBe(
+        'Validation failed: Invalid input: expected number, received string',
+      )
     })
 
     it('should return 400 when longitude is not a number', async () => {
@@ -214,7 +220,9 @@ describe('Test Routes', () => {
 
       expect(response.status).toBe(400)
       const result = (await response.json()) as ErrorResponse
-      expect(result.error).toBe('Validation failed: Invalid input: expected number, received string')
+      expect(result.error).toBe(
+        'Validation failed: Invalid input: expected number, received string',
+      )
     })
 
     it('should handle extreme valid coordinates', async () => {
@@ -291,7 +299,9 @@ describe('Test Routes', () => {
 
       expect(response.status).toBe(400)
       const result = (await response.json()) as ErrorResponse
-      expect(result.error).toBe('Validation failed: Invalid input: expected number, received undefined')
+      expect(result.error).toBe(
+        'Validation failed: Invalid input: expected number, received undefined',
+      )
     })
   })
 
@@ -551,7 +561,9 @@ describe('Test Routes', () => {
 
       requiredFields.forEach((field) => {
         expect(result.data.advice).toHaveProperty(field)
-        expect((result.data.advice as Record<string, unknown>)[field]).toBeDefined()
+        expect(
+          (result.data.advice as Record<string, unknown>)[field],
+        ).toBeDefined()
       })
     })
 

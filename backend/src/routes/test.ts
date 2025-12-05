@@ -16,7 +16,7 @@ import {
   AnalyzeTestRequestSchema,
   WeatherTestRequestSchema,
 } from '../types/requests'
-import { handleError, toValidStatusCode } from '../utils/errors'
+import { handleError } from '../utils/errors'
 import {
   createValidationErrorResponse,
   sendSuccessResponse,

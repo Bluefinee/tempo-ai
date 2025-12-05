@@ -10,6 +10,7 @@
  */
 
 import type { Context } from 'hono'
+import { APIError } from './errors'
 import type { ValidationError } from './validation'
 
 /**
@@ -237,6 +238,12 @@ export const CommonErrors = {
    */
   serviceUnavailable: (c: Context, message = 'Service Unavailable'): Response =>
     sendErrorResponse(c, message, HTTP_STATUS.SERVICE_UNAVAILABLE),
+
+  /**
+   * Gateway Timeout (504) エラー
+   */
+  gatewayTimeout: (c: Context, message = 'Gateway Timeout'): Response =>
+    sendErrorResponse(c, message, HTTP_STATUS.GATEWAY_TIMEOUT),
 } as const
 
 /**
@@ -255,11 +262,15 @@ export const isErrorResponse = <T>(
 
 /**
  * APIレスポンスから値を安全に取得（エラー時は例外をthrow）
+ *
+ * @param response - APIレスポンス
+ * @returns レスポンスデータ
+ * @throws {APIError} レスポンスがエラーの場合
  */
 export const unwrapResponse = <T>(response: ApiResponse<T>): T => {
   if (isSuccessResponse(response)) {
     return response.data
   }
 
-  throw new Error(`API Error: ${response.error}`)
+  throw new APIError(`API Error: ${response.error}`, 400, 'API_RESPONSE_ERROR')
 }

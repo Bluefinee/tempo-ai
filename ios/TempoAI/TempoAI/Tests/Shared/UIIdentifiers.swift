@@ -45,6 +45,46 @@ enum UIIdentifiers {
         }
     }
 
+    // MARK: - OnboardingFlow
+    enum OnboardingFlow {
+        static let mainContainer = "onboarding.main.container"
+        static let tabView = "onboarding.tabView"
+        static let pageIndicator = "onboarding.pageIndicator"
+
+        // Welcome Page
+        static let welcomeIcon = "onboarding.welcome.icon"
+        static let welcomeTitle = "onboarding.welcome.title"
+        static let welcomeDescription = "onboarding.welcome.description"
+        static let getStartedButton = "onboarding.welcome.getStartedButton"
+
+        // HealthKit Permission Page
+        static let healthKitIcon = "onboarding.healthKit.icon"
+        static let healthKitTitle = "onboarding.healthKit.title"
+        static let healthKitDescription = "onboarding.healthKit.description"
+        static let healthKitAllowButton = "onboarding.healthKit.allowButton"
+        static let healthKitContinueButton = "onboarding.healthKit.continueButton"
+        static let healthKitSkipButton = "onboarding.healthKit.skipButton"
+
+        // Location Permission Page
+        static let locationIcon = "onboarding.location.icon"
+        static let locationTitle = "onboarding.location.title"
+        static let locationDescription = "onboarding.location.description"
+        static let locationAllowButton = "onboarding.location.allowButton"
+        static let locationContinueButton = "onboarding.location.continueButton"
+        static let locationSkipButton = "onboarding.location.skipButton"
+
+        // Completion Page
+        static let completionIcon = "onboarding.completion.icon"
+        static let completionTitle = "onboarding.completion.title"
+        static let completionDescription = "onboarding.completion.description"
+        static let completionStartButton = "onboarding.completion.startButton"
+
+        // Permission Status
+        static func permissionStatusRow(for permission: String) -> String {
+            return "onboarding.permissionStatus.\(sanitizeInput(permission))"
+        }
+    }
+
     // MARK: - HomeViewComponents (Loading, Error, Empty States)
     enum HomeViewComponents {
         // Loading View

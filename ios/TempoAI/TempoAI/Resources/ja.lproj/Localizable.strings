@@ -16,6 +16,38 @@
 "tab_trends" = "傾向";
 "tab_profile" = "プロフィール";
 
+// MARK: - Onboarding Flow  
+"onboarding_welcome_title" = "Tempo AI へようこそ";
+"onboarding_welcome_description" = "あなたのデータから学習し、毎日のウェルネスガイダンスを提供するパーソナライズされた健康アドバイザーです。";
+"onboarding_get_started" = "始める";
+
+"onboarding_healthkit_title" = "ヘルスデータへのアクセス";
+"onboarding_healthkit_description" = "睡眠、心拍数、活動データを分析してパーソナライズされたウェルネスアドバイスを提供します。";
+"onboarding_healthkit_feature_sleep" = "睡眠分析";
+"onboarding_healthkit_feature_sleep_desc" = "睡眠の質と時間を追跡";
+"onboarding_healthkit_feature_hrv" = "心拍変動";
+"onboarding_healthkit_feature_hrv_desc" = "ストレスと回復レベルを監視";
+"onboarding_healthkit_feature_activity" = "活動データ";
+"onboarding_healthkit_feature_activity_desc" = "日常の活動パターンを理解";
+"onboarding_allow_health_access" = "ヘルスアクセスを許可";
+
+"onboarding_location_title" = "天気情報のための位置情報";
+"onboarding_location_description" = "位置情報を使用して天気ベースの健康推奨事項と環境アラートを提供します。";
+"onboarding_location_feature_weather" = "天気ベースのアドバイス";
+"onboarding_location_feature_weather_desc" = "天気状況に応じた推奨事項";
+"onboarding_location_feature_alerts" = "環境アラート";
+"onboarding_location_feature_alerts_desc" = "異常気象や大気質のアラート";
+"onboarding_location_feature_temp" = "気温対応";
+"onboarding_location_feature_temp_desc" = "気温に応じた活動提案の調整";
+"onboarding_allow_location_access" = "位置情報アクセスを許可";
+
+"onboarding_completion_title" = "準備完了！";
+"onboarding_completion_description" = "パーソナライズされた健康アドバイスを受け取る準備が整いました。ウェルネスの旅を始めましょう！";
+"onboarding_start_using_app" = "Tempo AI を使い始める";
+
+"onboarding_continue" = "続ける";
+"onboarding_skip_for_now" = "今はスキップ";
+
 // MARK: - Common Actions
 "button_get_started" = "始める";
 "button_continue" = "続ける";

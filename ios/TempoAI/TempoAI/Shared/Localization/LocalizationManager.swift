@@ -6,9 +6,9 @@
 //  Centralized localization management with SwiftUI integration
 //
 
+import Combine
 import Foundation
 import SwiftUI
-import Combine
 
 /// Centralized localization manager for the TempoAI application
 /// Manages language preferences and provides localized string access
@@ -92,7 +92,7 @@ class LocalizationManager: ObservableObject {
         // Access current language synchronously via UserDefaults
         let savedLanguage = UserDefaults.standard.string(forKey: Self.userLanguageKey) ?? "ja"
         let language = SupportedLanguage(rawValue: savedLanguage) ?? .japanese
-        
+
         switch language {
         case .systemDefault:
             // Use system locale, fallback to Japanese

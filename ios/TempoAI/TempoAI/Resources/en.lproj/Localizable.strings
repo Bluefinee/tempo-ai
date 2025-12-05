@@ -16,6 +16,38 @@
 "tab_trends" = "Trends";
 "tab_profile" = "Profile";
 
+// MARK: - Onboarding Flow
+"onboarding_welcome_title" = "Welcome to Tempo AI";
+"onboarding_welcome_description" = "Your personalized health advisor that learns from your data to provide daily wellness guidance.";
+"onboarding_get_started" = "Get Started";
+
+"onboarding_healthkit_title" = "Health Data Access";
+"onboarding_healthkit_description" = "We analyze your sleep, heart rate, and activity data to provide personalized wellness advice.";
+"onboarding_healthkit_feature_sleep" = "Sleep Analysis";
+"onboarding_healthkit_feature_sleep_desc" = "Track sleep quality and duration";
+"onboarding_healthkit_feature_hrv" = "Heart Rate Variability";
+"onboarding_healthkit_feature_hrv_desc" = "Monitor stress and recovery levels";
+"onboarding_healthkit_feature_activity" = "Activity Data";
+"onboarding_healthkit_feature_activity_desc" = "Understand your daily movement patterns";
+"onboarding_allow_health_access" = "Allow Health Access";
+
+"onboarding_location_title" = "Location for Weather";
+"onboarding_location_description" = "We use your location to provide weather-based health recommendations and environmental alerts.";
+"onboarding_location_feature_weather" = "Weather-Based Advice";
+"onboarding_location_feature_weather_desc" = "Adapt recommendations to weather conditions";
+"onboarding_location_feature_alerts" = "Environmental Alerts";
+"onboarding_location_feature_alerts_desc" = "Alerts for extreme weather or air quality";
+"onboarding_location_feature_temp" = "Temperature Awareness";
+"onboarding_location_feature_temp_desc" = "Adjust activity suggestions for temperature";
+"onboarding_allow_location_access" = "Allow Location Access";
+
+"onboarding_completion_title" = "All Set!";
+"onboarding_completion_description" = "You're ready to receive personalized health advice. Let's start your wellness journey!";
+"onboarding_start_using_app" = "Start Using Tempo AI";
+
+"onboarding_continue" = "Continue";
+"onboarding_skip_for_now" = "Skip for Now";
+
 // MARK: - Common Actions
 "button_get_started" = "Get Started";
 "button_continue" = "Continue";

@@ -6,11 +6,14 @@ internal struct LoadingView: View {
         VStack(spacing: 16) {
             ProgressView()
                 .scaleEffect(1.2)
+                .accessibilityIdentifier(UIIdentifiers.HomeViewComponents.loadingSpinner)
 
             Text("Analyzing your health data...")
                 .font(.subheadline)
                 .foregroundColor(.secondary)
+                .accessibilityIdentifier(UIIdentifiers.HomeViewComponents.loadingText)
         }
+        .accessibilityIdentifier(UIIdentifiers.HomeViewComponents.loadingView)
         .frame(maxWidth: .infinity, minHeight: 200)
     }
 }
@@ -25,15 +28,18 @@ internal struct ErrorView: View {
             Image(systemName: "exclamationmark.triangle.fill")
                 .font(.system(size: 40))
                 .foregroundColor(.orange)
+                .accessibilityIdentifier(UIIdentifiers.HomeViewComponents.errorIcon)
 
             Text("Something went wrong")
                 .font(.headline)
                 .fontWeight(.semibold)
+                .accessibilityIdentifier(UIIdentifiers.HomeViewComponents.errorTitle)
 
             Text(message)
                 .font(.subheadline)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
+                .accessibilityIdentifier(UIIdentifiers.HomeViewComponents.errorMessage)
 
             Button("Try Again") {
                 Task {
@@ -41,7 +47,9 @@ internal struct ErrorView: View {
                 }
             }
             .buttonStyle(.borderedProminent)
+            .accessibilityIdentifier(UIIdentifiers.HomeViewComponents.errorRetryButton)
         }
+        .accessibilityIdentifier(UIIdentifiers.HomeViewComponents.errorView)
         .padding()
         .frame(maxWidth: .infinity, minHeight: 200)
     }
@@ -56,15 +64,18 @@ internal struct EmptyStateView: View {
             Image(systemName: "heart.text.square")
                 .font(.system(size: 50))
                 .foregroundColor(.secondary)
+                .accessibilityIdentifier(UIIdentifiers.HomeViewComponents.emptyStateIcon)
 
             Text("No advice available")
                 .font(.headline)
                 .fontWeight(.semibold)
+                .accessibilityIdentifier(UIIdentifiers.HomeViewComponents.emptyStateTitle)
 
             Text("We couldn't generate advice for you today. Please check your permissions and try again.")
                 .font(.subheadline)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
+                .accessibilityIdentifier(UIIdentifiers.HomeViewComponents.emptyStateMessage)
 
             Button("Refresh") {
                 Task {
@@ -72,7 +83,9 @@ internal struct EmptyStateView: View {
                 }
             }
             .buttonStyle(.borderedProminent)
+            .accessibilityIdentifier(UIIdentifiers.HomeViewComponents.emptyStateActionButton)
         }
+        .accessibilityIdentifier(UIIdentifiers.HomeViewComponents.emptyStateView)
         .padding()
         .frame(maxWidth: .infinity, minHeight: 300)
     }
@@ -104,7 +117,9 @@ internal struct AdviceCard: View {
                 .font(.subheadline)
                 .foregroundColor(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
+                .accessibilityIdentifier(UIIdentifiers.HomeViewComponents.adviceCardContent)
         }
+        .accessibilityIdentifier(UIIdentifiers.HomeViewComponents.adviceCard)
         .padding()
         .background(color.opacity(0.1))
         .cornerRadius(12)

@@ -21,6 +21,7 @@ struct PermissionsView: View {
                 Text("Permissions Required")
                     .font(.title2)
                     .fontWeight(.bold)
+                    .accessibilityIdentifier(UIIdentifiers.PermissionsView.headerTitle)
 
                 VStack(spacing: 16) {
                     PermissionRow(
@@ -30,6 +31,7 @@ struct PermissionsView: View {
                         status: healthKitManager.isAuthorized ? "Authorized" : "Not Authorized",
                         color: healthKitManager.isAuthorized ? .green : .red
                     )
+                    .accessibilityIdentifier(UIIdentifiers.PermissionsView.healthKitRow)
 
                     PermissionRow(
                         icon: "location.fill",
@@ -38,7 +40,9 @@ struct PermissionsView: View {
                         status: isLocationAuthorized ? "Authorized" : "Not Authorized",
                         color: isLocationAuthorized ? .green : .red
                     )
+                    .accessibilityIdentifier(UIIdentifiers.PermissionsView.locationRow)
                 }
+                .accessibilityIdentifier(UIIdentifiers.PermissionsView.permissionsList)
 
                 if !healthKitManager.isAuthorized {
                     Button("Enable HealthKit") {
@@ -54,6 +58,7 @@ struct PermissionsView: View {
                         }
                     }
                     .buttonStyle(.borderedProminent)
+                    .accessibilityIdentifier(UIIdentifiers.PermissionsView.healthKitButton)
                 }
 
                 if !isLocationAuthorized {
@@ -61,10 +66,12 @@ struct PermissionsView: View {
                         locationManager.requestLocation()
                     }
                     .buttonStyle(.bordered)
+                    .accessibilityIdentifier(UIIdentifiers.PermissionsView.locationButton)
                 }
 
                 Spacer()
             }
+            .accessibilityIdentifier(UIIdentifiers.PermissionsView.mainView)
             .padding()
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
@@ -73,6 +80,7 @@ struct PermissionsView: View {
                     Button("Done") {
                         onDismiss()
                     }
+                    .accessibilityIdentifier(UIIdentifiers.PermissionsView.dismissButton)
                 }
             })
             .onChange(of: locationManager.errorMessage) { newValue in
@@ -82,9 +90,13 @@ struct PermissionsView: View {
                 }
             }
             .alert("Permission Error", isPresented: $showErrorAlert) {
-                Button("OK") {}
+                Button("OK") {
+                    // Alert OK button accessibility handled by system
+                }
+                .accessibilityIdentifier(UIIdentifiers.Common.alertOKButton)
             } message: {
                 Text(alertMessage)
+                    .accessibilityIdentifier(UIIdentifiers.Common.alertMessage)
             }
         }
     }
@@ -104,6 +116,7 @@ struct PermissionRow: View {
                 .font(.title2)
                 .foregroundColor(.blue)
                 .frame(width: 30)
+                .accessibilityIdentifier(UIIdentifiers.PermissionsView.permissionStatus(for: title.lowercased()))
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
@@ -120,6 +133,7 @@ struct PermissionRow: View {
                 .font(.caption)
                 .fontWeight(.medium)
                 .foregroundColor(color)
+                .accessibilityIdentifier(UIIdentifiers.PermissionsView.permissionStatus(for: title.lowercased()))
         }
         .padding()
         .background(.regularMaterial)

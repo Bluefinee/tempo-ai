@@ -28,6 +28,7 @@ struct AdviceView: View {
             SleepCard(sleepSummary: sleepSummary)
             BreathingCard(breathingSummary: breathingSummary)
         }
+        .accessibilityIdentifier(UIIdentifiers.AdviceView.mainView)
     }
 }
 
@@ -42,11 +43,14 @@ private struct ThemeSummaryCard: View {
                 .font(.title2)
                 .fontWeight(.bold)
                 .foregroundColor(.primary)
+                .accessibilityIdentifier(UIIdentifiers.AdviceView.themeSummaryTitle)
 
             Text(advice.summary)
                 .font(.body)
                 .foregroundColor(.secondary)
+                .accessibilityIdentifier(UIIdentifiers.AdviceView.themeSummaryContent)
         }
+        .accessibilityIdentifier(UIIdentifiers.AdviceView.themeSummaryCard)
         .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(.blue.opacity(0.1))
@@ -66,6 +70,7 @@ private struct WeatherCard: View {
             color: .orange,
             icon: "cloud.sun.fill"
         )
+        .accessibilityIdentifier(UIIdentifiers.AdviceView.weatherCard)
     }
 }
 
@@ -80,6 +85,7 @@ private struct MealCardsSection: View {
                 color: .green,
                 icon: "cup.and.saucer.fill"
             )
+            .accessibilityIdentifier(UIIdentifiers.AdviceView.breakfastCard)
 
             AdviceCard(
                 title: "Lunch",
@@ -87,6 +93,7 @@ private struct MealCardsSection: View {
                 color: .blue,
                 icon: "fork.knife"
             )
+            .accessibilityIdentifier(UIIdentifiers.AdviceView.lunchCard)
 
             AdviceCard(
                 title: "Dinner",
@@ -94,7 +101,9 @@ private struct MealCardsSection: View {
                 color: .purple,
                 icon: "moon.stars.fill"
             )
+            .accessibilityIdentifier(UIIdentifiers.AdviceView.dinnerCard)
         }
+        .accessibilityIdentifier(UIIdentifiers.AdviceView.mealCardsSection)
     }
 }
 
@@ -108,6 +117,7 @@ private struct ExerciseCard: View {
             color: .red,
             icon: "figure.run"
         )
+        .accessibilityIdentifier(UIIdentifiers.AdviceView.exerciseCard)
     }
 }
 
@@ -121,6 +131,7 @@ private struct SleepCard: View {
             color: .indigo,
             icon: "bed.double.fill"
         )
+        .accessibilityIdentifier(UIIdentifiers.AdviceView.sleepCard)
     }
 }
 
@@ -134,5 +145,6 @@ private struct BreathingCard: View {
             color: .mint,
             icon: "leaf.fill"
         )
+        .accessibilityIdentifier(UIIdentifiers.AdviceView.breathingCard)
     }
 }

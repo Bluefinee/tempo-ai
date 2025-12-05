@@ -53,14 +53,17 @@ struct HomeView: View {
                                 HStack {
                                     Image(systemName: "exclamationmark.triangle.fill")
                                         .foregroundColor(.orange)
+                                        .accessibilityIdentifier(UIIdentifiers.HomeView.mockDataIcon)
                                     Text("Using simulated data (API unavailable)")
                                         .font(.caption)
                                         .foregroundColor(.orange)
+                                        .accessibilityIdentifier(UIIdentifiers.HomeView.mockDataText)
                                 }
                                 .padding(.horizontal, 12)
                                 .padding(.vertical, 8)
                                 .background(.orange.opacity(0.1))
                                 .cornerRadius(8)
+                                .accessibilityIdentifier(UIIdentifiers.HomeView.mockDataBanner)
                             }
 
                             AdviceView(advice: advice)
@@ -73,11 +76,13 @@ struct HomeView: View {
                 }
                 .padding()
             }
+            .accessibilityIdentifier(UIIdentifiers.HomeView.scrollView)
             .navigationTitle("Today")
             .navigationBarTitleDisplayMode(.large)
             .refreshable {
                 await refreshAdvice()
             }
+            .accessibilityIdentifier(UIIdentifiers.HomeView.refreshControl)
             .task {
                 await setupPermissions()
             }
@@ -102,6 +107,7 @@ struct HomeView: View {
                 Text(timeBasedGreeting)
                     .font(.title2)
                     .fontWeight(.semibold)
+                    .accessibilityIdentifier(UIIdentifiers.HomeView.greetingText)
 
                 Spacer()
 
@@ -111,12 +117,15 @@ struct HomeView: View {
                     Image(systemName: "gear")
                         .font(.title3)
                 }
+                .accessibilityIdentifier(UIIdentifiers.HomeView.settingsButton)
             }
 
             Text("Here's your personalized health advice for today")
                 .font(.subheadline)
                 .foregroundColor(.secondary)
+                .accessibilityIdentifier(UIIdentifiers.HomeView.subtitleText)
         }
+        .accessibilityIdentifier(UIIdentifiers.HomeView.headerSection)
     }
 
     private func setupPermissions() async {

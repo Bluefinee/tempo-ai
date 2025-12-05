@@ -53,7 +53,11 @@
       "Bash(node:*)",
       "mcp__serena__initial_instructions",
       "mcp__serena__list_memories",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(./scripts/dev-commands.sh test-all:*)",
+      "Bash(./scripts/fix-all.sh:*)",
+      "Bash(swift-format:*)",
+      "mcp__serena__think_about_collected_information"
     ],
     "deny": [],
     "ask": [],

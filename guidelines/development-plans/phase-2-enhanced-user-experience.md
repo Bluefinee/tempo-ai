@@ -7,6 +7,27 @@
 
 ---
 
+## 🔧 実装前必須確認事項
+
+### 📚 参照必須ドキュメント
+1. **全体仕様把握**: [guidelines/tempo-ai-product-spec.md](../tempo-ai-product-spec.md) - プロダクト全体像とターゲット理解
+2. **開発ルール確認**: [CLAUDE.md](../../CLAUDE.md) - 開発哲学、品質基準、プロセス
+3. **Swift標準確認**: [.claude/swift-coding-standards.md](../../.claude/swift-coding-standards.md) - Swift実装ルール
+4. **TypeScript標準確認**: [.claude/typescript-hono-standards.md](../../.claude/typescript-hono-standards.md) - Backend実装ルール
+
+### 🧪 テスト駆動開発（TDD）必須要件
+- **カバレッジ目標**: Backend ≥80%, iOS ≥80%
+- **TDDサイクル**: Red → Green → Blue → Integrate
+- **継続的品質**: 全実装でテストファースト
+- **品質ゲート**: 実装完了前に必ずテスト実行・確認
+
+### 📦 コミット戦略
+- **細かい単位でコミット**: 機能単位、テスト単位での適切な粒度
+- **明確なコミットメッセージ**: 変更内容と理由を簡潔に記載
+- **継続的統合**: 各コミット後のCI/CD確認
+
+---
+
 ## 🎯 概要
 
 Phase 2では、ユーザーの主観的体調を反映した高度なパーソナライゼーション機能を実装します。朝のクイックチェックイン、詳細な教育的アドバイス画面、拡張HealthKit連携、環境アラート統合により、データドリブンと主観的感覚の両方を活用した包括的なヘルスアドバイザーを構築します。
@@ -309,143 +330,21 @@ struct EnvironmentDashboardView: View {
 
 ### 5. 文化適応システム（基本版）- Phase 5から前倒し
 
-#### 5.1 基本日本食材データベース構築
-```swift
-// ios/TempoAI/TempoAI/Services/JapaneseFoodDatabase.swift
-struct JapaneseFoodDatabase {
-    static let seasonalIngredients: [Season: [FoodIngredient]] = [
-        .spring: [
-            FoodIngredient(name: "筍", englishName: "Bamboo Shoots", nutritionalProfile: .highFiber),
-            FoodIngredient(name: "菜の花", englishName: "Rapeseed Blossoms", nutritionalProfile: .antioxidant),
-            FoodIngredient(name: "新玉ねぎ", englishName: "New Onions", nutritionalProfile: .antiInflammatory),
-            FoodIngredient(name: "春キャベツ", englishName: "Spring Cabbage", nutritionalProfile: .vitaminC),
-            FoodIngredient(name: "アスパラガス", englishName: "Asparagus", nutritionalProfile: .folate)
-        ],
-        .summer: [
-            FoodIngredient(name: "茄子", englishName: "Eggplant", nutritionalProfile: .lowCalorie),
-            FoodIngredient(name: "胡瓜", englishName: "Cucumber", nutritionalProfile: .hydrating),
-            FoodIngredient(name: "トマト", englishName: "Tomato", nutritionalProfile: .lycopene),
-            FoodIngredient(name: "枝豆", englishName: "Edamame", nutritionalProfile: .protein),
-            FoodIngredient(name: "とうもろこし", englishName: "Corn", nutritionalProfile: .complexCarbs)
-        ],
-        .autumn: [
-            FoodIngredient(name: "柿", englishName: "Persimmon", nutritionalProfile: .vitaminC),
-            FoodIngredient(name: "さつまいも", englishName: "Sweet Potato", nutritionalProfile: .complexCarbs),
-            FoodIngredient(name: "椎茸", englishName: "Shiitake Mushroom", nutritionalProfile: .immuneSupport),
-            FoodIngredient(name: "栗", englishName: "Chestnut", nutritionalProfile: .complexCarbs),
-            FoodIngredient(name: "銀杏", englishName: "Ginkgo Nut", nutritionalProfile: .antioxidant)
-        ],
-        .winter: [
-            FoodIngredient(name: "大根", englishName: "Daikon Radish", nutritionalProfile: .digestiveSupport),
-            FoodIngredient(name: "白菜", englishName: "Chinese Cabbage", nutritionalProfile: .vitaminK),
-            FoodIngredient(name: "長ネギ", englishName: "Long Onion", nutritionalProfile: .antiViral),
-            FoodIngredient(name: "ほうれん草", englishName: "Spinach", nutritionalProfile: .iron),
-            FoodIngredient(name: "かぼちゃ", englishName: "Kabocha Squash", nutritionalProfile: .betaCarotene)
-        ]
-    ]
-    
-    static let culturalMeals: [MealType: [JapaneseMeal]] = [
-        .breakfast: [
-            JapaneseMeal(name: "和定食", ingredients: ["米", "味噌汁", "焼き魚", "納豆", "海苔"]),
-            JapaneseMeal(name: "おにぎりセット", ingredients: ["おにぎり", "味噌汁", "漬物"]),
-            JapaneseMeal(name: "卵かけご飯", ingredients: ["米", "卵", "醤油", "海苔"]),
-            JapaneseMeal(name: "お粥セット", ingredients: ["お粥", "梅干し", "昆布"]),
-            JapaneseMeal(name: "パンケーキ", ingredients: ["小麦粉", "卵", "牛乳", "蜂蜜"])
-        ],
-        .lunch: [
-            JapaneseMeal(name: "親子丼", ingredients: ["鶏肉", "卵", "玉ねぎ", "米"]),
-            JapaneseMeal(name: "天ぷらそば", ingredients: ["そば", "天ぷら", "つゆ"]),
-            JapaneseMeal(name: "カレーライス", ingredients: ["カレールー", "米", "玉ねぎ", "人参"]),
-            JapaneseMeal(name: "弁当", ingredients: ["米", "焼き魚", "卵焼き", "野菜"]),
-            JapaneseMeal(name: "うどん", ingredients: ["うどん", "つゆ", "ネギ", "かまぼこ"])
-        ],
-        .dinner: [
-            JapaneseMeal(name: "鍋料理", ingredients: ["白菜", "豚肉", "豆腐", "きのこ"]),
-            JapaneseMeal(name: "刺身定食", ingredients: ["刺身", "米", "味噌汁", "小鉢"]),
-            JapaneseMeal(name: "焼き魚定食", ingredients: ["焼き魚", "米", "味噌汁", "煮物"]),
-            JapaneseMeal(name: "すき焼き", ingredients: ["牛肉", "豆腐", "白菜", "しらたき"]),
-            JapaneseMeal(name: "天ぷら定食", ingredients: ["天ぷら", "米", "味噌汁", "漬物"])
-        ]
-    ]
-}
-```
-
-#### 5.2 文化適応サービス（基本版）
-```swift
-// ios/TempoAI/TempoAI/Services/CulturalAdaptationService.swift
-struct CulturalAdaptationService {
-    
-    static func adaptMealRecommendations(
-        _ recommendations: [MealRecommendation],
-        for language: SupportedLanguage,
-        season: Season
-    ) -> [CulturallyAdaptedMeal] {
-        
-        guard language == .japanese else {
-            return recommendations.map { CulturallyAdaptedMeal(original: $0) }
-        }
-        
-        return recommendations.map { recommendation in
-            adaptToJapaneseCulture(recommendation, season: season)
-        }
-    }
-    
-    private static func adaptToJapaneseCulture(
-        _ recommendation: MealRecommendation,
-        season: Season
-    ) -> CulturallyAdaptedMeal {
-        
-        let seasonalIngredients = JapaneseFoodDatabase.seasonalIngredients[season] ?? []
-        let culturalMeals = JapaneseFoodDatabase.culturalMeals[recommendation.mealType] ?? []
-        
-        return CulturallyAdaptedMeal(
-            original: recommendation,
-            adaptedIngredients: adaptIngredients(recommendation.ingredients, seasonal: seasonalIngredients),
-            culturalMealOptions: culturalMeals,
-            seasonalContext: generateSeasonalContext(for: season),
-            preparationTips: generateJapanesePreparationTips(for: recommendation.mealType)
-        )
-    }
-    
-    private static func adaptIngredients(
-        _ ingredients: [Ingredient],
-        seasonal: [FoodIngredient]
-    ) -> [AdaptedIngredient] {
-        
-        return ingredients.compactMap { ingredient in
-            // 栄養プロファイルに基づく日本食材への置き換え
-            let japaneseSubs = seasonal.filter { $0.nutritionalProfile == ingredient.nutritionalProfile }
-            let substitution = japaneseSubs.randomElement()
-            
-            return AdaptedIngredient(
-                original: ingredient,
-                japaneseName: substitution?.name,
-                englishName: substitution?.englishName,
-                culturalRelevance: substitution != nil ? .high : .low
-            )
-        }
-    }
-}
-```
-
-#### 5.3 バックエンド文化適応統合
+#### 5.1 Claude API文化適応プロンプト強化
 ```typescript
-// backend/src/utils/cultural-adaptation.ts
-export interface CulturalContext {
-  language: 'ja' | 'en'
-  region: 'JP' | 'US' | 'other'
-  season: 'spring' | 'summer' | 'autumn' | 'winter'
-  localTime: string
-}
-
+// backend/src/services/cultural-adaptation.ts
 export const generateCulturallyAdaptedAdvice = async (
   healthData: HealthData,
   environmentData: EnvironmentData,
-  culturalContext: CulturalContext
-): Promise<LocalizedAdvice> => {
+  userLocation: UserLocation,
+  userLanguage: string
+): Promise<CulturallyAdaptedAdvice> => {
   
-  const culturalPrompt = buildCulturalPrompt(culturalContext)
-  const seasonalFoodContext = getSeasonalFoodContext(culturalContext.season, culturalContext.region)
+  const culturalPrompt = buildCulturalAdaptationPrompt(
+    userLocation, 
+    userLanguage, 
+    getCurrentSeason(userLocation)
+  )
   
   const prompt = `
 ${culturalPrompt}
@@ -456,47 +355,163 @@ ${JSON.stringify(healthData)}
 環境データ:
 ${JSON.stringify(environmentData)}
 
-季節の食材情報:
-${seasonalFoodContext}
+文化的に適応されたアドバイスを生成してください。季節の食材と地域の食文化を自然に取り入れ、
+実践しやすい具体的な食事・運動・過ごし方を提案してください。
+`
 
-文化的に適応されたアドバイスを以下の形式で生成してください:
-- 食事: 季節の食材と文化的な調理法を活用
-- 運動: 地域の気候と文化的習慣を考慮
-- 過ごし方: 文化的なウェルネス習慣を取り入れ
+  const response = await callClaudeAPI(prompt)
+  return parseAdviceResponse(response)
+}
+
+const buildCulturalAdaptationPrompt = (
+  location: UserLocation, 
+  language: string, 
+  season: Season
+): string => {
+  if (language === 'ja' && location.country === 'JP') {
+    return `
+あなたは日本の文化と食習慣に精通したヘルスアドバイザーです。
+
+文化的配慮事項:
+- 現在の季節（${season}）の旬の食材を活用
+- 和食を中心とした栄養バランス
+- 日本の生活リズム（朝食・昼食・夕食の時間帯）に適応
+- 地域の気候と季節変化を考慮
+- 親しみやすく実践しやすい提案
+- だし・発酵食品など日本の伝統的健康食材の活用
+`
+  }
+  
+  return `
+You are a culturally-aware health advisor providing personalized recommendations.
+Consider local food culture, seasonal availability, and cultural meal patterns.
+`
+```
+
+#### 5.2 文化適応機能（AI統合版）
+```swift
+// ios/TempoAI/TempoAI/Services/CulturalAdaptationService.swift
+struct CulturalAdaptationService {
+    
+    static func getCurrentCulturalContext(
+        userLocation: CLLocation,
+        userLanguage: String
+    ) -> CulturalContext {
+        
+        return CulturalContext(
+            language: userLanguage,
+            region: determineRegion(from: userLocation),
+            season: getCurrentSeason(for: userLocation),
+            timeZone: TimeZone.current
+        )
+    }
+    
+    private static func determineRegion(from location: CLLocation) -> String {
+        // CoreLocationを使用して地域判定
+        let geocoder = CLGeocoder()
+        // 簡単な地域判定ロジック
+        return "JP" // 実際の実装では地理的座標から判定
+    }
+    
+    private static func getCurrentSeason(for location: CLLocation) -> String {
+        let calendar = Calendar.current
+        let month = calendar.component(.month, from: Date())
+        
+        // 北半球での季節判定（南半球の場合は逆転）
+        switch month {
+        case 3...5: return "spring"
+        case 6...8: return "summer" 
+        case 9...11: return "autumn"
+        default: return "winter"
+        }
+    }
+}
+
+struct CulturalContext {
+    let language: String
+    let region: String
+    let season: String
+    let timeZone: TimeZone
+    
+    var culturalPromptContext: String {
+        switch (language, region) {
+        case ("ja", "JP"):
+            return "日本在住、\(season)の季節、和食文化重視"
+        case ("en", "US"):
+            return "US resident, \(season) season, Western food culture"
+        default:
+            return "General cultural context, \(season) season"
+        }
+    }
+}
+```
+
+#### 5.3 バックエンド文化適応統合（AI最適化版）
+```typescript
+// backend/src/utils/cultural-adaptation.ts  
+export interface CulturalContext {
+  language: 'ja' | 'en'
+  region: 'JP' | 'US' | 'other'
+  season: 'spring' | 'summer' | 'autumn' | 'winter'
+  localTime: string
+  userLocation?: {
+    latitude: number
+    longitude: number
+  }
+}
+
+export const generateCulturallyAdaptedAdvice = async (
+  healthData: HealthData,
+  environmentData: EnvironmentData,
+  culturalContext: CulturalContext
+): Promise<LocalizedAdvice> => {
+  
+  const culturalPrompt = buildAdvancedCulturalPrompt(culturalContext)
+  
+  const prompt = `
+${culturalPrompt}
+
+今日の健康データ:
+${JSON.stringify(healthData)}
+
+環境データ:
+${JSON.stringify(environmentData)}
+
+上記のデータを元に、文化的背景を考慮した個人向けアドバイスを生成してください。
+季節の食材、地域の食文化、生活習慣を自然に織り込んだ実践的な提案をお願いします。
 `
 
   const response = await callClaudeAPI(prompt)
   return parseAdviceResponse(response, culturalContext)
 }
 
-const buildCulturalPrompt = (context: CulturalContext): string => {
+const buildAdvancedCulturalPrompt = (context: CulturalContext): string => {
+  const basePrompt = `あなたは文化に精通したパーソナルヘルスアドバイザーです。`
+  
   if (context.language === 'ja' && context.region === 'JP') {
     return `
-あなたは日本の文化と食習慣に精通したヘルスアドバイザーです。
-- 季節感を大切にした食材選択
-- 和食を中心とした栄養バランス
-- 日本の気候と生活リズムに適応したアドバイス
-- 親しみやすく実践しやすい提案
+${basePrompt}
+
+日本の文化的特徴を考慮:
+- 現在は${context.season}で、この季節の旬の食材を自然に提案
+- 和食文化（だし、発酵食品、季節感）を活用  
+- 日本の生活リズム（朝食・昼食・夕食の時間帯、働き方）に適応
+- 地域の気候変化と体調管理の関連性を考慮
+- 実践しやすく、親しみやすい表現で提案
+
+食材や調理法は固定せず、健康データと季節に応じて柔軟に選択してください。
 `
   }
   
   return `
-You are a culturally-aware health advisor providing personalized recommendations.
-Focus on locally available ingredients and culturally appropriate meal suggestions.
-`
-}
+${basePrompt}
 
-const getSeasonalFoodContext = (season: string, region: string): string => {
-  if (region !== 'JP') return ''
-  
-  const seasonalMaps = {
-    spring: '春の食材: 筍、菜の花、新玉ねぎ、春キャベツ、アスパラガス',
-    summer: '夏の食材: 茄子、胡瓜、トマト、枝豆、とうもろこし',
-    autumn: '秋の食材: 柿、さつまいも、椎茸、栗、銀杏',
-    winter: '冬の食材: 大根、白菜、長ネギ、ほうれん草、かぼちゃ'
-  }
-  
-  return seasonalMaps[season] || ''
+Cultural considerations for ${context.region}:
+- Current season: ${context.season}
+- Local food availability and cultural meal patterns
+- Regional climate and lifestyle adaptation
+- Practical and culturally appropriate suggestions
+`
 }
 ```
 

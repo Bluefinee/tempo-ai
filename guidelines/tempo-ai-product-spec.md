@@ -2604,3 +2604,528 @@ Spring Animation:
 ```
 
 ---
+
+## Claude AI の役割
+
+Tempo AI における Claude AI は、収集された多次元データを統合的に分析し、高度にパーソナライズされた健康アドバイスを自然言語で生成する中核的な役割を担います。
+
+---
+
+## Claude API 通信が発生するポイント
+
+### 1. メインアドバイス生成（毎朝・必須）
+
+**使用箇所**: ホーム画面（Today タブ）の初回表示時
+
+**トリガー**: ユーザーがアプリを開いた時（または通知からの起動時）
+
+**頻度**: 1 日 1 回（朝）
+
+**処理時間**: 10-15 秒
+
+#### 送信するデータ
+
+```json
+{
+  "user_profile": {
+    "name": "まさかず",
+    "age": 28,
+    "gender": "male",
+    "location": { "country": "Japan", "city": "Tokyo" },
+    "language": "ja",
+    "dietary_preferences": {
+      "cuisine_preference": "Japanese",
+      "restrictions": ["gluten-free"]
+    },
+    "exercise_habits": {
+      "strength_training_frequency": "5-6x/week",
+      "aerobic_frequency": "3x/week"
+    },
+    "health_sensitivities": {
+      "pollen_allergy": true,
+      "pressure_sensitivity": "high"
+    }
+  },
+  "todays_vitals": {
+    "hrv": { "value": 58, "unit": "ms", "seven_day_avg": 63 },
+    "resting_heart_rate": { "value": 68, "unit": "bpm", "seven_day_avg": 63 },
+    "sleep": { "total_duration": 7.2, "deep_sleep": 1.5, "rem_sleep": 1.8 },
+    "body_temperature": { "value": 36.8, "unit": "celsius" },
+    "spo2": { "value": 97, "unit": "percent" }
+  },
+  "yesterday_activity": {
+    "exercise": {
+      "type": "strength_training",
+      "intensity": "high",
+      "duration": 90,
+      "time": "19:00-20:30"
+    },
+    "steps": 8500,
+    "last_meal_time": "22:00",
+    "bedtime": "23:30"
+  },
+  "seven_day_trends": {
+    "hrv_trend": { "values": [65, 63, 68, 60, 63, 62, 58], "avg": 63 },
+    "activity_patterns": [
+      {
+        "date": "12/04",
+        "activity": "strength_training_high",
+        "next_day_hrv": 58
+      }
+    ]
+  },
+  "environmental_data": {
+    "weather": { "condition": "clear", "temperature": 15 },
+    "atmospheric_pressure": { "value": 995, "status": "low", "change": -15 },
+    "pollen": { "level": "moderate", "types": ["Cedar"] },
+    "air_quality": { "aqi": 35, "status": "good" },
+    "uv_index": { "value": 3 }
+  },
+  "historical_patterns": {
+    "strength_training_next_day_hrv": { "avg_change": -8, "sample_size": 15 }
+  }
+}
+```
+
+#### Claude が生成するアドバイス内容
+
+**出力される画面要素**:
+
+1. **挨拶メッセージ**（ホーム画面トップ）
+
+   - 例: "快晴の朝ですね、まさかずさん"
+   - 天気・気温に応じて動的に生成
+
+2. **今日のモード判定**（ホーム画面「今日のあなた」カード）
+
+   - モード: 好調/標準/ケア/休息
+   - スコア: 0-100
+   - 状態説明: "昨夜の筋トレから体がまだ回復中のようです"
+
+3. **食事プラン**（ホーム画面「食事プラン」セクション → 詳細画面）
+
+   - 朝食・昼食・夕食の具体的メニュー
+   - 各食材の量と理由
+   - 居住地の食文化に基づいた提案（和食/洋食等）
+
+4. **運動プラン**（ホーム画面「運動プラン」セクション → 詳細画面）
+
+   - 推奨運動（種別、時間、強度、心拍数）
+   - 避けるべき運動
+   - 理由の詳細説明
+
+5. **過ごし方プラン**（ホーム画面「過ごし方プラン」セクション → 詳細画面）
+
+   - 水分補給スケジュール
+   - 呼吸法などのウェルネス提案
+   - 環境への対応策
+
+6. **環境アラート**（ホーム画面トップ、該当時のみ）
+   - 例: "気圧が急降下しています。頭痛に注意"
+
+#### Claude へのプロンプト構造
+
+```
+あなたはTempo AIのパーソナルヘルスケアアドバイザーです。
+以下のユーザーデータを統合的に分析し、今日の最適な健康アドバイスを生成してください。
+
+## ユーザー基本情報
+- 名前: {name}
+- 年齢: {age}歳
+- 居住地: {country}、{city}
+- 言語設定: {language}
+- 食事好み: {cuisine_preference}
+- 運動習慣: {exercise_habits}
+
+## 今朝のバイタルデータ
+- HRV: {hrv_value}ms（過去7日平均: {hrv_avg}ms、偏差: {deviation}%）
+- 安静時心拍: {resting_hr}bpm
+- 睡眠時間: {sleep_duration}時間
+- 体温: {body_temp}°C
+- SpO2: {spo2}%
+
+## 前日の活動
+- 運動: {exercise_type}（{intensity}強度、{duration}分）
+- 歩数: {steps}歩
+- 最終食事: {last_meal_time}
+- 就寝時刻: {bedtime}
+
+## 過去7日のトレンド
+- HRV推移: {hrv_trend}
+
+## 環境データ（今日）
+- 天気: {weather_condition}
+- 気温: {temperature}°C
+- 気圧: {pressure}hPa（{pressure_status}）
+- 花粉: {pollen_level}
+- 大気質: AQI {aqi}
+
+## 学習済みパターン
+- 高強度筋トレ翌日のHRV: 平均{change}%変化
+
+## 出力形式
+以下のJSON形式で構造化されたアドバイスを生成してください：
+
+{
+  "greeting": {
+    "message": "天気と気温に応じた挨拶",
+    "weather_emoji": "☀️ or ☁️ or 🌧️"
+  },
+  "mode": {
+    "status": "optimal | standard | care | rest",
+    "score": 0-100,
+    "display_name_ja": "好調モード | 標準モード | ケアモード | 休息モード"
+  },
+  "condition_summary": {
+    "main_insight": "今日の体の状態についての主要な洞察",
+    "causation": "前日の活動との因果関係の説明"
+  },
+  "meal_plan": {
+    "breakfast": {
+      "recommendations": [
+        {"item": "焼き魚（鮭）", "amount": "80g", "reason": "オメガ3で炎症抑制"}
+      ],
+      "overall_rationale": "消化に優しく、抗炎症作用のある食材を中心に"
+    },
+    "lunch": {...},
+    "dinner": {...}
+  },
+  "exercise_plan": {
+    "recommended": {
+      "type": "light_walking",
+      "duration": "30分",
+      "target_heart_rate": {"range": "100-115 bpm"},
+      "rationale": "アクティブリカバリーで血流促進"
+    },
+    "avoid": ["HIIT", "重量挙げ"]
+  },
+  "wellness_plan": {
+    "hydration": {"daily_target": "2.8L"},
+    "breathing_exercises": {
+      "technique": "4-7-8呼吸法",
+      "frequency": "1日5回"
+    }
+  },
+  "environmental_alerts": [
+    {"type": "pressure", "message": "気圧が急降下しています"}
+  ]
+}
+
+## 生成ガイドライン
+1. 寄り添う表現: 「〜のようです」「〜がよさそうです」「ぜひ試してみてください」
+2. 文化的適応: 居住地の食文化に基づいた具体的な食材・料理名
+3. 科学的根拠: データと理由を明確に示す
+4. 実行可能性: 今日すぐに実践できる具体的なアドバイス
+```
+
+#### Claude からのレスポンス例
+
+```json
+{
+  "greeting": {
+    "message": "快晴の朝ですね、まさかずさん",
+    "weather_emoji": "☀️"
+  },
+  "mode": {
+    "status": "care",
+    "score": 50,
+    "display_name_ja": "ケアモード"
+  },
+  "condition_summary": {
+    "main_insight": "昨夜の高強度筋トレから約12時間が経過しました。睡眠中も回復プロセスが続いていたようで、今朝のデータにその影響が表れているようです。",
+    "causation": "筋トレによる筋肉の微細な損傷と炎症反応が、HRVの低下と心拍数の上昇として表れています。"
+  },
+  "meal_plan": {
+    "breakfast": {
+      "recommendations": [
+        {
+          "item": "焼き魚（鮭）",
+          "amount": "80g程度",
+          "reason": "オメガ3脂肪酸で炎症を抑制し、筋肉の回復をサポート"
+        },
+        {
+          "item": "納豆",
+          "amount": "1パック",
+          "reason": "発酵食品で消化をサポート"
+        }
+      ],
+      "overall_rationale": "消化に優しく、抗炎症作用のある食材を中心に組み立てました"
+    }
+  },
+  "exercise_plan": {
+    "recommended": {
+      "type": "light_walking",
+      "duration": "30分程度",
+      "target_heart_rate": { "range": "100-115 bpm" },
+      "rationale": "軽めの有酸素運動で血流を促進し、アクティブリカバリーを"
+    },
+    "avoid": ["HIIT", "重量挙げ・筋トレ", "長距離ランニング"]
+  },
+  "wellness_plan": {
+    "hydration": {
+      "daily_target": "2.8L",
+      "schedule": [{ "time": "起床後", "amount": "500ml" }]
+    },
+    "breathing_exercises": {
+      "technique": "4-7-8呼吸法",
+      "frequency": "1日5回",
+      "timing": ["朝食後30分", "昼食後", "就寝前"]
+    }
+  },
+  "environmental_alerts": [
+    {
+      "type": "pressure",
+      "severity": "moderate",
+      "message": "気圧が急降下しています",
+      "action": "頭痛に注意してください"
+    }
+  ]
+}
+```
+
+---
+
+### 2. クイックチェックイン後の再カスタマイズ（任意）
+
+**使用箇所**: ホーム画面下部の「今日の調子はどうですか？」→「答える」をタップ後
+
+**トリガー**: ユーザーがクイックチェックイン（気分・疲労度・睡眠の質・飲酒）に回答した時
+
+**頻度**: 1 日 0-1 回（任意）
+
+**処理時間**: 5-10 秒
+
+#### 送信するデータ
+
+```json
+{
+  "request_type": "quick_checkin_refinement",
+  "original_advice": {
+    // 第1段階で生成された完全なアドバイスJSONをそのまま含む
+  },
+  "user_subjective_input": {
+    "mood": "tired",
+    "fatigue_level": 4,
+    "sleep_quality_perception": "shallow",
+    "alcohol_consumption": { "had_alcohol": true, "glasses": 2 }
+  }
+}
+```
+
+#### Claude が生成する内容
+
+**出力される画面**: ホーム画面（更新後）
+
+- 第 1 段階のアドバイスを**微調整**
+- 主な変更点:
+  - 運動プランの強度をさらに軽減（30 分 →20 分等）
+  - 過ごし方プランに休息要素を追加（瞑想等）
+  - 飲酒があった場合、肝臓サポート食材を追加
+  - 水分補給量を増量
+
+#### Claude へのプロンプト
+
+```
+先ほど生成したアドバイスに対して、ユーザーから主観的な体調情報が追加されました。
+
+## 第1段階のアドバイス
+{original_advice}
+
+## ユーザーの主観的入力
+- 気分: 疲れてる
+- 疲労度: 4/5
+- 睡眠の質感: 浅い
+- 前日の飲酒: あり（2杯）
+
+## タスク
+主観的情報を考慮して、必要最小限の範囲で調整してください：
+1. 運動強度を微調整
+2. 疲労感に応じたセルフケアを追加
+3. 飲酒があった場合、肝臓ケアを追加
+
+変更がない部分は元の内容を維持してください。
+```
+
+---
+
+## API 仕様
+
+### エンドポイント
+
+```
+POST https://api.anthropic.com/v1/messages
+```
+
+### ヘッダー
+
+```
+Content-Type: application/json
+x-api-key: {ANTHROPIC_API_KEY}
+anthropic-version: 2023-06-01
+```
+
+### リクエストボディ
+
+```json
+{
+  "model": "claude-sonnet-4-20250514",
+  "max_tokens": 4096,
+  "temperature": 0.7,
+  "messages": [
+    {
+      "role": "user",
+      "content": "{統合データとプロンプト}"
+    }
+  ]
+}
+```
+
+### レスポンス時間
+
+- 通常: 10-15 秒
+- クイックチェックイン: 5-10 秒
+
+### レート制限
+
+- Tier 2: 50 requests/min, 50,000 tokens/min
+- ユーザーあたり 1 日 1-2 回の通信なので十分
+
+---
+
+## データフロー
+
+```
+ユーザーがアプリ起動
+  ↓
+iOSアプリ: データ収集（2-3秒）
+  - HealthKitから今朝のバイタルデータ
+  - HealthKitから前日の活動データ
+  - HealthKitから過去7日のトレンド
+  - 環境API呼び出し（Open-Meteo, IQAir）
+  - ローカルストレージからプロフィール取得
+  ↓
+iOSアプリ → Cloudflare Workers
+  - 統合データをJSON形式で送信
+  ↓
+Cloudflare Workers → Claude API
+  - プロンプト構築
+  - Claude API呼び出し
+  ↓
+Claude API: 分析とアドバイス生成（10-15秒）
+  ↓
+Cloudflare Workers: レスポンス整形
+  ↓
+iOSアプリ: アドバイス表示
+  - ホーム画面に表示
+  - ローカルキャッシュ（7日間）
+```
+
+---
+
+## エラーハンドリング
+
+### iOS アプリ側
+
+```swift
+do {
+    let advice = try await apiClient.generateMorningAdvice(data: consolidatedData)
+    // 成功時の処理
+} catch APIError.rateLimitExceeded {
+    // レート制限: 前日のキャッシュを表示
+    showCachedAdvice()
+} catch APIError.networkError {
+    // ネットワークエラー: 基本的なアドバイスを生成
+    showFallbackAdvice(basedOn: healthKitData)
+} catch APIError.timeout {
+    // タイムアウト: リトライ提案
+    showRetryOption()
+} catch {
+    showGenericError()
+}
+```
+
+### フォールバック戦略
+
+1. **キャッシュ利用**: 前日のアドバイスを表示
+2. **ローカル生成**: HealthKit データのみで簡易アドバイス
+3. **リトライ**: ユーザーに再試行を提案
+
+---
+
+## コスト見積もり
+
+### Claude Sonnet 4 料金
+
+- Input: $3.00 / 1M tokens
+- Output: $15.00 / 1M tokens
+
+### 1 回のアドバイス生成
+
+- Input: 約 3,000 tokens
+- Output: 約 2,000 tokens
+- コスト: (3,000 × $3 + 2,000 × $15) / 1,000,000 = **$0.039**
+
+### 月間コスト（ユーザー 1 人あたり）
+
+- 30 日 × $0.039 = $1.17
+- クイックチェックイン（15 日分）: +$0.30
+- **合計: 約$1.50/月/ユーザー**
+
+### 想定ユーザー規模でのコスト
+
+- 100 ユーザー: $150/月
+- 1,000 ユーザー: $1,500/月
+- 10,000 ユーザー: $15,000/月
+
+---
+
+## 静的コンテンツとの使い分け
+
+### Claude API を使用する箇所
+
+✅ **毎朝のメインアドバイス生成**
+
+- 理由: 多次元データの統合分析が必要
+- 頻度: 1 日 1 回
+
+✅ **クイックチェックイン後の再カスタマイズ**
+
+- 理由: 主観データの反映が必要
+- 頻度: 1 日 0-1 回（任意）
+
+### 静的コンテンツを使用する箇所
+
+❌ **指標の説明（HRV、心拍数等）**
+
+- 理由: 内容が固定、コスト削減
+- 場所: 詳細画面の ⓘ アイコン
+
+❌ **学ぶタブの記事**
+
+- 理由: 教育コンテンツは静的で十分
+- 場所: 学ぶタブの各記事
+
+❌ **挨拶のバリエーション候補**
+
+- 理由: パターンが限定的
+- 場所: ホーム画面トップ（Claude が選択のみ）
+
+---
+
+## 実装の優先順位
+
+### Phase 1（MVP）
+
+- メインアドバイス生成のみ実装
+- クイックチェックインはスキップ可能
+
+### Phase 2（機能拡張）
+
+- クイックチェックイン後の再カスタマイズ追加
+- より精密なパーソナライズ
+
+### Phase 3（最適化）
+
+- キャッシュ戦略の強化
+- コスト最適化
+- レスポンス時間の短縮

@@ -5,6 +5,20 @@
 **最終更新**: 2025年12月5日  
 **前提条件**: Phase 4 完了（包括的教育プラットフォーム）+ Phase 0-1での完全多言語対応
 
+## 🔧 開発実施前の必須確認事項
+
+**実装開始前に必ず以下のドキュメントを確認すること:**
+
+1. **製品全体理解**: [`guidelines/tempo-ai-product-spec.md`](../tempo-ai-product-spec.md) - 製品ビジョン、要件、アーキテクチャ概要を把握
+2. **開発ルール**: [`CLAUDE.md`](../../CLAUDE.md) - 開発フロー、品質基準、コミット戦略
+3. **Swift開発基準**: [`.claude/swift-coding-standards.md`](../../.claude/swift-coding-standards.md) - iOS開発のベストプラクティス
+4. **TypeScript開発基準**: [`.claude/typescript-hono-standards.md`](../../.claude/typescript-hono-standards.md) - API開発の規約
+
+**必須開発手法:**
+- **テスト駆動開発 (TDD)**: Red → Green → Blue → Integrate サイクルの徹底
+- **カバレッジ目標**: バックエンド 80%以上、iOS 80%以上
+- **コミット戦略**: 機能の細かい単位での頻繁なコミット（CI/CDパイプライン連携）
+
 ---
 
 ## 🎯 概要
@@ -170,55 +184,45 @@ enum MicroRegion {
     }
 }
 
-struct CulturalProfile {
-    let region: SupportedRegion
-    let stapleGrains: [Ingredient]          // 米、小麦、など
-    let commonProteins: [Ingredient]        // 魚、豆腐、など  
-    let seasonalVegetables: [Season: [Ingredient]]
-    let ingredientSubstitutions: [IngredientType: Ingredient]
-    let preferredCookingMethods: [CookingMethod]
-    let mealTimingNorms: MealTimingProfile
-    let typicalPortions: PortionProfile
+// AI-driven regional cultural adaptation - replaces static data with Claude API
+struct RegionalCulturalService {
     
-    static func for(_ region: SupportedRegion) -> CulturalProfile {
-        switch region {
-        case .japan:
-            return CulturalProfile(
-                region: .japan,
-                stapleGrains: [.rice, .buckwheatNoodles, .udonNoodles],
-                commonProteins: [.fish(.salmon), .fish(.mackerel), .tofu, .natto],
-                seasonalVegetables: [
-                    .spring: [.bambooShoots, .rapeBlossom, .springOnions],
-                    .summer: [.eggplant, .cucumber, .tomatoJapanese],
-                    .autumn: [.persimmon, .sweetPotato, .shiitakeMushroom],
-                    .winter: [.daikon, .cabbage, .leek]
-                ],
-                ingredientSubstitutions: [
-                    .dairy(.milk): .soymilk,
-                    .grain(.oats): .rice,
-                    .leafyGreen(.spinach): .komatsuna
-                ],
-                preferredCookingMethods: [.steaming, .boiling, .grilling, .fermenting],
-                mealTimingNorms: MealTimingProfile(
-                    breakfast: TimeRange(start: .hour(6), end: .hour(8)),
-                    lunch: TimeRange(start: .hour(12), end: .hour(13)),
-                    dinner: TimeRange(start: .hour(18), end: .hour(20))
-                ),
-                typicalPortions: PortionProfile(
-                    grainPortion: .grams(150),     // 茶碗1杯
-                    proteinPortion: .grams(80),    // 魚の切り身
-                    vegetablePortion: .grams(100)  // 小鉢1つ分
-                )
-            )
-        case .unitedStates:
-            return CulturalProfile(
-                // アメリカの文化プロフィール
-                region: .unitedStates,
-                stapleGrains: [.wheat, .oats, .rice],
-                commonProteins: [.chicken, .beef, .turkey, .eggs],
-                // ...
-            )
-        }
+    // Generate culturally-adapted dietary recommendations using Claude AI
+    static func generateCulturalDietaryGuidance(
+        region: SupportedRegion,
+        season: Season,
+        userPreferences: UserDietaryPreferences,
+        healthData: HealthData,
+        language: String
+    ) async -> CulturalDietaryGuidance {
+        
+        let culturalPrompt = buildCulturalDietaryPrompt(
+            region: region,
+            season: season,
+            userPreferences: userPreferences,
+            healthData: healthData,
+            language: language
+        )
+        
+        return await ClaudeAPIService.shared.generateCulturalGuidance(prompt: culturalPrompt)
+    }
+    
+    // AI-generated meal timing and portion recommendations
+    static func generateMealTimingGuidance(
+        region: SupportedRegion,
+        workSchedule: WorkSchedule,
+        userLifestyle: UserLifestyle,
+        language: String
+    ) async -> MealTimingGuidance {
+        
+        let timingPrompt = buildMealTimingPrompt(
+            region: region,
+            workSchedule: workSchedule,
+            userLifestyle: userLifestyle,
+            language: language
+        )
+        
+        return await ClaudeAPIService.shared.generateMealTiming(prompt: timingPrompt)
     }
 }
 ```
@@ -226,82 +230,66 @@ struct CulturalProfile {
 #### 1.3 地域別生活習慣適応
 ```swift
 // ios/TempoAI/TempoAI/Models/RegionalAdaptations.swift
-struct RegionalLifestyleAdaptation {
-    let region: SupportedRegion
-    let workScheduleNorms: WorkSchedule
-    let exercisePreferences: [ExerciseType]
-    let seasonalBehaviorPatterns: [Season: LifestylePattern]
-    let healthcarePractices: HealthcareCulture
-    let wellnessPhilosophy: WellnessPhilosophy
-}
-
-struct WorkSchedule {
-    let typicalStartTime: TimeRange
-    let typicalEndTime: TimeRange
-    let commuteDuration: TimeRange
-    let lunchBreakDuration: TimeRange
-    let weekendPattern: WeekendPattern
-}
-
-enum WeekendPattern {
-    case saturdaySundayOff          // 土日休み（日本・欧米）
-    case fridayStaturday            // 金土休み（中東）
-    case culturallyVariable         // 地域により変動
-}
-
-struct LifestylePattern {
-    let season: Season
-    let activityLevel: ActivityLevel
-    let preferredExerciseTimes: [TimeRange]
-    let sleepPatternShift: SleepPatternAdjustment
-    let socialPatterns: SocialActivityPattern
-    let seasonalHealth focuses: [HealthFocus]
-}
-
-// 日本の例：季節による生活パターン適応
-extension RegionalLifestyleAdaptation {
-    static let japan = RegionalLifestyleAdaptation(
-        region: .japan,
-        workScheduleNorms: WorkSchedule(
-            typicalStartTime: .range(hour: 8, minute: 30, to: hour: 9, minute: 30),
-            typicalEndTime: .range(hour: 17, minute: 30, to: hour: 19, minute: 30),
-            commuteDuration: .range(minute: 30, to: hour: 1, minute: 30),
-            lunchBreakDuration: .range(minute: 45, to: hour: 1, minute: 0),
-            weekendPattern: .saturdaySundayOff
-        ),
-        exercisePreferences: [.walking, .radioTaiso, .yoga, .swimming],
-        seasonalBehaviorPatterns: [
-            .spring: LifestylePattern(
-                season: .spring,
-                activityLevel: .moderate,
-                preferredExerciseTimes: [.morning(.hour(6), .hour(8)), .evening(.hour(17), .hour(19))],
-                sleepPatternShift: .earlier(minutes: 15),
-                socialPatterns: .hanami(.active),
-                seasonalHealthFocuses: [.allergyManagement, .detox]
-            ),
-            .summer: LifestylePattern(
-                season: .summer,
-                activityLevel: .high,
-                preferredExerciseTimes: [.earlyMorning(.hour(5), .hour(7)), .lateEvening(.hour(19), .hour(21))],
-                sleepPatternShift: .later(minutes: 30),
-                socialPatterns: .matsuriFestivals(.active),
-                seasonalHealthFocuses: [.heatStrokePrevention, .hydration, .sleepQuality]
-            )
-            // 秋・冬のパターンも同様に定義
-        ],
-        healthcarePractices: HealthcareCulture(
-            preventiveCare: .high,
-            traditionalMedicine: .integrated,    // 漢方・鍼灸統合
-            groupWellness: .preferred,           // ラジオ体操など
-            healthCheckFrequency: .annual
-        ),
-        wellnessPhilosophy: WellnessPhilosophy(
-            holistic: true,                      // 全人的アプローチ
-            preventionFocused: true,
-            balanceOriented: true,              // バランス重視
-            naturalityPreference: .high         // 自然志向
+// AI-powered regional lifestyle adaptation service
+struct RegionalLifestyleAdaptationService {
+    
+    // Generate AI-driven seasonal lifestyle recommendations
+    static func generateSeasonalLifestyleRecommendations(
+        region: SupportedRegion,
+        season: Season,
+        userWorkSchedule: UserWorkSchedule,
+        healthGoals: [HealthGoal],
+        language: String
+    ) async -> SeasonalLifestyleRecommendations {
+        
+        let lifestylePrompt = buildSeasonalLifestylePrompt(
+            region: region,
+            season: season,
+            userWorkSchedule: userWorkSchedule,
+            healthGoals: healthGoals,
+            language: language
         )
-    )
+        
+        return await ClaudeAPIService.shared.generateLifestyleRecommendations(prompt: lifestylePrompt)
+    }
+    
+    // AI-generated exercise recommendations based on regional culture
+    static func generateCulturalExerciseRecommendations(
+        region: SupportedRegion,
+        season: Season,
+        userFitnessLevel: FitnessLevel,
+        availableTime: TimeRange,
+        language: String
+    ) async -> CulturalExerciseRecommendations {
+        
+        let exercisePrompt = buildCulturalExercisePrompt(
+            region: region,
+            season: season,
+            userFitnessLevel: userFitnessLevel,
+            availableTime: availableTime,
+            language: language
+        )
+        
+        return await ClaudeAPIService.shared.generateExerciseRecommendations(prompt: exercisePrompt)
+    }
+    
+    // Generate culturally-aware wellness philosophy guidance
+    static func generateWellnessPhilosophyGuidance(
+        region: SupportedRegion,
+        userPersonality: UserPersonalityProfile,
+        currentHealthStatus: HealthStatus,
+        language: String
+    ) async -> WellnessPhilosophyGuidance {
+        
+        let wellnessPrompt = buildWellnessPhilosophyPrompt(
+            region: region,
+            userPersonality: userPersonality,
+            currentHealthStatus: currentHealthStatus,
+            language: language
+        )
+        
+        return await ClaudeAPIService.shared.generateWellnessGuidance(prompt: wellnessPrompt)
+    }
 }
 ```
 

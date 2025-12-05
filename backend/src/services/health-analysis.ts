@@ -11,8 +11,8 @@
  */
 
 import type { z } from 'zod'
-import type { HealthData, UserProfile } from '../types/health'
 import type { DailyAdviceSchema } from '../types/advice'
+import type { HealthData, UserProfile } from '../types/health'
 import { APIError } from '../utils/errors'
 import { generateHealthAdvice } from './health-advice'
 import { getWeather } from './weather'

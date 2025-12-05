@@ -12,9 +12,9 @@
  */
 
 import type { z } from 'zod'
+import type { DailyAdviceSchema } from '../types/advice'
 import type { HealthData, UserProfile } from '../types/health'
 import type { WeatherData } from '../types/weather'
-import type { DailyAdviceSchema } from '../types/advice'
 import { APIError } from '../utils/errors'
 import { buildPrompt } from '../utils/prompts'
 import { callClaude } from './claude'

@@ -11,14 +11,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { z } from 'zod'
 import {
-  validateRequestBody,
-  validateCoordinates,
-  validateRequiredFields,
-  validateApiKey,
+  combineValidations,
   isValidationSuccess,
   unwrapValidation,
-  combineValidations,
   type ValidationResult,
+  validateApiKey,
+  validateCoordinates,
+  validateRequestBody,
+  validateRequiredFields,
 } from '@/utils/validation'
 
 // Mock Hono Context

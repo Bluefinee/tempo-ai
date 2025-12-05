@@ -10,8 +10,8 @@
  */
 
 import type { Context } from 'hono'
-import type { ValidationError } from './validation'
 import { toValidStatusCode } from './errors'
+import type { ValidationError } from './validation'
 
 /**
  * 標準的な成功レスポンス型

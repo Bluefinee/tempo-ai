@@ -89,26 +89,20 @@ extension BaseUITest {
         }
     }
     
-    /// Takes a screenshot with a descriptive name and error handling
+    /// Takes a screenshot with a descriptive name
     /// - Parameter name: The name for the screenshot
     /// - Parameter includeTimestamp: Whether to include timestamp in name
     func takeScreenshot(name: String, includeTimestamp: Bool = true) {
-        do {
-            let screenshot = XCUIScreen.main.screenshot()
-            let attachment = XCTAttachment(screenshot: screenshot)
-            
-            let finalName = includeTimestamp ? 
-                "\(name) - \(DateFormatter.localizedString(from: Date(), dateStyle: .none, timeStyle: .medium))" : 
-                name
-            
-            attachment.name = finalName
-            attachment.lifetime = .keepAlways
-            add(attachment)
-            
-        } catch {
-            print("Failed to capture screenshot '\(name)': \(error.localizedDescription)")
-            // Don't fail test for screenshot issues, just log
-        }
+        let screenshot = XCUIScreen.main.screenshot()
+        let attachment = XCTAttachment(screenshot: screenshot)
+        
+        let finalName = includeTimestamp
+            ? "\(name) - \(DateFormatter.localizedString(from: Date(), dateStyle: .none, timeStyle: .medium))"
+            : name
+        
+        attachment.name = finalName
+        attachment.lifetime = .keepAlways
+        add(attachment)
     }
     
     /// Waits for the app to finish loading (no loading indicators visible)

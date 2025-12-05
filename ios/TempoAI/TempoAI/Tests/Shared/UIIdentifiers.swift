@@ -20,6 +20,14 @@ enum UIIdentifiers {
         static let trendsTab: String = "Trends"
         static let profileTab: String = "Profile"
         static let tabView: String = "contentView.tabView"
+        
+        // Tab Labels for better localization support
+        enum TabLabels {
+            static let today: String = "Today"
+            static let history: String = "History"
+            static let trends: String = "Trends"
+            static let profile: String = "Profile"
+        }
     }
     
     // MARK: - HomeView (Today Tab)

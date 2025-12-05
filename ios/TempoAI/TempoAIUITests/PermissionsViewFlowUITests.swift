@@ -175,7 +175,7 @@ final class PermissionsViewFlowUITests: BaseUITest {
     func testPermissionsStatePreservation() {
         // Given: Permissions view is opened
         let permissionsView = app.otherElements[UIIdentifiers.PermissionsView.mainView]
-        XCTAssertTrue(permissionsView.exists, "Starting in permissions view")
+        XCTAssertTrue(waitForElement(permissionsView), "Starting in permissions view")
         
         // When: Going to background and foreground (simulated by navigation)
         // Close and reopen permissions to test state preservation

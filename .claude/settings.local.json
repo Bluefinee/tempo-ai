@@ -52,7 +52,8 @@
       "Bash(npm test:*)",
       "Bash(node:*)",
       "mcp__serena__initial_instructions",
-      "mcp__serena__list_memories"
+      "mcp__serena__list_memories",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": [],

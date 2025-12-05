@@ -1,20 +1,18 @@
 # 📱 Tempo AI
 
-> あなた専用の健康コーチが、毎朝最適なアドバイスをお届けします
+Tempo AI は、その人の HealthKit データなどを活用し、AI があなたの体調と環境に最適化された健康アドバイスを毎日提供するパーソナル健康アシスタントです。
 
-[![Lint](https://github.com/masakazuiwahara/tempo-ai/actions/workflows/lint.yml/badge.svg)](https://github.com/masakazuiwahara/tempo-ai/actions/workflows/lint.yml)
-[![Test](https://github.com/masakazuiwahara/tempo-ai/actions/workflows/test.yml/badge.svg)](https://github.com/masakazuiwahara/tempo-ai/actions/workflows/test.yml)
-[![Build](https://github.com/masakazuiwahara/tempo-ai/actions/workflows/build.yml/badge.svg)](https://github.com/masakazuiwahara/tempo-ai/actions/workflows/build.yml)
-[![Security](https://github.com/masakazuiwahara/tempo-ai/actions/workflows/security.yml/badge.svg)](https://github.com/masakazuiwahara/tempo-ai/actions/workflows/security.yml)
-[![CI](https://github.com/masakazuiwahara/tempo-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/masakazuiwahara/tempo-ai/actions/workflows/ci.yml)
-
-Tempo AI は、HealthKit データと天気情報を活用し、AI があなたの体調と環境に最適化された健康アドバイスを毎日提供するパーソナル健康アシスタントです。
+[![CI](https://github.com/Bluefinee/tempo-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/Bluefinee/tempo-ai/actions/workflows/ci.yml)
+[![Backend CI](https://github.com/Bluefinee/tempo-ai/actions/workflows/backend.yml/badge.svg)](https://github.com/Bluefinee/tempo-ai/actions/workflows/backend.yml)
+[![iOS CI](https://github.com/Bluefinee/tempo-ai/actions/workflows/ios.yml/badge.svg)](https://github.com/Bluefinee/tempo-ai/actions/workflows/ios.yml)
+[![Security](https://github.com/Bluefinee/tempo-ai/actions/workflows/security.yml/badge.svg)](https://github.com/Bluefinee/tempo-ai/actions/workflows/security.yml)
+[![Coverage](https://github.com/Bluefinee/tempo-ai/actions/workflows/coverage.yml/badge.svg)](https://github.com/Bluefinee/tempo-ai/actions/workflows/coverage.yml)
 
 ## 🎯 コンセプト
 
 **「毎朝、あなた専用の健康コーチが最適なアドバイスを届ける世界」**
 
-睡眠、心拍変動（HRV）、活動量、天気を総合的に分析し、その日のコンディションに最適化された具体的で実行可能なアドバイスを生成します。
+睡眠、心拍変動（HRV）、活動量、天気などを総合的に分析し、その日のコンディションに最適化された具体的で実行可能なアドバイスを生成します。
 
 ## ✨ 主な機能
 

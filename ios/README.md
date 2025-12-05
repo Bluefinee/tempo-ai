@@ -72,7 +72,7 @@ ios/
 1. **リポジトリクローン**
 
    ```bash
-   git clone https://github.com/masakazuiwahara/tempo-ai.git
+   git clone https://github.com/Bluefinee/tempo-ai.git
    cd tempo-ai/ios
    ```
 

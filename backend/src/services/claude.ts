@@ -49,13 +49,13 @@ interface ClaudeParams {
  * @throws {APIError} レート制限に達した場合
  */
 export const callClaude = async (
-  params: ClaudeParams
+  params: ClaudeParams,
 ): Promise<z.infer<typeof DailyAdviceSchema>> => {
   if (!params.apiKey || params.apiKey === PLACEHOLDER_API_KEY) {
     throw new APIError(
       'Claude API key not configured. Please set ANTHROPIC_API_KEY environment variable.',
       500,
-      'MISSING_API_KEY'
+      'MISSING_API_KEY',
     )
   }
 
@@ -80,9 +80,15 @@ export const callClaude = async (
     })
 
     // Extract text content from response
-    const textContent = message.content.find(content => content.type === 'text')
+    const textContent = message.content.find(
+      (content) => content.type === 'text',
+    )
     if (!textContent || textContent.type !== 'text') {
-      throw new APIError('Invalid response format from Claude API', 502, 'INVALID_AI_RESPONSE')
+      throw new APIError(
+        'Invalid response format from Claude API',
+        502,
+        'INVALID_AI_RESPONSE',
+      )
     }
 
     // 型安全なJSONパースとバリデーション
@@ -90,8 +96,15 @@ export const callClaude = async (
     try {
       parsed = JSON.parse(textContent.text)
     } catch (_parseError) {
-      console.error('Failed to parse AI response. Length:', textContent.text.length)
-      throw new APIError('AI response is not valid JSON', 502, 'INVALID_JSON_RESPONSE')
+      console.error(
+        'Failed to parse AI response. Length:',
+        textContent.text.length,
+      )
+      throw new APIError(
+        'AI response is not valid JSON',
+        502,
+        'INVALID_JSON_RESPONSE',
+      )
     }
 
     // Zodスキーマによる検証
@@ -99,11 +112,17 @@ export const callClaude = async (
 
     if (!validationResult.success) {
       const firstIssue = validationResult.error.issues[0]
-      const field = firstIssue ? firstIssue.path.join('.') || '(root)' : '(unknown)'
+      const field = firstIssue
+        ? firstIssue.path.join('.') || '(root)'
+        : '(unknown)'
       const message = firstIssue ? firstIssue.message : 'Validation failed'
 
       const validationMessage = `AI response missing required fields: ${message} (field: ${field})`
-      throw new APIError(validationMessage, 502, 'INVALID_AI_RESPONSE_STRUCTURE')
+      throw new APIError(
+        validationMessage,
+        502,
+        'INVALID_AI_RESPONSE_STRUCTURE',
+      )
     }
 
     return validationResult.data
@@ -118,13 +137,25 @@ export const callClaude = async (
     }
 
     if (error instanceof Anthropic.RateLimitError) {
-      throw new APIError('Claude API rate limit exceeded', 429, 'RATE_LIMIT_EXCEEDED')
+      throw new APIError(
+        'Claude API rate limit exceeded',
+        429,
+        'RATE_LIMIT_EXCEEDED',
+      )
     }
 
     if (error instanceof Error) {
-      throw new APIError(`AI analysis failed: ${error.message}`, 502, 'AI_ANALYSIS_ERROR')
+      throw new APIError(
+        `AI analysis failed: ${error.message}`,
+        502,
+        'AI_ANALYSIS_ERROR',
+      )
     }
 
-    throw new APIError('Unexpected error during AI analysis', 500, 'UNKNOWN_AI_ERROR')
+    throw new APIError(
+      'Unexpected error during AI analysis',
+      500,
+      'UNKNOWN_AI_ERROR',
+    )
   }
 }

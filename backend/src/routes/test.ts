@@ -13,9 +13,15 @@ import { Hono } from 'hono'
 import { getWeather } from '../services/weather'
 import type { Bindings } from '../types/bindings'
 import { handleError, toValidStatusCode } from '../utils/errors'
-import { WeatherTestRequestSchema, AnalyzeTestRequestSchema } from '../types/requests'
+import {
+  WeatherTestRequestSchema,
+  AnalyzeTestRequestSchema,
+} from '../types/requests'
 import { validateRequestBody, isValidationSuccess } from '../utils/validation'
-import { sendSuccessResponse, createValidationErrorResponse } from '../utils/response'
+import {
+  sendSuccessResponse,
+  createValidationErrorResponse,
+} from '../utils/response'
 
 /**
  * テスト用APIのルーターインスタンス
@@ -38,7 +44,10 @@ export const testRoutes = new Hono<{ Bindings: Bindings }>()
 testRoutes.post('/weather', async (c): Promise<Response> => {
   try {
     // 型安全なリクエストボディ検証
-    const validationResult = await validateRequestBody(c, WeatherTestRequestSchema)
+    const validationResult = await validateRequestBody(
+      c,
+      WeatherTestRequestSchema,
+    )
 
     if (!isValidationSuccess(validationResult)) {
       return createValidationErrorResponse(c, validationResult.error)
@@ -72,7 +81,10 @@ testRoutes.post('/weather', async (c): Promise<Response> => {
 testRoutes.post('/analyze-mock', async (c): Promise<Response> => {
   try {
     // 型安全なリクエストボディ検証
-    const validationResult = await validateRequestBody(c, AnalyzeTestRequestSchema)
+    const validationResult = await validateRequestBody(
+      c,
+      AnalyzeTestRequestSchema,
+    )
 
     if (!isValidationSuccess(validationResult)) {
       return createValidationErrorResponse(c, validationResult.error)
@@ -86,7 +98,8 @@ testRoutes.post('/analyze-mock', async (c): Promise<Response> => {
     // Return mock advice
     const mockAdvice = {
       theme: 'Test Day',
-      summary: 'This is a test response. Weather data was successfully retrieved and integrated.',
+      summary:
+        'This is a test response. Weather data was successfully retrieved and integrated.',
       breakfast: {
         recommendation: 'Test breakfast recommendation',
         reason: 'This is a test reason',
@@ -137,7 +150,11 @@ testRoutes.post('/analyze-mock', async (c): Promise<Response> => {
         warnings: [`Temperature: ${weather.current.temperature_2m}°C`],
         opportunities: ['Good weather for outdoor activities'],
       },
-      priority_actions: ['Test priority 1', 'Test priority 2', 'Test priority 3'],
+      priority_actions: [
+        'Test priority 1',
+        'Test priority 2',
+        'Test priority 3',
+      ],
     }
 
     return sendSuccessResponse(c, {

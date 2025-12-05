@@ -64,12 +64,15 @@ if [ ! -d "$PROJECT_PATH" ]; then
 fi
 
 # Try to build with simulator if available, otherwise use generic iOS destination
+DERIVED_DATA_PATH=$(mktemp -d)
+trap "rm -rf '$DERIVED_DATA_PATH'" EXIT
+
 if SIMULATOR_ID=$(xcrun simctl list devices available 2>/dev/null | grep -m 1 "iPhone" | awk -F '[()]' '{print $2}') && [ -n "$SIMULATOR_ID" ]; then
     echo "📱 Using iPhone simulator: $SIMULATOR_ID"
-    BUILD_CMD=(xcodebuild -project "$PROJECT_PATH" -scheme "$SCHEME" -destination "platform=iOS Simulator,id=$SIMULATOR_ID" -derivedDataPath "$(mktemp -d)" build)
+    BUILD_CMD=(xcodebuild -project "$PROJECT_PATH" -scheme "$SCHEME" -destination "platform=iOS Simulator,id=$SIMULATOR_ID" -derivedDataPath "$DERIVED_DATA_PATH" build)
 else
     echo "⚠️ No simulator available; using generic iOS Simulator destination"
-    BUILD_CMD=(xcodebuild -project "$PROJECT_PATH" -scheme "$SCHEME" -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath "$(mktemp -d)" build)
+    BUILD_CMD=(xcodebuild -project "$PROJECT_PATH" -scheme "$SCHEME" -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath "$DERIVED_DATA_PATH" build)
 fi
 
 if "${BUILD_CMD[@]}" > /dev/null 2>&1; then

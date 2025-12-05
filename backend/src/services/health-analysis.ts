@@ -57,7 +57,7 @@ const validateCoordinates = (latitude: number, longitude: number): void => {
     throw new APIError(
       'Invalid coordinates: latitude must be -90 to 90, longitude must be -180 to 180',
       400,
-      'INVALID_COORDINATES'
+      'INVALID_COORDINATES',
     )
   }
 }
@@ -73,13 +73,16 @@ const validateCoordinates = (latitude: number, longitude: number): void => {
  * @throws {APIError} バリデーションエラー、天気API エラー、AI分析エラー
  */
 export const performHealthAnalysis = async (
-  params: AnalyzeHealthParams
+  params: AnalyzeHealthParams,
 ): Promise<z.infer<typeof DailyAdviceSchema>> => {
   // 座標バリデーション
   validateCoordinates(params.location.latitude, params.location.longitude)
 
   // 天気データ取得
-  const weather = await getWeather(params.location.latitude, params.location.longitude)
+  const weather = await getWeather(
+    params.location.latitude,
+    params.location.longitude,
+  )
 
   // ヘルスアドバイス生成
   return await generateHealthAdvice({

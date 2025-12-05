@@ -77,7 +77,7 @@ const validateHealthAdviceInputs = (params: HealthAdviceParams): void => {
  * @throws {APIError} Claude API呼び出しエラー
  */
 export const generateHealthAdvice = async (
-  params: HealthAdviceParams
+  params: HealthAdviceParams,
 ): Promise<z.infer<typeof DailyAdviceSchema>> => {
   // ドメイン固有のバリデーション
   validateHealthAdviceInputs(params)
@@ -119,7 +119,7 @@ export const generateHealthAdvice = async (
         error instanceof Error ? error.message : 'Unknown error'
       }`,
       500,
-      'HEALTH_ADVICE_GENERATION_ERROR'
+      'HEALTH_ADVICE_GENERATION_ERROR',
     )
   }
 }

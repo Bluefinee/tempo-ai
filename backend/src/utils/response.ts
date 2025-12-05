@@ -108,8 +108,8 @@ export const sendSuccessResponse = <T>(
 ): Response => {
   // CLAUDE.md原則：シンプルで明確
   const validStatus =
-    status >= 200 && status < 300 ? status : HTTP_STATUS.OK
-  return c.json(createSuccessResponse(data), validStatus as 200 | 201)
+    status >= 200 && status < 300 ? (status as 200 | 201) : HTTP_STATUS.OK
+  return c.json(createSuccessResponse(data), validStatus)
 }
 
 /**

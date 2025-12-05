@@ -93,7 +93,7 @@ export interface UserProfile {
 // Zod schemas for runtime validation
 export const HealthDataSchema = z.object({
   sleep: z.object({
-    duration: z.number().positive(),
+    duration: z.number().min(0),
     deep: z.number().min(0),
     rem: z.number().min(0),
     light: z.number().min(0),
@@ -122,7 +122,7 @@ export const HealthDataSchema = z.object({
 export const UserProfileSchema = z.object({
   age: z.number().int().positive(),
   gender: z.enum(['male', 'female', 'other', 'prefer_not_to_say']),
-  goals: z.array(z.string()).min(1),
+  goals: z.array(z.string()), // Empty goals allowed - matches iOS validation
   dietaryPreferences: z.string().min(1),
   exerciseHabits: z.string().min(1),
   exerciseFrequency: z.enum(['daily', 'weekly', 'monthly', 'rarely', 'never']),

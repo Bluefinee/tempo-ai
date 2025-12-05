@@ -68,14 +68,14 @@ struct PermissionsView: View {
             .padding()
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
+            .toolbar(content: {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Done") {
                         onDismiss()
                     }
                 }
-            }
-            .onChange(of: locationManager.errorMessage) { _, newValue in
+            })
+            .onChange(of: locationManager.errorMessage) { newValue in
                 if let error = newValue {
                     alertMessage = error
                     showErrorAlert = true

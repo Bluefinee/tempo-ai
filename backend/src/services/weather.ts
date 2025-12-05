@@ -27,7 +27,10 @@ import { APIError } from '../utils/errors'
  * @throws {APIError} Open-Meteo APIが利用できない場合
  * @throws {APIError} ネットワークエラーまたは無効な座標の場合
  */
-export const getWeather = async (latitude: number, longitude: number): Promise<WeatherData> => {
+export const getWeather = async (
+  latitude: number,
+  longitude: number,
+): Promise<WeatherData> => {
   const url =
     'https://api.open-meteo.com/v1/forecast?' +
     `latitude=${latitude}&longitude=${longitude}&` +
@@ -44,7 +47,7 @@ export const getWeather = async (latitude: number, longitude: number): Promise<W
       throw new APIError(
         `Weather API failed with status ${response.status}`,
         503,
-        'WEATHER_API_ERROR'
+        'WEATHER_API_ERROR',
       )
     }
 
@@ -53,7 +56,11 @@ export const getWeather = async (latitude: number, longitude: number): Promise<W
     try {
       responseText = await response.text()
     } catch (_error) {
-      throw new APIError('Failed to read weather API response', 503, 'WEATHER_FETCH_ERROR')
+      throw new APIError(
+        'Failed to read weather API response',
+        503,
+        'WEATHER_FETCH_ERROR',
+      )
     }
 
     // JSON解析
@@ -61,7 +68,11 @@ export const getWeather = async (latitude: number, longitude: number): Promise<W
     try {
       parsed = JSON.parse(responseText)
     } catch (_parseError) {
-      throw new APIError('Invalid JSON response from weather API', 503, 'WEATHER_DATA_INVALID')
+      throw new APIError(
+        'Invalid JSON response from weather API',
+        503,
+        'WEATHER_DATA_INVALID',
+      )
     }
 
     // Zodスキーマによる検証
@@ -72,7 +83,11 @@ export const getWeather = async (latitude: number, longitude: number): Promise<W
         ? `${firstIssue.path.join('.') || '(root)'}: ${firstIssue.message}`
         : 'Validation failed'
 
-      throw new APIError(`Invalid weather data format: ${details}`, 503, 'WEATHER_DATA_INVALID')
+      throw new APIError(
+        `Invalid weather data format: ${details}`,
+        503,
+        'WEATHER_DATA_INVALID',
+      )
     }
 
     return validationResult.data
@@ -81,6 +96,10 @@ export const getWeather = async (latitude: number, longitude: number): Promise<W
       throw error
     }
 
-    throw new APIError('Failed to fetch weather data', 503, 'WEATHER_FETCH_ERROR')
+    throw new APIError(
+      'Failed to fetch weather data',
+      503,
+      'WEATHER_FETCH_ERROR',
+    )
   }
 }

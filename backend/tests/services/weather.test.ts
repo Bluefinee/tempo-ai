@@ -223,7 +223,9 @@ describe('Weather Service', () => {
 
       const promise = getWeather(35.6895, 139.6917)
       await expect(promise).rejects.toThrow(APIError)
-      await expect(promise).rejects.toThrow('Invalid JSON response from weather API')
+      await expect(promise).rejects.toThrow(
+        'Invalid JSON response from weather API',
+      )
     })
 
     it('should preserve APIError when it is already thrown', async () => {

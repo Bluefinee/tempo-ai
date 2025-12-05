@@ -16,7 +16,11 @@ import type { Bindings } from '../types/bindings'
 import { AnalyzeRequestSchema } from '../types/requests'
 import { handleError, toValidStatusCode } from '../utils/errors'
 import { validateRequestBody, isValidationSuccess } from '../utils/validation'
-import { sendSuccessResponse, createValidationErrorResponse, CommonErrors } from '../utils/response'
+import {
+  sendSuccessResponse,
+  createValidationErrorResponse,
+  CommonErrors,
+} from '../utils/response'
 
 /**
  * ヘルス分析APIのルーターインスタンス
@@ -76,7 +80,7 @@ healthRoutes.post('/analyze', async (c): Promise<Response> => {
         success: false,
         error: message,
       },
-      validStatusCode
+      validStatusCode,
     )
   }
 })

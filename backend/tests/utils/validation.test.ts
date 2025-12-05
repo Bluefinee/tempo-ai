@@ -109,7 +109,7 @@ describe('Validation Utilities', () => {
       if (!result.success) {
         expect(result.error.type).toBe('PARSE_ERROR')
         expect(result.error.statusCode).toBe(400)
-        expect(result.error.message).toBe('Invalid JSON format in request body')
+        expect(result.error.message).toBe('Invalid JSON in request body')
       }
     })
 

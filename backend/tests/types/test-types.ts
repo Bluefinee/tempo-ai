@@ -37,14 +37,18 @@ export interface AnalyzeTestRequest {
 /**
  * テスト用バリデーション関数（緩和された制約）
  */
-export const isWeatherTestRequest = (data: unknown): data is WeatherTestRequest => {
+export const isWeatherTestRequest = (
+  data: unknown,
+): data is WeatherTestRequest => {
   return (
     typeof data === 'object' &&
     data !== null &&
     'latitude' in data &&
     'longitude' in data &&
-    typeof (data as { latitude: unknown; longitude: unknown }).latitude === 'number' &&
-    typeof (data as { latitude: unknown; longitude: unknown }).longitude === 'number' &&
+    typeof (data as { latitude: unknown; longitude: unknown }).latitude ===
+      'number' &&
+    typeof (data as { latitude: unknown; longitude: unknown }).longitude ===
+      'number' &&
     (data as WeatherTestRequest).latitude >= -90 &&
     (data as WeatherTestRequest).latitude <= 90 &&
     (data as WeatherTestRequest).longitude >= -180 &&
@@ -57,7 +61,9 @@ export const isWeatherTestRequest = (data: unknown): data is WeatherTestRequest 
 /**
  * テスト用分析リクエストバリデーション（緩和された制約）
  */
-export const isAnalyzeTestRequest = (data: unknown): data is AnalyzeTestRequest => {
+export const isAnalyzeTestRequest = (
+  data: unknown,
+): data is AnalyzeTestRequest => {
   return (
     typeof data === 'object' &&
     data !== null &&

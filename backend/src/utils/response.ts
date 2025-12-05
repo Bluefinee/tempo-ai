@@ -76,6 +76,49 @@ export const createErrorResponse = (message: string): ErrorResponse => ({
 })
 
 /**
+ * 有効なHTTPステータスコードの型定義
+ */
+type ValidErrorStatusCode =
+  | 400
+  | 401
+  | 403
+  | 404
+  | 409
+  | 415
+  | 422
+  | 429
+  | 500
+  | 502
+  | 503
+  | 504
+
+/**
+ * 有効なHTTPステータスコードに正規化
+ *
+ * @param status - 入力ステータスコード
+ * @returns 正規化されたステータスコード
+ */
+const normalizeErrorStatusCode = (status: number): ValidErrorStatusCode => {
+  switch (status) {
+    case 400:
+    case 401:
+    case 403:
+    case 404:
+    case 409:
+    case 415:
+    case 422:
+    case 429:
+    case 500:
+    case 502:
+    case 503:
+    case 504:
+      return status
+    default:
+      return 500
+  }
+}
+
+/**
  * バリデーションエラーからHTTPレスポンスを生成
  *
  * @param c - Honoのcontext
@@ -86,42 +129,9 @@ export const createValidationErrorResponse = (
   c: Context,
   error: ValidationError,
 ): Response => {
-  // Use the same direct approach to avoid type assertion issues
-  const validStatusCode = (() => {
-    switch (error.statusCode) {
-      case 400:
-      case 401:
-      case 403:
-      case 404:
-      case 409:
-      case 415:
-      case 422:
-      case 429:
-      case 500:
-      case 502:
-      case 503:
-      case 504:
-        return error.statusCode
-      default:
-        return 500
-    }
-  })()
-
   return c.json(
     { success: false, error: error.message },
-    validStatusCode as
-      | 400
-      | 401
-      | 403
-      | 404
-      | 409
-      | 415
-      | 422
-      | 429
-      | 500
-      | 502
-      | 503
-      | 504,
+    normalizeErrorStatusCode(error.statusCode),
   )
 }
 
@@ -158,44 +168,7 @@ export const sendErrorResponse = (
   message: string,
   status: number = HTTP_STATUS.INTERNAL_SERVER_ERROR,
 ): Response => {
-  // Direct status code mapping to preserve all valid HTTP error codes
-  // This approach avoids TypeScript type assertion issues while maintaining type safety
-  const validStatusCode = (() => {
-    switch (status) {
-      case 400:
-      case 401:
-      case 403:
-      case 404:
-      case 409:
-      case 415:
-      case 422:
-      case 429:
-      case 500:
-      case 502:
-      case 503:
-      case 504:
-        return status
-      default:
-        return 500
-    }
-  })()
-
-  return c.json(
-    createErrorResponse(message),
-    validStatusCode as
-      | 400
-      | 401
-      | 403
-      | 404
-      | 409
-      | 415
-      | 422
-      | 429
-      | 500
-      | 502
-      | 503
-      | 504,
-  )
+  return c.json(createErrorResponse(message), normalizeErrorStatusCode(status))
 }
 
 /**

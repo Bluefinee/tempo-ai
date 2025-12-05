@@ -64,7 +64,7 @@ testRoutes.post('/weather', async (c): Promise<Response> => {
     const { message, statusCode } = handleError(error)
     // Direct status code approach
     if (statusCode >= 500) {
-      return c.json({ error: message }, 503)
+      return c.json({ error: message }, 500)
     }
     return c.json({ error: message }, 400)
   }
@@ -173,7 +173,7 @@ testRoutes.post('/analyze-mock', async (c): Promise<Response> => {
     const { message, statusCode } = handleError(error)
     // Direct status code approach
     if (statusCode >= 500) {
-      return c.json({ error: message }, 503)
+      return c.json({ error: message }, 500)
     }
     return c.json({ error: message }, 400)
   }

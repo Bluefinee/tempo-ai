@@ -134,12 +134,15 @@ export const sendErrorResponse = (
   message: string,
   status: number = HTTP_STATUS.INTERNAL_SERVER_ERROR,
 ): Response => {
-  // Direct status code approach
+  // Preserve specific status codes for CommonErrors
   if (status >= 500) {
-    return c.json(createErrorResponse(message), 500)
+    return c.json(createErrorResponse(message), status as 500 | 502 | 503 | 504)
   }
   if (status === 415) {
     return c.json(createErrorResponse(message), 415)
+  }
+  if (status === 401 || status === 403 || status === 404 || status === 409 || status === 429) {
+    return c.json(createErrorResponse(message), status as 401 | 403 | 404 | 409 | 429)
   }
   return c.json(createErrorResponse(message), 400)
 }

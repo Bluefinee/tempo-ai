@@ -169,7 +169,7 @@ describe('Claude API Service', () => {
           content: [
             {
               type: 'text',
-              text: 'Invalid JSON response',
+              text: '{ invalid json }',
             },
           ],
           model: 'claude-3-5-sonnet-20241022',

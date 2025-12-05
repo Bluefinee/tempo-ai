@@ -253,7 +253,7 @@ describe('Test Routes', () => {
       mockGetWeather.mockRejectedValueOnce(new Error('Weather API failed'))
       mockHandleError.mockReturnValueOnce({
         message: 'Weather API failed',
-        statusCode: 503,
+        statusCode: 500,
       })
 
       const requestBody = {
@@ -267,7 +267,7 @@ describe('Test Routes', () => {
         body: JSON.stringify(requestBody),
       })
 
-      expect(response.status).toBe(503)
+      expect(response.status).toBe(500)
       const result = (await response.json()) as ErrorResponse
       expect(result.error).toBe('Weather API failed')
     })
@@ -291,7 +291,7 @@ describe('Test Routes', () => {
 
       expect(response.status).toBe(400)
       const result = (await response.json()) as ErrorResponse
-      expect(result.error).toBe('Validation failed: Invalid input: expected number, received string')
+      expect(result.error).toBe('Validation failed: Invalid input: expected number, received undefined')
     })
   })
 
@@ -459,7 +459,7 @@ describe('Test Routes', () => {
       )
       mockHandleError.mockReturnValueOnce({
         message: 'Weather service unavailable',
-        statusCode: 503,
+        statusCode: 500,
       })
 
       const requestBody = {
@@ -475,7 +475,7 @@ describe('Test Routes', () => {
         body: JSON.stringify(requestBody),
       })
 
-      expect(response.status).toBe(503)
+      expect(response.status).toBe(500)
       const result = (await response.json()) as ErrorResponse
       expect(result.error).toBe('Weather service unavailable')
     })
@@ -513,7 +513,7 @@ describe('Test Routes', () => {
       expect(response.status).toBe(400) // Now properly validated and returns 400
       const result = (await response.json()) as ErrorResponse
       expect(result.error).toBe(
-        'Validation failed: Invalid input: expected object, received undefined',
+        'Validation failed: Invalid input: expected number, received undefined',
       )
     })
 

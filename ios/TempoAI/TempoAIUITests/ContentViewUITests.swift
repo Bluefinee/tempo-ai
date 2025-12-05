@@ -67,7 +67,7 @@ final class ContentViewUITests: BaseUITest {
         switchToTab("Today")
         
         // Then: Today tab content should be visible
-        verifyTabSelected(UIIdentifiers.ContentView.todayTab)
+        verifyTabSelected("Today")
         
         // Verify HomeView elements are displayed
         let homeScrollView = app.scrollViews[UIIdentifiers.HomeView.scrollView]
@@ -87,7 +87,7 @@ final class ContentViewUITests: BaseUITest {
         switchToTab("History")
         
         // Then: History tab should be selected and placeholder view should be visible
-        verifyTabSelected(UIIdentifiers.ContentView.historyTab)
+        verifyTabSelected("History")
         
         let placeholderView = app.otherElements[UIIdentifiers.PlaceholderView.mainView]
         XCTAssertTrue(waitForElement(placeholderView), "History placeholder view should be visible")
@@ -103,7 +103,7 @@ final class ContentViewUITests: BaseUITest {
         switchToTab("Trends")
         
         // Then: Trends tab should be selected and placeholder view should be visible
-        verifyTabSelected(UIIdentifiers.ContentView.trendsTab)
+        verifyTabSelected("Trends")
         
         let placeholderView = app.otherElements[UIIdentifiers.PlaceholderView.mainView]
         XCTAssertTrue(waitForElement(placeholderView), "Trends placeholder view should be visible")
@@ -119,7 +119,7 @@ final class ContentViewUITests: BaseUITest {
         switchToTab("Profile")
         
         // Then: Profile tab should be selected and profile view should be visible
-        verifyTabSelected(UIIdentifiers.ContentView.profileTab)
+        verifyTabSelected("Profile")
         
         let profileView = app.otherElements[UIIdentifiers.ProfileView.mainView]
         XCTAssertTrue(waitForElement(profileView), "Profile view should be visible")

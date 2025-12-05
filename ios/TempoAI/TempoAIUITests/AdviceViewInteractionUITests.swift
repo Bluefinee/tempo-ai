@@ -27,7 +27,7 @@ final class AdviceViewInteractionUITests: BaseUITest {
         
         // Start on Today tab and wait for advice to load
         switchToTab("Today")
-        waitForAppToFinishLoading(timeout: 20.0)
+        waitForAppToFinishLoading(timeout: 10.0)
     }
     
     // MARK: - Scrolling and Navigation Tests
@@ -48,13 +48,13 @@ final class AdviceViewInteractionUITests: BaseUITest {
             
             // Scroll down to see more cards
             scrollView.swipeUp()
-            Thread.sleep(forTimeInterval: 0.5)
+            usleep(500_000) // 0.5 second
             
             takeScreenshot(name: "Advice View After Scroll Down")
             
             // Scroll back up
             scrollView.swipeDown()
-            Thread.sleep(forTimeInterval: 0.5)
+            usleep(500_000) // 0.5 second
             
             takeScreenshot(name: "Advice View After Scroll Up")
             
@@ -146,7 +146,7 @@ final class AdviceViewInteractionUITests: BaseUITest {
             let scrollView = app.scrollViews[UIIdentifiers.HomeView.scrollView]
             if scrollView.exists {
                 scrollView.swipeUp()
-                Thread.sleep(forTimeInterval: 0.5)
+                usleep(500_000) // 0.5 second
                 
                 XCTAssertTrue(waitForElement(adviceView), "Advice should remain visible during scroll")
             }
@@ -201,7 +201,7 @@ final class AdviceViewInteractionUITests: BaseUITest {
         takeScreenshot(name: "Advice View Before Tab Switch")
         
         switchToTab("Profile")
-        Thread.sleep(forTimeInterval: 0.5)
+        usleep(500_000) // 0.5 second
         
         switchToTab("Today")
         waitForAppToFinishLoading()

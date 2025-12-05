@@ -25,7 +25,7 @@ final class AdviceViewPerformanceUITests: BaseUITest {
         
         // Start on Today tab and wait for advice to load
         switchToTab("Today")
-        waitForAppToFinishLoading(timeout: 20.0)
+        waitForAppToFinishLoading(timeout: 10.0)
     }
     
     // MARK: - Performance Tests

@@ -175,7 +175,7 @@ final class HomeViewInteractionUITests: BaseUITest {
         // When: Performing multiple rapid refreshes
         for i in 0..<3 {
             performPullToRefresh()
-            Thread.sleep(forTimeInterval: 0.5) // Brief pause between refreshes
+            usleep(500_000) // 0.5 second pause between refreshes
             takeScreenshot(name: "Rapid Refresh \(i+1)")
         }
         

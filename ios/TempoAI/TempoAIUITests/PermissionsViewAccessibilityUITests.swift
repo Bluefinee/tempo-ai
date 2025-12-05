@@ -37,27 +37,6 @@ final class PermissionsViewAccessibilityUITests: BaseUITest {
         super.tearDown()
     }
     
-    // MARK: - Helper Methods
-    
-    private func openPermissionsView() {
-        let settingsButton = app.buttons[UIIdentifiers.HomeView.settingsButton]
-        if settingsButton.exists && settingsButton.isHittable {
-            safeTap(settingsButton)
-            
-            let permissionsView = app.otherElements[UIIdentifiers.PermissionsView.mainView]
-            XCTAssertTrue(waitForElement(permissionsView, timeout: 5.0), "Permissions view should open")
-        }
-    }
-    
-    private func closePermissionsViewIfOpen() {
-        let doneButton = app.buttons[UIIdentifiers.PermissionsView.dismissButton]
-        if doneButton.exists && doneButton.isHittable {
-            safeTap(doneButton)
-            
-            let permissionsView = app.otherElements[UIIdentifiers.PermissionsView.mainView]
-            waitForElementToDisappear(permissionsView)
-        }
-    }
     
     // MARK: - Permission Button Tests
     

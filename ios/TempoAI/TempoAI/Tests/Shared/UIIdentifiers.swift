@@ -15,25 +15,25 @@ enum UIIdentifiers {
     
     // MARK: - ContentView (Main Tab Navigation)
     enum ContentView {
-        static let todayTab = "contentView.tab.today"
-        static let historyTab = "contentView.tab.history"
-        static let trendsTab = "contentView.tab.trends"
-        static let profileTab = "contentView.tab.profile"
-        static let tabView = "contentView.tabView"
+        static let todayTab: String = "Today"
+        static let historyTab: String = "History"
+        static let trendsTab: String = "Trends"
+        static let profileTab: String = "Profile"
+        static let tabView: String = "contentView.tabView"
     }
     
     // MARK: - HomeView (Today Tab)
     enum HomeView {
-        static let navigationTitle = "homeView.navigation.title"
-        static let greetingText = "homeView.greeting.text"
-        static let settingsButton = "homeView.settings.button"
-        static let subtitleText = "homeView.subtitle.text"
-        static let scrollView = "homeView.scrollView"
-        static let headerSection = "homeView.header.section"
-        static let refreshControl = "homeView.refresh.control"
-        static let mockDataBanner = "homeView.mockData.banner"
-        static let mockDataIcon = "homeView.mockData.icon"
-        static let mockDataText = "homeView.mockData.text"
+        static let navigationTitle: String = "homeView.navigation.title"
+        static let greetingText: String = "homeView.greeting.text"
+        static let settingsButton: String = "homeView.settings.button"
+        static let subtitleText: String = "homeView.subtitle.text"
+        static let scrollView: String = "homeView.scrollView"
+        static let headerSection: String = "homeView.header.section"
+        static let refreshControl: String = "homeView.refresh.control"
+        static let mockDataBanner: String = "homeView.mockData.banner"
+        static let mockDataIcon: String = "homeView.mockData.icon"
+        static let mockDataText: String = "homeView.mockData.text"
         
         /// Helper function for dynamic greeting identifiers
         /// - Parameter timeOfDay: The time of day (e.g., "morning", "afternoon")
@@ -47,27 +47,27 @@ enum UIIdentifiers {
     // MARK: - HomeViewComponents (Loading, Error, Empty States)
     enum HomeViewComponents {
         // Loading View
-        static let loadingView = "homeViewComponents.loading.view"
-        static let loadingText = "homeViewComponents.loading.text"
-        static let loadingSpinner = "homeViewComponents.loading.spinner"
+        static let loadingView: String = "homeViewComponents.loading.view"
+        static let loadingText: String = "homeViewComponents.loading.text"
+        static let loadingSpinner: String = "homeViewComponents.loading.spinner"
         
         // Error View
-        static let errorView = "homeViewComponents.error.view"
-        static let errorIcon = "homeViewComponents.error.icon"
-        static let errorTitle = "homeViewComponents.error.title"
-        static let errorMessage = "homeViewComponents.error.message"
-        static let errorRetryButton = "homeViewComponents.error.retry.button"
+        static let errorView: String = "homeViewComponents.error.view"
+        static let errorIcon: String = "homeViewComponents.error.icon"
+        static let errorTitle: String = "homeViewComponents.error.title"
+        static let errorMessage: String = "homeViewComponents.error.message"
+        static let errorRetryButton: String = "homeViewComponents.error.retry.button"
         
         // Empty State View
-        static let emptyStateView = "homeViewComponents.emptyState.view"
-        static let emptyStateIcon = "homeViewComponents.emptyState.icon"
-        static let emptyStateTitle = "homeViewComponents.emptyState.title"
-        static let emptyStateMessage = "homeViewComponents.emptyState.message"
-        static let emptyStateActionButton = "homeViewComponents.emptyState.action.button"
+        static let emptyStateView: String = "homeViewComponents.emptyState.view"
+        static let emptyStateIcon: String = "homeViewComponents.emptyState.icon"
+        static let emptyStateTitle: String = "homeViewComponents.emptyState.title"
+        static let emptyStateMessage: String = "homeViewComponents.emptyState.message"
+        static let emptyStateActionButton: String = "homeViewComponents.emptyState.action.button"
         
         // Advice Card Component
-        static let adviceCard = "homeViewComponents.advice.card"
-        static let adviceCardContent = "homeViewComponents.advice.card.content"
+        static let adviceCard: String = "homeViewComponents.advice.card"
+        static let adviceCardContent: String = "homeViewComponents.advice.card.content"
         
         /// Helper function for dynamic error messages
         /// - Parameter errorType: The type of error (e.g., "network", "server")
@@ -80,56 +80,56 @@ enum UIIdentifiers {
     
     // MARK: - AdviceView (Health Advice Display)
     enum AdviceView {
-        static let mainView = "adviceView.main.view"
-        static let scrollView = "adviceView.scrollView"
+        static let mainView: String = "adviceView.main.view"
+        static let scrollView: String = "adviceView.scrollView"
         
         // Theme Summary Card
-        static let themeSummaryCard = "adviceView.themeSummary.card"
-        static let themeSummaryIcon = "adviceView.themeSummary.icon"
-        static let themeSummaryTitle = "adviceView.themeSummary.title"
-        static let themeSummaryContent = "adviceView.themeSummary.content"
+        static let themeSummaryCard: String = "adviceView.themeSummary.card"
+        static let themeSummaryIcon: String = "adviceView.themeSummary.icon"
+        static let themeSummaryTitle: String = "adviceView.themeSummary.title"
+        static let themeSummaryContent: String = "adviceView.themeSummary.content"
         
         // Weather Card
-        static let weatherCard = "adviceView.weather.card"
-        static let weatherIcon = "adviceView.weather.icon"
-        static let weatherTitle = "adviceView.weather.title"
-        static let weatherTemperature = "adviceView.weather.temperature"
-        static let weatherCondition = "adviceView.weather.condition"
-        static let weatherAdvice = "adviceView.weather.advice"
+        static let weatherCard: String = "adviceView.weather.card"
+        static let weatherIcon: String = "adviceView.weather.icon"
+        static let weatherTitle: String = "adviceView.weather.title"
+        static let weatherTemperature: String = "adviceView.weather.temperature"
+        static let weatherCondition: String = "adviceView.weather.condition"
+        static let weatherAdvice: String = "adviceView.weather.advice"
         
         // Meals Section
-        static let mealCardsSection = "adviceView.meals.section"
-        static let mealsTitle = "adviceView.meals.title"
+        static let mealCardsSection: String = "adviceView.meals.section"
+        static let mealsTitle: String = "adviceView.meals.title"
         
         // Individual Meal Cards
-        static let breakfastCard = "adviceView.meal.breakfast.card"
-        static let lunchCard = "adviceView.meal.lunch.card"
-        static let dinnerCard = "adviceView.meal.dinner.card"
-        static let snackCard = "adviceView.meal.snack.card"
+        static let breakfastCard: String = "adviceView.meal.breakfast.card"
+        static let lunchCard: String = "adviceView.meal.lunch.card"
+        static let dinnerCard: String = "adviceView.meal.dinner.card"
+        static let snackCard: String = "adviceView.meal.snack.card"
         
         // Exercise Card
-        static let exerciseCard = "adviceView.exercise.card"
-        static let exerciseIcon = "adviceView.exercise.icon"
-        static let exerciseTitle = "adviceView.exercise.title"
-        static let exerciseType = "adviceView.exercise.type"
-        static let exerciseDuration = "adviceView.exercise.duration"
-        static let exerciseAdvice = "adviceView.exercise.advice"
+        static let exerciseCard: String = "adviceView.exercise.card"
+        static let exerciseIcon: String = "adviceView.exercise.icon"
+        static let exerciseTitle: String = "adviceView.exercise.title"
+        static let exerciseType: String = "adviceView.exercise.type"
+        static let exerciseDuration: String = "adviceView.exercise.duration"
+        static let exerciseAdvice: String = "adviceView.exercise.advice"
         
         // Sleep Card
-        static let sleepCard = "adviceView.sleep.card"
-        static let sleepIcon = "adviceView.sleep.icon"
-        static let sleepTitle = "adviceView.sleep.title"
-        static let sleepBedtime = "adviceView.sleep.bedtime"
-        static let sleepWakeTime = "adviceView.sleep.wakeTime"
-        static let sleepAdvice = "adviceView.sleep.advice"
+        static let sleepCard: String = "adviceView.sleep.card"
+        static let sleepIcon: String = "adviceView.sleep.icon"
+        static let sleepTitle: String = "adviceView.sleep.title"
+        static let sleepBedtime: String = "adviceView.sleep.bedtime"
+        static let sleepWakeTime: String = "adviceView.sleep.wakeTime"
+        static let sleepAdvice: String = "adviceView.sleep.advice"
         
         // Breathing Card
-        static let breathingCard = "adviceView.breathing.card"
-        static let breathingIcon = "adviceView.breathing.icon"
-        static let breathingTitle = "adviceView.breathing.title"
-        static let breathingDuration = "adviceView.breathing.duration"
-        static let breathingAdvice = "adviceView.breathing.advice"
-        static let breathingStartButton = "adviceView.breathing.start.button"
+        static let breathingCard: String = "adviceView.breathing.card"
+        static let breathingIcon: String = "adviceView.breathing.icon"
+        static let breathingTitle: String = "adviceView.breathing.title"
+        static let breathingDuration: String = "adviceView.breathing.duration"
+        static let breathingAdvice: String = "adviceView.breathing.advice"
+        static let breathingStartButton: String = "adviceView.breathing.start.button"
         
         /// Helper functions for dynamic meal card identifiers
         
@@ -160,29 +160,29 @@ enum UIIdentifiers {
     
     // MARK: - PermissionsView (Authorization Management)
     enum PermissionsView {
-        static let mainView = "permissionsView.main.view"
-        static let navigationTitle = "permissionsView.navigation.title"
-        static let scrollView = "permissionsView.scrollView"
-        static let headerTitle = "permissionsView.header.title"
-        static let headerSubtitle = "permissionsView.header.subtitle"
-        static let permissionsList = "permissionsView.permissions.list"
-        static let dismissButton = "permissionsView.dismiss.button"
-        static let continueButton = "permissionsView.continue.button"
+        static let mainView: String = "permissionsView.main.view"
+        static let navigationTitle: String = "permissionsView.navigation.title"
+        static let scrollView: String = "permissionsView.scrollView"
+        static let headerTitle: String = "permissionsView.header.title"
+        static let headerSubtitle: String = "permissionsView.header.subtitle"
+        static let permissionsList: String = "permissionsView.permissions.list"
+        static let dismissButton: String = "permissionsView.dismiss.button"
+        static let continueButton: String = "permissionsView.continue.button"
         
         // Permission Rows
-        static let healthKitRow = "permissionsView.healthKit.row"
-        static let healthKitIcon = "permissionsView.healthKit.icon"
-        static let healthKitTitle = "permissionsView.healthKit.title"
-        static let healthKitDescription = "permissionsView.healthKit.description"
-        static let healthKitStatus = "permissionsView.healthKit.status"
-        static let healthKitButton = "permissionsView.healthKit.button"
+        static let healthKitRow: String = "permissionsView.healthKit.row"
+        static let healthKitIcon: String = "permissionsView.healthKit.icon"
+        static let healthKitTitle: String = "permissionsView.healthKit.title"
+        static let healthKitDescription: String = "permissionsView.healthKit.description"
+        static let healthKitStatus: String = "permissionsView.healthKit.status"
+        static let healthKitButton: String = "permissionsView.healthKit.button"
         
-        static let locationRow = "permissionsView.location.row"
-        static let locationIcon = "permissionsView.location.icon"
-        static let locationTitle = "permissionsView.location.title"
-        static let locationDescription = "permissionsView.location.description"
-        static let locationStatus = "permissionsView.location.status"
-        static let locationButton = "permissionsView.location.button"
+        static let locationRow: String = "permissionsView.location.row"
+        static let locationIcon: String = "permissionsView.location.icon"
+        static let locationTitle: String = "permissionsView.location.title"
+        static let locationDescription: String = "permissionsView.location.description"
+        static let locationStatus: String = "permissionsView.location.status"
+        static let locationButton: String = "permissionsView.location.button"
         
         /// Helper functions for permission-related identifiers
         
@@ -205,10 +205,10 @@ enum UIIdentifiers {
     
     // MARK: - PlaceholderView (Future Features)
     enum PlaceholderView {
-        static let mainView = "placeholderView.main.view"
-        static let icon = "placeholderView.icon"
-        static let title = "placeholderView.title"
-        static let message = "placeholderView.message"
+        static let mainView: String = "placeholderView.main.view"
+        static let icon: String = "placeholderView.icon"
+        static let title: String = "placeholderView.title"
+        static let message: String = "placeholderView.message"
         
         /// Helper function for different placeholder types
         /// - Parameter feature: The feature name (e.g., "history", "trends")
@@ -221,8 +221,8 @@ enum UIIdentifiers {
     
     // MARK: - ProfileView (Profile Tab)
     enum ProfileView {
-        static let mainView = "profileView.main.view"
-        static let navigationTitle = "profileView.navigation.title"
+        static let mainView: String = "profileView.main.view"
+        static let navigationTitle: String = "profileView.navigation.title"
         
         /// Helper function for profile rows
         /// - Parameter rowType: The type of profile row (e.g., "age", "gender")
@@ -235,30 +235,30 @@ enum UIIdentifiers {
     
     // MARK: - Common Elements
     enum Common {
-        static let navigationBackButton = "common.navigation.back.button"
-        static let closeButton = "common.close.button"
-        static let doneButton = "common.done.button"
-        static let cancelButton = "common.cancel.button"
-        static let saveButton = "common.save.button"
-        static let editButton = "common.edit.button"
-        static let deleteButton = "common.delete.button"
+        static let navigationBackButton: String = "common.navigation.back.button"
+        static let closeButton: String = "common.close.button"
+        static let doneButton: String = "common.done.button"
+        static let cancelButton: String = "common.cancel.button"
+        static let saveButton: String = "common.save.button"
+        static let editButton: String = "common.edit.button"
+        static let deleteButton: String = "common.delete.button"
         
         // Loading states
-        static let loadingIndicator = "common.loading.indicator"
-        static let refreshButton = "common.refresh.button"
+        static let loadingIndicator: String = "common.loading.indicator"
+        static let refreshButton: String = "common.refresh.button"
         
         // Alert elements
-        static let alertView = "common.alert.view"
-        static let alertTitle = "common.alert.title"
-        static let alertMessage = "common.alert.message"
-        static let alertOKButton = "common.alert.ok.button"
-        static let alertCancelButton = "common.alert.cancel.button"
+        static let alertView: String = "common.alert.view"
+        static let alertTitle: String = "common.alert.title"
+        static let alertMessage: String = "common.alert.message"
+        static let alertOKButton: String = "common.alert.ok.button"
+        static let alertCancelButton: String = "common.alert.cancel.button"
     }
     
     // MARK: - Test Environment Identifiers
     enum TestEnvironment {
-        static let mockDataEnabled = "testEnvironment.mockData.enabled"
-        static let testModeIndicator = "testEnvironment.testMode.indicator"
+        static let mockDataEnabled: String = "testEnvironment.mockData.enabled"
+        static let testModeIndicator: String = "testEnvironment.testMode.indicator"
         
         /// Helper function for test state indicators
         /// - Parameter state: The test state (e.g., "loading", "error")

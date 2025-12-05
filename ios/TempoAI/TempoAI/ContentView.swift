@@ -1,5 +1,12 @@
 import SwiftUI
 
+/**
+ * Main content view providing tabbed navigation for the TempoAI application.
+ * 
+ * This view serves as the root navigation container, organizing the app's primary
+ * features into four distinct tabs: Today (Home), History, Trends, and Profile.
+ * Each tab provides access to different aspects of the health and wellness experience.
+ */
 struct ContentView: View {
     var body: some View {
         TabView {
@@ -8,34 +15,42 @@ struct ContentView: View {
                     Image(systemName: "house.fill")
                     Text("Today")
                 }
-                .accessibilityIdentifier(UIIdentifiers.ContentView.todayTab)
 
             PlaceholderView(title: "History", icon: "clock.fill", message: "過去のアドバイス履歴\n(Phase 3で実装予定)")
                 .tabItem {
                     Image(systemName: "clock.fill")
                     Text("History")
                 }
-                .accessibilityIdentifier(UIIdentifiers.ContentView.historyTab)
 
             PlaceholderView(title: "Trends", icon: "chart.line.uptrend.xyaxis", message: "健康データトレンド\n(Phase 4で実装予定)")
                 .tabItem {
                     Image(systemName: "chart.line.uptrend.xyaxis")
                     Text("Trends")
                 }
-                .accessibilityIdentifier(UIIdentifiers.ContentView.trendsTab)
 
             ProfileView()
                 .tabItem {
                     Image(systemName: "person.circle.fill")
                     Text("Profile")
                 }
-                .accessibilityIdentifier(UIIdentifiers.ContentView.profileTab)
         }
         .accessibilityIdentifier(UIIdentifiers.ContentView.tabView)
         .tint(.primary)
     }
 }
 
+/**
+ * Placeholder view for unimplemented features in future development phases.
+ * 
+ * This view provides a consistent interface for features that are planned
+ * but not yet implemented, displaying relevant information about the feature
+ * and its expected implementation timeline.
+ * 
+ * - Parameters:
+ *   - title: The feature title displayed in navigation
+ *   - icon: SF Symbol name for the feature icon
+ *   - message: Descriptive message about the feature and implementation status
+ */
 struct PlaceholderView: View {
     let title: String
     let icon: String
@@ -62,6 +77,13 @@ struct PlaceholderView: View {
     }
 }
 
+/**
+ * User profile view displaying personal settings and health preferences.
+ * 
+ * This view presents the user's profile information including demographics,
+ * health goals, exercise habits, and dietary preferences. Currently serves
+ * as a read-only display with editing functionality planned for Phase 2.
+ */
 struct ProfileView: View {
     var body: some View {
         NavigationStack {
@@ -106,6 +128,16 @@ struct ProfileView: View {
     }
 }
 
+/**
+ * Individual row component for displaying profile information.
+ * 
+ * Creates a consistent horizontal layout for profile data with title and value pairs.
+ * Used within ProfileView to display various user attributes and preferences.
+ * 
+ * - Parameters:
+ *   - title: The label for the profile attribute
+ *   - value: The current value for the attribute
+ */
 struct ProfileRow: View {
     let title: String
     let value: String

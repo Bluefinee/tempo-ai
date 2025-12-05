@@ -38,10 +38,10 @@ final class ContentViewUITests: BaseUITest {
         // Then: All tabs should be visible and accessible
         XCTAssertTrue(waitForElement(tabBar), "Tab bar should be visible")
         
-        let todayTab = app.tabBars.buttons[UIIdentifiers.ContentView.todayTab]
-        let historyTab = app.tabBars.buttons[UIIdentifiers.ContentView.historyTab]
-        let trendsTab = app.tabBars.buttons[UIIdentifiers.ContentView.trendsTab]
-        let profileTab = app.tabBars.buttons[UIIdentifiers.ContentView.profileTab]
+        let todayTab = app.tabBars.buttons["Today"]
+        let historyTab = app.tabBars.buttons["History"]
+        let trendsTab = app.tabBars.buttons["Trends"]
+        let profileTab = app.tabBars.buttons["Profile"]
         
         XCTAssertTrue(todayTab.exists, "Today tab should exist")
         XCTAssertTrue(historyTab.exists, "History tab should exist")
@@ -53,7 +53,7 @@ final class ContentViewUITests: BaseUITest {
         // Given: The app is launched
         
         // When: Checking the initial tab selection
-        let todayTab = app.tabBars.buttons[UIIdentifiers.ContentView.todayTab]
+        let todayTab = app.tabBars.buttons["Today"]
         
         // Then: Today tab should be selected by default
         XCTAssertTrue(waitForElement(todayTab), "Today tab should exist")
@@ -64,7 +64,7 @@ final class ContentViewUITests: BaseUITest {
         // Given: The app is launched
         
         // When: Tapping the Today tab
-        switchToTab(UIIdentifiers.ContentView.todayTab)
+        switchToTab("Today")
         
         // Then: Today tab content should be visible
         verifyTabSelected(UIIdentifiers.ContentView.todayTab)
@@ -84,7 +84,7 @@ final class ContentViewUITests: BaseUITest {
         // Given: The app is launched
         
         // When: Tapping the History tab
-        switchToTab(UIIdentifiers.ContentView.historyTab)
+        switchToTab("History")
         
         // Then: History tab should be selected and placeholder view should be visible
         verifyTabSelected(UIIdentifiers.ContentView.historyTab)
@@ -100,7 +100,7 @@ final class ContentViewUITests: BaseUITest {
         // Given: The app is launched
         
         // When: Tapping the Trends tab
-        switchToTab(UIIdentifiers.ContentView.trendsTab)
+        switchToTab("Trends")
         
         // Then: Trends tab should be selected and placeholder view should be visible
         verifyTabSelected(UIIdentifiers.ContentView.trendsTab)
@@ -116,7 +116,7 @@ final class ContentViewUITests: BaseUITest {
         // Given: The app is launched
         
         // When: Tapping the Profile tab
-        switchToTab(UIIdentifiers.ContentView.profileTab)
+        switchToTab("Profile")
         
         // Then: Profile tab should be selected and profile view should be visible
         verifyTabSelected(UIIdentifiers.ContentView.profileTab)
@@ -163,7 +163,7 @@ final class ContentViewUITests: BaseUITest {
     
     func testTabStatePreservation() {
         // Given: The app is launched on Today tab
-        switchToTab(UIIdentifiers.ContentView.todayTab)
+        switchToTab("Today")
         
         // When: Opening settings from home view
         let settingsButton = app.buttons[UIIdentifiers.HomeView.settingsButton]
@@ -182,10 +182,10 @@ final class ContentViewUITests: BaseUITest {
         }
         
         // Switch to another tab
-        switchToTab(UIIdentifiers.ContentView.profileTab)
+        switchToTab("Profile")
         
         // Switch back to Today
-        switchToTab(UIIdentifiers.ContentView.todayTab)
+        switchToTab("Today")
         
         // Then: Today tab state should be preserved
         let greetingText = app.staticTexts[UIIdentifiers.HomeView.greetingText]
@@ -201,10 +201,10 @@ final class ContentViewUITests: BaseUITest {
         // Given: The app is launched
         
         // When: Checking tab accessibility labels
-        let todayTab = app.tabBars.buttons[UIIdentifiers.ContentView.todayTab]
-        let historyTab = app.tabBars.buttons[UIIdentifiers.ContentView.historyTab]
-        let trendsTab = app.tabBars.buttons[UIIdentifiers.ContentView.trendsTab]
-        let profileTab = app.tabBars.buttons[UIIdentifiers.ContentView.profileTab]
+        let todayTab = app.tabBars.buttons["Today"]
+        let historyTab = app.tabBars.buttons["History"]
+        let trendsTab = app.tabBars.buttons["Trends"]
+        let profileTab = app.tabBars.buttons["Profile"]
         
         // Then: Tabs should have proper labels for accessibility
         // Use more flexible label checking to avoid hardcoded strings
@@ -244,15 +244,15 @@ final class ContentViewUITests: BaseUITest {
     
     func testTabNavigationWithAppStateChanges() {
         // Given: The app is launched
-        switchToTab(UIIdentifiers.ContentView.todayTab)
+        switchToTab("Today")
         
         // When: Simulating app state changes (background/foreground)
         // Note: This would typically require additional setup for background/foreground simulation
         
         // For now, test rapid tab switching which can cause state issues
         for _ in 0..<5 {
-            switchToTab(UIIdentifiers.ContentView.historyTab)
-            switchToTab(UIIdentifiers.ContentView.todayTab)
+            switchToTab("History")
+            switchToTab("Today")
         }
         
         // Then: App should remain stable and responsive

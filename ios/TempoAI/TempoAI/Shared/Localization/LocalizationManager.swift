@@ -17,7 +17,11 @@ import Combine
 class LocalizationManager: ObservableObject {
 
     /// Shared singleton instance
-    nonisolated(unsafe) static let shared: LocalizationManager = LocalizationManager()
+    static let shared: LocalizationManager = {
+        MainActor.assumeIsolated {
+            LocalizationManager()
+        }
+    }()
 
     /// Published property for reactive UI updates
     @Published var currentLanguage: SupportedLanguage

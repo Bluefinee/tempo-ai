@@ -40,7 +40,7 @@ enum UIIdentifiers {
         /// - Parameter timeOfDay: The time of day (e.g., "morning", "afternoon")
         /// - Returns: A unique greeting identifier string
         static func greetingText(for timeOfDay: String) -> String {
-            let sanitizedTimeOfDay = timeOfDay.lowercased().replacingOccurrences(of: " ", with: "")
+            let sanitizedTimeOfDay = sanitizeInput(timeOfDay)
             return "homeView.greeting.\(sanitizedTimeOfDay)"
         }
     }
@@ -74,7 +74,7 @@ enum UIIdentifiers {
         /// - Parameter errorType: The type of error (e.g., "network", "server")
         /// - Returns: A unique error message identifier string
         static func errorMessage(for errorType: String) -> String {
-            let sanitizedErrorType = errorType.lowercased().replacingOccurrences(of: " ", with: "")
+            let sanitizedErrorType = sanitizeInput(errorType)
             return "homeViewComponents.error.message.\(sanitizedErrorType)"
         }
     }
@@ -138,7 +138,7 @@ enum UIIdentifiers {
         /// - Parameter mealType: The type of meal (e.g., "breakfast", "lunch")
         /// - Returns: A unique meal card identifier string
         static func mealCard(for mealType: String) -> String {
-            let sanitizedMealType = mealType.lowercased().replacingOccurrences(of: " ", with: "")
+            let sanitizedMealType = sanitizeInput(mealType)
             return "adviceView.meal.\(sanitizedMealType).card"
         }
 
@@ -146,7 +146,7 @@ enum UIIdentifiers {
         /// - Parameter mealType: The type of meal
         /// - Returns: A unique meal title identifier string
         static func mealTitle(for mealType: String) -> String {
-            let sanitizedMealType = mealType.lowercased().replacingOccurrences(of: " ", with: "")
+            let sanitizedMealType = sanitizeInput(mealType)
             return "adviceView.meal.\(sanitizedMealType).title"
         }
 
@@ -154,7 +154,7 @@ enum UIIdentifiers {
         /// - Parameter mealType: The type of meal
         /// - Returns: A unique meal advice identifier string
         static func mealAdvice(for mealType: String) -> String {
-            let sanitizedMealType = mealType.lowercased().replacingOccurrences(of: " ", with: "")
+            let sanitizedMealType = sanitizeInput(mealType)
             return "adviceView.meal.\(sanitizedMealType).advice"
         }
     }
@@ -191,7 +191,7 @@ enum UIIdentifiers {
         /// - Parameter permissionType: The type of permission (e.g., "HealthKit", "Location")
         /// - Returns: A unique permission status identifier string
         static func permissionStatus(for permissionType: String) -> String {
-            let sanitizedType = permissionType.lowercased().replacingOccurrences(of: " ", with: "")
+            let sanitizedType = sanitizeInput(permissionType)
             return "permissionsView.\(sanitizedType).status"
         }
 
@@ -199,7 +199,7 @@ enum UIIdentifiers {
         /// - Parameter permissionType: The type of permission
         /// - Returns: A unique permission button identifier string
         static func permissionButton(for permissionType: String) -> String {
-            let sanitizedType = permissionType.lowercased().replacingOccurrences(of: " ", with: "")
+            let sanitizedType = sanitizeInput(permissionType)
             return "permissionsView.\(sanitizedType).button"
         }
     }
@@ -215,7 +215,7 @@ enum UIIdentifiers {
         /// - Parameter feature: The feature name (e.g., "history", "trends")
         /// - Returns: A unique placeholder identifier string
         static func placeholder(for feature: String) -> String {
-            let sanitizedFeature = feature.lowercased().replacingOccurrences(of: " ", with: "")
+            let sanitizedFeature = sanitizeInput(feature)
             return "placeholderView.\(sanitizedFeature)"
         }
     }
@@ -229,7 +229,7 @@ enum UIIdentifiers {
         /// - Parameter rowType: The type of profile row (e.g., "age", "gender")
         /// - Returns: A unique profile row identifier string
         static func profileRow(for rowType: String) -> String {
-            let sanitizedRowType = rowType.lowercased().replacingOccurrences(of: " ", with: "")
+            let sanitizedRowType = sanitizeInput(rowType)
             return "profileView.row.\(sanitizedRowType)"
         }
     }
@@ -265,7 +265,7 @@ enum UIIdentifiers {
         /// - Parameter state: The test state (e.g., "loading", "error")
         /// - Returns: A unique test state identifier string
         static func testState(for state: String) -> String {
-            let sanitizedState = state.lowercased().replacingOccurrences(of: " ", with: "")
+            let sanitizedState = sanitizeInput(state)
             return "testEnvironment.state.\(sanitizedState)"
         }
     }
@@ -281,7 +281,7 @@ extension UIIdentifiers {
     ///   - index: The index of the item in the list
     /// - Returns: A unique identifier string
     static func listItem(prefix: String, index: Int) -> String {
-        let sanitizedPrefix = prefix.lowercased().replacingOccurrences(of: " ", with: "")
+        let sanitizedPrefix = sanitizeInput(prefix)
         return "\(sanitizedPrefix).item.\(index)"
     }
 
@@ -291,8 +291,8 @@ extension UIIdentifiers {
     ///   - identifier: A unique identifier for the content
     /// - Returns: A unique identifier string
     static func dynamicCard(cardType: String, identifier: String) -> String {
-        let sanitizedCardType = cardType.lowercased().replacingOccurrences(of: " ", with: "")
-        let sanitizedIdentifier = identifier.lowercased().replacingOccurrences(of: " ", with: "")
+        let sanitizedCardType = sanitizeInput(cardType)
+        let sanitizedIdentifier = sanitizeInput(identifier)
         return "\(sanitizedCardType).card.\(sanitizedIdentifier)"
     }
 
@@ -302,7 +302,7 @@ extension UIIdentifiers {
     ///   - state: The current state
     /// - Returns: A state-specific identifier
     static func stateDependentIdentifier(_ baseIdentifier: String, state: String) -> String {
-        let sanitizedState = state.lowercased().replacingOccurrences(of: " ", with: "")
+        let sanitizedState = sanitizeInput(state)
         return "\(baseIdentifier).\(sanitizedState)"
     }
 

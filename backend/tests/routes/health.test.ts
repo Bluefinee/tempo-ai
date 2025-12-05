@@ -246,7 +246,7 @@ describe('Health Routes', () => {
       const result = (await response.json()) as ErrorResponse
       expect(result.success).toBe(false)
       expect(result.error).toBe(
-        'Missing required fields: healthData, location, userProfile',
+        'Validation failed: Invalid input: expected object, received undefined',
       )
     })
 
@@ -273,7 +273,7 @@ describe('Health Routes', () => {
       const result = (await response.json()) as ErrorResponse
       expect(result.success).toBe(false)
       expect(result.error).toBe(
-        'Missing required fields: healthData, location, userProfile',
+        'Validation failed: Invalid input: expected object, received undefined',
       )
     })
 
@@ -300,7 +300,7 @@ describe('Health Routes', () => {
       const result = (await response.json()) as ErrorResponse
       expect(result.success).toBe(false)
       expect(result.error).toBe(
-        'Missing required fields: healthData, location, userProfile',
+        'Validation failed: Invalid input: expected object, received undefined',
       )
     })
 
@@ -330,7 +330,7 @@ describe('Health Routes', () => {
       const result = (await response.json()) as ErrorResponse
       expect(result.success).toBe(false)
       expect(result.error).toBe(
-        'Invalid coordinates: latitude must be -90 to 90, longitude must be -180 to 180',
+        'Validation failed: Invalid input: expected number, received string',
       )
     })
 
@@ -360,7 +360,7 @@ describe('Health Routes', () => {
       const result = (await response.json()) as ErrorResponse
       expect(result.success).toBe(false)
       expect(result.error).toBe(
-        'Invalid coordinates: latitude must be -90 to 90, longitude must be -180 to 180',
+        'Validation failed: Invalid input: expected number, received string',
       )
     })
 

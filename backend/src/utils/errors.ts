@@ -124,8 +124,8 @@ export const toValidStatusCode = (statusCode: number): ValidStatusCode => {
     case 502:
     case 503:
     case 504:
-      return statusCode
+      return statusCode as ValidStatusCode
     default:
-      return 500
+      return 500 as ValidStatusCode
   }
 }

@@ -88,8 +88,17 @@ export const createValidationErrorResponse = (
   error: ValidationError,
 ): Response => {
   // TypeScript Hono Standards準拠：シンプルで明確なエラーレスポンス
-  const statusCode = toValidStatusCode(error.statusCode)
-  return c.json({ success: false, error: error.message }, statusCode)
+  const statusCode = error.statusCode
+  
+  // Direct status code approach without normalization
+  if (statusCode === 400) {
+    return c.json({ success: false, error: error.message }, 400)
+  }
+  if (statusCode === 415) {
+    return c.json({ success: false, error: error.message }, 415)
+  }
+  // Default to 500 for other cases
+  return c.json({ success: false, error: error.message }, 500)
 }
 
 /**
@@ -125,8 +134,14 @@ export const sendErrorResponse = (
   message: string,
   status: number = HTTP_STATUS.INTERNAL_SERVER_ERROR,
 ): Response => {
-  const validStatus = toValidStatusCode(status)
-  return c.json(createErrorResponse(message), validStatus)
+  // Direct status code approach
+  if (status >= 500) {
+    return c.json(createErrorResponse(message), 500)
+  }
+  if (status === 415) {
+    return c.json(createErrorResponse(message), 415)
+  }
+  return c.json(createErrorResponse(message), 400)
 }
 
 /**

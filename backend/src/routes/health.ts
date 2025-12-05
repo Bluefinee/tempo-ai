@@ -74,14 +74,11 @@ healthRoutes.post('/analyze', async (c): Promise<Response> => {
     console.error('Analysis error:', error)
 
     const { message, statusCode } = handleError(error)
-    const validStatusCode = toValidStatusCode(statusCode)
-    return c.json(
-      {
-        success: false,
-        error: message,
-      },
-      validStatusCode,
-    )
+    // Direct status code approach
+    if (statusCode >= 500) {
+      return c.json({ success: false, error: message }, 500)
+    }
+    return c.json({ success: false, error: message }, 400)
   }
 })
 

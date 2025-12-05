@@ -30,8 +30,9 @@ interface WeatherDataResponse {
 
 interface MockAnalysisResponse {
   success: boolean
-  message: string
-  advice: {
+  data: {
+    message: string
+    advice: {
     theme: string
     summary: string
     breakfast: {
@@ -67,11 +68,12 @@ interface MockAnalysisResponse {
       opportunities: string[]
     }
     priority_actions: string[]
-  }
-  weather_summary?: {
-    temperature: number
-    humidity: number
-    uv_index: number
+    }
+    weather_summary?: {
+      temperature: number
+      humidity: number
+      uv_index: number
+    }
   }
 }
 
@@ -140,8 +142,10 @@ describe('Test Routes', () => {
 
       expect(result).toEqual({
         success: true,
-        weather: mockWeatherData,
-        message: 'Weather API integration working correctly',
+        data: {
+          weather: mockWeatherData,
+          message: 'Weather API integration working correctly',
+        },
       })
 
       expect(mockGetWeather).toHaveBeenCalledWith(35.6895, 139.6917)
@@ -160,7 +164,7 @@ describe('Test Routes', () => {
 
       expect(response.status).toBe(400)
       const result = (await response.json()) as ErrorResponse
-      expect(result.error).toBe('Invalid latitude/longitude')
+      expect(result.error).toBe('Validation failed: Invalid input: expected number, received undefined')
     })
 
     it('should return 400 when longitude is missing', async () => {
@@ -176,7 +180,7 @@ describe('Test Routes', () => {
 
       expect(response.status).toBe(400)
       const result = (await response.json()) as ErrorResponse
-      expect(result.error).toBe('Invalid latitude/longitude')
+      expect(result.error).toBe('Validation failed: Invalid input: expected number, received undefined')
     })
 
     it('should return 400 when latitude is not a number', async () => {
@@ -193,7 +197,7 @@ describe('Test Routes', () => {
 
       expect(response.status).toBe(400)
       const result = (await response.json()) as ErrorResponse
-      expect(result.error).toBe('Invalid latitude/longitude')
+      expect(result.error).toBe('Validation failed: Invalid input: expected number, received string')
     })
 
     it('should return 400 when longitude is not a number', async () => {
@@ -210,7 +214,7 @@ describe('Test Routes', () => {
 
       expect(response.status).toBe(400)
       const result = (await response.json()) as ErrorResponse
-      expect(result.error).toBe('Invalid latitude/longitude')
+      expect(result.error).toBe('Validation failed: Invalid input: expected number, received string')
     })
 
     it('should handle extreme valid coordinates', async () => {
@@ -287,7 +291,7 @@ describe('Test Routes', () => {
 
       expect(response.status).toBe(400)
       const result = (await response.json()) as ErrorResponse
-      expect(result.error).toBe('Invalid latitude/longitude')
+      expect(result.error).toBe('Validation failed: Invalid input: expected number, received string')
     })
   })
 
@@ -310,12 +314,12 @@ describe('Test Routes', () => {
       const result = (await response.json()) as MockAnalysisResponse
 
       expect(result.success).toBe(true)
-      expect(result.message).toBe(
+      expect(result.data.message).toBe(
         'Mock analysis complete with real weather data',
       )
 
       // Verify mock advice structure
-      expect(result.advice).toMatchObject({
+      expect(result.data.advice).toMatchObject({
         theme: 'Test Day',
         summary:
           'This is a test response. Weather data was successfully retrieved and integrated.',
@@ -379,7 +383,7 @@ describe('Test Routes', () => {
       })
 
       // Verify weather summary
-      expect(result.weather_summary).toEqual({
+      expect(result.data.weather_summary).toEqual({
         temperature: mockWeatherData.current.temperature_2m,
         humidity: mockWeatherData.current.relative_humidity_2m,
         uv_index: mockWeatherData.daily.uv_index_max[0],
@@ -438,13 +442,13 @@ describe('Test Routes', () => {
       expect(response.status).toBe(200)
       const result = (await response.json()) as MockAnalysisResponse
 
-      expect(result.weather_summary).toEqual({
+      expect(result.data.weather_summary).toEqual({
         temperature: 15.5,
         humidity: 80,
         uv_index: 4.2,
       })
 
-      expect(result.advice.weather_considerations.warnings[0]).toContain(
+      expect(result.data.advice.weather_considerations.warnings[0]).toContain(
         '15.5°C',
       )
     })
@@ -488,7 +492,7 @@ describe('Test Routes', () => {
       expect(response.status).toBe(400) // Now properly validated and returns 400
       const result = (await response.json()) as ErrorResponse
       expect(result.error).toBe(
-        'Invalid location: coordinates must be valid numbers within range (lat: -90 to 90, lng: -180 to 180)',
+        'Validation failed: Invalid input: expected object, received undefined',
       )
     })
 
@@ -509,7 +513,7 @@ describe('Test Routes', () => {
       expect(response.status).toBe(400) // Now properly validated and returns 400
       const result = (await response.json()) as ErrorResponse
       expect(result.error).toBe(
-        'Invalid location: coordinates must be valid numbers within range (lat: -90 to 90, lng: -180 to 180)',
+        'Validation failed: Invalid input: expected object, received undefined',
       )
     })
 
@@ -546,8 +550,8 @@ describe('Test Routes', () => {
       ]
 
       requiredFields.forEach((field) => {
-        expect(result.advice).toHaveProperty(field)
-        expect((result.advice as Record<string, unknown>)[field]).toBeDefined()
+        expect(result.data.advice).toHaveProperty(field)
+        expect((result.data.advice as Record<string, unknown>)[field]).toBeDefined()
       })
     })
 

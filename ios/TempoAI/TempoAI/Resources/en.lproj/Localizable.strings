@@ -48,6 +48,42 @@
 "onboarding_continue" = "Continue";
 "onboarding_skip_for_now" = "Skip for Now";
 
+// MARK: - Health Status
+"health_status_optimal_title" = "Optimal";
+"health_status_optimal_description" = "Your health metrics are excellent";
+"health_status_optimal_explanation" = "All your health indicators are performing at their best. Keep up the great work!";
+"health_status_optimal_actions" = "Maintain current routine | Stay hydrated | Get quality sleep";
+
+"health_status_good_title" = "Good";
+"health_status_good_description" = "Your health metrics are above average";
+"health_status_good_explanation" = "Your health indicators are solid with room for minor improvements.";
+"health_status_good_actions" = "Focus on consistency | Optimize sleep schedule | Stay active";
+
+"health_status_care_title" = "Care Mode";
+"health_status_care_description" = "Your body needs attention";
+"health_status_care_explanation" = "Some health indicators suggest you should prioritize recovery and wellness.";
+"health_status_care_actions" = "Prioritize sleep | Manage stress | Light exercise only | Stay hydrated";
+
+"health_status_rest_title" = "Rest Mode";
+"health_status_rest_description" = "Your body needs rest and recovery";
+"health_status_rest_explanation" = "Your health metrics indicate you should focus on rest and gentle recovery.";
+"health_status_rest_actions" = "Get extra sleep | Avoid intense exercise | Practice relaxation | Consider recovery activities";
+
+"health_status_unknown_title" = "Analyzing";
+"health_status_unknown_description" = "Gathering health data";
+"health_status_unknown_explanation" = "We need more data to provide an accurate health assessment.";
+"health_status_unknown_actions" = "Allow health data access | Wear Apple Watch | Complete initial setup";
+
+"data_quality_excellent" = "Excellent";
+"data_quality_good" = "Good";
+"data_quality_fair" = "Fair";
+"data_quality_poor" = "Poor";
+
+"alert_priority_0" = "None";
+"alert_priority_1" = "Low";
+"alert_priority_2" = "Medium";
+"alert_priority_3" = "High";
+
 // MARK: - Common Actions
 "button_get_started" = "Get Started";
 "button_continue" = "Continue";

@@ -1,40 +1,122 @@
 import Foundation
 
 // MARK: - Health Data Models
+
+/// Comprehensive health data container for analysis
+typealias HealthKitData = HealthData
+
 struct HealthData: Codable {
-    let sleep: SleepData
-    let hrv: HRVData
-    let heartRate: HeartRateData
-    let activity: ActivityData
+    let sleep: SleepData?
+    let hrv: HRVData?
+    let heartRate: HeartRateData?
+    let activity: ActivityData?
+    let timestamp: Date
+
+    init(
+        sleep: SleepData? = nil,
+        hrv: HRVData? = nil,
+        heartRate: HeartRateData? = nil,
+        activity: ActivityData? = nil,
+        timestamp: Date = Date()
+    ) {
+        self.sleep = sleep
+        self.hrv = hrv
+        self.heartRate = heartRate
+        self.activity = activity
+        self.timestamp = timestamp
+    }
 }
 
 struct SleepData: Codable {
     let duration: Double
-    let deep: Double
-    let rem: Double
-    let light: Double
-    let awake: Double
-    let efficiency: Int
+    let deep: Double?
+    let rem: Double?
+    let light: Double?
+    let awake: Double?
+    let efficiency: Double
+
+    // Computed properties for analysis
+    var deepSleepHours: Double? { deep }
+    var remSleepHours: Double? { rem }
+    var lightSleepHours: Double? { light }
+    var awakeHours: Double? { awake }
+
+    init(
+        duration: Double,
+        deep: Double? = nil,
+        rem: Double? = nil,
+        light: Double? = nil,
+        awake: Double? = nil,
+        efficiency: Double
+    ) {
+        self.duration = duration
+        self.deep = deep
+        self.rem = rem
+        self.light = light
+        self.awake = awake
+        self.efficiency = efficiency
+    }
 }
 
 struct HRVData: Codable {
-    let average: Double
-    let min: Double
-    let max: Double
+    let average: Double?
+    let min: Double?
+    let max: Double?
+
+    // Computed properties for analysis compatibility
+    var averageHRV: Double? { average }
+
+    init(average: Double? = nil, min: Double? = nil, max: Double? = nil) {
+        self.average = average
+        self.min = min
+        self.max = max
+    }
 }
 
 struct HeartRateData: Codable {
-    let resting: Int
-    let average: Int
-    let min: Int
-    let max: Int
+    let resting: Double?
+    let average: Double?
+    let min: Double?
+    let max: Double?
+
+    // Computed properties for analysis compatibility
+    var restingHeartRate: Double { resting ?? 70.0 }
+    var averageHeartRate: Double { average ?? 80.0 }
+
+    init(
+        resting: Double? = nil,
+        average: Double? = nil,
+        min: Double? = nil,
+        max: Double? = nil
+    ) {
+        self.resting = resting
+        self.average = average
+        self.min = min
+        self.max = max
+    }
 }
 
 struct ActivityData: Codable {
-    let steps: Int
-    let distance: Double
-    let calories: Int
-    let activeMinutes: Int
+    let steps: Double
+    let distance: Double?
+    let calories: Double
+    let activeMinutes: Double?
+
+    // Computed properties for analysis
+    var activeCalories: Double { calories }
+    var exerciseMinutes: Double? { activeMinutes }
+
+    init(
+        steps: Double,
+        distance: Double? = nil,
+        calories: Double,
+        activeMinutes: Double? = nil
+    ) {
+        self.steps = steps
+        self.distance = distance
+        self.calories = calories
+        self.activeMinutes = activeMinutes
+    }
 }
 
 // MARK: - Location & User Profile

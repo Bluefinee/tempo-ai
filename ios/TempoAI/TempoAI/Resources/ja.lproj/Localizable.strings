@@ -48,6 +48,42 @@
 "onboarding_continue" = "続ける";
 "onboarding_skip_for_now" = "今はスキップ";
 
+// MARK: - Health Status
+"health_status_optimal_title" = "絶好調";
+"health_status_optimal_description" = "健康指標が優秀です";
+"health_status_optimal_explanation" = "すべての健康指標が最高のパフォーマンスを示しています。この調子を維持しましょう！";
+"health_status_optimal_actions" = "現在の習慣を維持 | 水分補給を心がける | 質の良い睡眠を取る";
+
+"health_status_good_title" = "良好";
+"health_status_good_description" = "健康指標が平均以上です";
+"health_status_good_explanation" = "健康指標は良好で、わずかな改善の余地があります。";
+"health_status_good_actions" = "一貫性に注力 | 睡眠スケジュールを最適化 | アクティブに過ごす";
+
+"health_status_care_title" = "ケアモード";
+"health_status_care_description" = "体が注意を必要としています";
+"health_status_care_explanation" = "一部の健康指標から、回復とウェルネスを優先すべきことが示唆されます。";
+"health_status_care_actions" = "睡眠を優先 | ストレス管理 | 軽い運動のみ | 水分補給";
+
+"health_status_rest_title" = "休息モード";
+"health_status_rest_description" = "体が休息と回復を必要としています";
+"health_status_rest_explanation" = "健康指標から、休息と穏やかな回復に集中すべきことが示されています。";
+"health_status_rest_actions" = "十分な睡眠を取る | 激しい運動を避ける | リラクゼーション | 回復活動を検討";
+
+"health_status_unknown_title" = "分析中";
+"health_status_unknown_description" = "健康データを収集中";
+"health_status_unknown_explanation" = "正確な健康評価を提供するため、より多くのデータが必要です。";
+"health_status_unknown_actions" = "ヘルスデータアクセスを許可 | Apple Watchを着用 | 初期設定を完了";
+
+"data_quality_excellent" = "優秀";
+"data_quality_good" = "良好";
+"data_quality_fair" = "普通";
+"data_quality_poor" = "不十分";
+
+"alert_priority_0" = "なし";
+"alert_priority_1" = "低";
+"alert_priority_2" = "中";
+"alert_priority_3" = "高";
+
 // MARK: - Common Actions
 "button_get_started" = "始める";
 "button_continue" = "続ける";

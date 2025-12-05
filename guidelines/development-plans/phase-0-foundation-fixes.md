@@ -53,14 +53,15 @@ Phase 0 では、実装基盤の品質安定化と**日英完全対応の多言�
 
 ### TDD 実装フロー
 
-```
-1. Red    - 現状動作保証テスト作成（失敗を確認）
-2. Green  - 最小限修正でテスト通過
-3. Blue   - リファクタリング（テスト維持）
-4. Verify - 品質ゲート全通過確認
+```bash
+# UIIdentifiers.swiftの末尾改行追加
+echo "" >> ios/TempoAI/TempoAI/Shared/UIIdentifiers.swift
+
+# SwiftLint実行・確認
+cd ios && swiftlint lint --strict
 ```
 
-### Stage 1: リグレッション防止テスト
+#### 1.2 テスト安定化
 
 #### Swift 既存動作保証テスト
 
@@ -276,7 +277,7 @@ const ClaudeResponseSchema = z.object({
 export const generateAdvice = async (
   healthData: HealthData,
   locationData: LocationData,
-  options: { maxRetries?: number; timeout?: number } = {}
+  options: { maxRetries?: number } = {}
 ): Promise<DailyAdvice> => {
   const { maxRetries = 3, timeout = 30000 } = options;
 
@@ -489,7 +490,7 @@ describe("Claude Service Stability (Post-Fix)", () => {
 - **確認**: `pnpm run test:coverage`で安定動作確認
 - **品質目標**: 連続 10 回実行で失敗率 0%
 
-### 2. テストカバレッジ強化
+#### 2.1 iOS 国際化アーキテクチャ
 
 #### 2.1 エッジケーステスト追加
 
@@ -545,17 +546,45 @@ enum SupportedLanguage: String, CaseIterable {
         }
     }
 }
+
+// String+Localization.swift
+extension String {
+    var localized: String {
+        let language = LocalizationManager.shared.currentLanguage
+
+        guard let path = Bundle.main.path(forResource: language.rawValue, ofType: "lproj"),
+              let bundle = Bundle(path: path) else {
+            return NSLocalizedString(self, comment: "")
+        }
+
+        return NSLocalizedString(self, bundle: bundle, comment: "")
+    }
+}
 ```
 
 #### 3.2 基本多言語リソース作成
 
 ```
-ios/TempoAI/TempoAI/
-├── Resources/
-│   ├── ja.lproj/
-│   │   └── Localizable.strings
-│   └── en.lproj/
-│       └── Localizable.strings
+// タブナビゲーション
+"tab_today" = "今日";
+"tab_history" = "履歴";
+"tab_trends" = "傾向";
+"tab_profile" = "プロフィール";
+
+// 一般的なアクション
+"button_get_started" = "始める";
+"button_continue" = "続ける";
+"button_cancel" = "キャンセル";
+"button_done" = "完了";
+
+// エラーメッセージ
+"error_network" = "ネットワークに接続できません";
+"error_healthkit_denied" = "HealthKitへのアクセスが拒否されました";
+"error_location_denied" = "位置情報へのアクセスが拒否されました";
+
+// HealthKit権限
+"healthkit_permission_title" = "ヘルスケアデータへのアクセス";
+"healthkit_permission_description" = "より良いアドバイスを提供するため、あなたのヘルスケアデータを使用させてください";
 ```
 
 **日本語リソース例**:
@@ -609,7 +638,11 @@ ${JSON.stringify(healthData)}
 };
 ```
 
-### 4. 開発ワークフロー改善
+### Stage 3: 開発効率化
+
+#### 3.1 CLAUDE.md 準拠の自動化スクリプト
+
+**実装ファイル**: `scripts/dev-commands.sh`
 
 #### 4.1 Enhanced Quality Gates Integration
 
@@ -706,6 +739,41 @@ else
     echo "Phase 1 Ready: ❌ NO"
 fi
 ```
+
+#### 3.2 CLAUDE.md アップデート
+
+````markdown
+# Phase 0 で推奨されるコマンド
+
+## 品質チェック
+
+```bash
+# 包括的品質チェック
+./scripts/quality-check-all.sh
+
+# 特定プラットフォームのテスト
+./scripts/dev-commands.sh test-all
+```
+````
+
+## 開発サーバー
+
+```bash
+# バックエンド開発サーバー
+./scripts/dev-commands.sh dev-backend
+
+# iOSビルド
+./scripts/dev-commands.sh build-ios
+```
+
+## リント修正
+
+```bash
+# 自動リント修正
+./scripts/dev-commands.sh lint-fix
+```
+
+````
 
 ---
 
@@ -937,8 +1005,9 @@ describe("CLAUDE.md Compliance Verification", () => {
 #### iOS Quality Gates
 
 ```swift
-// ios/TempoAI/TempoAITests/Architecture/ClaudeMdComplianceTests.swift
-import XCTest
+class LocalizationTests: XCTestCase {
+    func testLanguageSwitching() {
+        let manager = LocalizationManager.shared
 
 class ClaudeMdComplianceTests: XCTestCase {
 
@@ -1006,7 +1075,7 @@ class ClaudeMdComplianceTests: XCTestCase {
                 if line.count > 120 {
                     violations.append("\(file):\(index + 1): \(line.count) chars (max 120)")
                 }
-            }
+                .tag(1)
         }
 
         XCTAssertEqual(violations.count, 0,
@@ -1071,9 +1140,17 @@ class ClaudeMdComplianceTests: XCTestCase {
 }
 ```
 
----
+### API 多言語レスポンス
 
-## 📦 成果物
+```typescript
+interface AdviceResponse {
+  advice: LocalizedContent;
+  recommendations: {
+    breakfast: LocalizedContent;
+    exercise: LocalizedContent;
+    sleep: LocalizedContent;
+  };
+}
 
 ### 修正対象ファイル
 
@@ -1173,23 +1250,15 @@ make test-run-time: ≤90秒
 # scripts/phase-0-ready-check.sh - Phase 1進行可否判定
 #!/bin/bash
 
-echo "🎯 Phase 0 → Phase 1 Readiness Check"
-echo "===================================="
+## ⚡ パフォーマンス考慮
 
-READY=true
+### iOS 最適化
 
-# Code Quality Verification
-echo "1. Code Quality Verification:"
-TS_ERRORS=$(cd backend && npx tsc --noEmit --strict 2>&1 | wc -l)
-SWIFT_WARNINGS=$(cd ios && swiftlint --strict 2>&1 | grep -c "warning\|error" || echo "0")
-ANY_TYPES=$(cd backend && grep -r ":\s*any[^a-zA-Z]" src/ | wc -l || echo "0")
+- String Catalog の遅延読み込み
+- 言語切り替え時のメモリ効率化
+- UserDefaults 最小アクセス
 
-if [ "$TS_ERRORS" -eq 0 ]; then
-    echo "  ✅ TypeScript Strict Mode: PASS"
-else
-    echo "  ❌ TypeScript Strict Mode: FAIL ($TS_ERRORS errors)"
-    READY=false
-fi
+### バックエンド最適化
 
 if [ "$SWIFT_WARNINGS" -eq 0 ]; then
     echo "  ✅ SwiftLint Compliance: PASS"
@@ -1331,9 +1400,9 @@ jobs:
 
 ---
 
-## 🔄 Next Phase
+## 🛡️ 品質保証
 
-Phase 0 完了後、品質基盤が安定した状態で Phase 1（MVP コア体験）の実装に進みます。
+### 必須クライテリア
 
 - **引き継ぎ項目**: 安定したテスト環境、品質ゲート、開発ワークフロー
 - **前提条件**: Phase 0 の全成功基準クリア

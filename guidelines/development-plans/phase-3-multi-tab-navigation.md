@@ -21,6 +21,22 @@
 
 ---
 
+## ⚠️ 重要：実装開始前の必須手順
+
+**実装を開始する前に、必ず以下の手順を実行してください：**
+
+1. **📋 全体像の把握**: [`guidelines/tempo-ai-product-spec.md`](../tempo-ai-product-spec.md) を熟読し、プロダクト全体のビジョン・要件・アーキテクチャを理解する
+
+2. **📝 開発ルールの確認**: [`CLAUDE.md`](../../CLAUDE.md) とその関連ドキュメント（[Swift Coding Standards](.claude/swift-coding-standards.md), [TypeScript Hono Standards](.claude/typescript-hono-standards.md)）を確認し、コーディング規約・品質基準・開発プロセスを把握する
+
+3. **🧪 テスト駆動開発**: **テストカバレッジ80%以上を維持**しながら、TDD（Test-Driven Development）でコードを実装する
+   - Red: テストを書く（失敗）
+   - Green: テストを通すための最小限のコード実装
+   - Refactor: コード品質向上
+   - **カバレッジ確認**: 各実装後に必ずテストカバレッジが80%を下回らないことを確認
+
+---
+
 ## 🎯 概要
 
 Phase 3では、現在プレースホルダー状態のHistory・Trendsタブを完全実装し、強化されたProfileタブと共に、包括的な健康データ管理プラットフォームを構築します。過去データ分析、長期トレンド可視化、編集可能なプロフィール機能により、ユーザーの健康ジャーニー全体をサポートします。

@@ -29,6 +29,22 @@
 
 ---
 
+## ⚠️ 重要：実装開始前の必須手順
+
+**実装を開始する前に、必ず以下の手順を実行してください：**
+
+1. **📋 全体像の把握**: [`guidelines/tempo-ai-product-spec.md`](../tempo-ai-product-spec.md) を熟読し、プロダクト全体のビジョン・要件・アーキテクチャを理解する
+
+2. **📝 開発ルールの確認**: [`CLAUDE.md`](../../CLAUDE.md) とその関連ドキュメント（[Swift Coding Standards](.claude/swift-coding-standards.md), [TypeScript Hono Standards](.claude/typescript-hono-standards.md)）を確認し、コーディング規約・品質基準・開発プロセスを把握する
+
+3. **🧪 テスト駆動開発**: **テストカバレッジ80%以上を維持**しながら、TDD（Test-Driven Development）でコードを実装する
+   - Red: テストを書く（失敗）
+   - Green: テストを通すための最小限のコード実装
+   - Refactor: コード品質向上
+   - **カバレッジ確認**: 各実装後に必ずテストカバレッジが80%を下回らないことを確認
+
+---
+
 ## 🎯 概要
 
 Phase 1 では、Tempo AI の**コア体験**を実装します。美麗なオンボーディングフロー、HealthKit と環境データを活用したパーソナライズアドバイス、カラーコード化ヘルスステータス、基本的な環境アラートによって、ユーザーが毎朝最適化された健康アドバイスを受け取れる MVP を完成させます。
@@ -74,7 +90,7 @@ Phase 1 では、Tempo AI の**コア体験**を実装します。美麗なオ�
 
 ---
 
-## 📋 実装タスク
+## 📋 実装要件
 
 ### 1. オンボーディングフロー実装（TDD）
 
@@ -407,7 +423,7 @@ cd backend && pnpm run test:coverage
 
 ---
 
-## 📦 成果物
+## 🏗️ アーキテクチャ詳細
 
 ### 新規実装ファイル
 

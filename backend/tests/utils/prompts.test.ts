@@ -427,5 +427,85 @@ describe('Prompt Utilities', () => {
         }),
       ).toThrow('Invalid userProfile: missing required fields')
     })
+
+    it('should include recent advice history when provided', () => {
+      const prompt = buildPrompt({
+        healthData: mockHealthData,
+        weather: mockWeatherData,
+        userProfile: mockUserProfile,
+        recentAdviceHistory: 'Previous recommendation: Focus on recovery',
+      })
+
+      expect(prompt).toContain('RECENT ADVICE HISTORY (Last 7 days):')
+      expect(prompt).toContain('Previous recommendation: Focus on recovery')
+    })
+
+    it('should include weekly health patterns when provided', () => {
+      const prompt = buildPrompt({
+        healthData: mockHealthData,
+        weather: mockWeatherData,
+        userProfile: mockUserProfile,
+        weeklyHealthPatterns: 'Consistent sleep: 7.5h average, HRV trending up',
+      })
+
+      expect(prompt).toContain('WEEKLY HEALTH PATTERNS:')
+      expect(prompt).toContain(
+        'Consistent sleep: 7.5h average, HRV trending up',
+      )
+    })
+
+    it('should show fallback messages when history is not provided', () => {
+      const prompt = buildPrompt({
+        healthData: mockHealthData,
+        weather: mockWeatherData,
+        userProfile: mockUserProfile,
+      })
+
+      expect(prompt).toContain('Building your personal advice history')
+      expect(prompt).toContain('Analyzing your health patterns')
+    })
+
+    it('should throw error when recentAdviceHistory exceeds length limit', () => {
+      const longHistory = 'a'.repeat(2001) // Exceeds 2000 character limit
+
+      expect(() =>
+        buildPrompt({
+          healthData: mockHealthData,
+          weather: mockWeatherData,
+          userProfile: mockUserProfile,
+          recentAdviceHistory: longHistory,
+        }),
+      ).toThrow('recentAdviceHistory exceeds maximum length of 2000 characters')
+    })
+
+    it('should throw error when weeklyHealthPatterns exceeds length limit', () => {
+      const longPatterns = 'b'.repeat(1001) // Exceeds 1000 character limit
+
+      expect(() =>
+        buildPrompt({
+          healthData: mockHealthData,
+          weather: mockWeatherData,
+          userProfile: mockUserProfile,
+          weeklyHealthPatterns: longPatterns,
+        }),
+      ).toThrow(
+        'weeklyHealthPatterns exceeds maximum length of 1000 characters',
+      )
+    })
+
+    it('should accept maximum length strings without error', () => {
+      const maxLengthHistory = 'a'.repeat(2000) // Exactly at limit
+      const maxLengthPatterns = 'b'.repeat(1000) // Exactly at limit
+
+      expect(() =>
+        buildPrompt({
+          healthData: mockHealthData,
+          weather: mockWeatherData,
+          userProfile: mockUserProfile,
+          recentAdviceHistory: maxLengthHistory,
+          weeklyHealthPatterns: maxLengthPatterns,
+        }),
+      ).not.toThrow()
+    })
   })
 })

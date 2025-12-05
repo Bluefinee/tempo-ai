@@ -24,6 +24,7 @@ class APIClient: ObservableObject {
         var urlRequest = URLRequest(url: url)
         urlRequest.httpMethod = "POST"
         urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        urlRequest.timeoutInterval = 30.0
 
         do {
             urlRequest.httpBody = try JSONEncoder().encode(request)
@@ -101,7 +102,8 @@ class APIClient: ObservableObject {
         endpoint: String,
         request: AnalysisRequest,
         maxRetries: Int = 3,
-        retryDelay: TimeInterval = 2.0
+        baseDelay: TimeInterval = 1.0,
+        maxDelay: TimeInterval = 10.0
     ) async throws -> T {
         var lastError: APIError?
 
@@ -120,7 +122,11 @@ class APIClient: ObservableObject {
                 default:
                     // Retry on network errors, server errors (5xx), and rate limiting (429)
                     if attempt < maxRetries - 1 {
-                        try await Task.sleep(nanoseconds: UInt64(retryDelay * 1_000_000_000))
+                        // Exponential backoff with jitter
+                        let backoffDelay = min(baseDelay * pow(2.0, Double(attempt)), maxDelay)
+                        let jitter = Double.random(in: 0.0...0.1) * backoffDelay
+                        let delayWithJitter = backoffDelay + jitter
+                        try await Task.sleep(nanoseconds: UInt64(delayWithJitter * 1_000_000_000))
                     }
                 }
             }

@@ -308,7 +308,6 @@ final class HomeViewModel: ObservableObject {
     }
 }
 
-
 // MARK: - Preview Support
 
 extension HomeViewModel {

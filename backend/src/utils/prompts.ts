@@ -23,9 +23,9 @@ export interface PromptParams {
   weather: WeatherData
   /** ユーザープロファイル情報 */
   userProfile: UserProfile
-  /** 過去のアドバイス履歴（Phase 2以降で実装） */
+  /** 過去のアドバイス履歴（Phase 2以降で実装）最大2000文字 */
   recentAdviceHistory?: string
-  /** 週次健康パターン（Phase 2以降で実装） */
+  /** 週次健康パターン（Phase 2以降で実装）最大1000文字 */
   weeklyHealthPatterns?: string
 }
 
@@ -83,6 +83,22 @@ export const buildPrompt = (params: PromptParams): string => {
       'Invalid userProfile: missing required fields',
       400,
       'INVALID_USER_PROFILE',
+    )
+  }
+
+  // Validate optional string lengths for Phase 2 parameters
+  if (recentAdviceHistory && recentAdviceHistory.length > 2000) {
+    throw new APIError(
+      'recentAdviceHistory exceeds maximum length of 2000 characters',
+      400,
+      'INVALID_ADVICE_HISTORY',
+    )
+  }
+  if (weeklyHealthPatterns && weeklyHealthPatterns.length > 1000) {
+    throw new APIError(
+      'weeklyHealthPatterns exceeds maximum length of 1000 characters',
+      400,
+      'INVALID_WEEKLY_PATTERNS',
     )
   }
 

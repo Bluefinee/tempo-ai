@@ -18,7 +18,7 @@ final class HealthStatusAnalyzerTests: XCTestCase {
         analyzer = HealthStatusAnalyzer(
             userAge: 30,
             userGender: "male",
-            activityLevel: .moderate
+            activityLevel: .moderatelyActive
         )
     }
     
@@ -225,7 +225,7 @@ final class HealthStatusAnalyzerTests: XCTestCase {
         let olderAnalyzer = HealthStatusAnalyzer(
             userAge: 55,
             userGender: "female",
-            activityLevel: .moderate
+            activityLevel: .moderatelyActive
         )
         
         let healthData = HealthKitData(

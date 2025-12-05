@@ -43,10 +43,10 @@ final class ContentViewUITests: BaseUITest {
         let trendsTab = app.tabBars.buttons["Trends"]
         let profileTab = app.tabBars.buttons["Profile"]
         
-        XCTAssertTrue(todayTab.exists, "Today tab should exist")
-        XCTAssertTrue(historyTab.exists, "History tab should exist")
-        XCTAssertTrue(trendsTab.exists, "Trends tab should exist")
-        XCTAssertTrue(profileTab.exists, "Profile tab should exist")
+        XCTAssertTrue(waitForElement(todayTab), "Today tab should exist")
+        XCTAssertTrue(waitForElement(historyTab), "History tab should exist")
+        XCTAssertTrue(waitForElement(trendsTab), "Trends tab should exist")
+        XCTAssertTrue(waitForElement(profileTab), "Profile tab should exist")
     }
     
     func testDefaultTabSelection() {
@@ -77,7 +77,7 @@ final class ContentViewUITests: BaseUITest {
         XCTAssertTrue(waitForElement(greetingText), "Greeting text should be visible")
         
         let settingsButton = app.buttons[UIIdentifiers.HomeView.settingsButton]
-        XCTAssertTrue(settingsButton.exists, "Settings button should be visible")
+        XCTAssertTrue(waitForElement(settingsButton), "Settings button should be visible")
     }
     
     func testHistoryTabNavigation() {
@@ -93,7 +93,7 @@ final class ContentViewUITests: BaseUITest {
         XCTAssertTrue(waitForElement(placeholderView), "History placeholder view should be visible")
         
         let placeholderMessage = app.staticTexts[UIIdentifiers.PlaceholderView.message]
-        XCTAssertTrue(placeholderMessage.exists, "History placeholder message should be visible")
+        XCTAssertTrue(waitForElement(placeholderMessage), "History placeholder message should be visible")
     }
     
     func testTrendsTabNavigation() {
@@ -109,7 +109,7 @@ final class ContentViewUITests: BaseUITest {
         XCTAssertTrue(waitForElement(placeholderView), "Trends placeholder view should be visible")
         
         let placeholderMessage = app.staticTexts[UIIdentifiers.PlaceholderView.message]
-        XCTAssertTrue(placeholderMessage.exists, "Trends placeholder message should be visible")
+        XCTAssertTrue(waitForElement(placeholderMessage), "Trends placeholder message should be visible")
     }
     
     func testProfileTabNavigation() {
@@ -126,10 +126,10 @@ final class ContentViewUITests: BaseUITest {
         
         // Verify profile rows are visible
         let ageRow = app.otherElements[UIIdentifiers.ProfileView.profileRow(for: "age")]
-        XCTAssertTrue(ageRow.exists, "Age profile row should be visible")
+        XCTAssertTrue(waitForElement(ageRow), "Age profile row should be visible")
         
         let genderRow = app.otherElements[UIIdentifiers.ProfileView.profileRow(for: "gender")]
-        XCTAssertTrue(genderRow.exists, "Gender profile row should be visible")
+        XCTAssertTrue(waitForElement(genderRow), "Gender profile row should be visible")
     }
     
     // MARK: - Tab Switching Tests
@@ -192,7 +192,7 @@ final class ContentViewUITests: BaseUITest {
         XCTAssertTrue(waitForElement(greetingText), "Today tab state should be preserved")
         
         let homeScrollView = app.scrollViews[UIIdentifiers.HomeView.scrollView]
-        XCTAssertTrue(homeScrollView.exists, "Home scroll view should still be visible")
+        XCTAssertTrue(waitForElement(homeScrollView), "Home scroll view should still be visible")
     }
     
     // MARK: - Tab Accessibility Tests
@@ -260,6 +260,6 @@ final class ContentViewUITests: BaseUITest {
         XCTAssertTrue(waitForElement(greetingText), "App should remain stable after rapid tab switching")
         
         let tabBar = app.tabBars.firstMatch
-        XCTAssertTrue(tabBar.exists, "Tab bar should remain functional")
+        XCTAssertTrue(waitForElement(tabBar), "Tab bar should remain functional")
     }
 }

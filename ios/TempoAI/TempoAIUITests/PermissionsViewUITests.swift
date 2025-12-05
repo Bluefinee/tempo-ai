@@ -61,7 +61,7 @@ final class PermissionsViewUITests: BaseUITest {
         let doneButton = app.buttons[UIIdentifiers.PermissionsView.dismissButton]
         
         // Then: All essential elements should be visible
-        XCTAssertTrue(permissionsView.exists, "Permissions view should be visible")
+        XCTAssertTrue(waitForElement(permissionsView), "Permissions view should be visible")
         XCTAssertTrue(waitForElement(headerTitle), "Header title should be visible")
         XCTAssertTrue(waitForElement(permissionsList), "Permissions list should be visible")
         XCTAssertTrue(waitForElement(doneButton), "Done button should be visible")
@@ -88,7 +88,7 @@ final class PermissionsViewUITests: BaseUITest {
         let doneButton = app.buttons[UIIdentifiers.PermissionsView.dismissButton]
         
         // Then: Navigation elements should be properly configured
-        XCTAssertTrue(navigationBar.exists, "Navigation bar should be visible")
+        XCTAssertTrue(waitForElement(navigationBar), "Navigation bar should be visible")
         XCTAssertTrue(waitForElement(doneButton), "Done button should be in navigation bar")
         XCTAssertTrue(doneButton.isHittable, "Done button should be tappable")
     }
@@ -109,7 +109,7 @@ final class PermissionsViewUITests: BaseUITest {
         let healthKitText = app.staticTexts.containing(NSPredicate(format: "label CONTAINS[c] 'healthkit'")).firstMatch
         if !healthKitText.exists {
             let healthText = app.staticTexts.containing(NSPredicate(format: "label CONTAINS[c] 'health'")).firstMatch
-            XCTAssertTrue(healthText.exists, "Should contain health-related text")
+            XCTAssertTrue(waitForElement(healthText), "Should contain health-related text")
         }
     }
     
@@ -125,7 +125,7 @@ final class PermissionsViewUITests: BaseUITest {
         
         // Check for location-related text content
         let locationText = app.staticTexts.containing(NSPredicate(format: "label CONTAINS[c] 'location'")).firstMatch
-        XCTAssertTrue(locationText.exists, "Should contain location-related text")
+        XCTAssertTrue(waitForElement(locationText), "Should contain location-related text")
     }
     
     func testPermissionStatusDisplay() {
@@ -207,7 +207,7 @@ final class PermissionsViewUITests: BaseUITest {
     func testDoneButtonFunctionality() {
         // Given: Permissions view is opened
         let permissionsView = app.otherElements[UIIdentifiers.PermissionsView.mainView]
-        XCTAssertTrue(permissionsView.exists, "Permissions view should be visible")
+        XCTAssertTrue(waitForElement(permissionsView), "Permissions view should be visible")
         
         // When: Tapping the Done button
         let doneButton = app.buttons[UIIdentifiers.PermissionsView.dismissButton]
@@ -235,10 +235,10 @@ final class PermissionsViewUITests: BaseUITest {
         let doneButton = app.buttons[UIIdentifiers.PermissionsView.dismissButton]
         
         // Then: Elements should be accessible
-        XCTAssertTrue(headerTitle.exists, "Header title should be accessible")
-        XCTAssertTrue(healthKitRow.exists, "HealthKit row should be accessible")
-        XCTAssertTrue(locationRow.exists, "Location row should be accessible")
-        XCTAssertTrue(doneButton.exists, "Done button should be accessible")
+        XCTAssertTrue(waitForElement(headerTitle), "Header title should be accessible")
+        XCTAssertTrue(waitForElement(healthKitRow), "HealthKit row should be accessible")
+        XCTAssertTrue(waitForElement(locationRow), "Location row should be accessible")
+        XCTAssertTrue(waitForElement(doneButton), "Done button should be accessible")
         
         // Verify proper element types
         XCTAssertTrue(doneButton.elementType == .button, "Done button should have button element type")
@@ -290,7 +290,7 @@ final class PermissionsViewUITests: BaseUITest {
         
         // Verify we're still in permissions view after any error handling
         let permissionsView = app.otherElements[UIIdentifiers.PermissionsView.mainView]
-        XCTAssertTrue(permissionsView.exists, "Should remain in permissions view")
+        XCTAssertTrue(waitForElement(permissionsView), "Should remain in permissions view")
     }
     
     // MARK: - Layout Tests
@@ -303,8 +303,8 @@ final class PermissionsViewUITests: BaseUITest {
         let permissionsList = app.otherElements[UIIdentifiers.PermissionsView.permissionsList]
         
         // Then: Layout should be properly structured
-        XCTAssertTrue(permissionsView.exists, "Main permissions view should exist")
-        XCTAssertTrue(permissionsList.exists, "Permissions list should exist")
+        XCTAssertTrue(waitForElement(permissionsView), "Main permissions view should exist")
+        XCTAssertTrue(waitForElement(permissionsList), "Permissions list should exist")
         
         // Check that both permission rows are visible without needing to scroll
         let healthKitRow = app.otherElements[UIIdentifiers.PermissionsView.healthKitRow]
@@ -335,8 +335,8 @@ final class PermissionsViewUITests: BaseUITest {
         let scrollView = app.scrollViews[UIIdentifiers.HomeView.scrollView]
         
         XCTAssertTrue(waitForElement(greetingText), "Greeting text should be visible")
-        XCTAssertTrue(settingsButton.exists, "Settings button should be functional")
-        XCTAssertTrue(scrollView.exists, "Scroll view should be functional")
+        XCTAssertTrue(waitForElement(settingsButton), "Settings button should be functional")
+        XCTAssertTrue(waitForElement(scrollView), "Scroll view should be functional")
         
         // Verify we can open permissions again
         safeTap(settingsButton)
@@ -399,8 +399,8 @@ final class PermissionsViewUITests: BaseUITest {
         let healthKitRow = app.otherElements[UIIdentifiers.PermissionsView.healthKitRow]
         let locationRow = app.otherElements[UIIdentifiers.PermissionsView.locationRow]
         
-        XCTAssertTrue(healthKitRow.exists, "HealthKit row should be preserved")
-        XCTAssertTrue(locationRow.exists, "Location row should be preserved")
+        XCTAssertTrue(waitForElement(healthKitRow), "HealthKit row should be preserved")
+        XCTAssertTrue(waitForElement(locationRow), "Location row should be preserved")
         
         takeScreenshot(name: "State Preserved After Reopen")
     }

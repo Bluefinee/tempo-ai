@@ -94,7 +94,7 @@ final class AdviceViewUITests: BaseUITest {
             safeTap(themeSummaryCard)
             
             // Then: Card should remain accessible (it's informational)
-            XCTAssertTrue(themeSummaryCard.exists, "Theme card should remain visible after tap")
+            XCTAssertTrue(waitForElement(themeSummaryCard), "Theme card should remain visible after tap")
             
             takeScreenshot(name: "Theme Summary Card After Interaction")
         }
@@ -203,7 +203,7 @@ final class AdviceViewUITests: BaseUITest {
                 let mealText = app.staticTexts.containing(NSPredicate(format: "label CONTAINS[c] '\(mealName)'")).firstMatch
                 
                 if mealText.exists {
-                    XCTAssertTrue(mealText.exists, "\(mealName) card should contain \(mealName) text")
+                    XCTAssertTrue(waitForElement(mealText), "\(mealName) card should contain \(mealName) text")
                 }
                 
                 takeScreenshot(name: "\(mealName) Card Content")
@@ -327,7 +327,7 @@ final class AdviceViewUITests: BaseUITest {
             takeScreenshot(name: "Advice View After Scroll Up")
             
             // Then: Scrolling should work smoothly
-            XCTAssertTrue(scrollView.exists, "Scroll view should remain functional")
+            XCTAssertTrue(waitForElement(scrollView), "Scroll view should remain functional")
         }
     }
     
@@ -415,7 +415,7 @@ final class AdviceViewUITests: BaseUITest {
                 scrollView.swipeUp()
                 Thread.sleep(forTimeInterval: 0.5)
                 
-                XCTAssertTrue(adviceView.exists, "Advice should remain visible during scroll")
+                XCTAssertTrue(waitForElement(adviceView), "Advice should remain visible during scroll")
             }
         }
     }

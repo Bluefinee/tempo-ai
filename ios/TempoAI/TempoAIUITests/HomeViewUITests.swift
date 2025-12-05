@@ -173,8 +173,8 @@ final class HomeViewUITests: BaseUITest {
             let mockDataIcon = app.images[UIIdentifiers.HomeView.mockDataIcon]
             let mockDataText = app.staticTexts[UIIdentifiers.HomeView.mockDataText]
             
-            XCTAssertTrue(mockDataIcon.exists, "Mock data icon should be visible")
-            XCTAssertTrue(mockDataText.exists, "Mock data text should be visible")
+            XCTAssertTrue(waitForElement(mockDataIcon), "Mock data icon should be visible")
+            XCTAssertTrue(waitForElement(mockDataText), "Mock data text should be visible")
             XCTAssertFalse(mockDataText.label.isEmpty, "Mock data text should not be empty")
             
             takeScreenshot(name: "Mock Data Banner Display")
@@ -257,7 +257,7 @@ final class HomeViewUITests: BaseUITest {
             verifyErrorViewDisplayed()
             
             let retryButton = app.buttons[UIIdentifiers.HomeViewComponents.errorRetryButton]
-            XCTAssertTrue(retryButton.exists, "Retry button should be available")
+            XCTAssertTrue(waitForElement(retryButton), "Retry button should be available")
             
             if retryButton.isHittable {
                 safeTap(retryButton)
@@ -283,7 +283,7 @@ final class HomeViewUITests: BaseUITest {
             verifyEmptyStateViewDisplayed()
             
             let refreshButton = app.buttons[UIIdentifiers.HomeViewComponents.emptyStateActionButton]
-            XCTAssertTrue(refreshButton.exists, "Refresh button should be available")
+            XCTAssertTrue(waitForElement(refreshButton), "Refresh button should be available")
             
             if refreshButton.isHittable {
                 safeTap(refreshButton)
@@ -318,7 +318,7 @@ final class HomeViewUITests: BaseUITest {
         
         // Verify essential elements are still present
         let greetingText = app.staticTexts[UIIdentifiers.HomeView.greetingText]
-        XCTAssertTrue(greetingText.exists, "Greeting text should still be visible after refresh")
+        XCTAssertTrue(waitForElement(greetingText), "Greeting text should still be visible after refresh")
     }
     
     // MARK: - Navigation Tests
@@ -351,9 +351,9 @@ final class HomeViewUITests: BaseUITest {
         let subtitleText = app.staticTexts[UIIdentifiers.HomeView.subtitleText]
         
         // Then: Elements should be accessible
-        XCTAssertTrue(greetingText.exists, "Greeting text should be accessible")
-        XCTAssertTrue(settingsButton.exists, "Settings button should be accessible")
-        XCTAssertTrue(subtitleText.exists, "Subtitle text should be accessible")
+        XCTAssertTrue(waitForElement(greetingText), "Greeting text should be accessible")
+        XCTAssertTrue(waitForElement(settingsButton), "Settings button should be accessible")
+        XCTAssertTrue(waitForElement(subtitleText), "Subtitle text should be accessible")
         
         // Verify elements have appropriate accessibility traits
         if settingsButton.exists {
@@ -448,6 +448,6 @@ final class HomeViewUITests: BaseUITest {
         waitForAppToFinishLoading(timeout: 15.0)
         
         let greetingText = app.staticTexts[UIIdentifiers.HomeView.greetingText]
-        XCTAssertTrue(greetingText.exists, "Home view should remain stable after rapid refreshes")
+        XCTAssertTrue(waitForElement(greetingText), "Home view should remain stable after rapid refreshes")
     }
 }

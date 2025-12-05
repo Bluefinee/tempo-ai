@@ -5,6 +5,20 @@
 **最終更新**: 2025年12月5日  
 **前提条件**: Phase 3 完了（包括的データ管理プラットフォーム）
 
+## 🔧 開発実施前の必須確認事項
+
+**実装開始前に必ず以下のドキュメントを確認すること:**
+
+1. **製品全体理解**: [`guidelines/tempo-ai-product-spec.md`](../tempo-ai-product-spec.md) - 製品ビジョン、要件、アーキテクチャ概要を把握
+2. **開発ルール**: [`CLAUDE.md`](../../CLAUDE.md) - 開発フロー、品質基準、コミット戦略
+3. **Swift開発基準**: [`.claude/swift-coding-standards.md`](../../.claude/swift-coding-standards.md) - iOS開発のベストプラクティス
+4. **TypeScript開発基準**: [`.claude/typescript-hono-standards.md`](../../.claude/typescript-hono-standards.md) - API開発の規約
+
+**必須開発手法:**
+- **テスト駆動開発 (TDD)**: Red → Green → Blue → Integrate サイクルの徹底
+- **カバレッジ目標**: バックエンド 80%以上、iOS 80%以上
+- **コミット戦略**: 機能の細かい単位での頻繁なコミット（CI/CDパイプライン連携）
+
 ---
 
 ## ⚠️ 重要：実装開始前の必須手順

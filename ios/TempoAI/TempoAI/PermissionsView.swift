@@ -116,7 +116,7 @@ struct PermissionRow: View {
                 .font(.title2)
                 .foregroundColor(.blue)
                 .frame(width: 30)
-                // Icon doesn't need individual identifier - it's part of the row
+            // Icon doesn't need individual identifier - it's part of the row
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)

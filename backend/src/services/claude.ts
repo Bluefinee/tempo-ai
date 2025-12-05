@@ -13,6 +13,12 @@ import Anthropic from '@anthropic-ai/sdk'
 import type { z } from 'zod'
 import { DailyAdviceSchema } from '../types/advice'
 import { APIError } from '../utils/errors'
+import type { LocalizationContext } from '../utils/localization'
+import {
+  claudeErrorMessages,
+  createDefaultLocalizationContext,
+  getLocalizedMessage,
+} from '../utils/localization'
 
 // 型安全なJSONパース処理は直接実装（Zodスキーマとの統合）
 
@@ -32,6 +38,8 @@ interface ClaudeParams {
   apiKey: string
   /** カスタムfetch関数（テスト用） */
   customFetch?: typeof fetch
+  /** 多言語化コンテキスト */
+  localizationContext?: LocalizationContext
 }
 
 /**
@@ -49,15 +57,144 @@ interface ClaudeParams {
  * @throws {APIError} AI応答が無効な形式の場合
  * @throws {APIError} レート制限に達した場合
  */
+/**
+ * リトライオプション型定義
+ */
+interface RetryOptions {
+  /** 最大リトライ回数 */
+  maxRetries?: number
+  /** タイムアウト時間（ミリ秒） */
+  timeout?: number
+}
+
+/**
+ * リトライロジック付きのClaude API呼び出し関数
+ *
+ * 指数バックオフによるリトライ機能とタイムアウト処理を提供します。
+ * 一時的なエラーに対して自動的にリトライを行い、テスト安定性を向上させます。
+ *
+ * @param params - Claude API呼び出しパラメータ
+ * @param options - リトライオプション
+ * @returns パーソナライズされた健康アドバイス
+ * @throws {APIError} 最大リトライ回数に達した場合
+ * @throws {APIError} タイムアウトに達した場合
+ */
+export const generateAdviceWithRetry = async (
+  params: ClaudeParams,
+  options: RetryOptions = {},
+): Promise<z.infer<typeof DailyAdviceSchema>> => {
+  const { maxRetries = 3, timeout = 15000 } = options
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const response = await callClaudeAPIWithTimeout(params, timeout)
+      return response
+    } catch (error) {
+      if (attempt === maxRetries || !isRetryableError(error)) {
+        throw error
+      }
+
+      const backoffDelay = calculateExponentialBackoff(attempt)
+      await new Promise((resolve) => setTimeout(resolve, backoffDelay))
+    }
+  }
+
+  // This should never be reached, but TypeScript requires it
+  throw new APIError('Max retries exceeded', 500, 'MAX_RETRIES_EXCEEDED')
+}
+
+/**
+ * タイムアウト付きClaude API呼び出し
+ */
+const callClaudeAPIWithTimeout = async (
+  params: ClaudeParams,
+  timeout: number,
+): Promise<z.infer<typeof DailyAdviceSchema>> => {
+  return Promise.race([
+    callClaude(params),
+    new Promise<never>((_, reject) =>
+      setTimeout(
+        () =>
+          reject(
+            new APIError(
+              `Request timed out after ${timeout}ms`,
+              408,
+              'TIMEOUT_ERROR',
+            ),
+          ),
+        timeout,
+      ),
+    ),
+  ])
+}
+
+/**
+ * エラーがリトライ可能かどうかを判定
+ */
+const isRetryableError = (error: unknown): boolean => {
+  if (error instanceof APIError) {
+    return (
+      error.code === 'INVALID_JSON_RESPONSE' ||
+      error.code === 'TIMEOUT_ERROR' ||
+      error.code === 'AI_ANALYSIS_ERROR' ||
+      error.code === 'RATE_LIMIT_EXCEEDED'
+    )
+  }
+  return false
+}
+
+/**
+ * 指数バックオフ遅延時間計算
+ */
+const calculateExponentialBackoff = (attempt: number): number => {
+  const baseDelay = 1000 // 1秒
+  const maxDelay = 10000 // 10秒
+  const delay = Math.min(baseDelay * 2 ** (attempt - 1), maxDelay)
+  const jitter = Math.random() * 0.3 * delay // 30%のジッター
+  return delay + jitter
+}
+
+/**
+ * 多言語化されたシステムプロンプトを生成
+ */
+const generateLocalizedSystemPrompt = (
+  context: LocalizationContext,
+): string => {
+  const { language, culturalContext } = context
+
+  if (language === 'ja') {
+    return `あなたは健康アドバイザーです。健康指標と天気条件に基づいて、パーソナライズされた日々の健康アドバイスを提供します。
+
+重要な指示：
+- 常に有効なJSON形式で応答してください
+- 要求された構造に正確に一致させてください
+- 全ての推奨事項は具体的で実行可能にしてください
+- ${culturalContext?.formalityLevel === 'casual' ? 'フレンドリーで親しみやすい' : '丁寧で専門的な'}トーンを使用してください
+- 日本の文化と生活様式を考慮してください
+- 食事時間: 朝食${culturalContext?.mealTimes.breakfast || '07:00'}、昼食${culturalContext?.mealTimes.lunch || '12:00'}、夕食${culturalContext?.mealTimes.dinner || '19:00'}を基準にしてください`
+  } else {
+    return `You are a health advisor that provides personalized daily health advice based on health metrics and weather conditions.
+
+Important instructions:
+- Always respond in valid JSON format exactly matching the requested structure
+- Be specific and actionable in all recommendations
+- Use a ${culturalContext?.formalityLevel === 'formal' ? 'professional and formal' : 'friendly and approachable'} tone
+- Consider Western lifestyle and cultural preferences
+- Base meal recommendations around: breakfast ${culturalContext?.mealTimes.breakfast || '08:00'}, lunch ${culturalContext?.mealTimes.lunch || '12:30'}, dinner ${culturalContext?.mealTimes.dinner || '18:30'}`
+  }
+}
+
 export const callClaude = async (
   params: ClaudeParams,
 ): Promise<z.infer<typeof DailyAdviceSchema>> => {
   if (!params.apiKey || params.apiKey === PLACEHOLDER_API_KEY) {
-    throw new APIError(
-      'Claude API key not configured. Please set ANTHROPIC_API_KEY environment variable.',
-      500,
-      'MISSING_API_KEY',
+    const localizationContext =
+      params.localizationContext ?? createDefaultLocalizationContext()
+    const errorMessage = getLocalizedMessage(
+      claudeErrorMessages.apiKeyMissing,
+      localizationContext.language,
     )
+    throw new APIError(errorMessage, 500, 'MISSING_API_KEY')
   }
 
   try {
@@ -66,12 +203,16 @@ export const callClaude = async (
       ...(params.customFetch && { fetch: params.customFetch }),
     })
 
+    // 多言語化されたシステムプロンプトを生成
+    const localizationContext =
+      params.localizationContext ?? createDefaultLocalizationContext()
+    const systemPrompt = generateLocalizedSystemPrompt(localizationContext)
+
     const message = await anthropic.messages.create({
       model: ANTHROPIC_MODEL,
       max_tokens: MAX_TOKENS,
       temperature: TEMPERATURE,
-      system:
-        'You are a health advisor that provides personalized daily health advice based on health metrics and weather conditions. Always respond in valid JSON format exactly matching the requested structure. Be specific and actionable in all recommendations.',
+      system: systemPrompt,
       messages: [
         {
           role: 'user',

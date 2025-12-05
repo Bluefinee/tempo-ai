@@ -110,7 +110,10 @@ describe('Claude API Service', () => {
           prompt: 'Test prompt',
           apiKey: 'sk-ant-api03-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
         }),
-      ).rejects.toThrow('Claude API key not configured')
+      ).rejects.toMatchObject({
+        name: 'APIError',
+        code: 'MISSING_API_KEY',
+      })
     })
 
     it('should successfully call Claude API with valid inputs', async () => {

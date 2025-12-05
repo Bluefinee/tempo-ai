@@ -1,9 +1,31 @@
-# 📱 Phase 1: MVP コア体験実装計画書
+# 🚀 Phase 1: MVP コア体験実装計画書
 
-**実施期間**: 3-4週間  
-**対象読者**: 開発チーム  
-**最終更新**: 2025年12月5日  
-**前提条件**: Phase 0 完了（品質基盤安定化）
+**実施期間**: 3-4 週間 | **対象読者**: 開発チーム | **最終更新**: 2025 年 12 月 5 日  
+**前提条件**: Phase 0 完了（品質基盤安定化 + 多言語化基盤構築）
+
+---
+
+## 🔧 実装前必須確認事項
+
+### 📚 参照必須ドキュメント
+
+1. **全体仕様把握**: [guidelines/tempo-ai-product-spec.md](../tempo-ai-product-spec.md) - プロダクト全体像とターゲット理解
+2. **開発ルール確認**: [CLAUDE.md](../../CLAUDE.md) - 開発哲学、品質基準、プロセス
+3. **Swift 標準確認**: [.claude/swift-coding-standards.md](../../.claude/swift-coding-standards.md) - Swift 実装ルール
+4. **TypeScript 標準確認**: [.claude/typescript-hono-standards.md](../../.claude/typescript-hono-standards.md) - Backend 実装ルール
+
+### 🧪 テスト駆動開発（TDD）必須要件
+
+- **カバレッジ目標**: Backend ≥80%, iOS ≥80%
+- **TDD サイクル**: Red → Green → Blue → Integrate
+- **継続的品質**: 全実装でテストファースト
+- **品質ゲート**: 実装完了前に必ずテスト実行・確認
+
+### 📦 コミット戦略
+
+- **細かい単位でコミット**: 機能単位、テスト単位での適切な粒度
+- **明確なコミットメッセージ**: 変更内容と理由を簡潔に記載
+- **継続的統合**: 各コミット後の CI/CD 確認
 
 ---
 
@@ -25,410 +47,444 @@
 
 ## 🎯 概要
 
-Phase 1では、仕様書に定義された洗練されたユーザー体験の基盤を構築します。美しいオンボーディングフロー、環境情報統合、カラーコード化された健康状態システム、天気対応挨拶システムの実装により、現在の基本MVPを魅力的なヘルスアドバザーアプリに変換します。
+Phase 1 では、Tempo AI の**コア体験**を実装します。美麗なオンボーディングフロー、HealthKit と環境データを活用したパーソナライズアドバイス、カラーコード化ヘルスステータス、基本的な環境アラートによって、ユーザーが毎朝最適化された健康アドバイスを受け取れる MVP を完成させます。
 
 ---
 
-## 📊 現状と目標
+## 📊 Phase 1 目標と成果物
 
-### 現在の状態（Phase 0完了後）
-- 基本的な4タブナビゲーション
-- 単純なHomeView（Today）
-- 基本的なヘルス・位置情報権限管理
-- シンプルなアドバイス表示
-- **✅ 日英多言語化基盤構築済み**
+### 実装範囲
 
-### Phase 1 終了時の目標
-- 🌟 **4ページ美麗オンボーディングフロー**（**日本語・英語完全対応**）
-- 🎨 **カラーコード化ヘルスステータス**（最適/標準/ケア/休息モード）
-- 🌤️ **天気・時間対応パーソナライズ挨拶**（**日本語での自然な表現**）
-- ⚠️ **環境アラートシステム**（気圧・花粉・大気質）
-- 💫 **洗練されたUI/UX体験**（**日本語レイアウト最適化**）
+- **🌟 美麗 4 ページオンボーディングフロー** - 権限取得とアプリ価値訴求
+- **🏠 メインホーム画面** - パーソナライズ挨拶とヘルスステータス表示
+- **🎨 カラーコード化ヘルスステータス** - 絶好調/良好/ケア/休息モード（4 段階）
+- **🤖 AI アドバイス生成エンジン** - HealthKit + 環境データ + Claude API 統合
+- **🌤️ 環境対応システム** - 天気・気温に基づくパーソナライズアドバイス
+- **⚠️ 基本環境アラート** - 極端な気温・悪天候時のアラート
+- **📱 基本ナビゲーション** - プレースホルダーを含む 5 タブ構造
+
+### 技術目標
+
+- **テストカバレッジ**: Backend ≥80%, iOS ≥80%
+- **パフォーマンス**: アドバイス生成 ≤5 秒、画面遷移 ≤1 秒
+- **多言語対応**: 日英完全対応（基本リソース実装済み）
+- **エラーハンドリング**: 全 API 呼び出しで適切なエラー処理と再試行機構
+
+---
+
+## 🧪 テスト駆動開発（TDD）アプローチ
+
+### TDD 実装フロー
+
+1. **Red** - 機能要件テスト作成（失敗確認）
+2. **Green** - 最小限実装でテスト通過
+3. **Blue** - リファクタリング（テスト維持）
+4. **Integrate** - 統合テストで品質確保
+
+### テスト戦略
+
+- **Unit Tests**: 各 ViewModel と Service 個別テスト
+- **Integration Tests**: API 連携とデータフロー検証
+- **UI Tests**: ユーザーフロー全体の End-to-End テスト
+- **Performance Tests**: レスポンス時間と同期処理検証
 
 ---
 
 ## 📋 実装要件
 
-### 1. オンボーディングフロー実装
+### 1. オンボーディングフロー実装（TDD）
 
-#### 実装ファイル
-- `OnboardingView.swift` - メイン管理
-- `WelcomePageView.swift` - Page 1: コンセプト紹介
-- `DataExplanationPageView.swift` - Page 2: データ統合説明
-- `AIAnalysisPageView.swift` - Page 3: AI分析説明
-- `GetStartedPageView.swift` - Page 4: 開始画面
+#### 1.1 OnboardingFlow 実装
 
-#### 技術要件
-- SwiftUI TabView with .page style
-- 多言語対応（String Catalog使用）
-- アクセシビリティ識別子
-- UI テスト対応
-
-#### 多言語リソース（主要項目）
 ```swift
-// 日本語
-"onboarding_welcome_title" = "Tempo AI へようこそ"
-"onboarding_data_title" = "3つのデータを統合"
-"onboarding_analysis_title" = "AIが分析すること"
-"onboarding_start_title" = "毎朝届くもの"
+// ios/TempoAI/TempoAI/Views/Onboarding/OnboardingFlowView.swift
+struct OnboardingFlowView: View {
+    @StateObject private var viewModel: OnboardingViewModel = OnboardingViewModel()
 
-// English  
-"onboarding_welcome_title" = "Welcome to Tempo AI"
-"onboarding_data_title" = "Three Data Sources"
-"onboarding_analysis_title" = "What AI Analyzes"
-"onboarding_start_title" = "What You Get"
+    var body: some View {
+        TabView(selection: $viewModel.currentPage) {
+            WelcomePageView().tag(0)
+            HealthKitPermissionPageView().tag(1)
+            LocationPermissionPageView().tag(2)
+            CompletionPageView().tag(3)
+        }
+        .tabViewStyle(.page)
+        .onAppear { viewModel.trackOnboardingStart() }
+    }
+}
 ```
 
-### 2. ヘルスステータス システム
+**コミットポイント**: オンボーディング基本構造実装
 
-#### カラーコード仕様
-- **🟢 最適**: 良好な状態 - Green (#00C851)
-- **🔵 標準**: 平常状態 - Blue (#2196F3) 
-- **🟡 ケア**: 注意必要 - Amber (#FFC107)
-- **🔴 休息**: 休息必要 - Red (#F44336)
+#### 1.2 PermissionManager 統合
 
-#### 実装ファイル
-- `HealthStatusView.swift` - ステータス表示
-- `HealthStatusCalculator.swift` - ロジック
-- `HealthStatusColors.swift` - カラー定義
-
-#### 判定ロジック
 ```swift
-struct HealthStatusCalculator {
-    static func calculateStatus(from healthData: HealthData) -> HealthStatus {
-        let sleepScore = calculateSleepScore(healthData.sleep)
-        let hrvScore = calculateHRVScore(healthData.hrv)
-        let activityScore = calculateActivityScore(healthData.activity)
-        
-        let overallScore = (sleepScore + hrvScore + activityScore) / 3
-        
-        switch overallScore {
-        case 80...100: return .optimal
-        case 60..<80: return .good
-        case 40..<60: return .care
-        default: return .rest
+// ios/TempoAI/TempoAI/Services/PermissionManager.swift
+class PermissionManager: ObservableObject {
+    @Published var healthKitStatus: PermissionStatus = .notDetermined
+    @Published var locationStatus: PermissionStatus = .notDetermined
+
+    func requestHealthKitPermission() async -> PermissionStatus {
+        // HealthKit権限要求実装
+    }
+
+    func requestLocationPermission() async -> PermissionStatus {
+        // 位置情報権限要求実装
+    }
+}
+```
+
+**コミットポイント**: 権限管理機能実装
+
+#### 1.3 TDD テスト実装
+
+```swift
+// ios/TempoAI/TempoAITests/Onboarding/OnboardingFlowTests.swift
+class OnboardingFlowTests: XCTestCase {
+    func testOnboardingCompleteFlow() {
+        let expectation = XCTestExpectation(description: "Onboarding completed")
+        let viewModel = OnboardingViewModel()
+
+        // ページ遷移テスト
+        XCTAssertEqual(viewModel.currentPage, 0)
+        viewModel.nextPage()
+        XCTAssertEqual(viewModel.currentPage, 1)
+
+        // 権限取得完了テスト
+        viewModel.completeOnboarding {
+            expectation.fulfill()
+        }
+
+        wait(for: [expectation], timeout: 5.0)
+        XCTAssertTrue(viewModel.isOnboardingCompleted)
+    }
+}
+```
+
+**コミットポイント**: オンボーディングテスト完了
+
+### 2. ヘルスステータス分析エンジン実装（TDD）
+
+#### 2.1 HealthStatusAnalyzer 実装
+
+```swift
+// ios/TempoAI/TempoAI/Services/HealthStatusAnalyzer.swift
+class HealthStatusAnalyzer: ObservableObject {
+    @Published var currentStatus: HealthStatus = .unknown
+
+    func analyzeHealthStatus(from data: HealthKitData) async -> HealthStatus {
+        // HRV、睡眠、心拍数を総合分析
+        let hvrScore = analyzeHRV(data.hrv)
+        let sleepScore = analyzeSleep(data.sleep)
+        let activityScore = analyzeActivity(data.activity)
+
+        return calculateOverallStatus(hrv: hvrScore, sleep: sleepScore, activity: activityScore)
+    }
+
+    private func calculateOverallStatus(hrv: Double, sleep: Double, activity: Double) -> HealthStatus {
+        let average = (hrv + sleep + activity) / 3
+        switch average {
+        case 0.8...1.0: return .optimal    // 絶好調
+        case 0.6..<0.8: return .good       // 良好
+        case 0.4..<0.6: return .care       // ケアモード
+        default: return .rest              // 休息モード
+        }
+    }
+}
+
+enum HealthStatus: String, CaseIterable {
+    case optimal = "optimal"    // 🟢 絶好調
+    case good = "good"         // 🟡 良好
+    case care = "care"         // 🟠 ケアモード
+    case rest = "rest"         // 🔴 休息モード
+    case unknown = "unknown"   // ⚪ 分析中
+
+    var color: Color {
+        switch self {
+        case .optimal: return .green
+        case .good: return .yellow
+        case .care: return .orange
+        case .rest: return .red
+        case .unknown: return .gray
+        }
+    }
+
+    var localizedTitle: String {
+        NSLocalizedString("health_status_\(rawValue)", comment: "")
+    }
+}
+```
+
+**コミットポイント**: ヘルスステータス分析エンジン実装
+
+#### 2.2 Backend TDD テスト実装
+
+```typescript
+// backend/tests/services/health-analyzer.test.ts
+describe("HealthStatus Analysis", () => {
+  it("should return optimal status for excellent metrics", () => {
+    const mockData = {
+      hrv: { average: 55, trend: "stable" },
+      sleep: { duration: 8.5, deep: 2.2, rem: 1.8, efficiency: 0.95 },
+      heart_rate: { resting: 58, average: 75 },
+      activity: { steps: 12000, calories: 2400 },
+    };
+
+    const result = analyzer.analyzeHealthStatus(mockData);
+    expect(result.status).toBe("optimal");
+    expect(result.confidence).toBeGreaterThan(0.8);
+  });
+});
+```
+
+**コミットポイント**: ヘルスステータステスト完了
+
+### 3. AI アドバイス生成エンジン実装（TDD）
+
+#### 3.1 AdviceGenerationService 実装
+
+```typescript
+// backend/src/services/advice-generation.ts
+export interface DailyAdvice {
+  theme: "optimal" | "care" | "recovery";
+  summary: string;
+  greeting: string;
+  meal_plan: {
+    breakfast: string;
+    lunch: string;
+    dinner: string;
+  };
+  exercise_plan: string;
+  wellness_plan: string;
+  environmental_alerts: EnvironmentAlert[];
+}
+
+export const generateDailyAdvice = async (
+  request: DailyAdviceRequest
+): Promise<DailyAdvice> => {
+  const prompt = buildAdvicePrompt(request);
+  const rawAdvice = await claudeService.generateAdvice(prompt);
+  const structuredAdvice = parseAdviceResponse(rawAdvice);
+
+  const environmentAlerts = generateEnvironmentAlerts(
+    request.environmentData,
+    request.healthData.status
+  );
+
+  return {
+    ...structuredAdvice,
+    environmental_alerts: environmentAlerts,
+    greeting: generatePersonalizedGreeting(
+      request.userProfile,
+      request.environmentData,
+      request.healthData.status
+    ),
+  };
+};
+```
+
+**コミットポイント**: AI アドバイス生成機能実装
+
+### 4. ホーム画面実装（TDD）
+
+#### 4.1 HomeView 実装
+
+```swift
+// ios/TempoAI/TempoAI/Views/Home/HomeView.swift
+struct HomeView: View {
+    @StateObject private var viewModel: HomeViewModel = HomeViewModel()
+    @State private var showingAdviceDetail: Bool = false
+
+    var body: some View {
+        NavigationView {
+            ScrollView {
+                VStack(spacing: 20) {
+                    GreetingCardView(greeting: viewModel.greeting)
+                    HealthStatusCardView(
+                        status: viewModel.healthStatus,
+                        onTap: { showingAdviceDetail = true }
+                    )
+
+                    if !viewModel.environmentAlerts.isEmpty {
+                        EnvironmentAlertsView(alerts: viewModel.environmentAlerts)
+                    }
+
+                    AdviceSummaryCardView(
+                        advice: viewModel.dailyAdvice,
+                        onViewDetails: { showingAdviceDetail = true }
+                    )
+                }
+                .padding()
+            }
+            .navigationTitle("today")
+            .refreshable { await viewModel.refreshData() }
+        }
+        .sheet(isPresented: $showingAdviceDetail) {
+            AdviceDetailView(advice: viewModel.dailyAdvice)
+        }
+        .task { await viewModel.loadInitialData() }
+    }
+}
+```
+
+**コミットポイント**: ホーム画面 UI 実装
+
+### 5. 環境アラート統合
+
+#### 5.1 EnvironmentAlertService 実装
+
+```typescript
+// backend/src/services/environment-alert.ts
+export interface EnvironmentAlert {
+  type: "temperature" | "weather" | "air_quality" | "pressure";
+  severity: "low" | "medium" | "high";
+  title: string;
+  message: string;
+  actionable_advice: string;
+}
+
+export const generateEnvironmentAlerts = (
+  environmentData: EnvironmentData,
+  healthStatus: HealthStatus
+): EnvironmentAlert[] => {
+  const alerts: EnvironmentAlert[] = [];
+
+  // 極端な気温アラート
+  if (environmentData.weather.temperature > 30) {
+    alerts.push({
+      type: "temperature",
+      severity: "high",
+      title: "暑さ注意",
+      message: `気温が${environmentData.weather.temperature}°Cです`,
+      actionable_advice: "十分な水分補給と日陰での休息を心がけましょう",
+    });
+  }
+
+  return alerts;
+};
+```
+
+**コミットポイント**: 環境アラート機能実装
+
+### 6. 基本ナビゲーション実装
+
+```swift
+// ios/TempoAI/TempoAI/Views/MainTabView.swift
+struct MainTabView: View {
+    @State private var selectedTab: Tab = .today
+
+    var body: some View {
+        TabView(selection: $selectedTab) {
+            HomeView()
+                .tabItem {
+                    Image(systemName: "house.fill")
+                    Text("today")
+                }
+                .tag(Tab.today)
+
+            PlaceholderView(feature: "history")
+                .tabItem {
+                    Image(systemName: "calendar")
+                    Text("history")
+                }
+                .tag(Tab.history)
+
+            // 他のタブも同様に実装
         }
     }
 }
 ```
 
-### 3. 天気対応パーソナライズ挨拶
-
-#### 実装ファイル
-- `GreetingView.swift` - 挨拶UI
-- `GreetingService.swift` - 挨拶生成ロジック
-- `WeatherGreetingMapper.swift` - 天気対応
-
-#### 挨拶パターン（時間帯別・天気別）
-```swift
-// 朝の挨拶（6-12時）
-"morning_greeting_sunny" = "おはようございます！今日は晴れて気持ちの良い朝ですね"
-"morning_greeting_cloudy" = "おはようございます。少し曇り気味ですが、良い1日にしましょう"
-"morning_greeting_rainy" = "おはようございます。雨の日はゆったりと過ごしましょう"
-
-// 昼の挨拶（12-18時）  
-"afternoon_greeting_sunny" = "こんにちは！日差しが気持ちいい午後ですね"
-
-// 夜の挨拶（18-22時）
-"evening_greeting_clear" = "お疲れ様でした。夜空がきれいな良い夜ですね"
-```
-
-### 4. 環境アラートシステム
-
-#### アラート種類
-- **気圧変化**: 頭痛・体調不良リスク
-- **花粉情報**: アレルギー対策
-- **大気質**: 運動・外出推奨度
-
-#### 実装アプローチ
-```swift
-struct EnvironmentAlert {
-    let type: AlertType
-    let severity: Severity
-    let message: String
-    let recommendation: String
-    let color: Color
-}
-
-enum AlertType {
-    case pressure, pollen, airQuality, uvIndex
-}
-```
+**コミットポイント**: 基本ナビゲーション完了
 
 ---
 
 ## 🧪 テスト戦略
 
-### TDD 実装アプローチ
+### テスト完了基準
 
-#### Phase 1 実装サイクル
-1. **Red**: 機能テスト作成（失敗）
-2. **Green**: 最小実装（テスト通過）
-3. **Refactor**: コード品質改善
-4. **Blue**: UIテスト追加
+1. **Unit Tests**: ViewModel と Service 層で ≥80%カバレッジ
+2. **Integration Tests**: API 連携とデータフロー検証
+3. **UI Tests**: オンボーディング〜ホーム画面の完全フロー
+4. **Performance Tests**: アドバイス生成 ≤5 秒、画面遷移 ≤1 秒
 
-#### 主要テストカバレッジ
-- **Unit Tests**: HealthStatusCalculator, GreetingService
-- **Integration Tests**: 多言語化、API統合
-- **UI Tests**: オンボーディングフロー
-- **Accessibility Tests**: VoiceOver対応
+### 実行コマンド
 
-### テスト例
-```swift
-class HealthStatusTests: XCTestCase {
-    func testOptimalStatus() {
-        let healthData = HealthData(
-            sleep: SleepData(quality: 0.9, duration: 8.0),
-            hrv: 50.0,
-            activity: ActivityData(steps: 10000)
-        )
-        let status = HealthStatusCalculator.calculateStatus(from: healthData)
-        XCTAssertEqual(status, .optimal)
-    }
-}
+```bash
+# iOS テスト実行
+cd ios && swift test
+
+# Backend テスト実行
+cd backend && pnpm run test
+
+# カバレッジ確認
+cd backend && pnpm run test:coverage
 ```
 
 ---
 
 ## 🏗️ アーキテクチャ詳細
 
-### SwiftUI MVVM + Coordinator パターン
+### 新規実装ファイル
 
-#### View層
-```swift
-struct HomeView: View {
-    @StateObject private var viewModel: HomeViewModel = HomeViewModel()
-    @StateObject private var coordinator: HomeCoordinator = HomeCoordinator()
-    
-    var body: some View {
-        NavigationStack(path: $coordinator.path) {
-            VStack(spacing: 20) {
-                GreetingView(greeting: viewModel.greeting)
-                HealthStatusView(status: viewModel.healthStatus)
-                EnvironmentAlertView(alerts: viewModel.environmentAlerts)
-            }
-        }
-    }
-}
-```
+**iOS (Swift)**
 
-#### ViewModel層
-```swift
-@MainActor
-class HomeViewModel: ObservableObject {
-    @Published var healthStatus: HealthStatus = .unknown
-    @Published var greeting: String = ""
-    @Published var environmentAlerts: [EnvironmentAlert] = []
-    
-    private let healthService: HealthServiceProtocol
-    private let greetingService: GreetingServiceProtocol
-    
-    func loadData() async {
-        do {
-            let healthData = try await healthService.fetchTodayData()
-            self.healthStatus = HealthStatusCalculator.calculateStatus(from: healthData)
-            self.greeting = await greetingService.generateGreeting()
-        } catch {
-            // エラーハンドリング
-        }
-    }
-}
-```
+- `Views/Onboarding/OnboardingFlowView.swift`
+- `Views/Home/HomeView.swift`
+- `ViewModels/HomeViewModel.swift`
+- `Services/HealthStatusAnalyzer.swift`
+- `Services/PermissionManager.swift`
+- `Views/MainTabView.swift`
 
-### バックエンド Hono アーキテクチャ
+**Backend (TypeScript)**
 
-#### API エンドポイント
-```typescript
-// src/routes/advice.ts
-const adviceRoutes = new Hono<{ Bindings: Bindings }>()
+- `src/services/advice-generation.ts`
+- `src/services/environment-alert.ts`
+- `src/types/daily-advice.ts`
+- `src/api/health/analyze.ts`
 
-adviceRoutes.post('/daily', async (c) => {
-  try {
-    const body = await c.req.json()
-    
-    if (!isValidAdviceRequest(body)) {
-      return c.json({ error: 'Invalid request' }, 400)
-    }
-    
-    const advice = await generateDailyAdvice({
-      ...body,
-      apiKey: c.env.ANTHROPIC_API_KEY
-    })
-    
-    return c.json({ success: true, data: advice })
-  } catch (error) {
-    return handleApiError(c, error)
-  }
-})
-```
+### テストファイル
 
-#### Claude AI統合
-```typescript
-export const generateDailyAdvice = async (params: AdviceParams): Promise<DailyAdvice> => {
-  const prompt = buildAdvicePrompt(params)
-  
-  const response = await anthropic.messages.create({
-    model: 'claude-3-sonnet-20240229',
-    max_tokens: 1000,
-    messages: [{ role: 'user', content: prompt }],
-    temperature: 0.7
-  })
-  
-  return parseAdviceResponse(response.content[0].text)
-}
-```
+- `TempoAITests/Onboarding/OnboardingFlowTests.swift`
+- `TempoAITests/ViewModels/HomeViewModelTests.swift`
+- `backend/tests/services/advice-generation.test.ts`
+- `backend/tests/services/health-analyzer.test.ts`
 
 ---
 
-## 📅 実装スケジュール
+## ⏱️ スケジュール
 
-### Week 1: オンボーディング + 基盤
-- **Day 1-2**: OnboardingView実装
-- **Day 3-4**: 多言語リソース完備
-- **Day 5**: UIテスト作成
-
-### Week 2: ヘルス機能 + 挨拶
-- **Day 1-2**: HealthStatus計算ロジック
-- **Day 3-4**: 天気対応挨拶システム
-- **Day 5**: 統合テスト
-
-### Week 3: 環境統合 + 調整
-- **Day 1-2**: 環境アラート実装
-- **Day 3-4**: UI/UX調整・最適化
-- **Day 5**: パフォーマンステスト
-
-### Week 4: テスト + デプロイ
-- **Day 1-3**: 包括的テスト実施
-- **Day 4-5**: バグ修正・最終調整
+| タスク                           | 期間      | コミットポイント                  |
+| -------------------------------- | --------- | --------------------------------- |
+| オンボーディングフロー実装       | 4 日      | 基本構造 → 権限管理 → テスト      |
+| ヘルスステータス分析エンジン実装 | 3 日      | エンジン実装 → テスト完了         |
+| AI アドバイス生成エンジン実装    | 5 日      | サービス実装 → API 統合 → テスト  |
+| ホーム画面実装                   | 4 日      | UI 実装 → ViewModel → 統合テスト  |
+| 環境アラート統合                 | 2 日      | アラート機能 → 統合完了           |
+| 基本ナビゲーション実装           | 2 日      | タブ構造 → プレースホルダー       |
+| 統合テスト・パフォーマンステスト | 3 日      | E2E テスト → パフォーマンス最適化 |
+| **合計**                         | **23 日** |                                   |
 
 ---
 
-## 🔧 技術実装ガイドライン
+## 🎯 Phase 2 への準備
 
-### Swift コーディング規約準拠
-- Swift Coding Standards (.claude/swift-coding-standards.md) 遵守
-- 明示的型宣言必須
-- MVVM + Coordinator パターン
-- async/await 使用
-- SwiftLint 違反ゼロ
+Phase 1 完了により、以下が整備され Phase 2 の実装が可能になります：
 
-### TypeScript + Hono 準拠  
-- TypeScript Hono Standards (.claude/typescript-hono-standards.md) 遵守
-- 厳密型安全性
-- エラーハンドリング統一
-- Cloudflare Workers最適化
+### 引き継ぎ項目
 
----
+- **安定したオンボーディング体験** - ユーザー権限管理とデータ収集基盤
+- **コアアドバイス生成機能** - Claude API 統合と HealthKit データ活用
+- **基本 UI/UX パターン** - カード型レイアウトとカラーコード化ステータス
+- **多言語対応基盤** - 日英リソース管理とローカライゼーション
 
-## 📦 依存関係管理
+### Phase 2 での拡張点
 
-### 高優先度
-- **HealthKit**: iOS ヘルスデータ統合
-- **Core Location**: 位置情報・天気API
-- **Claude API**: AI アドバイス生成
-
-### 中優先度  
-- **WeatherKit**: Apple天気サービス
-- **UserNotifications**: ローカル通知
-
-### リスク管理
-- **HealthKit権限**: ユーザー拒否時の代替フロー
-- **位置情報権限**: 手動入力オプション
-- **Claude API**: レート制限・フォールバック
+- **朝のクイックチェックイン機能** - 主観的データによるアドバイス再カスタマイズ
+- **詳細教育的アドバイス画面** - インタラクティブコンテンツと理由説明
+- **文化適応システム** - 地域別食材データベースと季節対応
+- **拡張環境アラート** - 気圧病・花粉・大気質統合
 
 ---
 
-## ⚡ パフォーマンス最適化
-
-### iOS最適化
-- LazyVStack使用（長リスト）
-- @StateObject vs @ObservedObject適切使用
-- メモリ効率的な画像読み込み
-- バックグラウンド処理最小化
-
-### API最適化  
-- レスポンスキャッシュ（5分間）
-- リクエスト重複排除
-- Claude APIトークン効率化
-
----
-
-## 🛡️ セキュリティ・プライバシー
-
-### データ保護
-- HealthKitデータはデバイス内処理
-- 位置情報は即座に破棄
-- ログに機密データ記録禁止
-
-### 暗号化
-- Keychain使用（APIキー保存）
-- TLS 1.3通信（API）
-- ローカルデータベース暗号化
-
----
-
-## 🧪 品質ゲートクライテリア
-
-### 必須条件
-- [ ] 全Unit Testパス（カバレッジ85%以上）
-- [ ] UIテスト主要フローパス
-- [ ] SwiftLint/TypeScriptエラーゼロ
-- [ ] アクセシビリティ検証完了
-- [ ] 多言語表示確認（日英）
-
-### パフォーマンス条件
-- [ ] アプリ起動時間 < 3秒
-- [ ] アドバイス生成 < 10秒
-- [ ] メモリ使用量 < 150MB
-- [ ] バッテリー効率: 良好レベル
-
-### UX条件
-- [ ] オンボーディング完了率 > 90%
-- [ ] 主要操作3タップ以内
-- [ ] エラー状態適切表示
-- [ ] オフライン機能動作確認
-
----
-
-## 📚 関連ドキュメント
-
-### 必読文書
-- **[Swift Coding Standards](.claude/swift-coding-standards.md)** - Swift実装規約
-- **[TypeScript Hono Standards](.claude/typescript-hono-standards.md)** - バックエンド規約  
-- **[Product Specification](../tempo-ai-product-spec.md)** - 製品仕様
-- **[Technical Specification](../tempo-ai-technical-spec.md)** - 技術仕様
-
-### 開発参考資料
-- **[CLAUDE.md](../../CLAUDE.md)** - 開発ガイドライン
-- **Apple Human Interface Guidelines** - iOS UI/UX
-- **SwiftUI Documentation** - フレームワーク仕様
-- **Claude API Documentation** - AI統合
-
----
-
-## ✅ Definition of Done
-
-### 機能完了条件
-1. **オンボーディング**: 4ページ完全実装・多言語対応
-2. **ヘルスステータス**: カラーコード表示・計算ロジック動作
-3. **挨拶システム**: 天気・時間対応・自然な日本語
-4. **環境アラート**: 気圧・花粉・大気質統合
-5. **テスト**: Unit/Integration/UI テスト完備
-
-### 技術完了条件
-1. **コード品質**: Swift/TypeScript規約100%準拠
-2. **テストカバレッジ**: 85%以上達成
-3. **パフォーマンス**: 全指標クリア
-4. **アクセシビリティ**: VoiceOver完全対応
-5. **多言語化**: 日英完全対応・テスト済み
-
-### デプロイ準備完了条件
-1. **ビルド**: エラー/警告ゼロ
-2. **セキュリティ**: 脆弱性スキャンパス
-3. **ドキュメント**: 実装ドキュメント更新完了
-4. **設定**: 本番環境準備完了
-5. **監視**: ログ・メトリクス設定完了
-
----
-
-**Next Phase**: [Phase 2: Advanced AI Features](phase-2-advanced-ai-features.md)
+**🔍 Phase 1 の成功により、ユーザーは毎朝パーソナライズされた健康アドバイスを受け取り、データドリブンなヘルスケア体験を開始できるようになります。**

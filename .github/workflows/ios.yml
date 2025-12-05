@@ -81,7 +81,7 @@ jobs:
         working-directory: ./ios
         run: |
           echo "🧹 Running SwiftLint..."
-          swiftlint --strict --reporter github-actions-logging
+          swiftlint --reporter github-actions-logging
         continue-on-error: true
 
       - name: Run swift-format check

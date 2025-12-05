@@ -1,0 +1,133 @@
+/* 
+   Localizable.strings (English)
+   TempoAI
+
+   Created by Claude for Phase 0 on 2025-12-05.
+   English localization strings for the TempoAI app
+*/
+
+// MARK: - Application General
+"app_name" = "Tempo AI";
+"system_language" = "System Language";
+
+// MARK: - Tab Navigation
+"tab_today" = "Today";
+"tab_history" = "History";
+"tab_trends" = "Trends";
+"tab_profile" = "Profile";
+
+// MARK: - Common Actions
+"button_get_started" = "Get Started";
+"button_continue" = "Continue";
+"button_cancel" = "Cancel";
+"button_done" = "Done";
+"button_save" = "Save";
+"button_edit" = "Edit";
+"button_delete" = "Delete";
+"button_back" = "Back";
+"button_close" = "Close";
+"button_retry" = "Retry";
+"button_refresh" = "Refresh";
+"button_settings" = "Settings";
+
+// MARK: - Home Screen
+"home_title" = "Today's Health";
+"home_greeting_morning" = "Good Morning";
+"home_greeting_afternoon" = "Good Afternoon";
+"home_greeting_evening" = "Good Evening";
+"home_greeting_night" = "Good Night";
+"home_subtitle" = "Personalized health advice based on your data";
+"home_loading" = "Analyzing your health data...";
+"home_no_data" = "No data available";
+"home_mock_data_banner" = "Using demo data";
+
+// MARK: - Health Status
+"health_status_optimal" = "Optimal";
+"health_status_care" = "Needs Care";
+"health_status_recovery" = "Recovery Mode";
+
+// MARK: - Error Messages
+"error_network" = "Unable to connect to network";
+"error_network_description" = "Please check your internet connection";
+"error_server" = "Server error occurred";
+"error_server_description" = "Please try again in a moment";
+"error_api" = "API error occurred";
+"error_api_description" = "Contact support if the issue persists";
+"error_data" = "Failed to load data";
+"error_data_description" = "Please refresh and try again";
+"error_unknown" = "An unexpected error occurred";
+"error_unknown_description" = "Please restart the app";
+"error_timeout" = "Request timed out";
+"error_timeout_description" = "The process is taking longer than expected";
+
+// MARK: - HealthKit Permissions
+"healthkit_permission_title" = "Access to Health Data";
+"healthkit_permission_description" = "To provide better advice, please allow us to use your health data";
+"healthkit_permission_sleep" = "Sleep Data";
+"healthkit_permission_heart_rate" = "Heart Rate";
+"healthkit_permission_hrv" = "Heart Rate Variability";
+"healthkit_permission_activity" = "Activity";
+"healthkit_permission_steps" = "Steps";
+"healthkit_permission_calories" = "Calories Burned";
+"healthkit_permission_granted" = "Granted";
+"healthkit_permission_denied" = "Access Denied";
+"healthkit_permission_not_determined" = "Not Set";
+
+// MARK: - Location Permissions
+"location_permission_title" = "Access to Location";
+"location_permission_description" = "We use location data to provide weather-based health advice";
+"location_permission_granted" = "Granted";
+"location_permission_denied" = "Access Denied";
+"location_permission_not_determined" = "Not Set";
+
+// MARK: - Health Advice Categories
+"advice_breakfast" = "Breakfast";
+"advice_lunch" = "Lunch";
+"advice_dinner" = "Dinner";
+"advice_snack" = "Snack";
+"advice_exercise" = "Exercise";
+"advice_exercise_type" = "Exercise Type";
+"advice_exercise_duration" = "Duration";
+"advice_sleep" = "Sleep";
+"advice_sleep_bedtime" = "Bedtime";
+"advice_sleep_wake_time" = "Wake Time";
+"advice_breathing" = "Breathing";
+"advice_breathing_duration" = "Duration";
+"advice_breathing_start" = "Start Breathing Exercise";
+
+// MARK: - Weather
+"weather_temperature" = "Temperature";
+"weather_condition" = "Condition";
+"weather_advice" = "Weather Advice";
+
+// MARK: - Loading States
+"loading_analyzing" = "Analyzing...";
+"loading_fetching_data" = "Fetching data...";
+"loading_generating_advice" = "Generating advice...";
+"loading_please_wait" = "Please wait";
+
+// MARK: - Empty States
+"empty_no_data" = "No data available";
+"empty_no_advice" = "No advice yet";
+"empty_no_history" = "No history yet";
+"empty_get_started" = "Get Started";
+
+// MARK: - Settings
+"settings_language" = "Language Settings";
+"settings_language_description" = "Choose the language for the app";
+"settings_notifications" = "Notification Settings";
+"settings_privacy" = "Privacy Settings";
+"settings_about" = "About";
+
+// MARK: - Accessibility
+"accessibility_tab_today" = "Today tab";
+"accessibility_tab_history" = "History tab";
+"accessibility_tab_trends" = "Trends tab";
+"accessibility_tab_profile" = "Profile tab";
+"accessibility_health_card" = "Health card";
+"accessibility_advice_card" = "Advice card";
+"accessibility_weather_card" = "Weather card";
+"accessibility_meal_card" = "Meal card";
+"accessibility_exercise_card" = "Exercise card";
+"accessibility_sleep_card" = "Sleep card";
+"accessibility_breathing_card" = "Breathing card";

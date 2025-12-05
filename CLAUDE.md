@@ -236,3 +236,60 @@ When multiple valid approaches exist:
 - Keep comments minimal and purposeful
 - Commit working code incrementally
 - Stop after 3 failed attempts and reassess
+
+# Phase 0 Development Commands
+
+## Automated Development Workflow
+
+Phase 0 introduces streamlined development commands for improved efficiency:
+
+### Quality Assurance
+
+```bash
+# Comprehensive quality check (iOS + Backend)
+./scripts/dev-commands.sh test-all
+
+# Auto-fix linting issues
+./scripts/dev-commands.sh lint-fix
+```
+
+### Development Servers
+
+```bash
+# Start backend development server
+./scripts/dev-commands.sh dev-backend
+
+# Build iOS application
+./scripts/dev-commands.sh build-ios
+```
+
+### Help & Documentation
+
+```bash
+# Show available commands
+./scripts/dev-commands.sh help
+```
+
+## Legacy Commands (Still Supported)
+
+```bash
+# iOS specific quality checks
+cd ios && ./scripts/quality-check.sh
+
+# Backend specific checks
+cd backend && pnpm run type-check && pnpm run test
+
+# Manual lint fixes
+cd ios && ./scripts/fix-all.sh
+cd backend && npx biome check --write .
+```
+
+## Multi-language Development
+
+With Phase 0 internationalization infrastructure:
+
+- iOS: LocalizationManager supports Japanese/English switching
+- Backend: Localized Claude API prompts and error messages
+- Resource files: Complete ja.lproj and en.lproj localization strings
+
+See `guidelines/claude-plans/phase-0-implementation-plan.md` for detailed documentation.

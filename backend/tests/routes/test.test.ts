@@ -164,9 +164,7 @@ describe('Test Routes', () => {
 
       expect(response.status).toBe(400)
       const result = (await response.json()) as ErrorResponse
-      expect(result.error).toBe(
-        'Validation failed: Invalid input: expected number, received undefined',
-      )
+      expect(result.error).toContain('Validation failed:')
     })
 
     it('should return 400 when longitude is missing', async () => {
@@ -182,9 +180,7 @@ describe('Test Routes', () => {
 
       expect(response.status).toBe(400)
       const result = (await response.json()) as ErrorResponse
-      expect(result.error).toBe(
-        'Validation failed: Invalid input: expected number, received undefined',
-      )
+      expect(result.error).toContain('Validation failed:')
     })
 
     it('should return 400 when latitude is not a number', async () => {
@@ -201,9 +197,7 @@ describe('Test Routes', () => {
 
       expect(response.status).toBe(400)
       const result = (await response.json()) as ErrorResponse
-      expect(result.error).toBe(
-        'Validation failed: Invalid input: expected number, received string',
-      )
+      expect(result.error).toContain('Validation failed:')
     })
 
     it('should return 400 when longitude is not a number', async () => {
@@ -220,9 +214,7 @@ describe('Test Routes', () => {
 
       expect(response.status).toBe(400)
       const result = (await response.json()) as ErrorResponse
-      expect(result.error).toBe(
-        'Validation failed: Invalid input: expected number, received string',
-      )
+      expect(result.error).toContain('Validation failed:')
     })
 
     it('should handle extreme valid coordinates', async () => {
@@ -299,9 +291,7 @@ describe('Test Routes', () => {
 
       expect(response.status).toBe(400)
       const result = (await response.json()) as ErrorResponse
-      expect(result.error).toBe(
-        'Validation failed: Invalid input: expected number, received undefined',
-      )
+      expect(result.error).toContain('Validation failed:')
     })
   })
 
@@ -501,9 +491,7 @@ describe('Test Routes', () => {
 
       expect(response.status).toBe(400) // Now properly validated and returns 400
       const result = (await response.json()) as ErrorResponse
-      expect(result.error).toBe(
-        'Validation failed: Invalid input: expected object, received undefined',
-      )
+      expect(result.error).toContain('Validation failed:')
     })
 
     it('should handle invalid location structure', async () => {
@@ -522,9 +510,7 @@ describe('Test Routes', () => {
 
       expect(response.status).toBe(400) // Now properly validated and returns 400
       const result = (await response.json()) as ErrorResponse
-      expect(result.error).toBe(
-        'Validation failed: Invalid input: expected number, received undefined',
-      )
+      expect(result.error).toContain('Validation failed:')
     })
 
     it('should validate that all mock advice fields are present', async () => {

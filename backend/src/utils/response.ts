@@ -82,22 +82,32 @@ export const createErrorResponse = (message: string): ErrorResponse => ({
  * @param error - バリデーションエラー
  * @returns HTTPレスポンス
  */
-export const createValidationErrorResponse = (
-  c: Context,
-  error: ValidationError,
-): Response => {
-  // TypeScript Hono Standards準拠：シンプルで明確なエラーレスポンス
-  const statusCode = error.statusCode
+export const createValidationErrorResponse = (c: Context, error: ValidationError): Response => {
+  // Use the same direct approach to avoid type assertion issues
+  const validStatusCode = (() => {
+    switch (error.statusCode) {
+      case 400:
+      case 401:
+      case 403:
+      case 404:
+      case 409:
+      case 415:
+      case 422:
+      case 429:
+      case 500:
+      case 502:
+      case 503:
+      case 504:
+        return error.statusCode
+      default:
+        return 500
+    }
+  })()
 
-  // Direct status code approach without normalization
-  if (statusCode === 400) {
-    return c.json({ success: false, error: error.message }, 400)
-  }
-  if (statusCode === 415) {
-    return c.json({ success: false, error: error.message }, 415)
-  }
-  // Default to 500 for other cases
-  return c.json({ success: false, error: error.message }, 500)
+  return c.json(
+    { success: false, error: error.message },
+    validStatusCode as 400 | 401 | 403 | 404 | 409 | 415 | 422 | 429 | 500 | 502 | 503 | 504
+  )
 }
 
 /**
@@ -112,11 +122,10 @@ export const createValidationErrorResponse = (
 export const sendSuccessResponse = <T>(
   c: Context,
   data: T,
-  status: number = HTTP_STATUS.OK,
+  status: number = HTTP_STATUS.OK
 ): Response => {
   // CLAUDE.md原則：シンプルで明確
-  const validStatus =
-    status >= 200 && status < 300 ? (status as 200 | 201) : HTTP_STATUS.OK
+  const validStatus = status >= 200 && status < 300 ? (status as 200 | 201) : HTTP_STATUS.OK
   return c.json(createSuccessResponse(data), validStatus)
 }
 
@@ -131,28 +140,34 @@ export const sendSuccessResponse = <T>(
 export const sendErrorResponse = (
   c: Context,
   message: string,
-  status: number = HTTP_STATUS.INTERNAL_SERVER_ERROR,
+  status: number = HTTP_STATUS.INTERNAL_SERVER_ERROR
 ): Response => {
-  // Preserve specific status codes for CommonErrors
-  if (status >= 500) {
-    return c.json(createErrorResponse(message), status as 500 | 502 | 503 | 504)
-  }
-  if (status === 415) {
-    return c.json(createErrorResponse(message), 415)
-  }
-  if (
-    status === 401 ||
-    status === 403 ||
-    status === 404 ||
-    status === 409 ||
-    status === 429
-  ) {
-    return c.json(
-      createErrorResponse(message),
-      status as 401 | 403 | 404 | 409 | 429,
-    )
-  }
-  return c.json(createErrorResponse(message), 400)
+  // Direct status code mapping to preserve all valid HTTP error codes
+  // This approach avoids TypeScript type assertion issues while maintaining type safety
+  const validStatusCode = (() => {
+    switch (status) {
+      case 400:
+      case 401:
+      case 403:
+      case 404:
+      case 409:
+      case 415:
+      case 422:
+      case 429:
+      case 500:
+      case 502:
+      case 503:
+      case 504:
+        return status
+      default:
+        return 500
+    }
+  })()
+
+  return c.json(
+    createErrorResponse(message),
+    validStatusCode as 400 | 401 | 403 | 404 | 409 | 415 | 422 | 429 | 500 | 502 | 503 | 504
+  )
 }
 
 /**
@@ -194,9 +209,8 @@ export const CommonErrors = {
    */
   unsupportedMediaType: (
     c: Context,
-    message = 'Unsupported Media Type: application/json required',
-  ): Response =>
-    sendErrorResponse(c, message, HTTP_STATUS.UNSUPPORTED_MEDIA_TYPE),
+    message = 'Unsupported Media Type: application/json required'
+  ): Response => sendErrorResponse(c, message, HTTP_STATUS.UNSUPPORTED_MEDIA_TYPE),
 
   /**
    * Rate Limited (429) エラー
@@ -226,16 +240,14 @@ export const CommonErrors = {
 /**
  * 型ガード：レスポンスが成功かどうかを判定
  */
-export const isSuccessResponse = <T>(
-  response: ApiResponse<T>,
-): response is SuccessResponse<T> => response.success
+export const isSuccessResponse = <T>(response: ApiResponse<T>): response is SuccessResponse<T> =>
+  response.success
 
 /**
  * 型ガード：レスポンスがエラーかどうかを判定
  */
-export const isErrorResponse = <T>(
-  response: ApiResponse<T>,
-): response is ErrorResponse => !response.success
+export const isErrorResponse = <T>(response: ApiResponse<T>): response is ErrorResponse =>
+  !response.success
 
 /**
  * APIレスポンスから値を安全に取得（エラー時は例外をthrow）

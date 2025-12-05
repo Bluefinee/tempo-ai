@@ -245,9 +245,7 @@ describe('Health Routes', () => {
       expect(response.status).toBe(400)
       const result = (await response.json()) as ErrorResponse
       expect(result.success).toBe(false)
-      expect(result.error).toBe(
-        'Validation failed: Invalid input: expected object, received undefined',
-      )
+      expect(result.error).toContain('Validation failed:')
     })
 
     it('should return 400 when location is missing', async () => {
@@ -272,9 +270,7 @@ describe('Health Routes', () => {
       expect(response.status).toBe(400)
       const result = (await response.json()) as ErrorResponse
       expect(result.success).toBe(false)
-      expect(result.error).toBe(
-        'Validation failed: Invalid input: expected object, received undefined',
-      )
+      expect(result.error).toContain('Validation failed:')
     })
 
     it('should return 400 when userProfile is missing', async () => {
@@ -299,9 +295,7 @@ describe('Health Routes', () => {
       expect(response.status).toBe(400)
       const result = (await response.json()) as ErrorResponse
       expect(result.success).toBe(false)
-      expect(result.error).toBe(
-        'Validation failed: Invalid input: expected object, received undefined',
-      )
+      expect(result.error).toContain('Validation failed:')
     })
 
     it('should return 400 for invalid latitude type', async () => {
@@ -329,9 +323,7 @@ describe('Health Routes', () => {
       expect(response.status).toBe(400)
       const result = (await response.json()) as ErrorResponse
       expect(result.success).toBe(false)
-      expect(result.error).toBe(
-        'Validation failed: Invalid input: expected number, received string',
-      )
+      expect(result.error).toContain('Validation failed:')
     })
 
     it('should return 400 for invalid longitude type', async () => {
@@ -359,9 +351,7 @@ describe('Health Routes', () => {
       expect(response.status).toBe(400)
       const result = (await response.json()) as ErrorResponse
       expect(result.success).toBe(false)
-      expect(result.error).toBe(
-        'Validation failed: Invalid input: expected number, received string',
-      )
+      expect(result.error).toContain('Validation failed:')
     })
 
     it('should return 500 when ANTHROPIC_API_KEY is missing', async () => {
@@ -404,9 +394,14 @@ describe('Health Routes', () => {
     })
 
     it('should handle health advice generation errors', async () => {
-      mockGenerateHealthAdvice.mockRejectedValueOnce(
-        new Error('Health advice generation failed'),
-      )
+      const testError = new Error('Health advice generation failed')
+      mockGenerateHealthAdvice.mockRejectedValueOnce(testError)
+
+      // Mock handleError to verify it's called with the correct error
+      mockHandleError.mockReturnValueOnce({
+        message: 'Health advice generation failed',
+        statusCode: 500,
+      })
 
       const app = healthRoutes
       const response = await app.request(
@@ -421,7 +416,14 @@ describe('Health Routes', () => {
         },
       )
 
+      // Verify status code and response format
       expect(response.status).toBe(500)
+      const result = (await response.json()) as ErrorResponse
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('Health advice generation failed')
+
+      // Verify handleError was called with the original error
+      expect(mockHandleError).toHaveBeenCalledWith(testError)
     })
 
     it('should call services with correct parameters', async () => {

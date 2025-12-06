@@ -1,40 +1,122 @@
 import Foundation
 
 // MARK: - Health Data Models
+
+/// Comprehensive health data container for analysis
+typealias HealthKitData = HealthData
+
 struct HealthData: Codable {
-    let sleep: SleepData
-    let hrv: HRVData
-    let heartRate: HeartRateData
-    let activity: ActivityData
+    let sleep: SleepData?
+    let hrv: HRVData?
+    let heartRate: HeartRateData?
+    let activity: ActivityData?
+    let timestamp: Date
+
+    init(
+        sleep: SleepData? = nil,
+        hrv: HRVData? = nil,
+        heartRate: HeartRateData? = nil,
+        activity: ActivityData? = nil,
+        timestamp: Date = Date()
+    ) {
+        self.sleep = sleep
+        self.hrv = hrv
+        self.heartRate = heartRate
+        self.activity = activity
+        self.timestamp = timestamp
+    }
 }
 
 struct SleepData: Codable {
     let duration: Double
-    let deep: Double
-    let rem: Double
-    let light: Double
-    let awake: Double
-    let efficiency: Int
+    let deep: Double?
+    let rem: Double?
+    let light: Double?
+    let awake: Double?
+    let efficiency: Double
+
+    // Computed properties for analysis
+    var deepSleepHours: Double? { deep }
+    var remSleepHours: Double? { rem }
+    var lightSleepHours: Double? { light }
+    var awakeHours: Double? { awake }
+
+    init(
+        duration: Double,
+        deep: Double? = nil,
+        rem: Double? = nil,
+        light: Double? = nil,
+        awake: Double? = nil,
+        efficiency: Double
+    ) {
+        self.duration = duration
+        self.deep = deep
+        self.rem = rem
+        self.light = light
+        self.awake = awake
+        self.efficiency = efficiency
+    }
 }
 
 struct HRVData: Codable {
-    let average: Double
-    let min: Double
-    let max: Double
+    let average: Double?
+    let min: Double?
+    let max: Double?
+
+    // Computed properties for analysis compatibility
+    var averageHRV: Double? { average }
+
+    init(average: Double? = nil, min: Double? = nil, max: Double? = nil) {
+        self.average = average
+        self.min = min
+        self.max = max
+    }
 }
 
 struct HeartRateData: Codable {
-    let resting: Int
-    let average: Int
-    let min: Int
-    let max: Int
+    let resting: Double?
+    let average: Double?
+    let min: Double?
+    let max: Double?
+
+    // Computed properties for analysis compatibility
+    var restingHeartRate: Double { resting ?? 70.0 }
+    var averageHeartRate: Double { average ?? 80.0 }
+
+    init(
+        resting: Double? = nil,
+        average: Double? = nil,
+        min: Double? = nil,
+        max: Double? = nil
+    ) {
+        self.resting = resting
+        self.average = average
+        self.min = min
+        self.max = max
+    }
 }
 
 struct ActivityData: Codable {
-    let steps: Int
-    let distance: Double
-    let calories: Int
-    let activeMinutes: Int
+    let steps: Double
+    let distance: Double?
+    let calories: Double
+    let activeMinutes: Double?
+
+    // Computed properties for analysis
+    var activeCalories: Double { calories }
+    var exerciseMinutes: Double? { activeMinutes }
+
+    init(
+        steps: Double,
+        distance: Double? = nil,
+        calories: Double,
+        activeMinutes: Double? = nil
+    ) {
+        self.steps = steps
+        self.distance = distance
+        self.calories = calories
+        self.activeMinutes = activeMinutes
+    }
 }
 
 // MARK: - Location & User Profile
@@ -62,6 +144,82 @@ struct AnalysisRequest: Codable {
     let healthData: HealthData
     let location: LocationData
     let userProfile: UserProfile
+    let healthAnalysis: HealthAnalysis?
+    let requestContext: RequestContext?
+
+    init(
+        healthData: HealthData,
+        location: LocationData,
+        userProfile: UserProfile,
+        healthAnalysis: HealthAnalysis? = nil,
+        requestContext: RequestContext? = nil
+    ) {
+        self.healthData = healthData
+        self.location = location
+        self.userProfile = userProfile
+        self.healthAnalysis = healthAnalysis
+        self.requestContext = requestContext
+    }
+}
+
+struct RequestContext: Codable {
+    let timeOfDay: String
+    let dayOfWeek: String
+    let season: String
+    let previousAdviceFollowed: Bool?
+    let userFeedback: String?
+    let urgencyLevel: String
+    let preferredLanguage: String
+
+    init(
+        timeOfDay: String? = nil,
+        dayOfWeek: String? = nil,
+        season: String? = nil,
+        previousAdviceFollowed: Bool? = nil,
+        userFeedback: String? = nil,
+        urgencyLevel: String = "normal",
+        preferredLanguage: String = "en"
+    ) {
+        let now = Date()
+        let calendar = Calendar.current
+
+        // Auto-generate time context if not provided
+        self.timeOfDay = timeOfDay ?? RequestContext.generateTimeOfDay(from: now)
+        self.dayOfWeek = dayOfWeek ?? RequestContext.generateDayOfWeek(from: now)
+        self.season = season ?? RequestContext.generateSeason(from: now)
+
+        self.previousAdviceFollowed = previousAdviceFollowed
+        self.userFeedback = userFeedback
+        self.urgencyLevel = urgencyLevel
+        self.preferredLanguage = preferredLanguage
+    }
+
+    private static func generateTimeOfDay(from date: Date) -> String {
+        let hour = Calendar.current.component(.hour, from: date)
+        switch hour {
+        case 5 ..< 12: return "morning"
+        case 12 ..< 17: return "afternoon"
+        case 17 ..< 22: return "evening"
+        default: return "night"
+        }
+    }
+
+    private static func generateDayOfWeek(from date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEEE"
+        return formatter.string(from: date).lowercased()
+    }
+
+    private static func generateSeason(from date: Date) -> String {
+        let month = Calendar.current.component(.month, from: date)
+        switch month {
+        case 12, 1, 2: return "winter"
+        case 3, 4, 5: return "spring"
+        case 6, 7, 8: return "summer"
+        case 9, 10, 11: return "autumn"
+        default: return "spring"
+        }
+    }
 }
 
 // MARK: - AI Response Models

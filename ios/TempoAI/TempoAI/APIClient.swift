@@ -24,6 +24,7 @@ class APIClient: ObservableObject {
         var urlRequest = URLRequest(url: url)
         urlRequest.httpMethod = "POST"
         urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        urlRequest.timeoutInterval = 30.0
 
         do {
             urlRequest.httpBody = try JSONEncoder().encode(request)
@@ -60,13 +61,78 @@ class APIClient: ObservableObject {
     private func createAnalysisRequest(
         healthData: HealthData,
         location: LocationData,
-        userProfile: UserProfile
+        userProfile: UserProfile,
+        healthAnalysis: HealthAnalysis? = nil,
+        urgencyLevel: String? = nil
     ) -> AnalysisRequest {
+        // Create enhanced request context
+        let requestContext = RequestContext(
+            urgencyLevel: urgencyLevel ?? determineUrgencyLevel(from: healthAnalysis),
+            preferredLanguage: determinePreferredLanguage()
+        )
+
         return AnalysisRequest(
             healthData: healthData,
             location: location,
-            userProfile: userProfile
+            userProfile: userProfile,
+            healthAnalysis: healthAnalysis,
+            requestContext: requestContext
         )
+    }
+
+    private func determineUrgencyLevel(from healthAnalysis: HealthAnalysis?) -> String {
+        guard let analysis = healthAnalysis else { return "normal" }
+
+        switch analysis.status {
+        case .rest: return "high"
+        case .care: return "medium"
+        case .good, .optimal: return "normal"
+        case .unknown: return "low"
+        }
+    }
+
+    private func determinePreferredLanguage() -> String {
+        // Get system language preference, default to English
+        let preferredLanguages = Locale.preferredLanguages
+        let primaryLanguage = preferredLanguages.first?.prefix(2) ?? "en"
+        return String(primaryLanguage)
+    }
+
+    private func performRequestWithRetry<T: Codable>(
+        endpoint: String,
+        request: AnalysisRequest,
+        maxRetries: Int = 3,
+        baseDelay: TimeInterval = 1.0,
+        maxDelay: TimeInterval = 10.0
+    ) async throws -> T {
+        var lastError: APIError?
+
+        for attempt in 0 ..< maxRetries {
+            do {
+                return try await performRequest(endpoint: endpoint, request: request)
+            } catch let error as APIError {
+                lastError = error
+
+                // Don't retry on client errors (4xx) except for specific cases
+                switch error {
+                case .httpError(let code) where (400 ..< 500).contains(code) && code != 429:
+                    throw error
+                case .encodingError, .decodingError, .invalidURL:
+                    throw error
+                default:
+                    // Retry on network errors, server errors (5xx), and rate limiting (429)
+                    if attempt < maxRetries - 1 {
+                        // Exponential backoff with jitter
+                        let backoffDelay = min(baseDelay * pow(2.0, Double(attempt)), maxDelay)
+                        let jitter = Double.random(in: 0.0...0.1) * backoffDelay
+                        let delayWithJitter = backoffDelay + jitter
+                        try await Task.sleep(nanoseconds: UInt64(delayWithJitter * 1_000_000_000))
+                    }
+                }
+            }
+        }
+
+        throw lastError ?? APIError.networkError("Max retry attempts exceeded")
     }
 
     // MARK: - Public API Methods
@@ -74,15 +140,17 @@ class APIClient: ObservableObject {
     func analyzeHealth(
         healthData: HealthData,
         location: LocationData,
-        userProfile: UserProfile
+        userProfile: UserProfile,
+        healthAnalysis: HealthAnalysis? = nil
     ) async throws -> DailyAdvice {
         let request = createAnalysisRequest(
             healthData: healthData,
             location: location,
-            userProfile: userProfile
+            userProfile: userProfile,
+            healthAnalysis: healthAnalysis
         )
 
-        let apiResponse: APIResponse<DailyAdvice> = try await performRequest(
+        let apiResponse: APIResponse<DailyAdvice> = try await performRequestWithRetry(
             endpoint: "health/analyze",
             request: request
         )
@@ -96,16 +164,59 @@ class APIClient: ObservableObject {
     func analyzeHealthMock(
         healthData: HealthData,
         location: LocationData,
-        userProfile: UserProfile
+        userProfile: UserProfile,
+        healthAnalysis: HealthAnalysis? = nil
     ) async throws -> DailyAdvice {
         let request = createAnalysisRequest(
             healthData: healthData,
             location: location,
-            userProfile: userProfile
+            userProfile: userProfile,
+            healthAnalysis: healthAnalysis
         )
 
-        let mockResponse: MockAdviceResponse = try await performRequest(endpoint: "test/analyze-mock", request: request)
+        let mockResponse: MockAdviceResponse = try await performRequestWithRetry(
+            endpoint: "test/analyze-mock",
+            request: request,
+            maxRetries: 1  // Reduced retries for mock endpoint
+        )
         return mockResponse.advice
+    }
+
+    /// Enhanced health analysis with personalized context and quality indicators
+    func analyzeHealthEnhanced(
+        healthData: HealthData,
+        location: LocationData,
+        userProfile: UserProfile,
+        healthAnalysis: HealthAnalysis,
+        previousAdviceFollowed: Bool? = nil,
+        userFeedback: String? = nil
+    ) async throws -> DailyAdvice {
+        // Create enhanced context with user feedback
+        let enhancedContext = RequestContext(
+            previousAdviceFollowed: previousAdviceFollowed,
+            userFeedback: userFeedback,
+            urgencyLevel: determineUrgencyLevel(from: healthAnalysis),
+            preferredLanguage: determinePreferredLanguage()
+        )
+
+        let request = AnalysisRequest(
+            healthData: healthData,
+            location: location,
+            userProfile: userProfile,
+            healthAnalysis: healthAnalysis,
+            requestContext: enhancedContext
+        )
+
+        let apiResponse: APIResponse<DailyAdvice> = try await performRequestWithRetry(
+            endpoint: "health/analyze-enhanced",
+            request: request
+        )
+
+        if let advice = apiResponse.data {
+            return advice
+        } else {
+            throw APIError.serverError(apiResponse.error ?? "Unknown error")
+        }
     }
 
     func testConnection() async -> Bool {

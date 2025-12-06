@@ -16,6 +16,74 @@
 "tab_trends" = "傾向";
 "tab_profile" = "プロフィール";
 
+// MARK: - Onboarding Flow  
+"onboarding_welcome_title" = "Tempo AI へようこそ";
+"onboarding_welcome_description" = "あなたのデータから学習し、毎日のウェルネスガイダンスを提供するパーソナライズされた健康アドバイザーです。";
+"onboarding_get_started" = "始める";
+
+"onboarding_healthkit_title" = "ヘルスデータへのアクセス";
+"onboarding_healthkit_description" = "睡眠、心拍数、活動データを分析してパーソナライズされたウェルネスアドバイスを提供します。";
+"onboarding_healthkit_feature_sleep" = "睡眠分析";
+"onboarding_healthkit_feature_sleep_desc" = "睡眠の質と時間を追跡";
+"onboarding_healthkit_feature_hrv" = "心拍変動";
+"onboarding_healthkit_feature_hrv_desc" = "ストレスと回復レベルを監視";
+"onboarding_healthkit_feature_activity" = "活動データ";
+"onboarding_healthkit_feature_activity_desc" = "日常の活動パターンを理解";
+"onboarding_allow_health_access" = "ヘルスアクセスを許可";
+
+"onboarding_location_title" = "天気情報のための位置情報";
+"onboarding_location_description" = "位置情報を使用して天気ベースの健康推奨事項と環境アラートを提供します。";
+"onboarding_location_feature_weather" = "天気ベースのアドバイス";
+"onboarding_location_feature_weather_desc" = "天気状況に応じた推奨事項";
+"onboarding_location_feature_alerts" = "環境アラート";
+"onboarding_location_feature_alerts_desc" = "異常気象や大気質のアラート";
+"onboarding_location_feature_temp" = "気温対応";
+"onboarding_location_feature_temp_desc" = "気温に応じた活動提案の調整";
+"onboarding_allow_location_access" = "位置情報アクセスを許可";
+
+"onboarding_completion_title" = "準備完了！";
+"onboarding_completion_description" = "パーソナライズされた健康アドバイスを受け取る準備が整いました。ウェルネスの旅を始めましょう！";
+"onboarding_start_using_app" = "Tempo AI を使い始める";
+
+"onboarding_continue" = "続ける";
+"onboarding_skip_for_now" = "今はスキップ";
+
+// MARK: - Health Status
+"health_status_optimal_title" = "絶好調";
+"health_status_optimal_description" = "健康指標が優秀です";
+"health_status_optimal_explanation" = "すべての健康指標が最高のパフォーマンスを示しています。この調子を維持しましょう！";
+"health_status_optimal_actions" = "現在の習慣を維持 | 水分補給を心がける | 質の良い睡眠を取る";
+
+"health_status_good_title" = "良好";
+"health_status_good_description" = "健康指標が平均以上です";
+"health_status_good_explanation" = "健康指標は良好で、わずかな改善の余地があります。";
+"health_status_good_actions" = "一貫性に注力 | 睡眠スケジュールを最適化 | アクティブに過ごす";
+
+"health_status_care_title" = "ケアモード";
+"health_status_care_description" = "体が注意を必要としています";
+"health_status_care_explanation" = "一部の健康指標から、回復とウェルネスを優先すべきことが示唆されます。";
+"health_status_care_actions" = "睡眠を優先 | ストレス管理 | 軽い運動のみ | 水分補給";
+
+"health_status_rest_title" = "休息モード";
+"health_status_rest_description" = "体が休息と回復を必要としています";
+"health_status_rest_explanation" = "健康指標から、休息と穏やかな回復に集中すべきことが示されています。";
+"health_status_rest_actions" = "十分な睡眠を取る | 激しい運動を避ける | リラクゼーション | 回復活動を検討";
+
+"health_status_unknown_title" = "分析中";
+"health_status_unknown_description" = "健康データを収集中";
+"health_status_unknown_explanation" = "正確な健康評価を提供するため、より多くのデータが必要です。";
+"health_status_unknown_actions" = "ヘルスデータアクセスを許可 | Apple Watchを着用 | 初期設定を完了";
+
+"data_quality_excellent" = "優秀";
+"data_quality_good" = "良好";
+"data_quality_fair" = "普通";
+"data_quality_poor" = "不十分";
+
+"alert_priority_0" = "なし";
+"alert_priority_1" = "低";
+"alert_priority_2" = "中";
+"alert_priority_3" = "高";
+
 // MARK: - Common Actions
 "button_get_started" = "始める";
 "button_continue" = "続ける";

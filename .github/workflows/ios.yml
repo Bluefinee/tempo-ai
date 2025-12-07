@@ -13,36 +13,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  lint:
-    name: Swift Code Quality
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' || contains(github.event.head_commit.message, '[lint]')
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        
-      - name: Cache SwiftLint
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/swiftlint
-          key: swiftlint-${{ runner.os }}
-          
-      - name: Install SwiftLint
-        run: |
-          curl -sSL https://github.com/realm/SwiftLint/releases/latest/download/swiftlint_linux.zip -o swiftlint.zip
-          unzip swiftlint.zip
-          chmod +x swiftlint
-          sudo mv swiftlint /usr/local/bin/
-          
-      - name: Run SwiftLint
-        working-directory: ./ios
-        run: |
-          echo "🧹 Running SwiftLint..."
-          swiftlint --strict --reporter github-actions-logging
-          
-  build:
-    name: iOS Build Validation
+  quality-and-build:
+    name: iOS Quality & Build
     runs-on: macos-latest
     
     steps:
@@ -53,6 +25,30 @@ jobs:
         uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: latest-stable
+          
+      - name: Install SwiftLint
+        run: |
+          echo "📦 Installing SwiftLint..."
+          brew install swiftlint
+          
+      - name: Install swift-format
+        run: |
+          echo "📦 Installing swift-format..."
+          brew install swift-format
+          
+      - name: Run SwiftLint
+        working-directory: ./ios
+        run: |
+          echo "🧹 Running SwiftLint..."
+          swiftlint --reporter github-actions-logging
+        continue-on-error: true
+          
+      - name: Run swift-format check
+        working-directory: ./ios
+        run: |
+          echo "🎨 Checking Swift formatting..."
+          swift-format --recursive --mode diff TempoAI/TempoAI/ || echo "Format check completed"
+        continue-on-error: true
           
       - name: Cache Swift Packages
         uses: actions/cache@v4

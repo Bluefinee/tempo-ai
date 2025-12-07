@@ -290,16 +290,22 @@ final class HealthKitManager: ObservableObject {
 
         #if os(iOS)
             guard HKHealthStore.isHealthDataAvailable() else {
-                print("❌ HealthKit not available - using enhanced mock data")
-                let mockData = createEnhancedMockData()
-                try await saveToCacheIfNeeded(mockData)
-                return mockData
+                print("❌ HealthKit not available on this device")
+                throw HealthKitError.notAvailable
+            }
+
+            // Validate data availability before proceeding
+            let availability = await validateHealthDataAvailability()
+            guard availability.hasMinimalData else {
+                print("❌ Insufficient health data available - requires at least 30% core data")
+                throw HealthKitError.insufficientData(
+                    missing: availability.missingTypes.map { $0.rawValue },
+                    recommendations: availability.recommendations
+                )
             }
         #else
-            print("⚠️ Running on macOS - using enhanced mock data for development")
-            let mockData = createEnhancedMockData()
-            try await saveToCacheIfNeeded(mockData)
-            return mockData
+            print("⚠️ Running on macOS - HealthKit functionality limited")
+            throw HealthKitError.notAvailable
         #endif
 
         // Fetch all health data categories in parallel for optimal performance
@@ -330,7 +336,7 @@ final class HealthKitManager: ObservableObject {
 
             return comprehensiveData
         } catch {
-            print("⚠️ Error fetching real health data, using enhanced mock: \(error.localizedDescription)")
+            print("⚠️ Error fetching real health data: \(error.localizedDescription)")
 
             // Try to return cached data as fallback
             if let cachedData = try? await dataStore.fetchCachedData(for: Date()) {
@@ -338,9 +344,8 @@ final class HealthKitManager: ObservableObject {
                 return cachedData
             }
 
-            let mockData = createEnhancedMockData()
-            try await saveToCacheIfNeeded(mockData)
-            return mockData
+            // Re-throw the error instead of using mock data
+            throw error
         }
     }
 
@@ -535,74 +540,160 @@ final class HealthKitManager: ObservableObject {
         #endif
     }
 
-    /// Create enhanced mock data for development and fallback scenarios
-    /// - Returns: ComprehensiveHealthData with realistic mock values
-    private func createEnhancedMockData() -> ComprehensiveHealthData {
-        return ComprehensiveHealthData(
-            vitalSigns: VitalSignsData(
-                heartRate: HeartRateMetrics(
-                    current: 75,
-                    resting: 62,
-                    average: 72,
-                    min: 58,
-                    max: 142,
-                    variabilityScore: 82
-                ),
-                heartRateVariability: HRVMetrics(
-                    sdnn: 45.2,
-                    rmssd: 41.8,
-                    pnn50: 18.5,
-                    average: 37.8,
-                    trend: .improving
-                ),
-                oxygenSaturation: 98.2,
-                respiratoryRate: 15,
-                bodyTemperature: 98.4,
-                bloodPressure: BloodPressureReading(
-                    systolic: 122,
-                    diastolic: 78,
-                    timestamp: Date()
-                )
-            ),
-            activity: EnhancedActivityData(
-                steps: 8750,
-                distance: 6.4,
-                activeEnergyBurned: 395,
-                basalEnergyBurned: 1720,
-                exerciseTime: 32,
-                standHours: 9,
-                flights: 8,
-                activeMinutes: 38
-            ),
-            bodyMeasurements: BodyMeasurementsData(
-                weight: 68.2,
-                height: 172.0,
-                bodyMassIndex: 23.1,
-                bodyFatPercentage: 16.8,
-                leanBodyMass: 56.8,
-                waistCircumference: 79.5
-            ),
-            sleep: EnhancedSleepData(
-                totalDuration: 7.2 * 3600,
-                inBedTime: 7.8 * 3600,
-                deepSleep: 1.6 * 3600,
-                remSleep: 1.9 * 3600,
-                lightSleep: 3.5 * 3600,
-                awakeDuration: 0.2 * 3600,
-                sleepEfficiency: 0.92,
-                bedtime: Calendar.current.date(byAdding: .hour, value: -8, to: Date()),
-                wakeTime: Calendar.current.date(byAdding: .minute, value: -15, to: Date())
-            ),
-            nutrition: NutritionData(
-                water: 1.9,
-                calories: 2080,
-                protein: 88,
-                carbohydrates: 265,
-                fat: 72,
-                fiber: 25,
-                sodium: 1950
+    /// Validates real health data availability and completeness
+    ///
+    /// Checks HealthKit permissions and data availability for core health types.
+    /// Returns assessment of data completeness for informed decision making.
+    ///
+    /// - Returns: HealthDataAvailabilityStatus indicating data quality and missing types
+    private func validateHealthDataAvailability() async -> HealthDataAvailabilityStatus {
+        var availableTypes: [HKQuantityTypeIdentifier] = []
+        var missingTypes: [HKQuantityTypeIdentifier] = []
+        var limitedTypes: [HKQuantityTypeIdentifier] = []
+
+        // Core health data types required for meaningful analysis
+        let coreTypes: [HKQuantityTypeIdentifier] = [
+            .heartRate,
+            .stepCount,
+            .activeEnergyBurned,
+            .distanceWalkingRunning,
+        ]
+
+        // Extended types for comprehensive analysis
+        let extendedTypes: [HKQuantityTypeIdentifier] = [
+            .heartRateVariabilitySDNN,
+            .bodyMass,
+            .height,
+            .bloodPressureSystolic,
+            .bloodPressureDiastolic,
+            .respiratoryRate,
+            .oxygenSaturation,
+            .bodyTemperature,
+        ]
+
+        // Check authorization and data availability for core types
+        for typeIdentifier in coreTypes {
+            guard let quantityType = HKQuantityType.quantityType(forIdentifier: typeIdentifier) else {
+                continue
+            }
+
+            let authStatus = healthStore.authorizationStatus(for: quantityType)
+            if authStatus == .sharingAuthorized {
+                let hasRecentData = await checkRecentDataAvailability(for: quantityType)
+                if hasRecentData {
+                    availableTypes.append(typeIdentifier)
+                } else {
+                    limitedTypes.append(typeIdentifier)
+                }
+            } else {
+                missingTypes.append(typeIdentifier)
+            }
+        }
+
+        // Check extended types
+        for typeIdentifier in extendedTypes {
+            guard let quantityType = HKQuantityType.quantityType(forIdentifier: typeIdentifier) else {
+                continue
+            }
+
+            let authStatus = healthStore.authorizationStatus(for: quantityType)
+            if authStatus == .sharingAuthorized {
+                let hasRecentData = await checkRecentDataAvailability(for: quantityType)
+                if hasRecentData {
+                    availableTypes.append(typeIdentifier)
+                } else {
+                    limitedTypes.append(typeIdentifier)
+                }
+            } else {
+                missingTypes.append(typeIdentifier)
+            }
+        }
+
+        // Calculate sufficiency score based on core and extended data
+        let coreAvailableCount = availableTypes.filter { coreTypes.contains($0) }.count
+        let coreSufficiency = Double(coreAvailableCount) / Double(coreTypes.count)
+
+        let extendedAvailableCount = availableTypes.filter { extendedTypes.contains($0) }.count
+        let extendedSufficiency = Double(extendedAvailableCount) / Double(extendedTypes.count)
+
+        let overallSufficiency = (coreSufficiency * 0.7) + (extendedSufficiency * 0.3)
+
+        return HealthDataAvailabilityStatus(
+            availableTypes: availableTypes,
+            missingTypes: missingTypes,
+            limitedTypes: limitedTypes,
+            coreSufficiency: coreSufficiency,
+            extendedSufficiency: extendedSufficiency,
+            overallSufficiency: overallSufficiency,
+            recommendations: generateDataAvailabilityRecommendations(
+                missing: missingTypes,
+                limited: limitedTypes,
+                coreSufficiency: coreSufficiency
             )
         )
+    }
+
+    /// Check if recent data is available for a specific health type
+    private func checkRecentDataAvailability(for type: HKQuantityType) async -> Bool {
+        let calendar = Calendar.current
+        let now = Date()
+        let startOfToday = calendar.startOfDay(for: now)
+        let sevenDaysAgo = calendar.date(byAdding: .day, value: -7, to: startOfToday) ?? startOfToday
+
+        let predicate = HKQuery.predicateForSamples(
+            withStart: sevenDaysAgo,
+            end: now,
+            options: .strictStartDate
+        )
+
+        return await withCheckedContinuation { continuation in
+            let query = HKSampleQuery(
+                sampleType: type,
+                predicate: predicate,
+                limit: 1,
+                sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)]
+            ) { _, samples, error in
+                let hasData = (samples?.count ?? 0) > 0 && error == nil
+                continuation.resume(returning: hasData)
+            }
+            healthStore.execute(query)
+        }
+    }
+
+    /// Generate recommendations based on data availability
+    private func generateDataAvailabilityRecommendations(
+        missing: [HKQuantityTypeIdentifier],
+        limited: [HKQuantityTypeIdentifier],
+        coreSufficiency: Double
+    ) -> [String] {
+        var recommendations: [String] = []
+
+        if coreSufficiency < 0.5 {
+            recommendations.append(
+                "Enable basic health permissions (Heart Rate, Steps, Activity) for meaningful analysis")
+        }
+
+        if missing.contains(.heartRate) {
+            recommendations.append("Grant Heart Rate permission for cardiovascular health insights")
+        }
+
+        if missing.contains(.stepCount) {
+            recommendations.append("Allow Step Count access to track daily activity patterns")
+        }
+
+        if missing.contains(.heartRateVariabilitySDNN) {
+            recommendations.append("Enable Heart Rate Variability for stress and recovery analysis")
+        }
+
+        if !limited.isEmpty {
+            recommendations.append("Ensure your Apple Watch or health device is collecting data regularly")
+        }
+
+        if missing.count > limited.count {
+            recommendations.append("Review HealthKit permissions in Settings > Privacy & Security > Health")
+        }
+
+        return recommendations
     }
 
     // MARK: - Cache Management
@@ -641,4 +732,3 @@ final class HealthKitManager: ObservableObject {
         stopBackgroundObservation()
     }
 }
-

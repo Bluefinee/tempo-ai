@@ -6,11 +6,11 @@ import XCTest
 
 class MockHealthKitStore: HealthKitStoreProtocol {
     static var staticIsHealthDataAvailableResult: Bool = true
-    
+
     var isHealthDataAvailableResult: Bool = true
     var authorizationStatusResult: HKAuthorizationStatus = .notDetermined
     var requestAuthorizationCalled: Bool = false
-    var requestAuthorizationError: Error? = nil
+    var requestAuthorizationError: Error?
     var executedQueries: [HKQuery] = []
     var mockQueryResults: [String: Any] = [:]
 

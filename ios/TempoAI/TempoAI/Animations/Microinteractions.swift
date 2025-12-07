@@ -1,9 +1,13 @@
 import SwiftUI
 import UIKit
 
-// MARK: - Haptic Feedback
+// MARK: - Microinteractions
 
-enum HapticFeedback {
+struct Microinteractions {
+    
+    // MARK: - Haptic Feedback
+    
+    enum HapticFeedback {
     case light
     case medium
     case heavy
@@ -280,4 +284,5 @@ struct ProgressRing: View {
             }
         }
     }
+    
 }

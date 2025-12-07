@@ -1,7 +1,10 @@
 import SwiftUI
 
 /// Animation constants for consistent timing and easing throughout the app
-enum AnimationDuration {
+struct AnimationConstants {
+    
+    /// Animation duration constants
+    enum Duration {
     /// 0.1s - Instant feedback (button press acknowledgment)
     static let instant: Double = 0.1
 
@@ -106,4 +109,5 @@ enum OpacityLevel {
 
     /// Fully visible
     static let opaque: Double = 1.0
+    }
 }

@@ -12,7 +12,7 @@ struct AIHealthInsights: Codable {
     let culturalNotes: String?
     let confidenceScore: Double
     let analysisTimestamp: Date
-    
+
     init(
         overallScore: Double,
         keyInsights: [String],
@@ -53,7 +53,7 @@ struct ActionableRecommendation: Codable {
     let estimatedBenefit: String
     let source: RecommendationSource
     let timestamp: Date
-    
+
     init(
         category: RecommendationCategory,
         title: String,
@@ -89,7 +89,7 @@ enum RecommendationPriority: String, CaseIterable, Codable {
     case high = "high"
     case medium = "medium"
     case low = "low"
-    
+
     var numericValue: Int {
         switch self {
         case .high: return 3
@@ -134,7 +134,7 @@ enum RiskSeverity: String, CaseIterable, Codable {
     case moderate = "moderate"
     case high = "high"
     case critical = "critical"
-    
+
     var color: String {
         switch self {
         case .low: return "green"
@@ -163,7 +163,7 @@ enum TrendDirection: String, CaseIterable, Codable {
     case stable = "stable"
     case declining = "declining"
     case unknown = "unknown"
-    
+
     var icon: String {
         switch self {
         case .improving: return "arrow.up.circle.fill"
@@ -172,7 +172,7 @@ enum TrendDirection: String, CaseIterable, Codable {
         case .unknown: return "questionmark.circle.fill"
         }
     }
-    
+
     var color: String {
         switch self {
         case .improving: return "green"
@@ -189,7 +189,7 @@ enum TrendTimeframe: String, CaseIterable, Codable {
     case month = "month"
     case quarter = "quarter"
     case year = "year"
-    
+
     var displayName: String {
         switch self {
         case .week: return "過去1週間"
@@ -212,7 +212,7 @@ struct HealthAlert: Codable {
     let actionRequired: Bool
     let recommendations: [String]
     let timestamp: Date
-    
+
     init(
         type: AlertType,
         title: String,
@@ -247,7 +247,7 @@ enum AlertSeverity: String, CaseIterable, Codable {
     case info = "info"
     case warning = "warning"
     case critical = "critical"
-    
+
     var color: String {
         switch self {
         case .info: return "blue"
@@ -255,7 +255,7 @@ enum AlertSeverity: String, CaseIterable, Codable {
         case .critical: return "red"
         }
     }
-    
+
     var icon: String {
         switch self {
         case .info: return "info.circle.fill"
@@ -279,7 +279,7 @@ struct UserProfile: Codable {
     let culturalContext: CulturalContext?
     let medicalConditions: [String]
     let preferences: UserPreferences
-    
+
     init(
         userId: String = UUID().uuidString,
         age: Int? = nil,
@@ -328,7 +328,7 @@ struct UserPreferences: Codable {
     let analysisDetailLevel: AnalysisDetailLevel
     let recommendationStyle: RecommendationStyle
     let privacyLevel: PrivacyLevel
-    
+
     init(
         notificationFrequency: NotificationFrequency = .daily,
         analysisDetailLevel: AnalysisDetailLevel = .balanced,
@@ -386,7 +386,7 @@ extension RecommendationCategory {
         case .recovery: return "heart.fill"
         }
     }
-    
+
     var displayName: String {
         switch self {
         case .nutrition: return "栄養"

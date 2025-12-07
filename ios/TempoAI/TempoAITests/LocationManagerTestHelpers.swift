@@ -15,7 +15,7 @@ import XCTest
 
 class MockCLLocationManager: NSObject, CLLocationManagerProtocol {
     private let identifier: UUID = UUID()
-    
+
     var authorizationStatusResult: CLAuthorizationStatus = .notDetermined
     var desiredAccuracy: CLLocationAccuracy = kCLLocationAccuracyBest
     var delegate: (any CLLocationManagerDelegate)?
@@ -47,7 +47,7 @@ extension MockCLLocationManager {
         guard let other = object as? MockCLLocationManager else { return false }
         return self.identifier == other.identifier
     }
-    
+
     override var hash: Int {
         return identifier.hashValue
     }

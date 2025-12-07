@@ -92,31 +92,31 @@ final class HealthDataModelsTests: XCTestCase {
         XCTAssertGreaterThanOrEqual(activityData.calories, 0)
         XCTAssertGreaterThanOrEqual(activityData.activeMinutes, 0)
     }
-    
+
     // MARK: - Invalid Input Tests
-    
+
     func testSleepDataBoundaryConditions() {
         // Test sleep efficiency at boundaries
         let sleepData100 = SleepData(duration: 8.0, deep: 2.0, rem: 1.5, light: 4.0, awake: 0.5, efficiency: 100)
         XCTAssertEqual(sleepData100.efficiency, 100)
-        
+
         let sleepData0 = SleepData(duration: 8.0, deep: 2.0, rem: 1.5, light: 4.0, awake: 0.5, efficiency: 0)
         XCTAssertEqual(sleepData0.efficiency, 0)
     }
-    
+
     func testHeartRateDataValidation() {
         // Test that min <= average <= max relationship holds
         let heartRateData = HeartRateData(resting: 60, average: 75, min: 58, max: 95)
-        
+
         XCTAssertLessThanOrEqual(heartRateData.min, heartRateData.average)
         XCTAssertLessThanOrEqual(heartRateData.average, heartRateData.max)
         XCTAssertLessThanOrEqual(heartRateData.resting, heartRateData.max)
     }
-    
+
     func testHRVDataValidation() {
         // Test that min <= average <= max relationship holds
         let hrvData = HRVData(average: 45.0, min: 35.0, max: 55.0)
-        
+
         XCTAssertLessThanOrEqual(hrvData.min, hrvData.average)
         XCTAssertLessThanOrEqual(hrvData.average, hrvData.max)
     }

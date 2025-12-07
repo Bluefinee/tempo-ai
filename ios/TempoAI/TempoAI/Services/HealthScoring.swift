@@ -10,6 +10,9 @@
 
 import Foundation
 
+/// Health scoring protocols and utilities
+struct HealthScoring {
+
 // MARK: - Health Scoring Protocol
 
 /// Protocol for health scoring components
@@ -90,4 +93,5 @@ enum ActivityScorer: HealthScorer {
     private static func calculateStandScore(_ standHours: Int) -> Double {
         return min(Double(standHours) / 12.0 * 100, 100)
     }
+    
 }

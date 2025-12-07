@@ -22,7 +22,6 @@ import XCTest
 
 @testable import TempoAI
 
-
 @MainActor
 final class HealthKitManagerTests: XCTestCase {
     var healthKitManager: HealthKitManager!
@@ -283,10 +282,10 @@ final class HealthKitManagerTests: XCTestCase {
         // When: Testing performance with proper async handling
         let options = XCTMeasureOptions()
         options.iterationCount = 5
-        
+
         measure(options: options) {
             let semaphore = DispatchSemaphore(value: 0)
-            
+
             Task {
                 do {
                     _ = try await healthKitManager.fetchTodayHealthData()
@@ -296,7 +295,7 @@ final class HealthKitManagerTests: XCTestCase {
                     semaphore.signal()
                 }
             }
-            
+
             semaphore.wait()
         }
     }
@@ -336,4 +335,3 @@ final class HealthKitManagerTests: XCTestCase {
         XCTAssertEqual(healthData1.activity.steps, healthData2.activity.steps)
     }
 }
-

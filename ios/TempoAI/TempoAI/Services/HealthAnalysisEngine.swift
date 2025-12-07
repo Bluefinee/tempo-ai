@@ -156,9 +156,30 @@ class HealthAnalysisEngine: ObservableObject {
 
         return AnalysisResult(
             id: UUID(),
+            route: RoutingDecision(
+                route: .localAnalysis(
+                    LocalAnalysisDecision(
+                        reason: .speedOptimization,
+                        confidence: 0.95
+                    )),
+                factors: AIDecisionFactors(
+                    dataRichness: 0.5,
+                    analysisComplexity: .low,
+                    userEngagement: .medium,
+                    timeSensitivity: .immediate,
+                    costBudget: 1.0
+                ),
+                executionTime: 50  // ms
+            ),
+            insights: .quick(localInsights),
+            confidence: 0.8,
+            processingTime: 100,
+            cost: 0.0,
+            timestamp: Date(),
+            isPartial: false,
+            metadata: [:],
             analysisMethod: .local,
             requestType: .quick,
-            insights: .quick(localInsights),
             routingDecision: RoutingDecision(
                 route: .localAnalysis(
                     LocalAnalysisDecision(
@@ -293,9 +314,20 @@ class HealthAnalysisEngine: ObservableObject {
 
             return AnalysisResult(
                 id: UUID(),
+                route: RoutingDecision(
+                    route: .aiAnalysis(decision),
+                    factors: decisionEngine.lastFactors ?? AIDecisionFactors(),
+                    executionTime: Int(Date().timeIntervalSince(startTime) * 1000)
+                ),
+                insights: .comprehensive(aiInsights),
+                confidence: 0.8,
+                processingTime: 100,
+                cost: 0.0,
+                timestamp: Date(),
+                isPartial: false,
+                metadata: [:],
                 analysisMethod: .ai,
                 requestType: requestType,
-                insights: .comprehensive(aiInsights),
                 routingDecision: RoutingDecision(
                     route: .aiAnalysis(decision),
                     factors: decisionEngine.lastFactors ?? AIDecisionFactors(),
@@ -348,9 +380,20 @@ class HealthAnalysisEngine: ObservableObject {
 
         return AnalysisResult(
             id: UUID(),
+            route: RoutingDecision(
+                route: .localAnalysis(decision),
+                factors: decisionEngine.lastFactors ?? AIDecisionFactors(),
+                executionTime: Int(Date().timeIntervalSince(startTime) * 1000)
+            ),
+            insights: .local(localInsights),
+            confidence: 0.8,
+            processingTime: 100,
+            cost: 0.0,
+            timestamp: Date(),
+            isPartial: false,
+            metadata: [:],
             analysisMethod: .local,
             requestType: requestType,
-            insights: .local(localInsights),
             routingDecision: RoutingDecision(
                 route: .localAnalysis(decision),
                 factors: decisionEngine.lastFactors ?? AIDecisionFactors(),
@@ -428,9 +471,20 @@ class HealthAnalysisEngine: ObservableObject {
 
         return AnalysisResult(
             id: UUID(),
+            route: RoutingDecision(
+                route: .hybridAnalysis(decision),
+                factors: decisionEngine.lastFactors ?? AIDecisionFactors(),
+                executionTime: Int(Date().timeIntervalSince(startTime) * 1000)
+            ),
+            insights: .hybrid(combinedInsights),
+            confidence: 0.8,
+            processingTime: 100,
+            cost: 0.0,
+            timestamp: Date(),
+            isPartial: false,
+            metadata: [:],
             analysisMethod: .hybrid,
             requestType: requestType,
-            insights: .hybrid(combinedInsights),
             routingDecision: RoutingDecision(
                 route: .hybridAnalysis(decision),
                 factors: decisionEngine.lastFactors ?? AIDecisionFactors(),
@@ -458,9 +512,24 @@ class HealthAnalysisEngine: ObservableObject {
 
         return AnalysisResult(
             id: UUID(),
+            route: RoutingDecision(
+                route: .localAnalysis(
+                    LocalAnalysisDecision(
+                        reason: .aiFallback,
+                        confidence: 0.8
+                    )),
+                factors: decisionEngine.lastFactors ?? AIDecisionFactors(),
+                executionTime: Int(Date().timeIntervalSince(params.startTime) * 1000)
+            ),
+            insights: .local(localInsights),
+            confidence: 0.8,
+            processingTime: 100,
+            cost: 0.0,
+            timestamp: Date(),
+            isPartial: false,
+            metadata: [:],
             analysisMethod: .localFallback,
             requestType: params.requestType,
-            insights: .local(localInsights),
             routingDecision: RoutingDecision(
                 route: .localAnalysis(
                     LocalAnalysisDecision(

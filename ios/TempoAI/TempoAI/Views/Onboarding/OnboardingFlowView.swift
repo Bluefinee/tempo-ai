@@ -74,7 +74,9 @@ struct OnboardingFlowView: View {
                         }
                         .tag(OnboardingPage.locationPermission)
 
-                        CompletionPage()
+                        CompletionPage {
+                            coordinator.completeOnboarding()
+                        }
                             .tag(OnboardingPage.completion)
                     }
                     .tabViewStyle(.page(indexDisplayMode: .never))

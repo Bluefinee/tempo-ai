@@ -1,11 +1,5 @@
 import SwiftUI
 
-struct PermissionItem {
-    let icon: String
-    let title: String
-    let description: String
-}
-
 struct PermissionPage: View {
     let title: String
     let subtitle: String
@@ -174,7 +168,7 @@ struct CompletionPage: View {
             PermissionItem(icon: "heart", title: "心拍数", description: "ストレスレベル計算のため"),
             PermissionItem(icon: "bed.double", title: "睡眠データ", description: "朝のバッテリー充電量計算のため"),
         ],
-        isGranted: .constant(false),
+        isGranted: Binding.constant(false),
         onNext: { print("Next") },
         requestPermission: { print("Request permission") }
     )

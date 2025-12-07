@@ -1,0 +1,35 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(/Users/masakazuiwahara/Development/tempo-ai/ios/TempoAI/TempoAI/DesignSystem/**)",
+      "Read(/Users/masakazuiwahara/Development/tempo-ai/guidelines/development-plans/**)",
+      "Read(/Users/masakazuiwahara/Development/tempo-ai/guidelines/**)",
+      "Read(/Users/masakazuiwahara/Development/tempo-ai/guidelines/claude-plans/**)",
+      "Read(/Users/masakazuiwahara/Development/tempo-ai/guidelines/claude-plans/phase0/**)",
+      "Read(/Users/masakazuiwahara/Development/tempo-ai/guidelines/claude-plans/phase1/**)",
+      "Read(/Users/masakazuiwahara/Development/tempo-ai/guidelines/claude-plans/phase0/**)",
+      "Read(/Users/masakazuiwahara/Development/tempo-ai/ios/TempoAI/TempoAI/**)",
+      "Bash(xcodebuild:*)",
+      "Read(/Users/masakazuiwahara/Development/tempo-ai/.claude/**)",
+      "Bash(swift --version)",
+      "Bash(./scripts/quality-check.sh:*)",
+      "Bash(./scripts/fix-all.sh:*)",
+      "Read(/Users/masakazuiwahara/Development/tempo-ai/.github/workflows/**)",
+      "WebSearch",
+      "Bash(swiftlint:*)",
+      "Read(/Users/masakazuiwahara/Development/tempo-ai/**)",
+      "Read(/Users/masakazuiwahara/Development/tempo-ai/.claude/**)",
+      "Read(/Users/masakazuiwahara/Development/tempo-ai/.claude/**)"
+    ],
+    "deny": [],
+    "ask": [],
+    "additionalDirectories": [
+      "/Users/masakazuiwahara/Development/tempo-ai/ios/TempoAI/TempoAI/Services",
+      "/Users/masakazuiwahara/Development/tempo-ai/ios/TempoAI/TempoAI/Models",
+      "/Users/masakazuiwahara/Development/tempo-ai/ios/TempoAI/TempoAI",
+      "/Users/masakazuiwahara/Development/tempo-ai/ios/TempoAI/TempoAITests",
+      "/Users/masakazuiwahara/Development/tempo-ai/ios/TempoAI/TempoAIUITests",
+      "/Users/masakazuiwahara/Development/tempo-ai/ios"
+    ]
+  }
+}

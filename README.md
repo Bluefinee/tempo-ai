@@ -187,7 +187,7 @@ cd ios
 
 - CodeRabbit CLI のレビューコマンドを実行してコードレビューを受けること。レビュー指摘内容はそのまま YYYYMMDD-HHMM-code-rabbit-review-results.txt として
   guidelines/code-rabbit-reviews にアウトプットする。
-  コマンド例：`coderabbit review --plain > guidelines/code-rabbit-reviews/20251204-$(date +%H%M)-code-rabbit-review-results.txt 2>&1`
+  コマンド例：`coderabbit review --plain > guidelines/code-rabbit-reviews/YYYYMMDD-$(date +%H%M)-code-rabbit-review-results.txt 2>&1`
 - **重要**: レビュー処理には 5-10 分程度かかるため、コマンドの完了まで待機すること
 
 ### 2. レビュー結果の処理

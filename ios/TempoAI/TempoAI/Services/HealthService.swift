@@ -10,13 +10,14 @@ class HealthService: HealthServiceProtocol, ObservableObject {
     private let healthStore = HKHealthStore()
     private lazy var requiredTypes: Set<HKSampleType> = {
         guard HKHealthStore.isHealthDataAvailable() else { return [] }
-        return [
-            HKSampleType.quantityType(forIdentifier: .heartRate),
-            HKSampleType.quantityType(forIdentifier: .heartRateVariabilitySDNN),
-            HKSampleType.quantityType(forIdentifier: .activeEnergyBurned),
-            HKSampleType.quantityType(forIdentifier: .stepCount),
-            HKSampleType.categoryType(forIdentifier: .sleepAnalysis),
-        ].compactMap { $0 }
+        return Set(
+            [
+                HKSampleType.quantityType(forIdentifier: .heartRate),
+                HKSampleType.quantityType(forIdentifier: .heartRateVariabilitySDNN),
+                HKSampleType.quantityType(forIdentifier: .activeEnergyBurned),
+                HKSampleType.quantityType(forIdentifier: .stepCount),
+                HKSampleType.categoryType(forIdentifier: .sleepAnalysis),
+            ].compactMap { $0 })
     }()
 
     func requestPermissions() async -> Bool {

@@ -1,5 +1,4 @@
 # Global code ownership for Tempo AI project
-# This ensures all changes get proper review and Copilot integration
 
 # Default owners for everything
 * @Bluefinee
@@ -18,5 +17,4 @@ Podfile.lock @Bluefinee
 # Documentation and guidelines
 CLAUDE.md @Bluefinee
 README.md @Bluefinee
-copilot-instructions.md @Bluefinee
 guidelines/ @Bluefinee

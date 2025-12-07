@@ -147,7 +147,7 @@ class PersonalizedRecommendationEngine {
     // MARK: - Category-Specific Recommendation Generators
 
     private func generateCardiovascularRecommendation(
-        type: RecommendationType,
+        type: HealthRecommendationType,
         userProfile: UserProfile,
         language: String
     ) -> ActionableRecommendation {
@@ -218,7 +218,7 @@ class PersonalizedRecommendationEngine {
     }
 
     private func generateSleepRecommendation(
-        type: RecommendationType,
+        type: HealthRecommendationType,
         userProfile: UserProfile,
         language: String
     ) -> ActionableRecommendation {
@@ -289,7 +289,7 @@ class PersonalizedRecommendationEngine {
     }
 
     private func generateActivityRecommendation(
-        type: RecommendationType,
+        type: HealthRecommendationType,
         userProfile: UserProfile,
         language: String
     ) -> ActionableRecommendation {
@@ -360,7 +360,7 @@ class PersonalizedRecommendationEngine {
     }
 
     private func generateMetabolicRecommendation(
-        type: RecommendationType,
+        type: HealthRecommendationType,
         userProfile: UserProfile,
         language: String
     ) -> ActionableRecommendation {
@@ -434,7 +434,7 @@ class PersonalizedRecommendationEngine {
 
     private func generateCategoryRecommendation(
         category: HealthCategory,
-        type: RecommendationType,
+        type: HealthRecommendationType,
         userProfile: UserProfile,
         language: String
     ) -> ActionableRecommendation {

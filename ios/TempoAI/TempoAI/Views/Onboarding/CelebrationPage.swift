@@ -362,10 +362,10 @@ struct OnboardingPreferences {
 #if DEBUG
     struct CelebrationPage_Previews: PreviewProvider {
         static let mockPreferences = UserPreferences(
-            healthGoal: .generalFitness,
-            activityLevel: .moderatelyActive,
-            interests: [.exercise, .nutrition, .sleep],
-            notificationTime: Date()
+            notificationFrequency: .daily,
+            analysisDetailLevel: .balanced,
+            recommendationStyle: .encouraging,
+            privacyLevel: .standard
         )
 
         static var previews: some View {

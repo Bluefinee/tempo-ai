@@ -75,7 +75,8 @@
       "Bash(../../scripts/quality-check.sh:*)",
       "Bash(../scripts/fix-all.sh:*)",
       "Bash(./fix-all.sh)",
-      "Bash(git log:*)"
+      "Bash(git log:*)",
+      "Bash(timeout:*)"
     ],
     "deny": [],
     "ask": [],

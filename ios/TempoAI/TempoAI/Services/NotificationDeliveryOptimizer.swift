@@ -5,7 +5,7 @@ import Foundation
 /// Optimizes notification delivery timing based on user behavior patterns and context
 /// Uses machine learning-like algorithms to predict optimal delivery times
 @MainActor
-class NotificationDeliveryOptimizer: ObservableObject {
+class NotificationDeliveryOptimizer {
 
     // MARK: - Private Properties
 

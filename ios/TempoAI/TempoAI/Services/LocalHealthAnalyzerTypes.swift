@@ -111,8 +111,8 @@ struct MedicalAnalysis {
     let urgencyLevel: Severity
 }
 
-/// Recommendation types for personalization
-enum RecommendationType: String, CaseIterable {
+/// Health recommendation types for personalization
+enum HealthRecommendationType: String, CaseIterable {
     case dietary
     case exercise
     case sleep

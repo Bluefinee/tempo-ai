@@ -33,7 +33,7 @@ class LocalHealthAnalyzer: ObservableObject {
 
     // Category-specific analyzers
     private let cardiovascularAnalyzer = CardiovascularAnalyzer()
-    private let sleepAnalyzer = SleepAnalyzer()
+    private let sleepAnalyzer = SleepCategoryAnalyzer()
     private let activityAnalyzer = ActivityAnalyzer()
     private let metabolicAnalyzer = MetabolicAnalyzer()
 

@@ -98,7 +98,7 @@ class CardiovascularAnalyzer {
     }
 }
 
-class SleepAnalyzer {
+class SleepCategoryAnalyzer {
 
     private let medicalGuidelines = MedicalGuidelinesEngine()
 

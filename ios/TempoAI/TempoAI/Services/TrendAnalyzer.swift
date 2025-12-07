@@ -171,7 +171,7 @@ struct TrendAnalyzer {
                 description:
                     """
                     睡眠時間は\(String(format: "%.1f", sleepHours))時間で\(
-                        direction == .stable ? "適切" : 
+                        direction == .stable ? "適切" :
                         direction == .improving ? "改善傾向" : "注意が必要"
                     )です
                     """
@@ -191,7 +191,7 @@ struct TrendAnalyzer {
                 description:
                     """
                     睡眠効率は\(String(format: "%.0f", sleepData.sleepEfficiency * 100))%で\(
-                        efficiencyDirection == .improving ? "良好" : 
+                        efficiencyDirection == .improving ? "良好" :
                         efficiencyDirection == .stable ? "標準的" : "改善の余地があります"
                     )
                     """
@@ -247,7 +247,7 @@ struct TrendAnalyzer {
                 description:
                     """
                     1日の歩数は\(activityData.steps)歩で\(
-                        stepsDirection == .improving ? "目標を達成" : 
+                        stepsDirection == .improving ? "目標を達成" :
                         stepsDirection == .stable ? "標準的" : "増加が推奨"
                     )されます
                     """
@@ -267,7 +267,7 @@ struct TrendAnalyzer {
                 description:
                     """
                     運動時間は\(activityData.exerciseTime)分で\(
-                        exerciseDirection == .improving ? "十分" : 
+                        exerciseDirection == .improving ? "十分" :
                         exerciseDirection == .stable ? "標準的" : "増加が推奨"
                     )です
                     """
@@ -287,7 +287,7 @@ struct TrendAnalyzer {
                 description:
                     """
                     立位時間は\(activityData.standHours)時間で\(
-                        standDirection == .improving ? "良好" : 
+                        standDirection == .improving ? "良好" :
                         standDirection == .stable ? "標準的" : "増加が推奨"
                     )です
                     """
@@ -316,7 +316,7 @@ struct TrendAnalyzer {
                 description:
                     """
                     総合活動レベルは\(
-                        activityLevel == .extremelyActive || activityLevel == .veryActive ? "非常に良好" : 
+                        activityLevel == .extremelyActive || activityLevel == .veryActive ? "非常に良好" :
                         activityLevel == .moderatelyActive ? "標準的" : "改善の余地があります"
                     )です
                     """

@@ -64,13 +64,18 @@ struct InteractiveCard<Content: View>: View {
                 .scaleEffect(isPressed ? 0.98 : 1.0)
         }
         .buttonStyle(PlainButtonStyle())
-        .onLongPressGesture(minimumDuration: .infinity, maximumDistance: .infinity) {
-            // Never triggered
-        } onPressingChanged: { pressing in
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                isPressed = pressing
+        .onLongPressGesture(
+            minimumDuration: .infinity,
+            maximumDistance: .infinity,
+            perform: {
+                // Never triggered
+            },
+            onPressingChanged: { pressing in
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                    isPressed = pressing
+                }
             }
-        }
+        )
     }
 }
 

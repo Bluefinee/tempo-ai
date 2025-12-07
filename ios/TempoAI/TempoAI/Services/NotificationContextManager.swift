@@ -440,7 +440,7 @@ class AppUsageTracker: ObservableObject {
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
-    
+
     func stopTracking() {
         isTracking = false
     }

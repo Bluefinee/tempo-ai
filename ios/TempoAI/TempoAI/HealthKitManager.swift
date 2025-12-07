@@ -234,9 +234,11 @@ final class HealthKitManager: ObservableObject {
                     return
                 }
 
+                // Call completion immediately, then handle update asynchronously
+                completionHandler()
+
                 Task { @MainActor [weak self] in
                     await self?.handleDataUpdate(for: dataType)
-                    completionHandler()
                 }
             }
 
@@ -354,50 +356,133 @@ final class HealthKitManager: ObservableObject {
     /// Fetch comprehensive vital signs data from HealthKit
     /// - Returns: VitalSignsData with all available vital metrics
     private func fetchVitalSignsData() async throws -> VitalSignsData {
-        // For now, return enhanced mock data
-        // Real implementation would query each vital sign type from HealthKit
-        return VitalSignsData(
-            heartRate: HeartRateMetrics(
-                current: 72,
-                resting: 58,
-                average: 68,
-                min: 55,
-                max: 145,
-                variabilityScore: 85
-            ),
-            heartRateVariability: HRVMetrics(
-                sdnn: 42.5,
-                rmssd: 38.2,
-                pnn50: 15.8,
-                average: 35.4,
-                trend: .stable
-            ),
-            oxygenSaturation: 98.5,
-            respiratoryRate: 16,
-            bodyTemperature: 98.6,
-            bloodPressure: BloodPressureReading(
-                systolic: 118,
-                diastolic: 76,
-                timestamp: Date()
+        #if os(iOS)
+            guard HKHealthStore.isHealthDataAvailable() else {
+                throw HealthKitError.healthKitNotAvailable
+            }
+
+            async let heartRateData = fetchHeartRateMetrics()
+            async let hrvData = fetchHRVMetrics()
+            async let oxygenSaturation = fetchLatestSample(
+                for: HKObjectType.quantityType(forIdentifier: .oxygenSaturation))
+            async let respiratoryRate = fetchLatestSample(
+                for: HKObjectType.quantityType(forIdentifier: .respiratoryRate))
+            async let bodyTemperature = fetchLatestSample(
+                for: HKObjectType.quantityType(forIdentifier: .bodyTemperature))
+            async let bloodPressure = fetchLatestBloodPressure()
+
+            let (
+                heartRate,
+                hrv,
+                oxygenSat,
+                respRate,
+                bodyTemp,
+                bp
+            ) = try await (
+                heartRateData,
+                hrvData,
+                oxygenSaturation,
+                respiratoryRate,
+                bodyTemperature,
+                bloodPressure
             )
-        )
+
+            return VitalSignsData(
+                heartRate: heartRate,
+                heartRateVariability: hrv,
+                oxygenSaturation: oxygenSat?.doubleValue(for: HKUnit.percent()) ?? 98.0,
+                respiratoryRate: respRate?.doubleValue(for: HKUnit.count().unitDivided(by: HKUnit.minute())) ?? 16.0,
+                bodyTemperature: bodyTemp?.doubleValue(for: HKUnit.degreeFahrenheit()) ?? 98.6,
+                bloodPressure: bp
+            )
+        #else
+            // macOS fallback with mock data for development
+            return VitalSignsData(
+                heartRate: HeartRateMetrics(
+                    current: 72,
+                    resting: 58,
+                    average: 68,
+                    min: 55,
+                    max: 145,
+                    variabilityScore: 85
+                ),
+                heartRateVariability: HRVMetrics(
+                    sdnn: 42.5,
+                    rmssd: 38.2,
+                    pnn50: 15.8,
+                    average: 35.4,
+                    trend: .stable
+                ),
+                oxygenSaturation: 98.5,
+                respiratoryRate: 16,
+                bodyTemperature: 98.6,
+                bloodPressure: BloodPressureReading(
+                    systolic: 118,
+                    diastolic: 76,
+                    timestamp: Date()
+                )
+            )
+        #endif
     }
 
     /// Fetch enhanced activity data from HealthKit
     /// - Returns: EnhancedActivityData with comprehensive activity metrics
     private func fetchEnhancedActivityData() async throws -> EnhancedActivityData {
-        // For now, return enhanced mock data
-        // Real implementation would query activity data from HealthKit
-        return EnhancedActivityData(
-            steps: 9247,
-            distance: 6.8,
-            activeEnergyBurned: 442,
-            basalEnergyBurned: 1680,
-            exerciseTime: 38,
-            standHours: 10,
-            flights: 12,
-            activeMinutes: 42
-        )
+        #if os(iOS)
+            guard HKHealthStore.isHealthDataAvailable() else {
+                throw HealthKitError.healthKitNotAvailable
+            }
+
+            // Parallel queries for activity data
+            async let steps = fetchDailySum(for: HKObjectType.quantityType(forIdentifier: .stepCount))
+            async let distance = fetchDailySum(for: HKObjectType.quantityType(forIdentifier: .distanceWalkingRunning))
+            async let activeEnergy = fetchDailySum(for: HKObjectType.quantityType(forIdentifier: .activeEnergyBurned))
+            async let basalEnergy = fetchDailySum(for: HKObjectType.quantityType(forIdentifier: .basalEnergyBurned))
+            async let exerciseTime = fetchDailySum(for: HKObjectType.quantityType(forIdentifier: .appleExerciseTime))
+            async let standHours = fetchDailySum(for: HKObjectType.quantityType(forIdentifier: .appleStandHour))
+            async let flights = fetchDailySum(for: HKObjectType.quantityType(forIdentifier: .flightsClimbed))
+
+            let (
+                stepsData,
+                distanceData,
+                activeEnergyData,
+                basalEnergyData,
+                exerciseTimeData,
+                standHoursData,
+                flightsData
+            ) = try await (
+                steps,
+                distance,
+                activeEnergy,
+                basalEnergy,
+                exerciseTime,
+                standHours,
+                flights
+            )
+
+            return EnhancedActivityData(
+                steps: Int(stepsData?.sumQuantity()?.doubleValue(for: HKUnit.count()) ?? 0),
+                distance: distanceData?.sumQuantity()?.doubleValue(for: HKUnit.meterUnit(with: .kilo)) ?? 0.0,
+                activeEnergyBurned: activeEnergyData?.sumQuantity()?.doubleValue(for: HKUnit.kilocalorie()) ?? 0,
+                basalEnergyBurned: basalEnergyData?.sumQuantity()?.doubleValue(for: HKUnit.kilocalorie()) ?? 0,
+                exerciseTime: Int(exerciseTimeData?.sumQuantity()?.doubleValue(for: HKUnit.minute()) ?? 0),
+                standHours: Int(standHoursData?.sumQuantity()?.doubleValue(for: HKUnit.count()) ?? 0),
+                flights: Int(flightsData?.sumQuantity()?.doubleValue(for: HKUnit.count()) ?? 0),
+                activeMinutes: Int(exerciseTimeData?.sumQuantity()?.doubleValue(for: HKUnit.minute()) ?? 0)
+            )
+        #else
+            // macOS fallback with mock data
+            return EnhancedActivityData(
+                steps: 9247,
+                distance: 6.8,
+                activeEnergyBurned: 442,
+                basalEnergyBurned: 1680,
+                exerciseTime: 38,
+                standHours: 10,
+                flights: 12,
+                activeMinutes: 42
+            )
+        #endif
     }
 
     /// Fetch body measurements data from HealthKit
@@ -723,6 +808,183 @@ final class HealthKitManager: ObservableObject {
             try await dataStore.clearOldCachedData()
         } catch {
             print("⚠️ Failed to clear old cached data: \(error)")
+        }
+    }
+
+    // MARK: - HealthKit Query Helpers
+
+    /// Fetch heart rate metrics from HealthKit
+    /// - Returns: HeartRateMetrics with comprehensive heart rate data
+    private func fetchHeartRateMetrics() async throws -> HeartRateMetrics {
+        #if os(iOS)
+            guard let heartRateType = HKObjectType.quantityType(forIdentifier: .heartRate),
+                let restingHeartRateType = HKObjectType.quantityType(forIdentifier: .restingHeartRate)
+            else {
+                throw HealthKitError.invalidHealthKitData
+            }
+
+            async let currentHR = fetchLatestSample(for: heartRateType)
+            async let restingHR = fetchLatestSample(for: restingHeartRateType)
+            async let stats = fetchDailyStatistics(for: heartRateType)
+
+            let (current, resting, statistics) = try await (currentHR, restingHR, stats)
+
+            return HeartRateMetrics(
+                current: current?.doubleValue(for: HKUnit.count().unitDivided(by: HKUnit.minute())) ?? 70,
+                resting: resting?.doubleValue(for: HKUnit.count().unitDivided(by: HKUnit.minute())) ?? 60,
+                average: statistics?.averageQuantity()?.doubleValue(
+                    for: HKUnit.count().unitDivided(by: HKUnit.minute())) ?? 70,
+                min: statistics?.minimumQuantity()?.doubleValue(for: HKUnit.count().unitDivided(by: HKUnit.minute()))
+                    ?? 55,
+                max: statistics?.maximumQuantity()?.doubleValue(for: HKUnit.count().unitDivided(by: HKUnit.minute()))
+                    ?? 140,
+                variabilityScore: 85  // Placeholder - calculated from HRV
+            )
+        #else
+            throw HealthKitError.healthKitNotAvailable
+        #endif
+    }
+
+    /// Fetch HRV metrics from HealthKit
+    /// - Returns: HRVMetrics with heart rate variability data
+    private func fetchHRVMetrics() async throws -> HRVMetrics {
+        #if os(iOS)
+            guard let hrvType = HKObjectType.quantityType(forIdentifier: .heartRateVariabilitySDNN) else {
+                throw HealthKitError.invalidHealthKitData
+            }
+
+            let stats = try await fetchDailyStatistics(for: hrvType)
+            let average = stats?.averageQuantity()?.doubleValue(for: HKUnit.secondUnit(with: .milli)) ?? 35.0
+
+            return HRVMetrics(
+                sdnn: average,
+                rmssd: average * 0.9,  // Approximation
+                pnn50: average * 0.4,  // Approximation
+                average: average,
+                trend: .stable
+            )
+        #else
+            throw HealthKitError.healthKitNotAvailable
+        #endif
+    }
+
+    /// Fetch latest blood pressure reading
+    /// - Returns: BloodPressureReading with systolic and diastolic values
+    private func fetchLatestBloodPressure() async throws -> BloodPressureReading {
+        #if os(iOS)
+            guard let systolicType = HKObjectType.quantityType(forIdentifier: .bloodPressureSystolic),
+                let diastolicType = HKObjectType.quantityType(forIdentifier: .bloodPressureDiastolic)
+            else {
+                throw HealthKitError.invalidHealthKitData
+            }
+
+            async let systolic = fetchLatestSample(for: systolicType)
+            async let diastolic = fetchLatestSample(for: diastolicType)
+
+            let (sys, dia) = try await (systolic, diastolic)
+
+            return BloodPressureReading(
+                systolic: sys?.doubleValue(for: HKUnit.millimeterOfMercury()) ?? 120,
+                diastolic: dia?.doubleValue(for: HKUnit.millimeterOfMercury()) ?? 80,
+                timestamp: Date()
+            )
+        #else
+            throw HealthKitError.healthKitNotAvailable
+        #endif
+    }
+
+    /// Fetch latest sample for a given quantity type
+    /// - Parameter quantityType: HealthKit quantity type
+    /// - Returns: Latest HKQuantitySample or nil
+    private func fetchLatestSample(for quantityType: HKQuantityType?) async throws -> HKQuantitySample? {
+        guard let quantityType = quantityType else { return nil }
+
+        return await withCheckedContinuation { continuation in
+            let query = HKSampleQuery(
+                sampleType: quantityType,
+                predicate: HKQuery.predicateForSamples(
+                    withStart: Calendar.current.date(byAdding: .day, value: -7, to: Date()),
+                    end: Date(),
+                    options: .strictStartDate
+                ),
+                limit: 1,
+                sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)]
+            ) { _, samples, error in
+                if let error = error {
+                    print("❌ HealthKit query error: \(error.localizedDescription)")
+                    continuation.resume(returning: nil)
+                    return
+                }
+
+                let sample = samples?.first as? HKQuantitySample
+                continuation.resume(returning: sample)
+            }
+
+            healthStore.execute(query)
+        }
+    }
+
+    /// Fetch daily sum for a given quantity type
+    /// - Parameter quantityType: HealthKit quantity type
+    /// - Returns: HKStatistics with cumulative sum for today
+    private func fetchDailySum(for quantityType: HKQuantityType?) async throws -> HKStatistics? {
+        guard let quantityType = quantityType else { return nil }
+
+        let calendar = Calendar.current
+        let now = Date()
+        let startOfDay = calendar.startOfDay(for: now)
+
+        return await withCheckedContinuation { continuation in
+            let query = HKStatisticsQuery(
+                quantityType: quantityType,
+                quantitySamplePredicate: HKQuery.predicateForSamples(
+                    withStart: startOfDay,
+                    end: now,
+                    options: .strictStartDate
+                ),
+                options: [.cumulativeSum]
+            ) { _, statistics, error in
+                if let error = error {
+                    print("❌ HealthKit sum query error: \(error.localizedDescription)")
+                    continuation.resume(returning: nil)
+                    return
+                }
+
+                continuation.resume(returning: statistics)
+            }
+
+            healthStore.execute(query)
+        }
+    }
+
+    /// Fetch daily statistics for a given quantity type
+    /// - Parameter quantityType: HealthKit quantity type
+    /// - Returns: HKStatistics for today or nil
+    private func fetchDailyStatistics(for quantityType: HKQuantityType) async throws -> HKStatistics? {
+        let calendar = Calendar.current
+        let now = Date()
+        let startOfDay = calendar.startOfDay(for: now)
+
+        return await withCheckedContinuation { continuation in
+            let query = HKStatisticsQuery(
+                quantityType: quantityType,
+                quantitySamplePredicate: HKQuery.predicateForSamples(
+                    withStart: startOfDay,
+                    end: now,
+                    options: .strictStartDate
+                ),
+                options: [.discreteAverage, .discreteMin, .discreteMax]
+            ) { _, statistics, error in
+                if let error = error {
+                    print("❌ HealthKit statistics query error: \(error.localizedDescription)")
+                    continuation.resume(returning: nil)
+                    return
+                }
+
+                continuation.resume(returning: statistics)
+            }
+
+            healthStore.execute(query)
         }
     }
 

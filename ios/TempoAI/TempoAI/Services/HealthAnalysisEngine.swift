@@ -312,14 +312,15 @@ class HealthAnalysisEngine: ObservableObject {
             print("❌ AI analysis failed: \(error.localizedDescription)")
 
             // Fallback to local analysis
-            return await performLocalAnalysisFallback(LocalAnalysisFallbackParams(
-                healthData: healthData,
-                userProfile: userProfile,
-                requestType: requestType,
-                language: language,
-                fallbackReason: error.localizedDescription,
-                startTime: startTime
-            ))
+            return await performLocalAnalysisFallback(
+                LocalAnalysisFallbackParams(
+                    healthData: healthData,
+                    userProfile: userProfile,
+                    requestType: requestType,
+                    language: language,
+                    fallbackReason: error.localizedDescription,
+                    startTime: startTime
+                ))
         }
     }
 

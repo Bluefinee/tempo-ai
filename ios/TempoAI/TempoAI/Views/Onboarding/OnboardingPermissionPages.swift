@@ -91,7 +91,7 @@ struct HealthKitPermissionPageView: View {
                         .background(Color.red)
                         .cornerRadius(12)
                     }
-                    .accessibilityIdentifier(UIIdentifiers.OnboardingFlow.healthKitAllowButton)
+                    .accessibilityIdentifier(UIIdentifiers.OnboardingFlow.healthKitAllowButton),
 
                     Button(action: {
                         viewModel.nextPage()
@@ -210,7 +210,7 @@ struct LocationPermissionPageView: View {
                         .background(Color.blue)
                         .cornerRadius(12)
                     }
-                    .accessibilityIdentifier(UIIdentifiers.OnboardingFlow.locationAllowButton)
+                    .accessibilityIdentifier(UIIdentifiers.OnboardingFlow.locationAllowButton),
 
                     Button(action: {
                         viewModel.completeOnboarding()

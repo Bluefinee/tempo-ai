@@ -3,11 +3,9 @@ import UIKit
 
 // MARK: - Microinteractions
 
-struct Microinteractions {
-    
-    // MARK: - Haptic Feedback
-    
-    enum HapticFeedback {
+// MARK: - Haptic Feedback
+
+enum HapticFeedback {
     case light
     case medium
     case heavy
@@ -284,5 +282,5 @@ struct ProgressRing: View {
             }
         }
     }
-    
+
 }

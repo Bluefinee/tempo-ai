@@ -79,8 +79,6 @@ struct PlaceholderView: View {
 /// health goals, exercise habits, and dietary preferences. Currently serves
 /// as a read-only display with editing functionality planned for Phase 2.
 struct ProfileView: View {
-    @StateObject private var onboardingViewModel = OnboardingViewModel()
-
     var body: some View {
         NavigationStack {
             VStack(spacing: 24) {
@@ -124,7 +122,7 @@ struct ProfileView: View {
                             .foregroundColor(.orange)
 
                         Button("オンボーディングをリセット") {
-                            onboardingViewModel.resetOnboarding()
+                            resetOnboarding()
 
                             // Force app to restart by exiting
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
@@ -149,6 +147,14 @@ struct ProfileView: View {
         }
     }
 }
+
+#if DEBUG
+    /// Resets onboarding state for development purposes
+    private func resetOnboarding() {
+        UserDefaults.standard.removeObject(forKey: "onboardingCompleted")
+        UserDefaults.standard.removeObject(forKey: "onboardingStartTime")
+    }
+#endif
 
 /// Individual row component for displaying profile information.
 ///

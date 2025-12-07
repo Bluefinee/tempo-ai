@@ -308,22 +308,22 @@ struct PersonalizationPage: View {
 // MARK: - Preview
 
 #if DEBUG
-struct PersonalizationPage_Previews: PreviewProvider {
-    @State static var healthGoal: HealthGoal = .generalFitness
-    @State static var notificationTime: Date = Date()
-    @State static var activityLevel: ActivityLevel = .moderatelyActive
-    @State static var interests: Set<HealthInterest> = [.exercise, .nutrition]
+    struct PersonalizationPage_Previews: PreviewProvider {
+        @State static var healthGoal: HealthGoal = .generalFitness
+        @State static var notificationTime: Date = Date()
+        @State static var activityLevel: ActivityLevel = .moderatelyActive
+        @State static var interests: Set<HealthInterest> = [.exercise, .nutrition]
 
-    static var previews: some View {
-        PersonalizationPage(
-            healthGoal: $healthGoal,
-            notificationTime: $notificationTime,
-            activityLevel: $activityLevel,
-            interests: $interests,
-            onContinue: { print("Continue") },
-            onBack: { print("Back") }
-        )
-        .previewDisplayName("Personalization Page")
+        static var previews: some View {
+            PersonalizationPage(
+                healthGoal: $healthGoal,
+                notificationTime: $notificationTime,
+                activityLevel: $activityLevel,
+                interests: $interests,
+                onContinue: { print("Continue") },
+                onBack: { print("Back") }
+            )
+            .previewDisplayName("Personalization Page")
+        }
     }
-}
 #endif

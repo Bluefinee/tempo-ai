@@ -63,13 +63,18 @@ struct PrimaryButton: View {
             .scaleEffect(isPressed ? 0.95 : 1.0)
         }
         .disabled(isDisabled || isLoading)
-        .onLongPressGesture(minimumDuration: .infinity, maximumDistance: .infinity) {
-            // Never triggered
-        } onPressingChanged: { pressing in
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                isPressed = pressing
+        .onLongPressGesture(
+            minimumDuration: .infinity,
+            maximumDistance: .infinity,
+            perform: {
+                // Never triggered
+            },
+            onPressingChanged: { pressing in
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                    isPressed = pressing
+                }
             }
-        }
+        )
     }
 
     private var backgroundColor: Color {
@@ -129,22 +134,27 @@ struct SecondaryButton: View {
             .frame(maxWidth: .infinity)
             .frame(height: LayoutConstants.buttonHeight)
             .background(backgroundColor)
-            .foregroundColor(foregroundColor)
+            .cornerRadius(CornerRadius.md)
             .overlay(
                 RoundedRectangle(cornerRadius: CornerRadius.md)
                     .stroke(borderColor, lineWidth: 1)
             )
-            .cornerRadius(CornerRadius.md)
+            .foregroundColor(foregroundColor)
             .scaleEffect(isPressed ? 0.95 : 1.0)
         }
         .disabled(isDisabled || isLoading)
-        .onLongPressGesture(minimumDuration: .infinity, maximumDistance: .infinity) {
-            // Never triggered
-        } onPressingChanged: { pressing in
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                isPressed = pressing
+        .onLongPressGesture(
+            minimumDuration: .infinity,
+            maximumDistance: .infinity,
+            perform: {
+                // Never triggered
+            },
+            onPressingChanged: { pressing in
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                    isPressed = pressing
+                }
             }
-        }
+        )
     }
 
     private var backgroundColor: Color {
@@ -209,13 +219,18 @@ struct TextButton: View {
                 .scaleEffect(isPressed ? 0.95 : 1.0)
         }
         .disabled(isDisabled)
-        .onLongPressGesture(minimumDuration: .infinity, maximumDistance: .infinity) {
-            // Never triggered
-        } onPressingChanged: { pressing in
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                isPressed = pressing
+        .onLongPressGesture(
+            minimumDuration: .infinity,
+            maximumDistance: .infinity,
+            perform: {
+                // Never triggered
+            },
+            onPressingChanged: { pressing in
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                    isPressed = pressing
+                }
             }
-        }
+        )
     }
 
     private var foregroundColor: Color {
@@ -267,13 +282,18 @@ struct IconButton: View {
                 .scaleEffect(isPressed ? 0.85 : 1.0)
         }
         .disabled(isDisabled)
-        .onLongPressGesture(minimumDuration: .infinity, maximumDistance: .infinity) {
-            // Never triggered
-        } onPressingChanged: { pressing in
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                isPressed = pressing
+        .onLongPressGesture(
+            minimumDuration: .infinity,
+            maximumDistance: .infinity,
+            perform: {
+                // Never triggered
+            },
+            onPressingChanged: { pressing in
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                    isPressed = pressing
+                }
             }
-        }
+        )
     }
 
     private var foregroundColor: Color {
@@ -307,12 +327,17 @@ struct FloatingActionButton: View {
                 .elevation(isPressed ? .medium : .high)
                 .scaleEffect(isPressed ? 0.9 : 1.0)
         }
-        .onLongPressGesture(minimumDuration: .infinity, maximumDistance: .infinity) {
-            // Never triggered
-        } onPressingChanged: { pressing in
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                isPressed = pressing
+        .onLongPressGesture(
+            minimumDuration: .infinity,
+            maximumDistance: .infinity,
+            perform: {
+                // Never triggered
+            },
+            onPressingChanged: { pressing in
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                    isPressed = pressing
+                }
             }
-        }
+        )
     }
 }

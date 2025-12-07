@@ -260,7 +260,7 @@ enum MetricCategory: String, CaseIterable, Codable {
 
     var color: Color {
         switch self {
-        case .hrv: return .red
+        case .hrv: return .pink  // Heart rate variability - heart health indicator
         case .sleep: return .blue
         case .activity: return .green
         case .heartRate: return .orange

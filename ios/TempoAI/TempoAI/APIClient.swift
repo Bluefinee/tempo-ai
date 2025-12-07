@@ -10,9 +10,10 @@ class APIClient: ObservableObject {
 
     init(urlSession: URLSessionProtocol = URLSession.shared) {
         #if DEBUG
-            // In DEBUG mode, use local backend if available, otherwise use production
+            // In DEBUG mode, always use production backend for consistency
+            // Local backend support can be added later if needed for development
             self.baseURL = "https://tempo-ai-backend.workers.dev/api"
-            print("🌐 APIClient: Using production backend in DEBUG mode for simplicity")
+            print("🌐 APIClient: Using production backend")
         #else
             self.baseURL = "https://tempo-ai-backend.workers.dev/api"
         #endif

@@ -211,8 +211,7 @@ final class OnboardingViewModel: ObservableObject {
 
             // Load selected language
             if let savedLanguage = self.userDefaults.string(forKey: UserDefaultsKeys.selectedLanguage),
-                let language = AppLanguage(rawValue: savedLanguage)
-            {
+                let language = AppLanguage(rawValue: savedLanguage) {
                 self.selectedLanguage = language
                 Task { @MainActor in
                     LocalizationManager.shared.setLanguage(language.localizationLanguage)

@@ -7,7 +7,7 @@ struct AdviceView: View {
     private var sleepSummary: String {
         [
             "Bedtime: \(advice.sleepPreparation.bedtime)",
-            "Routine: \(advice.sleepPreparation.routine.joined(separator: ", "))",
+            "Routine: \(advice.sleepPreparation.routine.joined(separator: ", "))"
         ].joined(separator: "\n")
     }
 
@@ -15,7 +15,7 @@ struct AdviceView: View {
         [
             advice.breathing.technique,
             advice.breathing.duration,
-            "(\(advice.breathing.frequency))",
+            "(\(advice.breathing.frequency))"
         ].joined(separator: " ")
     }
 

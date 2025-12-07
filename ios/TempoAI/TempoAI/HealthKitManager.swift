@@ -6,7 +6,8 @@ import HealthKit
 
 // Using existing PermissionStatus from PermissionManager for consistency
 extension PermissionStatus {
-    static let unavailable: PermissionStatus = .denied  // Map unavailable to denied for simplicity
+    /// Maps HealthKit unavailable status to restricted (system limitation)
+    static let unavailable: PermissionStatus = .restricted
 }
 
 // MARK: - HealthKit Manager

@@ -1,5 +1,7 @@
 import CoreGraphics
 
+// swiftlint:disable identifier_name
+
 /// Corner radius system for consistent rounded corners
 enum CornerRadius {
     /// 4px - Small radius for button elements
@@ -30,3 +32,4 @@ enum CornerRadius {
         return height / 2
     }
 }
+// swiftlint:enable identifier_name

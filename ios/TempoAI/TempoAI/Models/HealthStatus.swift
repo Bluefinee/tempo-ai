@@ -1,6 +1,35 @@
 import Foundation
 import SwiftUI
 
+// MARK: - Metric Value Constants
+
+/// Constants for approximate metric value calculations
+///
+/// ⚠️ These are estimated values for backward compatibility only.
+/// In production, prefer using actual HealthKit data when available.
+private enum MetricValueConstants {
+    /// Approximate HRV range for display (ms)
+    /// Note: Typical HRV ranges from 20-200ms, using 50 as multiplier for 0-50ms range
+    static let hrvMultiplier: Double = 50.0
+    static let hrvDisplayNote = "~"  // Prefix to indicate approximation
+
+    /// Approximate sleep duration range for display (hours)
+    /// Note: Using 10 hour maximum for 0-1 normalized score
+    static let sleepMultiplier: Double = 10.0
+    static let sleepDisplayNote = "~"
+
+    /// Approximate daily step count for display
+    /// Note: Using 10,000 steps as maximum for normalized score
+    static let activityMultiplier: Double = 10000.0
+    static let activityDisplayNote = "~"
+
+    /// Heart rate range constants (bpm)
+    /// Note: 60-100 bpm is typical resting heart rate range
+    static let heartRateBase: Double = 60.0
+    static let heartRateRange: Double = 40.0
+    static let heartRateDisplayNote = "~"
+}
+
 /// Four-tier health status classification based on comprehensive health metrics analysis.
 ///
 /// This enum represents the user's current health condition derived from HealthKit data
@@ -309,7 +338,8 @@ struct HealthAnalysis: Codable {
                     HealthMetric(
                         category: .hrv,
                         score: hrvScore,
-                        value: String(format: "%.1f ms", hrvScore * 50)
+                        value:
+                            "\(MetricValueConstants.hrvDisplayNote)\(String(format: "%.1f ms", hrvScore * MetricValueConstants.hrvMultiplier))"
                     ))
             }
 
@@ -318,7 +348,8 @@ struct HealthAnalysis: Codable {
                     HealthMetric(
                         category: .sleep,
                         score: sleepScore,
-                        value: String(format: "%.1f hrs", sleepScore * 10)
+                        value:
+                            "\(MetricValueConstants.sleepDisplayNote)\(String(format: "%.1f hrs", sleepScore * MetricValueConstants.sleepMultiplier))"
                     ))
             }
 
@@ -327,7 +358,8 @@ struct HealthAnalysis: Codable {
                     HealthMetric(
                         category: .activity,
                         score: activityScore,
-                        value: String(format: "%.0f steps", activityScore * 10000)
+                        value:
+                            "\(MetricValueConstants.activityDisplayNote)\(String(format: "%.0f steps", activityScore * MetricValueConstants.activityMultiplier))"
                     ))
             }
 
@@ -336,7 +368,8 @@ struct HealthAnalysis: Codable {
                     HealthMetric(
                         category: .heartRate,
                         score: heartRateScore,
-                        value: String(format: "%.0f bpm", 60 + heartRateScore * 40)
+                        value:
+                            "\(MetricValueConstants.heartRateDisplayNote)\(String(format: "%.0f bpm", MetricValueConstants.heartRateBase + heartRateScore * MetricValueConstants.heartRateRange))"
                     ))
             }
 

@@ -62,7 +62,11 @@
       "Bash(gh api:*)",
       "Bash(./ios/scripts/quality-check.sh:*)",
       "Bash(bash:*)",
-      "Bash(gh pr comment:*)"
+      "Bash(gh pr comment:*)",
+      "mcp__serena__think_about_whether_you_are_done",
+      "WebFetch(domain:medium.com)",
+      "Bash(swiftc:*)",
+      "Bash(xcrun simctl list:*)"
     ],
     "deny": [],
     "ask": [],

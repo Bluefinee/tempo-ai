@@ -26,6 +26,9 @@ final class HealthKitManager: ObservableObject {
 
     let healthStore: HKHealthStore = HKHealthStore()
     
+    // Health data cache
+    private let dataStore: HealthDataStore = HealthDataStore.shared
+    
     // Background observation queries storage
     private var backgroundQueries: [HKObserverQuery] = []
 
@@ -258,24 +261,45 @@ final class HealthKitManager: ObservableObject {
     private func handleDataUpdate(for dataType: HKSampleType) async {
         print("📊 Health data updated for: \(dataType.identifier)")
         lastDataUpdate = Date()
-        // Could trigger UI updates or cache refresh here
+        
+        // Refresh cached data when significant updates occur
+        do {
+            let refreshedData = try await fetchComprehensiveHealthData(forceRefresh: true)
+            print("🔄 Cache refreshed for updated health data type: \(dataType.identifier)")
+        } catch {
+            print("⚠️ Failed to refresh cache after data update: \(error)")
+        }
     }
 
     // MARK: - Comprehensive Data Collection
 
-    /// Fetch comprehensive health data for today with real HealthKit integration
+    /// Fetch comprehensive health data for today with caching and real HealthKit integration
+    /// - Parameters:
+    ///   - forceRefresh: Force refresh from HealthKit, ignoring cache
     /// - Returns: ComprehensiveHealthData with all available metrics
-    func fetchComprehensiveHealthData() async throws -> ComprehensiveHealthData {
+    func fetchComprehensiveHealthData(forceRefresh: Bool = false) async throws -> ComprehensiveHealthData {
         print("🏥 HealthKitManager: Fetching comprehensive health data...")
+
+        // Check cache first unless force refresh is requested
+        if !forceRefresh && await dataStore.hasFreshCachedDataForToday() {
+            if let cachedData = try await dataStore.fetchCachedData(for: Date()) {
+                print("💾 Using cached health data")
+                return cachedData
+            }
+        }
 
         #if os(iOS)
             guard HKHealthStore.isHealthDataAvailable() else {
                 print("❌ HealthKit not available - using enhanced mock data")
-                return createEnhancedMockData()
+                let mockData = createEnhancedMockData()
+                try await saveToCacheIfNeeded(mockData)
+                return mockData
             }
         #else
             print("⚠️ Running on macOS - using enhanced mock data for development")
-            return createEnhancedMockData()
+            let mockData = createEnhancedMockData()
+            try await saveToCacheIfNeeded(mockData)
+            return mockData
         #endif
 
         // Fetch all health data categories in parallel for optimal performance
@@ -292,7 +316,7 @@ final class HealthKitManager: ObservableObject {
             
             lastDataUpdate = Date()
             
-            return ComprehensiveHealthData(
+            let comprehensiveData = ComprehensiveHealthData(
                 vitalSigns: vitals,
                 activity: activityData,
                 bodyMeasurements: bodyData,
@@ -300,9 +324,23 @@ final class HealthKitManager: ObservableObject {
                 nutrition: nutritionData,
                 timestamp: Date()
             )
+            
+            // Save to cache
+            try await saveToCacheIfNeeded(comprehensiveData)
+            
+            return comprehensiveData
         } catch {
             print("⚠️ Error fetching real health data, using enhanced mock: \(error.localizedDescription)")
-            return createEnhancedMockData()
+            
+            // Try to return cached data as fallback
+            if let cachedData = try? await dataStore.fetchCachedData(for: Date()) {
+                print("📱 Falling back to cached data due to fetch error")
+                return cachedData
+            }
+            
+            let mockData = createEnhancedMockData()
+            try await saveToCacheIfNeeded(mockData)
+            return mockData
         }
     }
 
@@ -565,6 +603,36 @@ final class HealthKitManager: ObservableObject {
                 sodium: 1950
             )
         )
+    }
+
+    // MARK: - Cache Management
+    
+    /// Save health data to cache if needed
+    /// - Parameter data: Comprehensive health data to cache
+    private func saveToCacheIfNeeded(_ data: ComprehensiveHealthData) async throws {
+        do {
+            try await dataStore.saveHealthData(data)
+            print("💾 Health data cached successfully")
+        } catch {
+            print("⚠️ Failed to cache health data: \(error)")
+            // Don't throw - caching failure shouldn't break the main flow
+        }
+    }
+    
+    /// Get health trends from cached data
+    /// - Parameter days: Number of days to analyze
+    /// - Returns: Health trend analysis
+    func getHealthTrends(for days: Int = 30) async throws -> HealthTrendAnalysis {
+        return try await dataStore.getHealthTrends(for: days)
+    }
+    
+    /// Clear old cached data to manage storage
+    func clearOldCachedData() async {
+        do {
+            try await dataStore.clearOldCachedData()
+        } catch {
+            print("⚠️ Failed to clear old cached data: \(error)")
+        }
     }
 
     // MARK: - Cleanup

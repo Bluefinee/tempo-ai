@@ -8,37 +8,20 @@ import Foundation
 // AnalysisRoute is defined in HealthAnalysisEngine.swift with computed properties
 // This avoids duplicate type definitions
 
-struct AIAnalysisDecision {
-    let shouldUseAI: Bool
-    let reason: AIAnalysisReason
-    let confidence: Double
-    let estimatedCost: Double?
-    let estimatedResponseTime: TimeInterval
-    let fallbackToLocal: Bool
-}
+// AIAnalysisDecision is defined in HealthAnalysisEngine.swift
+// This avoids duplicate type definitions
 
 // AIAnalysisReason is defined in HealthAnalysisEngine.swift with computed properties
 // This avoids duplicate type definitions
 
-struct LocalAnalysisDecision {
-    let canProcessLocally: Bool
-    let reason: LocalAnalysisReason
-    let confidence: Double
-    let estimatedAccuracy: Double
-    let processingTime: TimeInterval
-    let limitations: [String]
-}
+// LocalAnalysisDecision is defined in HealthAnalysisEngine.swift
+// This avoids duplicate type definitions
 
 // LocalAnalysisReason is defined in HealthAnalysisEngine.swift with computed properties
 // This avoids duplicate type definitions
 
-struct HybridAnalysisDecision {
-    let strategy: HybridStrategy
-    let localComponents: [String]
-    let aiComponents: [String]
-    let estimatedCombinedAccuracy: Double
-    let costBenefit: Double
-}
+// HybridAnalysisDecision is defined in HealthAnalysisEngine.swift
+// This avoids duplicate type definitions
 
 // HybridStrategy is defined in HealthAnalysisEngine.swift with computed properties
 // This avoids duplicate type definitions
@@ -63,32 +46,14 @@ struct HybridAnalysisDecision {
 
 // MARK: - Analysis Result Types
 
-struct AnalysisResult {
-    let id: String
-    let route: AnalysisRoute
-    let insights: AnalysisInsights
-    let confidence: Double
-    let processingTime: TimeInterval
-    let cost: Double?
-    let timestamp: Date
-    let isPartial: Bool
-    let metadata: [String: Any]
-}
+// AnalysisResult is defined in HealthAnalysisEngine.swift with Identifiable support
+// This avoids duplicate type definitions
 
-enum AnalysisInsights {
-    case ai(AIHealthInsights)
-    case local(LocalHealthInsights)
-    case hybrid(HybridHealthInsights)
-}
+// AnalysisInsights is defined in HealthAnalysisEngine.swift
+// This avoids duplicate type definitions
 
-struct HybridHealthInsights {
-    let localInsights: LocalHealthInsights
-    let aiInsights: AIHealthInsights?
-    let combinedScore: Double
-    let confidence: Double
-    let enhancedRecommendations: [ActionableRecommendation]
-    let validationResults: ValidationResults
-}
+// HybridHealthInsights is defined in HealthAnalysisEngine.swift
+// This avoids duplicate type definitions
 
 struct ValidationResults {
     let localAgreement: Double

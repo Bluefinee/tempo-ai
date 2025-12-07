@@ -14,6 +14,13 @@ import Foundation
 /// Nutrition analysis and scoring
 enum NutritionAnalyzer: HealthScorer {
 
+    /// HealthScorer protocol conformance
+    static func calculateScore<T>(from data: T) -> Double {
+        // Since we don't have a standard nutrition data type in HealthKitData,
+        // return a reasonable default for protocol conformance
+        return 0.7  // Assume reasonable nutrition by default
+    }
+
     /// Calculate macronutrient balance score
     /// - Parameters:
     ///   - protein: Protein intake in grams

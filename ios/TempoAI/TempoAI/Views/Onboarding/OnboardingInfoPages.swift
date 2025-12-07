@@ -107,9 +107,9 @@ struct AIAnalysisPageView: View {
 
             Spacer()
 
-            Button(action: {
+            Button {
                 viewModel.nextPage()
-            }, label: {
+            } label: {
                 Text(viewModel.selectedLanguage == .japanese ? "次へ" : "Next")
                     .font(.title2)
                     .fontWeight(.medium)
@@ -189,9 +189,9 @@ struct DailyPlansPageView: View {
 
             Spacer()
 
-            Button(action: {
+            Button {
                 viewModel.nextPage()
-            }, label: {
+            } label: {
                 Text(viewModel.selectedLanguage == .japanese ? "次へ" : "Next")
                     .font(.title2)
                     .fontWeight(.medium)

@@ -294,7 +294,7 @@ struct HealthAnalysis: Codable {
         activityScore: Double? = nil,
         heartRateScore: Double? = nil,
         analysisDate: Date = Date(),
-        dataQuality: DataQuality = .good
+        dataQuality: DataQuality = DataQuality(completeness: 0.8, recency: 0.9, accuracy: 0.85, consistency: 0.8, overallScore: 0.84, recommendations: [])
     ) {
         self.status = status
         self.overallScore = overallScore
@@ -359,25 +359,3 @@ struct HealthAnalysis: Codable {
     }
 }
 
-/// Data quality indicator for health analysis
-enum DataQuality: String, CaseIterable, Codable {
-    // swiftlint:disable redundant_string_enum_value
-    case excellent = "excellent"
-    case good = "good"
-    case fair = "fair"
-    case poor = "poor"
-    // swiftlint:enable redundant_string_enum_value
-
-    var score: Double {
-        switch self {
-        case .excellent: return 1.0
-        case .good: return 0.8
-        case .fair: return 0.6
-        case .poor: return 0.4
-        }
-    }
-
-    var localizedTitle: String {
-        NSLocalizedString("data_quality_\(rawValue)", comment: "Data quality level")
-    }
-}

@@ -50,11 +50,11 @@ struct InteractiveCard<Content: View>: View {
     }
 
     var body: some View {
-        Button(action: {
+        Button {
             let impactFeedback = UIImpactFeedbackGenerator(style: .light)
             impactFeedback.impactOccurred()
             action()
-        }, label: {
+        } label: {
             content()
                 .padding(Spacing.md)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -99,13 +99,13 @@ struct ExpandableCard<Header: View, Content: View>: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             // Header
-            Button(action: {
+            Button {
                 withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
                     isExpanded.toggle()
                 }
                 let impactFeedback = UIImpactFeedbackGenerator(style: .light)
                 impactFeedback.impactOccurred()
-            }, label: {
+            } label: {
                 HStack {
                     header()
 

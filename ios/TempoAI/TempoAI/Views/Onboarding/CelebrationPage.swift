@@ -350,7 +350,7 @@ enum CelebrationPhase {
     case completed
 }
 
-struct UserPreferences {
+struct OnboardingPreferences {
     let healthGoal: HealthGoal
     let activityLevel: ActivityLevel
     let interests: Set<HealthInterest>

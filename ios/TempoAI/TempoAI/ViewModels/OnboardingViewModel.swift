@@ -59,12 +59,12 @@ final class OnboardingViewModel: ObservableObject {
         static let onboardingCompleted = "OnboardingCompleted"
         static let onboardingStartTime = "OnboardingStartTime"
         static let selectedLanguage = "SelectedLanguage"
+        static let disclosureLevel = "DisclosureLevel"
+        static let explainedDataCategories = "ExplainedDataCategories"
+        static let privacyConcerns = "PrivacyConcerns"
+        static let prefersDetailedExplanations = "PrefersDetailedExplanations"
+        static let currentDisclosureStage = "CurrentDisclosureStage"
     }
-    static let disclosureLevel = "DisclosureLevel"
-    static let explainedDataCategories = "ExplainedDataCategories"
-    static let privacyConcerns = "PrivacyConcerns"
-    static let prefersDetailedExplanations = "PrefersDetailedExplanations"
-    static let currentDisclosureStage = "CurrentDisclosureStage"
 
     // MARK: - Progressive Disclosure Support
 

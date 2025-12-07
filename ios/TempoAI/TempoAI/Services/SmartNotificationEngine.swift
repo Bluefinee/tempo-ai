@@ -220,7 +220,7 @@ class SmartNotificationEngine: NSObject, ObservableObject {
     }
 
     /// Trigger goal achievement notification
-    func triggerGoalAchievementNotification(goal: HealthGoal, achievement: GoalAchievement) async {
+    func triggerGoalAchievementNotification(goal: DetailedHealthGoal, achievement: GoalAchievement) async {
         guard userPreferences.achievementsEnabled else { return }
 
         let notification = SmartNotification(

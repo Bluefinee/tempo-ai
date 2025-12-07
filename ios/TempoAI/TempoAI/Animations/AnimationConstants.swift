@@ -27,13 +27,13 @@ struct AnimationConstants {
     /// Predefined animation curves for consistent feel
     enum AnimationCurve {
         /// Ease out - Fast start, slow end (good for entrances)
-        static let easeOut: Animation = .timingCurve(0.0, 0.0, 0.2, 1.0, duration: AnimationDuration.normal)
+        static let easeOut: Animation = .timingCurve(0.0, 0.0, 0.2, 1.0, duration: Duration.normal)
 
         /// Ease in - Slow start, fast end (good for exits)
-        static let easeIn: Animation = .timingCurve(0.4, 0.0, 1.0, 1.0, duration: AnimationDuration.normal)
+        static let easeIn: Animation = .timingCurve(0.4, 0.0, 1.0, 1.0, duration: Duration.normal)
 
         /// Ease in-out - Balanced (good for movements)
-        static let easeInOut: Animation = .timingCurve(0.4, 0.0, 0.2, 1.0, duration: AnimationDuration.normal)
+        static let easeInOut: Animation = .timingCurve(0.4, 0.0, 0.2, 1.0, duration: Duration.normal)
 
         /// Spring - Natural bouncy feel (good for interactions)
         static let spring: Animation = .spring(response: 0.5, dampingFraction: 0.8)

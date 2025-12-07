@@ -68,6 +68,10 @@ enum AnalysisMethod: String, CaseIterable {
     case comparative
     case longitudinal
     case riskAdjusted = "risk_adjusted"
+    case local = "local"
+    case ai = "ai"
+    case hybrid = "hybrid"
+    case localFallback = "local_fallback"
 }
 
 /// Personalized recommendations structure
@@ -79,17 +83,6 @@ struct PersonalizedRecommendations {
     let medical: [ActionableRecommendation]
 }
 
-/// Actionable recommendation
-struct ActionableRecommendation {
-    let title: String
-    let description: String
-    let priority: Priority
-    let category: HealthCategory
-    let timeframe: String
-    let difficulty: String
-    let expectedBenefit: String
-    let trackable: Bool
-}
 
 /// Recommendation priorities
 enum Priority: String, CaseIterable {
@@ -100,7 +93,7 @@ enum Priority: String, CaseIterable {
 }
 
 /// Data quality assessment
-struct DataQuality {
+struct DataQuality: Codable {
     let completeness: Double  // 0-1
     let recency: Double  // 0-1
     let accuracy: Double  // 0-1

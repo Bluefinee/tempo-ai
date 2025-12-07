@@ -2,8 +2,14 @@ import SwiftUI
 
 // MARK: - Health Goal Types
 
-enum HealthGoal: CaseIterable {
-    case none, weightLoss, muscleGain, generalFitness, stressReduction, betterSleep, heartHealth
+enum HealthGoal: String, CaseIterable, Codable {
+    case none = "none"
+    case weightLoss = "weight_loss"
+    case muscleGain = "muscle_gain"
+    case generalFitness = "general_fitness"
+    case stressReduction = "stress_reduction"
+    case betterSleep = "better_sleep"
+    case heartHealth = "heart_health"
 
     var title: String {
         switch self {
@@ -44,8 +50,13 @@ enum HealthGoal: CaseIterable {
 
 // MARK: - Activity Level Types
 
-enum ActivityLevel: CaseIterable {
-    case none, sedentary, lightlyActive, moderatelyActive, veryActive, extremelyActive
+enum ActivityLevel: String, CaseIterable, Codable {
+    case none = "none"
+    case sedentary = "sedentary"
+    case lightlyActive = "lightly_active"
+    case moderatelyActive = "moderately_active"
+    case veryActive = "very_active"
+    case extremelyActive = "extremely_active"
 
     var title: String {
         switch self {
@@ -93,11 +104,37 @@ enum ActivityLevel: CaseIterable {
         case .extremelyActive: return ColorPalette.error
         }
     }
+
+    /// Multiplier for health metrics scoring
+    var multiplier: Double {
+        switch self {
+        case .none, .sedentary: return 0.8
+        case .lightlyActive: return 1.0
+        case .moderatelyActive: return 1.2
+        case .veryActive: return 1.4
+        case .extremelyActive: return 1.6
+        }
+    }
+
+    /// Classify activity level based on comprehensive metrics
+    static func classify(from activity: EnhancedActivityData) -> ActivityLevel {
+        let stepScore = min(Double(activity.steps) / 10000.0, 1.0)
+        let exerciseScore = min(Double(activity.exerciseTime) / 60.0, 1.0)
+        let combinedScore = (stepScore + exerciseScore) / 2.0
+
+        switch combinedScore {
+        case ..<0.2: return .sedentary
+        case 0.2 ..< 0.4: return .lightlyActive
+        case 0.4 ..< 0.7: return .moderatelyActive
+        case 0.7 ..< 0.9: return .veryActive
+        default: return .extremelyActive
+        }
+    }
 }
 
 // MARK: - Health Interest Types
 
-enum HealthInterest: CaseIterable {
+enum HealthInterest: CaseIterable, Codable {
     case nutrition, exercise, sleep, mentalHealth, heartHealth, weightManagement
 
     var title: String {

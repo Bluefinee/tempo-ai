@@ -639,20 +639,7 @@ class LocalHealthAnalyzer: ObservableObject {
 
 // MARK: - Supporting Types
 
-enum HealthCategory: String, CaseIterable {
-    case cardiovascular
-    case sleep
-    case activity
-    case metabolic
-}
 
-struct HealthFinding {
-    let type: FindingType
-    let severity: Severity
-    let description: String
-    let value: Double?
-    let reference: String?
-}
 
 enum FindingType: String {
     case normal
@@ -688,28 +675,8 @@ struct CategoryInsights {
     let metabolic: HealthCategoryInsight
 }
 
-enum AnalysisMethod: String {
-    case evidenceBased = "evidence_based"
-    case aiPowered = "ai_powered"
-    case hybrid = "hybrid"
-}
 
-struct PersonalizedRecommendations {
-    let immediate: [ActionableRecommendation]
-    let shortTerm: [ActionableRecommendation]
-    let longTerm: [ActionableRecommendation]
-    let priority: String
-}
 
-struct ActionableRecommendation {
-    let title: String
-    let description: String
-    let category: HealthCategory
-    let priority: Priority
-    let timeframe: String
-    let steps: [String]
-    let expectedBenefit: String
-}
 
 enum Priority: String {
     case low
@@ -718,26 +685,6 @@ enum Priority: String {
     case urgent
 }
 
-struct DataQuality {
-    let completeness: Double
-    let reliability: Double
-    let recency: Double
-
-    var overall: Double {
-        return (completeness + reliability + recency) / 3.0
-    }
-
-    var rawValue: String {
-        switch overall {
-        case 80...:
-            return "high"
-        case 60 ..< 80:
-            return "medium"
-        default:
-            return "low"
-        }
-    }
-}
 
 struct QuickHealthInsights {
     let score: Int

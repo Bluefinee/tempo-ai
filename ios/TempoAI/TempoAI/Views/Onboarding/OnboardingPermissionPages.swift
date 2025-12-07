@@ -75,11 +75,11 @@ struct HealthKitPermissionPageView: View {
 
             VStack(spacing: 12) {
                 if viewModel.healthKitStatus != .granted {
-                    Button(action: {
+                    Button {
                         Task {
                             await viewModel.requestHealthKitPermission()
                         }
-                    }, label: {
+                    } label: {
                         Text(
                             viewModel.selectedLanguage == .japanese ? "HealthKitを許可" : "Allow HealthKit"
                         )
@@ -91,11 +91,11 @@ struct HealthKitPermissionPageView: View {
                         .background(Color.red)
                         .cornerRadius(12)
                     }
-                    .accessibilityIdentifier(UIIdentifiers.OnboardingFlow.healthKitAllowButton),
+                    .accessibilityIdentifier(UIIdentifiers.OnboardingFlow.healthKitAllowButton)
 
-                    Button(action: {
+                    Button {
                         viewModel.nextPage()
-                    }, label: {
+                    } label: {
                         Text(
                             viewModel.selectedLanguage == .japanese ? "スキップ" : "Skip"
                         )
@@ -105,9 +105,9 @@ struct HealthKitPermissionPageView: View {
                     }
                     .accessibilityIdentifier(UIIdentifiers.OnboardingFlow.healthKitSkipButton)
                 } else {
-                    Button(action: {
+                    Button {
                         viewModel.nextPage()
-                    }, label: {
+                    } label: {
                         Text(
                             viewModel.selectedLanguage == .japanese ? "次へ" : "Next"
                         )
@@ -194,11 +194,11 @@ struct LocationPermissionPageView: View {
 
             VStack(spacing: 12) {
                 if viewModel.locationStatus != .granted {
-                    Button(action: {
+                    Button {
                         Task {
                             await viewModel.requestLocationPermission()
                         }
-                    }, label: {
+                    } label: {
                         Text(
                             viewModel.selectedLanguage == .japanese ? "位置情報を許可" : "Allow Location"
                         )
@@ -210,11 +210,11 @@ struct LocationPermissionPageView: View {
                         .background(Color.blue)
                         .cornerRadius(12)
                     }
-                    .accessibilityIdentifier(UIIdentifiers.OnboardingFlow.locationAllowButton),
+                    .accessibilityIdentifier(UIIdentifiers.OnboardingFlow.locationAllowButton)
 
-                    Button(action: {
+                    Button {
                         viewModel.completeOnboarding()
-                    }, label: {
+                    } label: {
                         Text(
                             viewModel.selectedLanguage == .japanese ? "位置情報なしで続行" : "Continue without location"
                         )
@@ -224,9 +224,9 @@ struct LocationPermissionPageView: View {
                     }
                     .accessibilityIdentifier(UIIdentifiers.OnboardingFlow.locationSkipButton)
                 } else {
-                    Button(action: {
+                    Button {
                         viewModel.completeOnboarding()
-                    }, label: {
+                    } label: {
                         Text(
                             viewModel.selectedLanguage == .japanese ? "完了" : "Complete"
                         )

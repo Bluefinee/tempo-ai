@@ -256,13 +256,6 @@ struct QuickAIInsights: Codable {
     let timestamp: Date
 }
 
-/// Enhanced API response wrapper
-struct APIResponse<T: Codable>: Codable {
-    let data: T?
-    let error: String?
-    let timestamp: Date?
-    let requestId: String?
-}
 
 /// Tempo AI specific errors
 enum TempoAIAPIError: Error, LocalizedError {

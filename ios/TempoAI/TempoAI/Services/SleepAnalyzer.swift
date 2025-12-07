@@ -14,6 +14,27 @@ import Foundation
 /// Sleep quality analysis and scoring
 enum SleepAnalyzer: HealthScorer {
 
+    /// HealthScorer protocol conformance
+    static func calculateScore<T>(from data: T) -> Double {
+        if let sleepData = data as? EnhancedSleepData {
+            return calculateQualityScore(from: sleepData) / 100.0  // Normalize to 0-1
+        } else if let sleepData = data as? SleepData {
+            let enhanced = EnhancedSleepData(
+                totalDuration: sleepData.duration * 3600,  // Convert to seconds
+                sleepEfficiency: sleepData.efficiency / 100.0,
+                stageBreakdown: SleepStageBreakdown(
+                    deepPercentage: sleepData.deep != nil ? (sleepData.deep! / sleepData.duration * 100) : 20,
+                    remPercentage: sleepData.rem != nil ? (sleepData.rem! / sleepData.duration * 100) : 25,
+                    lightPercentage: sleepData.light != nil ? (sleepData.light! / sleepData.duration * 100) : 50
+                ),
+                bedtime: nil,
+                wakeTime: nil
+            )
+            return calculateQualityScore(from: enhanced) / 100.0
+        }
+        return 0.5  // Default fallback
+    }
+
     /// Calculate comprehensive sleep quality score
     /// - Parameter sleep: Enhanced sleep data
     /// - Returns: Sleep quality score from 0-100

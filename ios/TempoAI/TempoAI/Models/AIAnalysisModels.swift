@@ -82,6 +82,7 @@ enum RecommendationCategory: String, CaseIterable, Codable {
     case mindfulness = "mindfulness"
     case sleep = "sleep"
     case recovery = "recovery"
+    case stress = "stress"
 }
 
 /// Recommendation priority levels
@@ -384,6 +385,7 @@ extension RecommendationCategory {
         case .mindfulness: return "brain.head.profile"
         case .sleep: return "bed.double"
         case .recovery: return "heart.fill"
+        case .stress: return "leaf"
         }
     }
 
@@ -395,6 +397,7 @@ extension RecommendationCategory {
         case .mindfulness: return "メンタルケア"
         case .sleep: return "睡眠"
         case .recovery: return "回復"
+        case .stress: return "ストレス"
         }
     }
 }

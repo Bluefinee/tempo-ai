@@ -10,6 +10,7 @@ enum HeartRateZone: String, CaseIterable, Codable {
     case aerobic = "aerobic"  // 70-80% HRmax
     case anaerobic = "anaerobic"  // 80-90% HRmax
     case maxEffort = "max_effort"  // >90% HRmax
+    case unknown = "unknown"  // Unable to determine
 
     /// Calculate zone based on heart rate and age
     static func zone(heartRate: Double, age: Int) -> HeartRateZone {
@@ -23,6 +24,15 @@ enum HeartRateZone: String, CaseIterable, Codable {
         case 0.8 ..< 0.9: return .anaerobic
         default: return .maxEffort
         }
+    }
+
+    /// Classify heart rate zone based on current and resting heart rate
+    static func classify(heartRate: Double?, restingRate: Double) -> HeartRateZone {
+        guard let heartRate = heartRate else { return .unknown }
+        
+        // Estimate age as 30 for general classification
+        // In a real app, this would come from user profile
+        return zone(heartRate: heartRate, age: 30)
     }
 }
 
@@ -51,29 +61,6 @@ enum BloodPressureCategory: String, CaseIterable, Codable {
     }
 }
 
-/// Activity level classifications
-enum ActivityLevel: String, CaseIterable, Codable {
-    case sedentary = "sedentary"
-    case lightlyActive = "lightly_active"
-    case moderatelyActive = "moderately_active"
-    case veryActive = "very_active"
-    case extremelyActive = "extremely_active"
-
-    /// Classify activity level based on comprehensive metrics
-    static func classify(from activity: EnhancedActivityData) -> ActivityLevel {
-        let stepScore = min(activity.steps / 10000, 1.0)
-        let exerciseScore = min(Double(activity.exerciseTime) / 60.0, 1.0)
-        let combinedScore = (stepScore + exerciseScore) / 2.0
-
-        switch combinedScore {
-        case ..<0.2: return .sedentary
-        case 0.2 ..< 0.4: return .lightlyActive
-        case 0.4 ..< 0.7: return .moderatelyActive
-        case 0.7 ..< 0.9: return .veryActive
-        default: return .extremelyActive
-        }
-    }
-}
 
 /// BMI category classifications
 enum BMICategory: String, CaseIterable, Codable {

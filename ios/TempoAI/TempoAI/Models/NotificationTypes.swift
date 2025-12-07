@@ -383,8 +383,8 @@ enum WellnessTipCategory: String, CaseIterable, Codable {
     }
 }
 
-/// Health goal structure
-struct HealthGoal: Codable, Identifiable {
+/// Detailed health goal with progress tracking
+struct DetailedHealthGoal: Codable, Identifiable {
     let id: String
     let title: String
     let description: String

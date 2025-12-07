@@ -14,6 +14,22 @@ import Foundation
 /// Heart Rate Variability analysis for recovery and stress
 enum HRVAnalyzer: HealthScorer {
 
+    /// HealthScorer protocol conformance
+    static func calculateScore<T>(from data: T) -> Double {
+        if let hrvData = data as? HRVMetrics {
+            return calculateRecoveryScore(from: hrvData) / 100.0  // Normalize to 0-1
+        } else if let hrvData = data as? HRVData {
+            let metrics = HRVMetrics(
+                average: hrvData.average ?? 0,
+                rmssd: nil,
+                sdnn: nil,
+                trend: .stable
+            )
+            return calculateRecoveryScore(from: metrics) / 100.0
+        }
+        return 0.5  // Default fallback
+    }
+
     /// Calculate recovery score from HRV metrics
     /// - Parameter hrv: HRV metrics data
     /// - Returns: Recovery score from 0-100

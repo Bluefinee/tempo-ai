@@ -22,6 +22,26 @@ protocol HealthScorer {
 /// Activity scoring algorithms
 enum ActivityScorer: HealthScorer {
 
+    /// HealthScorer protocol conformance with generic fallback
+    static func calculateScore<T>(from data: T) -> Double {
+        if let activityData = data as? EnhancedActivityData {
+            return calculateScore(from: activityData) / 100.0  // Normalize to 0-1
+        } else if let activityData = data as? ActivityData {
+            let enhanced = EnhancedActivityData(
+                steps: Int(activityData.steps),
+                distance: activityData.distance ?? 0.0,
+                activeEnergyBurned: activityData.calories,
+                basalEnergyBurned: 1500,  // Reasonable estimate
+                exerciseTime: Int(activityData.activeMinutes ?? 0),
+                standHours: 8,
+                flights: nil,
+                activeMinutes: Int(activityData.activeMinutes ?? 0)  // Reasonable estimate
+            )
+            return calculateScore(from: enhanced) / 100.0
+        }
+        return 0.5  // Default fallback
+    }
+
     /// Calculate comprehensive activity score
     /// - Parameter activity: Enhanced activity data
     /// - Returns: Activity score from 0-100

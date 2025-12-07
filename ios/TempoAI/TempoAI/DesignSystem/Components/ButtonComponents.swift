@@ -34,14 +34,14 @@ struct PrimaryButton: View {
     }
 
     var body: some View {
-        Button(action: {
+        Button {
             if !isDisabled && !isLoading {
                 // Haptic feedback
                 let impactFeedback = UIImpactFeedbackGenerator(style: .light)
                 impactFeedback.impactOccurred()
                 action()
             }
-        }, label: {
+        } label: {
             HStack(spacing: Spacing.sm) {
                 if isLoading {
                     ProgressView()
@@ -112,13 +112,13 @@ struct SecondaryButton: View {
     }
 
     var body: some View {
-        Button(action: {
+        Button {
             if !isDisabled && !isLoading {
                 let impactFeedback = UIImpactFeedbackGenerator(style: .light)
                 impactFeedback.impactOccurred()
                 action()
             }
-        }, label: {
+        } label: {
             HStack(spacing: Spacing.sm) {
                 if isLoading {
                     ProgressView()
@@ -199,13 +199,13 @@ struct TextButton: View {
     }
 
     var body: some View {
-        Button(action: {
+        Button {
             if !isDisabled {
                 let impactFeedback = UIImpactFeedbackGenerator(style: .light)
                 impactFeedback.impactOccurred()
                 action()
             }
-        }, label: {
+        } label: {
             Text(title)
                 .typography(.callout)
                 .fontWeight(.medium)
@@ -264,13 +264,13 @@ struct IconButton: View {
     }
 
     var body: some View {
-        Button(action: {
+        Button {
             if !isDisabled {
                 let impactFeedback = UIImpactFeedbackGenerator(style: .light)
                 impactFeedback.impactOccurred()
                 action()
             }
-        }, label: {
+        } label: {
             Image(systemName: icon)
                 .font(.system(size: size))
                 .foregroundColor(foregroundColor)
@@ -313,11 +313,11 @@ struct FloatingActionButton: View {
     @State private var isPressed: Bool = false
 
     var body: some View {
-        Button(action: {
+        Button {
             let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
             impactFeedback.impactOccurred()
             action()
-        }, label: {
+        } label: {
             Image(systemName: icon)
                 .font(.system(size: 24, weight: .semibold))
                 .foregroundColor(ColorPalette.pureWhite)

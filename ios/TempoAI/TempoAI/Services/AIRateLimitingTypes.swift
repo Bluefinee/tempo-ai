@@ -237,29 +237,16 @@ enum ImplementationDifficulty: String, CaseIterable {
     case hard = "hard"
 }
 
-enum RecommendationPriority: String, CaseIterable {
-    case low = "low"
-    case medium = "medium"
-    case high = "high"
-    case urgent = "urgent"
-}
+// RecommendationPriority is defined in Models/AIAnalysisModels.swift with Codable support
+// This avoids duplicate type definitions
 
 // MARK: - Cost Calculation Types
 
-struct CostBreakdown {
-    let baseRequestCost: Double
-    let tokenCost: Double
-    let priorityModifier: Double
-    let totalCost: Double
-    let currency: String
-}
+// CostBreakdown is defined in Services/AICostCalculator.swift
+// This avoids duplicate type definitions
 
-struct CostEstimate {
-    let estimatedCost: Double
-    let confidence: Double
-    let factorsConsidered: [String]
-    let breakdown: CostBreakdown
-}
+// CostEstimate is defined in Services/AICostCalculator.swift
+// This avoids duplicate type definitions
 
 // MARK: - Pattern Analysis Types
 

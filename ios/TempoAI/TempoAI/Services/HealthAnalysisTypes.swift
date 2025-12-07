@@ -2,14 +2,8 @@ import Foundation
 
 // MARK: - Health Analysis Engine Types
 
-enum AnalysisRequestType: String, CaseIterable {
-    case quick = "quick"
-    case daily = "daily"
-    case comprehensive = "comprehensive"
-    case weekly = "weekly"
-    case critical = "critical"
-    case userRequested = "user_requested"
-}
+// AnalysisRequestType is defined in HealthAnalysisEngine.swift
+// This avoids duplicate type definitions
 
 enum AnalysisRoute: String, CaseIterable {
     case ai = "ai"
@@ -75,25 +69,11 @@ enum HybridStrategy: String, CaseIterable {
     case validationBased = "validation_based"
 }
 
-struct RoutingDecision {
-    let route: AnalysisRoute
-    let aiDecision: AIAnalysisDecision?
-    let localDecision: LocalAnalysisDecision?
-    let hybridDecision: HybridAnalysisDecision?
-    let decisionFactors: AIDecisionFactors
-    let fallbackParams: LocalAnalysisFallbackParams?
-}
+// RoutingDecision is defined in HealthAnalysisEngine.swift
+// This avoids duplicate type definitions
 
-struct AIDecisionFactors {
-    let dataComplexity: AnalysisComplexity
-    let userEngagement: UserEngagement
-    let timeSensitivity: TimeSensitivity
-    let budgetAvailable: Double
-    let privacyRequirements: Bool
-    let offlineMode: Bool
-    let previousPreferences: String?
-    let healthCriticalityScore: Double
-}
+// AIDecisionFactors is defined in HealthAnalysisEngine.swift
+// This avoids duplicate type definitions
 
 struct LocalAnalysisFallbackParams {
     let maxWaitTime: TimeInterval
@@ -223,12 +203,8 @@ struct UserAnalysisPreferences {
     let qualityOverSpeed: Bool
 }
 
-enum PrivacyLevel: String, CaseIterable {
-    case minimal = "minimal"
-    case standard = "standard"
-    case enhanced = "enhanced"
-    case maximum = "maximum"
-}
+// PrivacyLevel is defined in Models/AIAnalysisModels.swift with Codable support
+// This avoids duplicate type definitions
 
 // MARK: - Analysis Engine Status Types
 

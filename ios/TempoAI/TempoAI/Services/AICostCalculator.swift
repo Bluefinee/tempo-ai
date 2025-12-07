@@ -109,3 +109,20 @@ class AICostCalculator {
         }
     }
 }
+
+// MARK: - Supporting Types
+
+struct CostBreakdown {
+    let baseRequestCost: Double
+    let tokenCost: Double
+    let priorityModifier: Double
+    let totalCost: Double
+    let currency: String
+}
+
+struct CostEstimate {
+    let estimatedCost: Double
+    let confidence: Double
+    let factorsConsidered: [String]
+    let breakdown: CostBreakdown
+}

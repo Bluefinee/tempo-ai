@@ -86,6 +86,7 @@ class AIAnalysisService: ObservableObject {
     }
 }
 
+@MainActor
 class APIClient {
     private let baseURL = URL(string: "https://your-backend-url.com")!
 

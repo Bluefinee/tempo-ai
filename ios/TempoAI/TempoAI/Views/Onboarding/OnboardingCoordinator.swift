@@ -81,7 +81,7 @@ class OnboardingCoordinator: ObservableObject {
         }
     }
 
-    private func completeOnboarding() {
+    func completeOnboarding() {
         isCompleted = true
         userDefaults.set(true, forKey: onboardingCompletedKey)
 

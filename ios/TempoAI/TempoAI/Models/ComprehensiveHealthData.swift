@@ -171,8 +171,8 @@ struct EnhancedActivityData: Codable {
     let activeMinutes: Int
 
     /// Activity level classification based on total metrics
-    var activityLevel: ActivityLevel {
-        return ActivityLevel.classify(from: self)
+    var activityLevel: HealthDataTypes.ActivityLevel {
+        return HealthDataTypes.ActivityLevel.classify(from: self)
     }
 
     /// Daily activity score (0-100)

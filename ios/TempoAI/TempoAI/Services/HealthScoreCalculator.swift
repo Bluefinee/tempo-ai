@@ -47,10 +47,7 @@ enum HealthScoreCalculator {
             scores.append(calculateHeartRateScore(heartRate))
         }
 
-        // HRV score
-        if let hrv = vitalSigns.heartRateVariability {
-            scores.append(HRVAnalyzer.calculateRecoveryScore(from: hrv))
-        }
+        // HRV is calculated separately as recoveryScore to avoid double counting
 
         // Blood pressure score
         if let bp = vitalSigns.bloodPressure {

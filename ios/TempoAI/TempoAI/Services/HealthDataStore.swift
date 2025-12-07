@@ -15,8 +15,7 @@ import Foundation
 
 /// Core Data store for health data persistence and caching
 /// Provides offline support and improves app performance through data caching
-@MainActor
-final class HealthDataStore: ObservableObject {
+final class HealthDataStore {
 
     // MARK: - Properties
 
@@ -289,6 +288,11 @@ final class HealthDataStore: ObservableObject {
 
         let recentAvg = recent.reduce(0, +) / Double(recent.count)
         let previousAvg = previous.reduce(0, +) / Double(previous.count)
+
+        // Guard against division by zero for new users
+        guard previousAvg > 0 else {
+            return recentAvg > 0 ? .improving : .stable
+        }
 
         let changePercent = ((recentAvg - previousAvg) / previousAvg) * 100
 

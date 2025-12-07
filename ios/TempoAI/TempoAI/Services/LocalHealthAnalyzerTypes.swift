@@ -5,14 +5,14 @@ import HealthKit
 
 /// Health analysis categories
 enum HealthCategory: String, CaseIterable {
-    case cardiovascular = "cardiovascular"
-    case metabolic = "metabolic"
-    case respiratory = "respiratory"
-    case sleep = "sleep"
-    case activity = "activity"
-    case nutrition = "nutrition"
-    case mental = "mental"
-    case recovery = "recovery"
+    case cardiovascular
+    case metabolic
+    case respiratory
+    case sleep
+    case activity
+    case nutrition
+    case mental
+    case recovery
 }
 
 /// Health category insights
@@ -39,19 +39,19 @@ struct HealthFinding {
 
 /// Finding classification
 enum FindingType: String, CaseIterable {
-    case normal = "normal"
-    case caution = "caution"
-    case concern = "concern"
-    case critical = "critical"
-    case positive = "positive"
+    case normal
+    case caution
+    case concern
+    case critical
+    case positive
 }
 
 /// Finding severity levels
 enum Severity: String, CaseIterable {
-    case low = "low"
-    case moderate = "moderate"
-    case high = "high"
-    case severe = "severe"
+    case low
+    case moderate
+    case high
+    case severe
 }
 
 /// Health risk factors
@@ -65,10 +65,10 @@ struct HealthRiskFactor {
 
 /// Risk assessment levels
 enum RiskLevel: String, CaseIterable {
-    case low = "low"
-    case moderate = "moderate"
-    case high = "high"
-    case severe = "severe"
+    case low
+    case moderate
+    case high
+    case severe
 }
 
 /// Main local health insights structure
@@ -95,8 +95,8 @@ struct QuickHealthInsights {
 /// Analysis methodology information
 enum AnalysisMethod: String, CaseIterable {
     case evidenceBased = "evidence_based"
-    case comparative = "comparative"
-    case longitudinal = "longitudinal"
+    case comparative
+    case longitudinal
     case riskAdjusted = "risk_adjusted"
 }
 
@@ -123,10 +123,10 @@ struct ActionableRecommendation {
 
 /// Recommendation priorities
 enum Priority: String, CaseIterable {
-    case low = "low"
-    case medium = "medium"
-    case high = "high"
-    case urgent = "urgent"
+    case low
+    case medium
+    case high
+    case urgent
 }
 
 /// Health trend analysis
@@ -140,10 +140,10 @@ struct HealthTrend {
 
 /// Trend direction indicators
 enum TrendDirection: String, CaseIterable {
-    case improving = "improving"
-    case stable = "stable"
-    case declining = "declining"
-    case fluctuating = "fluctuating"
+    case improving
+    case stable
+    case declining
+    case fluctuating
 }
 
 /// Data quality assessment
@@ -168,11 +168,11 @@ struct MedicalAnalysis {
 
 /// Recommendation types for personalization
 enum RecommendationType: String, CaseIterable {
-    case dietary = "dietary"
-    case exercise = "exercise"
-    case sleep = "sleep"
-    case stress = "stress"
-    case medical = "medical"
-    case lifestyle = "lifestyle"
-    case monitoring = "monitoring"
+    case dietary
+    case exercise
+    case sleep
+    case stress
+    case medical
+    case lifestyle
+    case monitoring
 }

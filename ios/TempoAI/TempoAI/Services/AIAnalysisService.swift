@@ -38,8 +38,12 @@ class AIAnalysisService: ObservableObject {
 
     private let apiClient: APIClient
 
-    init(apiClient: APIClient = APIClient()) {
+    init(apiClient: APIClient) {
         self.apiClient = apiClient
+    }
+    
+    convenience init() {
+        self.init(apiClient: APIClient())
     }
 
     func requestAnalysis(

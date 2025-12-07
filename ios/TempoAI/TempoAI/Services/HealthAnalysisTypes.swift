@@ -46,7 +46,7 @@ import Foundation
 
 // MARK: - Analysis Result Types
 
-struct AnalysisResult {
+struct AnalysisResult: Identifiable {
     let id: String
     let route: AnalysisRoute
     let insights: AnalysisInsights
@@ -56,6 +56,46 @@ struct AnalysisResult {
     let timestamp: Date
     let isPartial: Bool
     let metadata: [String: Any]
+    
+    // Additional properties for compatibility with HealthAnalysisEngine
+    let analysisMethod: AnalysisMethod
+    let requestType: AnalysisRequestType
+    let routingDecision: RoutingDecision
+    let performanceMetrics: AnalysisPerformanceMetrics
+    let generatedAt: Date
+    let language: String
+    
+    init(id: String = UUID().uuidString,
+         route: AnalysisRoute,
+         insights: AnalysisInsights,
+         confidence: Double,
+         processingTime: TimeInterval,
+         cost: Double? = nil,
+         timestamp: Date = Date(),
+         isPartial: Bool = false,
+         metadata: [String: Any] = [:],
+         analysisMethod: AnalysisMethod = .local,
+         requestType: AnalysisRequestType = .standard,
+         routingDecision: RoutingDecision = .local,
+         performanceMetrics: AnalysisPerformanceMetrics = AnalysisPerformanceMetrics(totalTime: 0, cacheHit: false, dataQuality: 1.0),
+         generatedAt: Date = Date(),
+         language: String = "japanese") {
+        self.id = id
+        self.route = route
+        self.insights = insights
+        self.confidence = confidence
+        self.processingTime = processingTime
+        self.cost = cost
+        self.timestamp = timestamp
+        self.isPartial = isPartial
+        self.metadata = metadata
+        self.analysisMethod = analysisMethod
+        self.requestType = requestType
+        self.routingDecision = routingDecision
+        self.performanceMetrics = performanceMetrics
+        self.generatedAt = generatedAt
+        self.language = language
+    }
 }
 
 enum AnalysisInsights {

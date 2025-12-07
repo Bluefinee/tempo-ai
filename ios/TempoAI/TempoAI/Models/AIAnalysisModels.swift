@@ -158,31 +158,8 @@ struct HealthTrend: Codable {
     let description: String
 }
 
-/// Trend direction
-enum TrendDirection: String, CaseIterable, Codable {
-    case improving = "improving"
-    case stable = "stable"
-    case declining = "declining"
-    case unknown = "unknown"
-
-    var icon: String {
-        switch self {
-        case .improving: return "arrow.up.circle.fill"
-        case .stable: return "minus.circle.fill"
-        case .declining: return "arrow.down.circle.fill"
-        case .unknown: return "questionmark.circle.fill"
-        }
-    }
-
-    var color: String {
-        switch self {
-        case .improving: return "green"
-        case .stable: return "blue"
-        case .declining: return "orange"
-        case .unknown: return "gray"
-        }
-    }
-}
+// TrendDirection is defined in LocalHealthAnalyzerTypes.swift
+// This avoids duplicate type definitions
 
 /// Trend analysis timeframe
 enum TrendTimeframe: String, CaseIterable, Codable {

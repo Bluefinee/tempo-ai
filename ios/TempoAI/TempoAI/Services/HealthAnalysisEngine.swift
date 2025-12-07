@@ -689,37 +689,8 @@ enum TimeSensitivity: String {
     case deferred
 }
 
-/// Analysis result container
-struct AnalysisResult: Identifiable {
-    let id: UUID
-    let analysisMethod: AnalysisMethod
-    let requestType: AnalysisRequestType
-    let insights: AnalysisInsights
-    let routingDecision: RoutingDecision
-    let performanceMetrics: AnalysisPerformanceMetrics
-    let generatedAt: Date
-    let language: String
-}
-
-/// Analysis insights union type
-enum AnalysisInsights {
-    case quick(QuickHealthInsights)
-    case local(LocalHealthInsights)
-    case comprehensive(AIHealthInsights)
-    case hybrid(HybridHealthInsights)
-}
-
-/// Hybrid analysis insights
-struct HybridHealthInsights {
-    let primary: InsightSource
-    let secondary: InsightSource?
-    let strategy: HybridStrategy
-
-    enum InsightSource {
-        case ai(AIHealthInsights)
-        case local(LocalHealthInsights)
-    }
-}
+// AnalysisResult, AnalysisInsights, and HybridHealthInsights are defined in HealthAnalysisTypes.swift
+// This avoids duplicate type definitions
 
 /// Performance metrics for analysis
 struct AnalysisPerformanceMetrics {

@@ -244,11 +244,29 @@ struct HealthTrendDataPoint {
 }
 
 /// Direction of health trend
-enum TrendDirection: String, CaseIterable {
+enum TrendDirection: String, CaseIterable, Codable {
     case improving
     case stable
     case declining
     case unknown
+    
+    var icon: String {
+        switch self {
+        case .improving: return "arrow.up.circle.fill"
+        case .stable: return "minus.circle.fill"
+        case .declining: return "arrow.down.circle.fill"
+        case .unknown: return "questionmark.circle.fill"
+        }
+    }
+
+    var color: String {
+        switch self {
+        case .improving: return "green"
+        case .stable: return "blue"
+        case .declining: return "orange"
+        case .unknown: return "gray"
+        }
+    }
 }
 
 /// Statistical significance of trend

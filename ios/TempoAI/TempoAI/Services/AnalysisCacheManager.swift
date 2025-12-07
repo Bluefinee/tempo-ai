@@ -195,17 +195,11 @@ actor AnalysisCacheManager {
     }
 }
 
-// MARK: - Cache Configuration
+// MARK: - Cache Configuration (Extensions)
+// CacheConfiguration.default is defined in HealthAnalysisTypes.swift
+// Additional configurations are provided here:
 
 extension CacheConfiguration {
-    static let `default` = CacheConfiguration(
-        maxSize: 50,
-        maxAge: 3600,  // 1 hour
-        compressionEnabled: false,
-        encryptionEnabled: false,
-        evictionPolicy: .lru
-    )
-
     static let performance = CacheConfiguration(
         maxSize: 100,
         maxAge: 1800,  // 30 minutes

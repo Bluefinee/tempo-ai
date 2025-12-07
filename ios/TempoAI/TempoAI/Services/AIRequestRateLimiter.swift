@@ -613,9 +613,9 @@ class AIRequestRateLimiter: ObservableObject {
         let change = (secondHalfAvg - firstHalfAvg) / firstHalfAvg
 
         if change > 0.1 {
-            return .increasing
+            return .improving
         } else if change < -0.1 {
-            return .decreasing
+            return .declining
         } else {
             return .stable
         }
@@ -681,9 +681,9 @@ class AIRequestRateLimiter: ObservableObject {
         let change = (secondCost - firstCost) / firstCost
 
         if change > 0.2 {
-            return .increasing
+            return .improving
         } else if change < -0.2 {
-            return .decreasing
+            return .declining
         } else {
             return .stable
         }
@@ -891,12 +891,6 @@ struct UsageAnalytics {
     let peakUsageHour: Int
     let costTrend: TrendDirection
     let efficiencyScore: Double
-}
-
-enum TrendDirection: String {
-    case increasing
-    case stable
-    case decreasing
 }
 
 struct UsageRecommendation {

@@ -131,15 +131,6 @@ struct LocationData: Codable {
     }
 }
 
-struct UserProfile: Codable {
-    let age: Int
-    let gender: String
-    let goals: [String]
-    let dietaryPreferences: String
-    let exerciseHabits: String
-    let exerciseFrequency: String
-}
-
 // MARK: - API Request Models
 struct AnalysisRequest: Codable {
     let healthData: HealthData

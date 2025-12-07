@@ -323,13 +323,6 @@ struct HealthTrends {
     let sleep: TrendDirection
 }
 
-/// Trend direction indicators
-enum TrendDirection: String, CaseIterable {
-    case improving
-    case declining
-    case stable
-}
-
 /// Core Data entity extension for proper initialization
 extension HealthDataEntity {
     /// Convenience initializer

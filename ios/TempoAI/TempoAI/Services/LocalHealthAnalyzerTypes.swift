@@ -54,42 +54,12 @@ enum Severity: String, CaseIterable {
     case severe
 }
 
-/// Health risk factors
-struct HealthRiskFactor {
-    let name: String
-    let level: RiskLevel
-    let description: String
-    let modifiable: Bool
-    let recommendations: [String]
-}
-
 /// Risk assessment levels
 enum RiskLevel: String, CaseIterable {
     case low
     case moderate
     case high
     case severe
-}
-
-/// Main local health insights structure
-struct LocalHealthInsights {
-    let timestamp: Date
-    let overallScore: Double
-    let categoryInsights: [HealthCategoryInsight]
-    let quickInsights: QuickHealthInsights
-    let personalizedRecommendations: PersonalizedRecommendations
-    let analysisMethod: AnalysisMethod
-    let dataQuality: DataQuality
-    let language: String
-}
-
-/// Quick insights for immediate display
-struct QuickHealthInsights {
-    let topFindings: [HealthFinding]
-    let keyRecommendations: [String]
-    let priorityActions: [ActionableRecommendation]
-    let healthHighlights: [String]
-    let concernAreas: [String]
 }
 
 /// Analysis methodology information
@@ -127,23 +97,6 @@ enum Priority: String, CaseIterable {
     case medium
     case high
     case urgent
-}
-
-/// Health trend analysis
-struct HealthTrend {
-    let direction: TrendDirection
-    let magnitude: Double
-    let confidence: Double
-    let timeframe: String
-    let description: String
-}
-
-/// Trend direction indicators
-enum TrendDirection: String, CaseIterable {
-    case improving
-    case stable
-    case declining
-    case fluctuating
 }
 
 /// Data quality assessment

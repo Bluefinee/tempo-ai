@@ -646,14 +646,6 @@ enum HealthCategory: String, CaseIterable {
     case metabolic
 }
 
-struct HealthCategoryInsight {
-    let category: HealthCategory
-    let score: Double
-    let findings: [HealthFinding]
-    let trends: [HealthTrend]
-    let recommendations: [String]
-}
-
 struct HealthFinding {
     let type: FindingType
     let severity: Severity
@@ -673,21 +665,6 @@ enum Severity: String {
     case low
     case moderate
     case high
-}
-
-struct HealthRiskFactor {
-    let category: HealthCategory
-    let riskLevel: RiskLevel
-    let description: String
-    let recommendations: [String]
-    let timeframe: String
-}
-
-enum RiskLevel: String {
-    case low
-    case moderate
-    case high
-    case critical
 }
 
 struct LocalHealthInsights {
@@ -739,20 +716,6 @@ enum Priority: String {
     case medium
     case high
     case urgent
-}
-
-struct HealthTrend {
-    let category: HealthCategory
-    let direction: TrendDirection
-    let magnitude: Double
-    let timeframe: String
-    let confidence: Double
-}
-
-enum TrendDirection: String {
-    case improving
-    case stable
-    case declining
 }
 
 struct DataQuality {

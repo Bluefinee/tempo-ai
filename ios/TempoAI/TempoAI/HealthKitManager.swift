@@ -25,10 +25,10 @@ final class HealthKitManager: ObservableObject {
     @Published var lastDataUpdate: Date?
 
     let healthStore: HKHealthStore = HKHealthStore()
-    
+
     // Health data cache
     private let dataStore: HealthDataStore = HealthDataStore.shared
-    
+
     // Background observation queries storage
     private var backgroundQueries: [HKObserverQuery] = []
 
@@ -193,12 +193,12 @@ final class HealthKitManager: ObservableObject {
             try await Task.sleep(nanoseconds: 500_000_000)
 
             updateAuthorizationStatus()
-            
+
             // Start background observation after successful authorization
             if success {
                 await startRealTimeObservation()
             }
-            
+
             return success
 
         } catch {
@@ -219,10 +219,10 @@ final class HealthKitManager: ObservableObject {
     /// Start background data observation for health data changes
     func startRealTimeObservation() async {
         print("🏥 HealthKitManager: Starting real-time health data observation...")
-        
+
         // Stop any existing queries first
         stopBackgroundObservation()
-        
+
         for dataType in Self.comprehensiveHealthTypes {
             let query = HKObserverQuery(
                 sampleType: dataType,
@@ -239,14 +239,14 @@ final class HealthKitManager: ObservableObject {
                     completionHandler()
                 }
             }
-            
+
             healthStore.execute(query)
             backgroundQueries.append(query)
         }
-        
+
         print("✅ Started observing \(backgroundQueries.count) health data types")
     }
-    
+
     /// Stop background data observation
     func stopBackgroundObservation() {
         for query in backgroundQueries {
@@ -255,13 +255,13 @@ final class HealthKitManager: ObservableObject {
         backgroundQueries.removeAll()
         print("🏥 Stopped all background health data observation")
     }
-    
+
     /// Handle individual data type updates
     /// - Parameter dataType: The health data type that was updated
     private func handleDataUpdate(for dataType: HKSampleType) async {
         print("📊 Health data updated for: \(dataType.identifier)")
         lastDataUpdate = Date()
-        
+
         // Refresh cached data when significant updates occur
         do {
             let refreshedData = try await fetchComprehensiveHealthData(forceRefresh: true)
@@ -313,9 +313,9 @@ final class HealthKitManager: ObservableObject {
             let (vitals, activityData, bodyData, sleepData, nutritionData) = try await (
                 vitalSigns, activity, bodyMeasurements, sleep, nutrition
             )
-            
+
             lastDataUpdate = Date()
-            
+
             let comprehensiveData = ComprehensiveHealthData(
                 vitalSigns: vitals,
                 activity: activityData,
@@ -324,20 +324,20 @@ final class HealthKitManager: ObservableObject {
                 nutrition: nutritionData,
                 timestamp: Date()
             )
-            
+
             // Save to cache
             try await saveToCacheIfNeeded(comprehensiveData)
-            
+
             return comprehensiveData
         } catch {
             print("⚠️ Error fetching real health data, using enhanced mock: \(error.localizedDescription)")
-            
+
             // Try to return cached data as fallback
             if let cachedData = try? await dataStore.fetchCachedData(for: Date()) {
                 print("📱 Falling back to cached data due to fetch error")
                 return cachedData
             }
-            
+
             let mockData = createEnhancedMockData()
             try await saveToCacheIfNeeded(mockData)
             return mockData
@@ -417,15 +417,15 @@ final class HealthKitManager: ObservableObject {
         // Real implementation would query sleep data from HealthKit
         let bedtime = Calendar.current.date(byAdding: .hour, value: -8, to: Date()) ?? Date()
         let wakeTime = Calendar.current.date(byAdding: .minute, value: -30, to: Date()) ?? Date()
-        
+
         return EnhancedSleepData(
-            totalDuration: 7.5 * 3600, // 7.5 hours
-            inBedTime: 8.2 * 3600, // 8.2 hours in bed
-            deepSleep: 1.8 * 3600, // 1.8 hours deep
-            remSleep: 2.1 * 3600, // 2.1 hours REM
-            lightSleep: 3.4 * 3600, // 3.4 hours light
-            awakeDuration: 0.2 * 3600, // 12 minutes awake
-            sleepEfficiency: 0.91, // 91% efficiency
+            totalDuration: 7.5 * 3600,  // 7.5 hours
+            inBedTime: 8.2 * 3600,  // 8.2 hours in bed
+            deepSleep: 1.8 * 3600,  // 1.8 hours deep
+            remSleep: 2.1 * 3600,  // 2.1 hours REM
+            lightSleep: 3.4 * 3600,  // 3.4 hours light
+            awakeDuration: 0.2 * 3600,  // 12 minutes awake
+            sleepEfficiency: 0.91,  // 91% efficiency
             bedtime: bedtime,
             wakeTime: wakeTime
         )
@@ -437,7 +437,7 @@ final class HealthKitManager: ObservableObject {
         // For now, return basic mock data
         // Real implementation would query nutrition data from HealthKit
         return NutritionData(
-            water: 2.1, // 2.1 liters
+            water: 2.1,  // 2.1 liters
             calories: 2150,
             protein: 95,
             carbohydrates: 280,
@@ -453,7 +453,7 @@ final class HealthKitManager: ObservableObject {
     /// - Returns: Legacy HealthData format
     func fetchTodayHealthData() async throws -> HealthData {
         let comprehensiveData = try await fetchComprehensiveHealthData()
-        
+
         // Convert to legacy format
         return HealthData(
             sleep: SleepData(
@@ -520,9 +520,9 @@ final class HealthKitManager: ObservableObject {
             let testTypes = [
                 HKQuantityType.quantityType(forIdentifier: .heartRate),
                 HKQuantityType.quantityType(forIdentifier: .stepCount),
-                HKCategoryType.categoryType(forIdentifier: .sleepAnalysis)
+                HKCategoryType.categoryType(forIdentifier: .sleepAnalysis),
             ].compactMap { $0 }
-            
+
             for dataType in testTypes {
                 let status = healthStore.authorizationStatus(for: dataType)
                 if status == .determined {
@@ -531,7 +531,7 @@ final class HealthKitManager: ObservableObject {
             }
             return false
         #else
-            return true // Simulate access on macOS
+            return true  // Simulate access on macOS
         #endif
     }
 
@@ -606,7 +606,7 @@ final class HealthKitManager: ObservableObject {
     }
 
     // MARK: - Cache Management
-    
+
     /// Save health data to cache if needed
     /// - Parameter data: Comprehensive health data to cache
     private func saveToCacheIfNeeded(_ data: ComprehensiveHealthData) async throws {
@@ -618,14 +618,14 @@ final class HealthKitManager: ObservableObject {
             // Don't throw - caching failure shouldn't break the main flow
         }
     }
-    
+
     /// Get health trends from cached data
     /// - Parameter days: Number of days to analyze
     /// - Returns: Health trend analysis
     func getHealthTrends(for days: Int = 30) async throws -> HealthTrendAnalysis {
         return try await dataStore.getHealthTrends(for: days)
     }
-    
+
     /// Clear old cached data to manage storage
     func clearOldCachedData() async {
         do {
@@ -642,55 +642,3 @@ final class HealthKitManager: ObservableObject {
     }
 }
 
-// MARK: - HealthKit Error Types
-
-enum HealthKitError: LocalizedError {
-    case notAvailable
-    case authorizationFailed(details: String)
-    case partialAuthorization(granted: [String], denied: [String])
-    case dataUnavailable(dataType: String)
-    case queryFailed(dataType: String, error: String)
-
-    var errorDescription: String? {
-        switch self {
-        case .notAvailable:
-            return "HealthKit is not available on this device"
-        case .authorizationFailed(let details):
-            return "HealthKit authorization failed: \(details)"
-        case .partialAuthorization(let granted, let denied):
-            let grantedList = granted.joined(separator: ", ")
-            let deniedList = denied.joined(separator: ", ")
-            return "Partial HealthKit access - Granted: \(grantedList), Denied: \(deniedList)"
-        case .dataUnavailable(let dataType):
-            return "Health data unavailable for type: \(dataType)"
-        case .queryFailed(let dataType, let error):
-            return "HealthKit query failed for \(dataType): \(error)"
-        }
-    }
-
-    var failureReason: String? {
-        switch self {
-        case .notAvailable:
-            return "This device does not support HealthKit or health data access"
-        case .authorizationFailed:
-            return "User has not granted permission to access health data"
-        case .partialAuthorization:
-            return "Some health data types are not accessible"
-        case .dataUnavailable:
-            return "The requested health data is not available or accessible"
-        case .queryFailed:
-            return "Failed to retrieve health data from HealthKit"
-        }
-    }
-
-    var recoverySuggestion: String? {
-        switch self {
-        case .notAvailable:
-            return "HealthKit is not supported on this device. The app will use mock data."
-        case .authorizationFailed, .partialAuthorization:
-            return "Please enable HealthKit permissions in Settings > Privacy & Security > Health > Tempo AI"
-        case .dataUnavailable, .queryFailed:
-            return "Ensure health data is available and try again. You may need to use the Health app first."
-        }
-    }
-}

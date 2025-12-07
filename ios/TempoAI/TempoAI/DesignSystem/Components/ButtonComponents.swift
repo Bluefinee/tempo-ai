@@ -41,7 +41,7 @@ struct PrimaryButton: View {
                 impactFeedback.impactOccurred()
                 action()
             }
-        }) {
+        }, label: {
             HStack(spacing: Spacing.sm) {
                 if isLoading {
                     ProgressView()
@@ -118,7 +118,7 @@ struct SecondaryButton: View {
                 impactFeedback.impactOccurred()
                 action()
             }
-        }) {
+        }, label: {
             HStack(spacing: Spacing.sm) {
                 if isLoading {
                     ProgressView()
@@ -205,7 +205,7 @@ struct TextButton: View {
                 impactFeedback.impactOccurred()
                 action()
             }
-        }) {
+        }, label: {
             Text(title)
                 .typography(.callout)
                 .fontWeight(.medium)
@@ -270,7 +270,7 @@ struct IconButton: View {
                 impactFeedback.impactOccurred()
                 action()
             }
-        }) {
+        }, label: {
             Image(systemName: icon)
                 .font(.system(size: size))
                 .foregroundColor(foregroundColor)
@@ -317,7 +317,7 @@ struct FloatingActionButton: View {
             let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
             impactFeedback.impactOccurred()
             action()
-        }) {
+        }, label: {
             Image(systemName: icon)
                 .font(.system(size: 24, weight: .semibold))
                 .foregroundColor(ColorPalette.pureWhite)

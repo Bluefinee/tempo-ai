@@ -3,7 +3,7 @@
 //  TempoAI
 //
 //  Created by Claude on 2025-12-07.
-//  
+//
 //  Nutrition analysis and scoring algorithms.
 //
 
@@ -13,7 +13,7 @@ import Foundation
 
 /// Nutrition analysis and scoring
 enum NutritionAnalyzer: HealthScorer {
-    
+
     /// Calculate macronutrient balance score
     /// - Parameters:
     ///   - protein: Protein intake in grams
@@ -23,19 +23,19 @@ enum NutritionAnalyzer: HealthScorer {
     static func calculateBalanceScore(protein: Double, carbs: Double, fat: Double) -> Double {
         let totalCals = (protein * 4) + (carbs * 4) + (fat * 9)
         guard totalCals > 0 else { return 0 }
-        
+
         let proteinPercent = (protein * 4) / totalCals * 100
         let carbsPercent = (carbs * 4) / totalCals * 100
         let fatPercent = (fat * 9) / totalCals * 100
-        
+
         // Ideal ranges (flexible)
-        let proteinScore = calculateMacroScore(proteinPercent, ideal: 15...25)
-        let carbsScore = calculateMacroScore(carbsPercent, ideal: 45...65)
-        let fatScore = calculateMacroScore(fatPercent, ideal: 20...35)
-        
+        let proteinScore = calculateMacroScore(proteinPercent, ideal: 15 ... 25)
+        let carbsScore = calculateMacroScore(carbsPercent, ideal: 45 ... 65)
+        let fatScore = calculateMacroScore(fatPercent, ideal: 20 ... 35)
+
         return (proteinScore + carbsScore + fatScore) / 3.0
     }
-    
+
     /// Calculate individual macro score
     /// - Parameters:
     ///   - percentage: Actual percentage
@@ -49,7 +49,7 @@ enum NutritionAnalyzer: HealthScorer {
                 abs(percentage - ideal.lowerBound),
                 abs(percentage - ideal.upperBound)
             )
-            return max(0, 100 - (deviation * 3)) // 3% deviation = -3 points
+            return max(0, 100 - (deviation * 3))  // 3% deviation = -3 points
         }
     }
 }

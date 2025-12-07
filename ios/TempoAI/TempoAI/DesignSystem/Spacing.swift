@@ -3,7 +3,6 @@ import UIKit
 
 /// Spacing system based on 8px grid
 /// Provides consistent spacing throughout the application
-// swiftlint:disable identifier_name
 enum Spacing {
     /// 2px - Minimal spacing for very tight layouts
     static let xxs: CGFloat = 2

@@ -54,7 +54,7 @@ struct InteractiveCard<Content: View>: View {
             let impactFeedback = UIImpactFeedbackGenerator(style: .light)
             impactFeedback.impactOccurred()
             action()
-        }) {
+        }, label: {
             content()
                 .padding(Spacing.md)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -100,7 +100,7 @@ struct ExpandableCard<Header: View, Content: View>: View {
                 }
                 let impactFeedback = UIImpactFeedbackGenerator(style: .light)
                 impactFeedback.impactOccurred()
-            }) {
+            }, label: {
                 HStack {
                     header()
 

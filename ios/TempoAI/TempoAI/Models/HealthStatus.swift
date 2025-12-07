@@ -1,6 +1,35 @@
 import Foundation
 import SwiftUI
 
+// MARK: - Metric Value Constants
+
+/// Constants for approximate metric value calculations
+///
+/// ⚠️ These are estimated values for backward compatibility only.
+/// In production, prefer using actual HealthKit data when available.
+private enum MetricValueConstants {
+    /// Approximate HRV range for display (ms)
+    /// Note: Typical HRV ranges from 20-200ms, using 50 as multiplier for 0-50ms range
+    static let hrvMultiplier: Double = 50.0
+    static let hrvDisplayNote = "~"  // Prefix to indicate approximation
+
+    /// Approximate sleep duration range for display (hours)
+    /// Note: Using 10 hour maximum for 0-1 normalized score
+    static let sleepMultiplier: Double = 10.0
+    static let sleepDisplayNote = "~"
+
+    /// Approximate daily step count for display
+    /// Note: Using 10,000 steps as maximum for normalized score
+    static let activityMultiplier: Double = 10000.0
+    static let activityDisplayNote = "~"
+
+    /// Heart rate range constants (bpm)
+    /// Note: 60-100 bpm is typical resting heart rate range
+    static let heartRateBase: Double = 60.0
+    static let heartRateRange: Double = 40.0
+    static let heartRateDisplayNote = "~"
+}
+
 /// Four-tier health status classification based on comprehensive health metrics analysis.
 ///
 /// This enum represents the user's current health condition derived from HealthKit data
@@ -180,6 +209,88 @@ enum AlertPriority: Int, CaseIterable {
     }
 }
 
+// MARK: - Health Metrics
+
+/// Individual health metric with score and category
+struct HealthMetric: Codable, Identifiable {
+    let id: UUID
+    let category: MetricCategory
+    let score: Double
+    let value: String
+    let trend: MetricTrend
+
+    /// Normalized score value (0.0 to 1.0) for UI display
+    var normalizedValue: Double {
+        max(0.0, min(1.0, score))
+    }
+
+    init(category: MetricCategory, score: Double, value: String, trend: MetricTrend = .stable, id: UUID = UUID()) {
+        self.id = id
+        self.category = category
+        self.score = score
+        self.value = value
+        self.trend = trend
+    }
+}
+
+/// Categories of health metrics
+enum MetricCategory: String, CaseIterable, Codable {
+    case hrv = "hrv"
+    case sleep = "sleep"
+    case activity = "activity"
+    case heartRate = "heartRate"
+
+    var displayName: String {
+        switch self {
+        case .hrv: return NSLocalizedString("metric_hrv", comment: "HRV")
+        case .sleep: return NSLocalizedString("metric_sleep", comment: "Sleep")
+        case .activity: return NSLocalizedString("metric_activity", comment: "Activity")
+        case .heartRate: return NSLocalizedString("metric_heart_rate", comment: "Heart Rate")
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .hrv: return "heart.fill"
+        case .sleep: return "moon.stars.fill"
+        case .activity: return "figure.walk"
+        case .heartRate: return "waveform.path.ecg"
+        }
+    }
+
+    var color: Color {
+        switch self {
+        case .hrv: return .pink  // Heart rate variability - heart health indicator
+        case .sleep: return .blue
+        case .activity: return .green
+        case .heartRate: return .orange
+        }
+    }
+}
+
+/// Trend direction for metrics
+enum MetricTrend: String, CaseIterable, Codable {
+    case improving = "improving"
+    case stable = "stable"
+    case declining = "declining"
+
+    var icon: String {
+        switch self {
+        case .improving: return "arrow.up.circle.fill"
+        case .stable: return "minus.circle.fill"
+        case .declining: return "arrow.down.circle.fill"
+        }
+    }
+
+    var color: Color {
+        switch self {
+        case .improving: return .green
+        case .stable: return .gray
+        case .declining: return .red
+        }
+    }
+}
+
 // MARK: - Health Analysis Result
 
 /// Comprehensive health analysis result containing status and supporting metrics
@@ -188,7 +299,10 @@ struct HealthAnalysis: Codable {
     let overallScore: Double
     let confidence: Double
 
-    // Individual metric scores
+    // Health metrics array
+    let metrics: [HealthMetric]
+
+    // Individual metric scores (for backward compatibility)
     let hrvScore: Double?
     let sleepScore: Double?
     let activityScore: Double?
@@ -203,6 +317,7 @@ struct HealthAnalysis: Codable {
         status: HealthStatus,
         overallScore: Double,
         confidence: Double = 1.0,
+        metrics: [HealthMetric] = [],
         hrvScore: Double? = nil,
         sleepScore: Double? = nil,
         activityScore: Double? = nil,
@@ -213,6 +328,56 @@ struct HealthAnalysis: Codable {
         self.status = status
         self.overallScore = overallScore
         self.confidence = confidence
+
+        // If metrics array is empty, create from individual scores
+        if metrics.isEmpty {
+            var derivedMetrics: [HealthMetric] = []
+
+            if let hrvScore = hrvScore {
+                derivedMetrics.append(
+                    HealthMetric(
+                        category: .hrv,
+                        score: hrvScore,
+                        value:
+                            "\(MetricValueConstants.hrvDisplayNote)\(String(format: "%.1f ms", hrvScore * MetricValueConstants.hrvMultiplier))"
+                    ))
+            }
+
+            if let sleepScore = sleepScore {
+                derivedMetrics.append(
+                    HealthMetric(
+                        category: .sleep,
+                        score: sleepScore,
+                        value:
+                            "\(MetricValueConstants.sleepDisplayNote)\(String(format: "%.1f hrs", sleepScore * MetricValueConstants.sleepMultiplier))"
+                    ))
+            }
+
+            if let activityScore = activityScore {
+                derivedMetrics.append(
+                    HealthMetric(
+                        category: .activity,
+                        score: activityScore,
+                        value:
+                            "\(MetricValueConstants.activityDisplayNote)\(String(format: "%.0f steps", activityScore * MetricValueConstants.activityMultiplier))"
+                    ))
+            }
+
+            if let heartRateScore = heartRateScore {
+                derivedMetrics.append(
+                    HealthMetric(
+                        category: .heartRate,
+                        score: heartRateScore,
+                        value:
+                            "\(MetricValueConstants.heartRateDisplayNote)\(String(format: "%.0f bpm", MetricValueConstants.heartRateBase + heartRateScore * MetricValueConstants.heartRateRange))"
+                    ))
+            }
+
+            self.metrics = derivedMetrics
+        } else {
+            self.metrics = metrics
+        }
+
         self.hrvScore = hrvScore
         self.sleepScore = sleepScore
         self.activityScore = activityScore

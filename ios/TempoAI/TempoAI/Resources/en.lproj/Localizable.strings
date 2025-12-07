@@ -29,10 +29,10 @@
 "onboarding_healthkit_feature_hrv_desc" = "Monitor stress and recovery levels";
 "onboarding_healthkit_feature_activity" = "Activity Data";
 "onboarding_healthkit_feature_activity_desc" = "Understand your daily movement patterns";
-"onboarding_allow_health_access" = "Allow Health Access";
+"onboarding_allow_health_access" = "Allow HealthKit Access";
 
-"onboarding_location_title" = "Location for Weather";
-"onboarding_location_description" = "We use your location to provide weather-based health recommendations and environmental alerts.";
+"onboarding_location_title" = "Environment-Aware Advice";
+"onboarding_location_description" = "Get personalized health advice based on your current location's weather and environmental conditions.";
 "onboarding_location_feature_weather" = "Weather-Based Advice";
 "onboarding_location_feature_weather_desc" = "Adapt recommendations to weather conditions";
 "onboarding_location_feature_alerts" = "Environmental Alerts";
@@ -40,6 +40,7 @@
 "onboarding_location_feature_temp" = "Temperature Awareness";
 "onboarding_location_feature_temp_desc" = "Adjust activity suggestions for temperature";
 "onboarding_allow_location_access" = "Allow Location Access";
+"onboarding_location_granted" = "Location Access Granted";
 
 "onboarding_completion_title" = "All Set!";
 "onboarding_completion_description" = "You're ready to receive personalized health advice. Let's start your wellness journey!";
@@ -47,6 +48,29 @@
 
 "onboarding_continue" = "Continue";
 "onboarding_skip_for_now" = "Skip for Now";
+"onboarding_next" = "Next →";
+"onboarding_language_selection" = "Choose Your Language";
+"onboarding_data_sources_title" = "Integrating 3 Data Sources";
+"onboarding_data_sources_body" = "Your Body";
+"onboarding_data_sources_environment" = "Today's Environment";
+"onboarding_data_sources_yesterday" = "Yesterday's Activities";
+"onboarding_data_sources_body_desc" = "Sleep, heart rate, activity";
+"onboarding_data_sources_environment_desc" = "Pressure, weather, pollen";
+"onboarding_data_sources_yesterday_desc" = "Exercise, meals, sleep";
+"onboarding_ai_analysis_title" = "What AI Analyzes";
+"onboarding_ai_analysis_morning" = "Your morning condition";
+"onboarding_ai_analysis_yesterday" = "Connection with yesterday";
+"onboarding_ai_analysis_environment" = "Today's environmental impact";
+"onboarding_ai_analysis_plan" = "Optimal daily plan";
+"onboarding_ai_analysis_why" = "\"Why this advice?\"\nWe explain the reasoning too";
+"onboarding_daily_plans_title" = "What You Get Every Morning";
+"onboarding_daily_plans_subtitle" = "Tailored to today's\ncondition";
+"onboarding_daily_plans_food" = "Meal Plan";
+"onboarding_daily_plans_exercise" = "Exercise Plan";
+"onboarding_daily_plans_lifestyle" = "Lifestyle Plan";
+"onboarding_daily_plans_description" = "Let's create the optimal day\nby consulting with your body";
+"onboarding_welcome_subtitle" = "Your Personal Healthcare\nAdvisor";
+"onboarding_welcome_description" = "Every morning, optimal\nadvice from your data";
 
 // MARK: - Health Status
 "health_status_optimal_title" = "Optimal";
@@ -199,3 +223,12 @@
 "accessibility_exercise_card" = "Exercise card";
 "accessibility_sleep_card" = "Sleep card";
 "accessibility_breathing_card" = "Breathing card";
+
+// MARK: - Permission Banners
+"permission_banner_healthkit_title" = "Enable HealthKit Integration!";
+"permission_banner_healthkit_description" = "Get personalized health insights";
+"permission_banner_location_title" = "Enable Location Access!";
+"permission_banner_location_description" = "Receive weather-based advice";
+"permission_banner_both_title" = "Complete Setup for Better Experience";
+"permission_banner_both_description" = "Enable permissions for full functionality";
+"permission_banner_enable" = "Enable in Settings";

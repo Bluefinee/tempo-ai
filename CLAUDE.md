@@ -6,8 +6,9 @@
 
 - **Swift Development**: [Swift Coding Standards](.claude/swift-coding-standards.md)
 - **TypeScript + Hono**: [TypeScript Hono Standards](.claude/typescript-hono-standards.md)
+- **UX Design Principles**: [UX Concepts & Principles](.claude/ux_concepts.md)
 
-These documents contain project-specific best practices, naming conventions, architecture patterns, and quality requirements. Reference them during every implementation task.
+These documents contain project-specific best practices, naming conventions, architecture patterns, UX guidelines, and quality requirements. Reference them during every implementation task.
 
 ## Philosophy
 

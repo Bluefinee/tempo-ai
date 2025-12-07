@@ -58,7 +58,15 @@
       "Bash(./scripts/fix-all.sh:*)",
       "Bash(swift-format:*)",
       "mcp__serena__think_about_collected_information",
-      "Bash(make:*)"
+      "Bash(make:*)",
+      "Bash(gh api:*)",
+      "Bash(./ios/scripts/quality-check.sh:*)",
+      "Bash(bash:*)",
+      "Bash(gh pr comment:*)",
+      "mcp__serena__think_about_whether_you_are_done",
+      "WebFetch(domain:medium.com)",
+      "Bash(swiftc:*)",
+      "Bash(xcrun simctl list:*)"
     ],
     "deny": [],
     "ask": [],

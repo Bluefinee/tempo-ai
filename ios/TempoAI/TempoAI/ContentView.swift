@@ -113,6 +113,32 @@ struct ProfileView: View {
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
 
+                #if DEBUG
+                    VStack(spacing: 16) {
+                        Divider()
+
+                        Text("開発用ツール")
+                            .font(.headline)
+                            .foregroundColor(.orange)
+
+                        Button("オンボーディングをリセット") {
+                            resetOnboarding()
+
+                            // Force app to restart by exiting
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                exit(0)
+                            }
+                        }
+                        .buttonStyle(.bordered)
+                        .foregroundColor(.red)
+
+                        Text("このボタンはデバッグビルドでのみ表示されます")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.top)
+                #endif
+
                 Spacer()
             }
             .accessibilityIdentifier(UIIdentifiers.ProfileView.mainView)
@@ -121,6 +147,14 @@ struct ProfileView: View {
         }
     }
 }
+
+#if DEBUG
+    /// Resets onboarding state for development purposes
+    private func resetOnboarding() {
+        UserDefaults.standard.removeObject(forKey: "onboardingCompleted")
+        UserDefaults.standard.removeObject(forKey: "onboardingStartTime")
+    }
+#endif
 
 /// Individual row component for displaying profile information.
 ///

@@ -29,17 +29,18 @@
 "onboarding_healthkit_feature_hrv_desc" = "ストレスと回復レベルを監視";
 "onboarding_healthkit_feature_activity" = "活動データ";
 "onboarding_healthkit_feature_activity_desc" = "日常の活動パターンを理解";
-"onboarding_allow_health_access" = "ヘルスアクセスを許可";
+"onboarding_allow_health_access" = "ヘルスケアへのアクセスを許可";
 
-"onboarding_location_title" = "天気情報のための位置情報";
-"onboarding_location_description" = "位置情報を使用して天気ベースの健康推奨事項と環境アラートを提供します。";
+"onboarding_location_title" = "環境に合わせたアドバイス";
+"onboarding_location_description" = "現在地に基づいて、天気や環境に配慮したパーソナライズされた健康アドバイスを提供します。";
 "onboarding_location_feature_weather" = "天気ベースのアドバイス";
 "onboarding_location_feature_weather_desc" = "天気状況に応じた推奨事項";
 "onboarding_location_feature_alerts" = "環境アラート";
 "onboarding_location_feature_alerts_desc" = "異常気象や大気質のアラート";
 "onboarding_location_feature_temp" = "気温対応";
 "onboarding_location_feature_temp_desc" = "気温に応じた活動提案の調整";
-"onboarding_allow_location_access" = "位置情報アクセスを許可";
+"onboarding_allow_location_access" = "位置情報へのアクセスを許可";
+"onboarding_location_granted" = "位置情報のアクセスが許可されました";
 
 "onboarding_completion_title" = "準備完了！";
 "onboarding_completion_description" = "パーソナライズされた健康アドバイスを受け取る準備が整いました。ウェルネスの旅を始めましょう！";
@@ -47,6 +48,29 @@
 
 "onboarding_continue" = "続ける";
 "onboarding_skip_for_now" = "今はスキップ";
+"onboarding_next" = "次へ →";
+"onboarding_language_selection" = "言語を選択してください";
+"onboarding_data_sources_title" = "3つのデータを統合";
+"onboarding_data_sources_body" = "あなたの体";
+"onboarding_data_sources_environment" = "今日の環境";
+"onboarding_data_sources_yesterday" = "昨日の過ごし方";
+"onboarding_data_sources_body_desc" = "睡眠・心拍・活動など";
+"onboarding_data_sources_environment_desc" = "気圧・天気・花粉など";
+"onboarding_data_sources_yesterday_desc" = "運動・食事・睡眠など";
+"onboarding_ai_analysis_title" = "AIが分析すること";
+"onboarding_ai_analysis_morning" = "今朝のあなたの状態";
+"onboarding_ai_analysis_yesterday" = "昨日の過ごし方との関係";
+"onboarding_ai_analysis_environment" = "今日の環境への影響";
+"onboarding_ai_analysis_plan" = "最適な1日のプラン";
+"onboarding_ai_analysis_why" = "「なぜこのアドバイスなのか」\n理由も一緒にお届けします";
+"onboarding_daily_plans_title" = "毎朝届くもの";
+"onboarding_daily_plans_subtitle" = "今日のあなたの\nコンディションに合わせた";
+"onboarding_daily_plans_food" = "食事プラン";
+"onboarding_daily_plans_exercise" = "運動プラン";
+"onboarding_daily_plans_lifestyle" = "過ごし方プラン";
+"onboarding_daily_plans_description" = "あなたの体と相談しながら\n最適な1日を作りましょう";
+"onboarding_welcome_subtitle" = "あなただけのヘルスケア\nアドバイザー";
+"onboarding_welcome_description" = "毎朝、最適なアドバイスを\nあなたのデータから生成";
 
 // MARK: - Health Status
 "health_status_optimal_title" = "絶好調";
@@ -199,3 +223,12 @@
 "accessibility_exercise_card" = "運動カード";
 "accessibility_sleep_card" = "睡眠カード";
 "accessibility_breathing_card" = "呼吸法カード";
+
+// MARK: - Permission Banners
+"permission_banner_healthkit_title" = "ヘルスケア連携を有効にしましょう！";
+"permission_banner_healthkit_description" = "パーソナライズされた健康インサイトを取得";
+"permission_banner_location_title" = "位置情報連携を有効にしましょう！";
+"permission_banner_location_description" = "天気に基づくアドバイスを受信";
+"permission_banner_both_title" = "より良い体験のためのセットアップを完了";
+"permission_banner_both_description" = "全機能を利用するために権限を有効化";
+"permission_banner_enable" = "設定で有効にする";

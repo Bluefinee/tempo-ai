@@ -1,81 +1,180 @@
 import SwiftUI
 
-/// Main onboarding flow providing a comprehensive 7-page introduction experience.
-///
-/// This view starts with language selection (page 0), then guides users through understanding
-/// Tempo AI's value proposition (pages 1-4) followed by essential permissions setup (pages 5-6).
-/// Based on the product specification, users first choose their language, then learn about
-/// the app's capabilities before being asked for permissions.
-/// Uses a TabView with page-style presentation for smooth transitions.
+struct PermissionItem: Identifiable {
+    let id: UUID = UUID()
+    let icon: String
+    let title: String
+    let description: String
+}
+
 struct OnboardingFlowView: View {
-    @EnvironmentObject var viewModel: OnboardingViewModel
+    @EnvironmentObject private var coordinator: OnboardingCoordinator
 
     var body: some View {
-        TabView(selection: $viewModel.currentPage) {
-            // Page 0: Language Selection
-            LanguageSelectionPageView()
-                .environmentObject(viewModel)
-                .tag(0)
-                .accessibilityIdentifier(UIIdentifiers.OnboardingFlow.languageSelectionPage)
+        NavigationStack {
+            ZStack {
+                Color.clear
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        hideKeyboard()
+                    }
 
-            // Page 1: Welcome - App Introduction
-            WelcomePageView()
-                .environmentObject(viewModel)
-                .tag(1)
-                .accessibilityIdentifier(UIIdentifiers.OnboardingFlow.welcomePage)
+                VStack {
+                    if coordinator.currentPage != .welcome {
+                        OnboardingProgressBar(
+                            currentPage: coordinator.currentPage,
+                            totalPages: OnboardingPage.allCases.count
+                        )
+                        .padding(.top, Spacing.md)
+                    }
 
-            // Page 2: What We Analyze - Data Sources
-            DataSourcesPageView()
-                .environmentObject(viewModel)
-                .tag(2)
-                .accessibilityIdentifier(UIIdentifiers.OnboardingFlow.dataSourcesPage)
+                    TabView(selection: $coordinator.currentPage) {
+                        WelcomePage(onNext: coordinator.nextPage)
+                            .tag(OnboardingPage.welcome)
 
-            // Page 3: AI Analysis - What We Learn
-            AIAnalysisPageView()
-                .environmentObject(viewModel)
-                .tag(3)
-                .accessibilityIdentifier(UIIdentifiers.OnboardingFlow.aiAnalysisPage)
+                        UserModePage(
+                            selectedMode: $coordinator.selectedUserMode,
+                            onNext: coordinator.nextPage
+                        )
+                        .tag(OnboardingPage.userMode)
 
-            // Page 4: What You Get - Daily Plans
-            DailyPlansPageView()
-                .environmentObject(viewModel)
-                .tag(4)
-                .accessibilityIdentifier(UIIdentifiers.OnboardingFlow.dailyPlansPage)
+                        FocusTagsPage(
+                            selectedTags: $coordinator.selectedTags,
+                            onNext: coordinator.nextPage
+                        )
+                        .tag(OnboardingPage.focusTags)
 
-            // Page 5: Progressive Disclosure - Privacy & Data Sharing
-            ProgressiveDisclosureView()
-                .environmentObject(viewModel)
-                .tag(5)
-                .accessibilityIdentifier(UIIdentifiers.OnboardingFlow.progressiveDisclosurePage)
+                        PermissionPage(
+                            title: "健康データへのアクセス",
+                            subtitle: "バッテリー計算に必要なデータの取得を許可してください",
+                            icon: "heart.text.square",
+                            iconColor: ColorPalette.error,
+                            items: healthPermissionItems,
+                            isGranted: $coordinator.healthPermissionGranted,
+                            onNext: coordinator.nextPage
+                        ) {
+                            Task {
+                                coordinator.healthPermissionGranted = await requestHealthPermissions()
+                            }
+                        }
+                        .tag(OnboardingPage.healthPermission)
 
-            // Page 6: HealthKit Permission
-            HealthKitPermissionPageView()
-                .environmentObject(viewModel)
-                .tag(6)
-                .accessibilityIdentifier(UIIdentifiers.OnboardingFlow.healthKitPage)
+                        PermissionPage(
+                            title: "位置情報アクセス",
+                            subtitle: "気象データ取得のための位置情報アクセスを許可してください",
+                            icon: "location",
+                            iconColor: ColorPalette.info,
+                            items: locationPermissionItems,
+                            isGranted: $coordinator.locationPermissionGranted,
+                            onNext: coordinator.nextPage
+                        ) {
+                            Task {
+                                coordinator.locationPermissionGranted = await requestLocationPermissions()
+                            }
+                        }
+                        .tag(OnboardingPage.locationPermission)
 
-            // Page 7: Location Permission & Completion
-            LocationPermissionPageView()
-                .environmentObject(viewModel)
-                .tag(7)
-                .accessibilityIdentifier(UIIdentifiers.OnboardingFlow.locationPage)
+                        CompletionPage()
+                            .tag(OnboardingPage.completion)
+                    }
+                    .tabViewStyle(.page(indexDisplayMode: .never))
+                    .disabled(true)
+
+                    if coordinator.currentPage != .welcome && coordinator.currentPage != .completion {
+                        OnboardingNavigationBar(
+                            canGoBack: coordinator.currentPage.rawValue > 0,
+                            canProceed: coordinator.canProceed,
+                            onBack: coordinator.previousPage,
+                            onNext: coordinator.nextPage
+                        )
+                        .padding(.bottom, Spacing.md)
+                    }
+                }
+            }
         }
-        #if os(iOS)
-            .tabViewStyle(.page)
-            .indexViewStyle(.page(backgroundDisplayMode: .always))
-        #endif
-        .ignoresSafeArea()
-        .accessibilityIdentifier(UIIdentifiers.OnboardingFlow.tabView)
-        .onAppear {
-            viewModel.trackOnboardingStart()
-        }
+    }
+
+    private let healthPermissionItems = [
+        PermissionItem(icon: "heart", title: "心拍数", description: "ストレスレベル計算のため"),
+        PermissionItem(icon: "bed.double", title: "睡眠データ", description: "朝のバッテリー充電量計算のため"),
+        PermissionItem(icon: "figure.walk", title: "活動量", description: "バッテリー消費量計算のため"),
+    ]
+
+    private let locationPermissionItems = [
+        PermissionItem(icon: "thermometer", title: "気温・湿度", description: "バッテリー消費への環境影響分析"),
+        PermissionItem(icon: "barometer", title: "気圧", description: "頭痛リスク予測のため"),
+        PermissionItem(icon: "shield.lefthalf.filled", title: "プライバシー保護", description: "市町村レベルの座標のみ使用"),
+    ]
+
+    private func hideKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
+
+    private func requestHealthPermissions() async -> Bool {
+        // TODO: Implement actual HealthKit authorization
+        // HKHealthStore.isHealthDataAvailable() check required per swift-coding-standards.md
+        return true
+    }
+
+    private func requestLocationPermissions() async -> Bool {
+        // TODO: Implement actual CLLocationManager authorization
+        return true
     }
 }
 
-// MARK: - Preview
-struct OnboardingFlowView_Previews: PreviewProvider {
-    static var previews: some View {
-        OnboardingFlowView()
-            .environmentObject(OnboardingViewModel())
+struct OnboardingProgressBar: View {
+    let currentPage: OnboardingPage
+    let totalPages: Int
+
+    private var progress: Double {
+        Double(currentPage.rawValue) / Double(totalPages - 1)
     }
+
+    var body: some View {
+        VStack(spacing: Spacing.xs) {
+            HStack {
+                Text("ステップ \(currentPage.rawValue + 1) / \(totalPages)")
+                    .typography(.caption)
+                    .foregroundColor(ColorPalette.gray500)
+
+                Spacer()
+
+                Text("\(Int(progress * 100))%")
+                    .typography(.caption)
+                    .foregroundColor(ColorPalette.gray500)
+            }
+
+            ProgressView(value: progress)
+                .progressViewStyle(LinearProgressViewStyle(tint: ColorPalette.success))
+                .frame(height: 4)
+        }
+        .padding(.horizontal, Spacing.lg)
+    }
+}
+
+struct OnboardingNavigationBar: View {
+    let canGoBack: Bool
+    let canProceed: Bool
+    let onBack: () -> Void
+    let onNext: () -> Void
+
+    var body: some View {
+        HStack {
+            Button("戻る", action: onBack)
+                .buttonStyle(SecondaryButtonStyle())
+                .opacity(canGoBack ? 1.0 : 0.3)
+                .disabled(!canGoBack)
+                .frame(maxWidth: .infinity)
+
+            Button("次へ", action: onNext)
+                .buttonStyle(PrimaryButtonStyle())
+                .disabled(!canProceed)
+                .frame(maxWidth: .infinity)
+        }
+        .padding(.horizontal, Spacing.lg)
+    }
+}
+
+#Preview {
+    OnboardingFlowView()
 }

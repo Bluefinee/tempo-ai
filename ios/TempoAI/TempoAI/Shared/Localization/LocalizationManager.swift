@@ -14,7 +14,6 @@ import SwiftUI
 /// Manages language preferences and provides localized string access
 /// Supports Japanese (default) and English languages
 class LocalizationManager: ObservableObject {
-
     /// Shared singleton instance
     static let shared: LocalizationManager = LocalizationManager()
 

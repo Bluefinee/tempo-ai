@@ -341,3 +341,45 @@ struct FloatingActionButton: View {
         )
     }
 }
+
+// MARK: - SwiftUI Button Styles for Phase 1
+
+struct PrimaryButtonStyle: SwiftUI.ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .frame(maxWidth: .infinity)
+            .frame(height: 50)
+            .background(ColorPalette.richBlack)
+            .foregroundColor(ColorPalette.pureWhite)
+            .font(.system(size: 17, weight: .semibold))
+            .cornerRadius(CornerRadius.md)
+            .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
+            .animation(.easeOut(duration: 0.1), value: configuration.isPressed)
+    }
+}
+
+struct SecondaryButtonStyle: SwiftUI.ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .frame(maxWidth: .infinity)
+            .frame(height: 50)
+            .background(ColorPalette.pureWhite)
+            .foregroundColor(ColorPalette.richBlack)
+            .font(.system(size: 17, weight: .medium))
+            .cornerRadius(CornerRadius.md)
+            .overlay(
+                RoundedRectangle(cornerRadius: CornerRadius.md)
+                    .stroke(ColorPalette.gray300, lineWidth: 1)
+            )
+            .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
+            .animation(.easeOut(duration: 0.1), value: configuration.isPressed)
+    }
+}
+
+struct ScaleButtonStyle: SwiftUI.ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
+            .animation(.easeOut(duration: 0.1), value: configuration.isPressed)
+    }
+}

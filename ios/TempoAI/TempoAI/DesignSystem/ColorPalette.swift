@@ -22,6 +22,9 @@ enum ColorPalette {
     /// Gray 700 for inactive elements
     static let gray700: Color = Color(red: 0.282, green: 0.282, blue: 0.29)
 
+    /// Gray 600 for secondary text (darker)
+    static let gray600: Color = Color(red: 0.335, green: 0.335, blue: 0.345)
+
     /// Gray 500 for secondary text
     static let gray500: Color = Color(red: 0.388, green: 0.388, blue: 0.4)
 

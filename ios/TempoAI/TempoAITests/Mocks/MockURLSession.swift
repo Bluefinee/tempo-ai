@@ -32,7 +32,7 @@ class MockURLSession: URLSessionProtocol {
 
     func data(from url: URL) async throws -> (Data, URLResponse) {
         lastRequest = URLRequest(url: url)
-        
+
         if let error = error {
             throw error
         }

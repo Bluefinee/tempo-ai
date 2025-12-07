@@ -86,7 +86,13 @@ enum UIIdentifiers {
         static let dailyPlansDescription = "onboarding.dailyPlans.description"
         static let dailyPlansNextButton = "onboarding.dailyPlans.nextButton"
 
-        // Page 5: HealthKit Permission
+        // Page 5: Progressive Disclosure
+        static let progressiveDisclosurePage = "onboarding.progressiveDisclosure.page"
+        static let progressiveDisclosureTitle = "onboarding.progressiveDisclosure.title"
+        static let progressiveDisclosureDescription = "onboarding.progressiveDisclosure.description"
+        static let progressiveDisclosureContinueButton = "onboarding.progressiveDisclosure.continueButton"
+
+        // Page 6: HealthKit Permission
         static let healthKitPage = "onboarding.healthKit.page"
         static let healthKitIcon = "onboarding.healthKit.icon"
         static let healthKitTitle = "onboarding.healthKit.title"
@@ -96,7 +102,7 @@ enum UIIdentifiers {
         static let healthKitNextButton = "onboarding.healthKit.nextButton"
         static let healthKitGrantedStatus = "onboarding.healthKit.grantedStatus"
 
-        // Page 6: Location Permission & Completion
+        // Page 7: Location Permission & Completion
         static let locationPage = "onboarding.location.page"
         static let locationIcon = "onboarding.location.icon"
         static let locationTitle = "onboarding.location.title"

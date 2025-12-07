@@ -75,11 +75,11 @@ struct HealthKitPermissionPageView: View {
 
             VStack(spacing: 12) {
                 if viewModel.healthKitStatus != .granted {
-                    Button(action: {
+                    Button {
                         Task {
                             await viewModel.requestHealthKitPermission()
                         }
-                    }) {
+                    } label: {
                         Text(
                             viewModel.selectedLanguage == .japanese ? "HealthKitを許可" : "Allow HealthKit"
                         )
@@ -93,9 +93,9 @@ struct HealthKitPermissionPageView: View {
                     }
                     .accessibilityIdentifier(UIIdentifiers.OnboardingFlow.healthKitAllowButton)
 
-                    Button(action: {
+                    Button {
                         viewModel.nextPage()
-                    }) {
+                    } label: {
                         Text(
                             viewModel.selectedLanguage == .japanese ? "スキップ" : "Skip"
                         )
@@ -105,9 +105,9 @@ struct HealthKitPermissionPageView: View {
                     }
                     .accessibilityIdentifier(UIIdentifiers.OnboardingFlow.healthKitSkipButton)
                 } else {
-                    Button(action: {
+                    Button {
                         viewModel.nextPage()
-                    }) {
+                    } label: {
                         Text(
                             viewModel.selectedLanguage == .japanese ? "次へ" : "Next"
                         )
@@ -152,7 +152,8 @@ struct LocationPermissionPageView: View {
                 Text(
                     viewModel.selectedLanguage == .japanese
                         ? "環境データ（気温・湿度・大気質）を取得し、\nより精密な健康アドバイスを提供します"
-                        : "Access environmental data (temperature, humidity, air quality)\nfor more precise health advice"
+                        : "Access environmental data (temperature, humidity, air quality)\n"
+                            + "for more precise health advice"
                 )
                 .font(.body)
                 .foregroundColor(.secondary)
@@ -193,11 +194,11 @@ struct LocationPermissionPageView: View {
 
             VStack(spacing: 12) {
                 if viewModel.locationStatus != .granted {
-                    Button(action: {
+                    Button {
                         Task {
                             await viewModel.requestLocationPermission()
                         }
-                    }) {
+                    } label: {
                         Text(
                             viewModel.selectedLanguage == .japanese ? "位置情報を許可" : "Allow Location"
                         )
@@ -211,9 +212,9 @@ struct LocationPermissionPageView: View {
                     }
                     .accessibilityIdentifier(UIIdentifiers.OnboardingFlow.locationAllowButton)
 
-                    Button(action: {
+                    Button {
                         viewModel.completeOnboarding()
-                    }) {
+                    } label: {
                         Text(
                             viewModel.selectedLanguage == .japanese ? "位置情報なしで続行" : "Continue without location"
                         )
@@ -223,9 +224,9 @@ struct LocationPermissionPageView: View {
                     }
                     .accessibilityIdentifier(UIIdentifiers.OnboardingFlow.locationSkipButton)
                 } else {
-                    Button(action: {
+                    Button {
                         viewModel.completeOnboarding()
-                    }) {
+                    } label: {
                         Text(
                             viewModel.selectedLanguage == .japanese ? "完了" : "Complete"
                         )

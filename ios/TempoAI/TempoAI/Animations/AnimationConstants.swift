@@ -1,109 +1,113 @@
 import SwiftUI
 
 /// Animation constants for consistent timing and easing throughout the app
-enum AnimationDuration {
-    /// 0.1s - Instant feedback (button press acknowledgment)
-    static let instant: Double = 0.1
+struct AnimationConstants {
 
-    /// 0.2s - Fast transitions (small state changes)
-    static let fast: Double = 0.2
+    /// Animation duration constants
+    enum Duration {
+        /// 0.1s - Instant feedback (button press acknowledgment)
+        static let instant: Double = 0.1
 
-    /// 0.3s - Normal transitions (standard UI changes)
-    static let normal: Double = 0.3
+        /// 0.2s - Fast transitions (small state changes)
+        static let fast: Double = 0.2
 
-    /// 0.5s - Slow transitions (important changes)
-    static let slow: Double = 0.5
+        /// 0.3s - Normal transitions (standard UI changes)
+        static let normal: Double = 0.3
 
-    /// 0.8s - Emphasis transitions (celebration, achievements)
-    static let emphasis: Double = 0.8
+        /// 0.5s - Slow transitions (important changes)
+        static let slow: Double = 0.5
 
-    /// 1.5s - Extended transitions (data loading, major state changes)
-    static let extended: Double = 1.5
-}
+        /// 0.8s - Emphasis transitions (celebration, achievements)
+        static let emphasis: Double = 0.8
 
-/// Predefined animation curves for consistent feel
-enum AnimationCurve {
-    /// Ease out - Fast start, slow end (good for entrances)
-    static let easeOut: Animation = .timingCurve(0.0, 0.0, 0.2, 1.0, duration: AnimationDuration.normal)
+        /// 1.5s - Extended transitions (data loading, major state changes)
+        static let extended: Double = 1.5
+    }
 
-    /// Ease in - Slow start, fast end (good for exits)
-    static let easeIn: Animation = .timingCurve(0.4, 0.0, 1.0, 1.0, duration: AnimationDuration.normal)
+    /// Predefined animation curves for consistent feel
+    enum AnimationCurve {
+        /// Ease out - Fast start, slow end (good for entrances)
+        static let easeOut: Animation = .timingCurve(0.0, 0.0, 0.2, 1.0, duration: Duration.normal)
 
-    /// Ease in-out - Balanced (good for movements)
-    static let easeInOut: Animation = .timingCurve(0.4, 0.0, 0.2, 1.0, duration: AnimationDuration.normal)
+        /// Ease in - Slow start, fast end (good for exits)
+        static let easeIn: Animation = .timingCurve(0.4, 0.0, 1.0, 1.0, duration: Duration.normal)
 
-    /// Spring - Natural bouncy feel (good for interactions)
-    static let spring: Animation = .spring(response: 0.5, dampingFraction: 0.8)
+        /// Ease in-out - Balanced (good for movements)
+        static let easeInOut: Animation = .timingCurve(0.4, 0.0, 0.2, 1.0, duration: Duration.normal)
 
-    /// Gentle spring - Less bouncy (good for subtle interactions)
-    static let gentleSpring: Animation = .spring(response: 0.4, dampingFraction: 0.9)
+        /// Spring - Natural bouncy feel (good for interactions)
+        static let spring: Animation = .spring(response: 0.5, dampingFraction: 0.8)
 
-    /// Bouncy spring - More bouncy (good for playful interactions)
-    static let bouncySpring: Animation = .spring(response: 0.6, dampingFraction: 0.6)
-}
+        /// Gentle spring - Less bouncy (good for subtle interactions)
+        static let gentleSpring: Animation = .spring(response: 0.4, dampingFraction: 0.9)
 
-/// Common animation presets for specific use cases
-struct AnimationPresets {
-    /// Button press feedback
-    static let buttonPress: Animation = .spring(response: 0.3, dampingFraction: 0.6)
+        /// Bouncy spring - More bouncy (good for playful interactions)
+        static let bouncySpring: Animation = .spring(response: 0.6, dampingFraction: 0.6)
+    }
 
-    /// Card expansion
-    static let cardExpansion: Animation = .spring(response: 0.4, dampingFraction: 0.8)
+    /// Common animation presets for specific use cases
+    struct AnimationPresets {
+        /// Button press feedback
+        static let buttonPress: Animation = .spring(response: 0.3, dampingFraction: 0.6)
 
-    /// Sheet presentation
-    static let sheetPresentation: Animation = .spring(response: 0.5, dampingFraction: 0.8)
+        /// Card expansion
+        static let cardExpansion: Animation = .spring(response: 0.4, dampingFraction: 0.8)
 
-    /// Page transition
-    static let pageTransition: Animation = .timingCurve(0.4, 0.0, 0.2, 1.0, duration: 0.4)
+        /// Sheet presentation
+        static let sheetPresentation: Animation = .spring(response: 0.5, dampingFraction: 0.8)
 
-    /// Loading state
-    static let loadingPulse: Animation = .easeInOut(duration: 1.0).repeatForever(autoreverses: true)
+        /// Page transition
+        static let pageTransition: Animation = .timingCurve(0.4, 0.0, 0.2, 1.0, duration: 0.4)
 
-    /// Success feedback
-    static let successFeedback: Animation = .spring(response: 0.6, dampingFraction: 0.7)
+        /// Loading state
+        static let loadingPulse: Animation = .easeInOut(duration: 1.0).repeatForever(autoreverses: true)
 
-    /// Error shake
-    static let errorShake: Animation = .spring(response: 0.2, dampingFraction: 0.5)
-}
+        /// Success feedback
+        static let successFeedback: Animation = .spring(response: 0.6, dampingFraction: 0.7)
 
-/// Scale effect values for consistent sizing
-enum ScaleEffect {
-    /// Pressed state (slightly smaller)
-    static let pressed: CGFloat = 0.95
+        /// Error shake
+        static let errorShake: Animation = .spring(response: 0.2, dampingFraction: 0.5)
+    }
 
-    /// Active state (slightly smaller)
-    static let active: CGFloat = 0.98
+    /// Scale effect values for consistent sizing
+    enum ScaleEffect {
+        /// Pressed state (slightly smaller)
+        static let pressed: CGFloat = 0.95
 
-    /// Hover state (slightly larger)
-    static let hover: CGFloat = 1.05
+        /// Active state (slightly smaller)
+        static let active: CGFloat = 0.98
 
-    /// Emphasized state (noticeably larger)
-    static let emphasized: CGFloat = 1.1
+        /// Hover state (slightly larger)
+        static let hover: CGFloat = 1.05
 
-    /// Pop effect (significantly larger)
-    static let pop: CGFloat = 1.2
-}
+        /// Emphasized state (noticeably larger)
+        static let emphasized: CGFloat = 1.1
 
-/// Opacity values for consistent transparency
-enum OpacityLevel {
-    /// Hidden
-    static let hidden: Double = 0.0
+        /// Pop effect (significantly larger)
+        static let pop: CGFloat = 1.2
+    }
 
-    /// Barely visible
-    static let subtle: Double = 0.1
+    /// Opacity values for consistent transparency
+    enum OpacityLevel {
+        /// Hidden
+        static let hidden: Double = 0.0
 
-    /// Light transparency
-    static let light: Double = 0.3
+        /// Barely visible
+        static let subtle: Double = 0.1
 
-    /// Medium transparency
-    static let medium: Double = 0.5
+        /// Light transparency
+        static let light: Double = 0.3
 
-    /// Heavy transparency
-    static let heavy: Double = 0.7
+        /// Medium transparency
+        static let medium: Double = 0.5
 
-    /// Almost opaque
-    static let strong: Double = 0.9
+        /// Heavy transparency
+        static let heavy: Double = 0.7
 
-    /// Fully visible
-    static let opaque: Double = 1.0
+        /// Almost opaque
+        static let strong: Double = 0.9
+
+        /// Fully visible
+        static let opaque: Double = 1.0
+    }
 }

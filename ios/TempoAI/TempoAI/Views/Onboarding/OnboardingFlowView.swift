@@ -42,16 +42,22 @@ struct OnboardingFlowView: View {
                 .tag(4)
                 .accessibilityIdentifier(UIIdentifiers.OnboardingFlow.dailyPlansPage)
 
-            // Page 5: HealthKit Permission
-            HealthKitPermissionPageView()
+            // Page 5: Progressive Disclosure - Privacy & Data Sharing
+            ProgressiveDisclosureView()
                 .environmentObject(viewModel)
                 .tag(5)
-                .accessibilityIdentifier(UIIdentifiers.OnboardingFlow.healthKitPage)
+                .accessibilityIdentifier(UIIdentifiers.OnboardingFlow.progressiveDisclosurePage)
 
-            // Page 6: Location Permission & Completion
-            LocationPermissionPageView()
+            // Page 6: HealthKit Permission
+            HealthKitPermissionPageView()
                 .environmentObject(viewModel)
                 .tag(6)
+                .accessibilityIdentifier(UIIdentifiers.OnboardingFlow.healthKitPage)
+
+            // Page 7: Location Permission & Completion
+            LocationPermissionPageView()
+                .environmentObject(viewModel)
+                .tag(7)
                 .accessibilityIdentifier(UIIdentifiers.OnboardingFlow.locationPage)
         }
         #if os(iOS)

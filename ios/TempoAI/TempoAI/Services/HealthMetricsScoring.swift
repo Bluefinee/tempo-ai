@@ -7,24 +7,6 @@ import Foundation
 /// All scoring algorithms are based on evidence-based health research and population studies.
 struct HealthMetricsScoring {
 
-    // MARK: - Activity Level Enum
-
-    enum ActivityLevel: String, CaseIterable {
-        case sedentary = "sedentary"
-        case lightlyActive = "lightly_active"
-        case moderatelyActive = "moderately_active"
-        case veryActive = "very_active"
-
-        var multiplier: Double {
-            switch self {
-            case .sedentary: return 0.8
-            case .lightlyActive: return 1.0
-            case .moderatelyActive: return 1.2
-            case .veryActive: return 1.4
-            }
-        }
-    }
-
     // MARK: - HRV Scoring
 
     /// Calculate HRV score based on age-appropriate baseline

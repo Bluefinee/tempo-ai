@@ -13,9 +13,9 @@ import XCTest
  * This includes safe tapping, element waiting, and scrolling functionality.
  */
 extension BaseUITest {
-    
+
     // MARK: - Element Waiting Methods
-    
+
     /// Waits for an element to exist with a timeout
     /// - Parameters:
     ///   - element: The UI element to wait for
@@ -27,7 +27,7 @@ extension BaseUITest {
         let result = XCTWaiter.wait(for: [expectation], timeout: timeout)
         return result == .completed
     }
-    
+
     /// Waits for an element to disappear with a timeout
     /// - Parameters:
     ///   - element: The UI element to wait for disappearance
@@ -39,7 +39,7 @@ extension BaseUITest {
         let result = XCTWaiter.wait(for: [expectation], timeout: timeout)
         return result == .completed
     }
-    
+
     /// Waits for an element to be hittable (visible and can be tapped)
     /// - Parameters:
     ///   - element: The UI element to wait for
@@ -51,9 +51,9 @@ extension BaseUITest {
         let result = XCTWaiter.wait(for: [expectation], timeout: timeout)
         return result == .completed
     }
-    
+
     // MARK: - Element Interaction Methods
-    
+
     /// Safely taps an element after ensuring it exists and is hittable
     /// - Parameter element: The UI element to tap
     /// - Parameter timeout: Maximum time to wait for element
@@ -63,12 +63,12 @@ extension BaseUITest {
             XCTFail("Element does not exist: \(element.debugDescription)")
             return
         }
-        
+
         guard waitForElementToBeHittable(element, timeout: timeout) else {
             XCTFail("Element is not hittable: \(element.debugDescription)")
             return
         }
-        
+
         var attempts = 0
         while attempts <= retryCount {
             do {
@@ -87,9 +87,9 @@ extension BaseUITest {
             }
         }
     }
-    
+
     // MARK: - Scrolling Methods
-    
+
     /// Scrolls to find and tap an element with comprehensive error handling
     /// - Parameters:
     ///   - element: The UI element to find and tap
@@ -97,24 +97,24 @@ extension BaseUITest {
     ///   - timeout: Maximum time to spend searching
     func scrollToAndTap(_ element: XCUIElement, in scrollView: XCUIElement? = nil, timeout: TimeInterval = 10.0) {
         let targetScrollView = scrollView ?? app.scrollViews.firstMatch
-        
+
         // Verify scroll view exists
         guard targetScrollView.exists else {
             XCTFail("Scroll view does not exist for scrolling to element")
             return
         }
-        
+
         // Try to find the element first without scrolling
         if element.exists && element.isHittable {
             safeTap(element)
             return
         }
-        
+
         let startTime = Date()
         var attempts = 0
         let maxAttempts = 15
         var lastElementFound = false
-        
+
         while Date().timeIntervalSince(startTime) < timeout && attempts < maxAttempts {
             // Check if element became visible
             if element.exists {
@@ -124,7 +124,7 @@ extension BaseUITest {
                     return
                 }
             }
-            
+
             // Try scrolling up first
             do {
                 targetScrollView.swipeUp()
@@ -136,48 +136,48 @@ extension BaseUITest {
                     usleep(300_000)
                 }
             }
-            
+
             attempts += 1
-            
+
             // Check again after scrolling
             if element.exists && element.isHittable {
                 safeTap(element)
                 return
             }
         }
-        
+
         // Provide detailed failure information
-        let errorMessage = lastElementFound ? 
+        let errorMessage = lastElementFound ?
             "Element was found but not hittable after scrolling for \(timeout) seconds (\(attempts) attempts)" :
             "Element was not found after scrolling for \(timeout) seconds (\(attempts) attempts)"
-        
+
         XCTFail(errorMessage + ": \(element.debugDescription)")
     }
-    
+
     /// Performs pull-to-refresh gesture with error handling
     /// - Parameter scrollView: Optional specific scroll view to refresh
     func performPullToRefresh(on scrollView: XCUIElement? = nil) {
         let targetScrollView = scrollView ?? app.scrollViews[UIIdentifiers.HomeView.scrollView]
-        
+
         guard waitForElement(targetScrollView, timeout: 5.0) else {
             XCTFail("Scroll view should exist for pull-to-refresh")
             return
         }
-        
+
         // Ensure scroll view is at the top for pull-to-refresh to work
         targetScrollView.swipeDown()
         usleep(300_000) // 0.3 second wait
-        
+
         do {
             // Perform pull-to-refresh gesture
             let startPoint = targetScrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.2))
             let endPoint = targetScrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.8))
-            
+
             startPoint.press(forDuration: 0.1, thenDragTo: endPoint)
-            
+
             // Wait for refresh to start
             usleep(500_000) // 0.5 second
-            
+
         } catch {
             XCTFail("Failed to perform pull-to-refresh gesture: \(error.localizedDescription)")
         }

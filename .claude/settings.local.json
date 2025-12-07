@@ -66,7 +66,17 @@
       "mcp__serena__think_about_whether_you_are_done",
       "WebFetch(domain:medium.com)",
       "Bash(swiftc:*)",
-      "Bash(xcrun simctl list:*)"
+      "Bash(xcrun simctl list:*)",
+      "Bash(gh pr create:*)",
+      "Bash(awk:*)",
+      "mcp__serena__insert_after_symbol",
+      "mcp__serena__insert_before_symbol",
+      "Bash(/Users/masakazuiwahara/Development/tempo-ai/ios/scripts/quality-check.sh:*)",
+      "Bash(../../scripts/quality-check.sh:*)",
+      "Bash(../scripts/fix-all.sh:*)",
+      "Bash(./fix-all.sh)",
+      "Bash(git log:*)",
+      "Bash(timeout:*)"
     ],
     "deny": [],
     "ask": [],

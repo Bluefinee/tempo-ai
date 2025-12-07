@@ -14,11 +14,11 @@ extension HKStatistics: StatisticsProtocol {}
 
 class MockStatistics: StatisticsProtocol {
     private let _sumQuantity: HKQuantity?
-    
+
     init(sumQuantity: HKQuantity?) {
         self._sumQuantity = sumQuantity
     }
-    
+
     func sumQuantity() -> HKQuantity? {
         return _sumQuantity
     }

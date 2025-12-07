@@ -1,6 +1,8 @@
 import SwiftUI
 import UIKit
 
+// MARK: - Microinteractions
+
 // MARK: - Haptic Feedback
 
 enum HapticFeedback {
@@ -51,7 +53,7 @@ struct TapFeedbackModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
             .scaleEffect(isPressed ? scaleEffect : 1.0)
-            .animation(AnimationPresets.buttonPress, value: isPressed)
+            .animation(AnimationConstants.AnimationPresets.buttonPress, value: isPressed)
             .onTapGesture {
                 haptic.trigger()
                 action()
@@ -59,7 +61,7 @@ struct TapFeedbackModifier: ViewModifier {
             .onLongPressGesture(minimumDuration: .infinity, maximumDistance: .infinity) {
                 // Never triggered
             } onPressingChanged: { pressing in
-                withAnimation(AnimationPresets.buttonPress) {
+                withAnimation(AnimationConstants.AnimationPresets.buttonPress) {
                     isPressed = pressing
                 }
             }
@@ -70,7 +72,7 @@ extension View {
     /// Add tap feedback with haptic and scale animation
     func tapFeedback(
         haptic: HapticFeedback = .light,
-        scale: CGFloat = ScaleEffect.pressed,
+        scale: CGFloat = AnimationConstants.ScaleEffect.pressed,
         action: @escaping () -> Void
     ) -> some View {
         self.modifier(
@@ -195,8 +197,8 @@ struct BounceModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .scaleEffect(isAnimating ? ScaleEffect.pop : 1.0)
-            .animation(AnimationPresets.successFeedback, value: isAnimating)
+            .scaleEffect(isAnimating ? AnimationConstants.ScaleEffect.pop : 1.0)
+            .animation(AnimationConstants.AnimationPresets.successFeedback, value: isAnimating)
             .onAppear {
                 withAnimation {
                     isAnimating = true
@@ -270,14 +272,15 @@ struct ProgressRing: View {
                 .rotationEffect(.degrees(-90))
         }
         .onAppear {
-            withAnimation(.easeOut(duration: AnimationDuration.extended)) {
+            withAnimation(.easeOut(duration: AnimationConstants.Duration.extended)) {
                 animatedProgress = progress
             }
         }
         .onChange(of: progress) { newProgress in
-            withAnimation(.easeOut(duration: AnimationDuration.slow)) {
+            withAnimation(.easeOut(duration: AnimationConstants.Duration.slow)) {
                 animatedProgress = newProgress
             }
         }
     }
+
 }

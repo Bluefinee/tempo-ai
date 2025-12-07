@@ -3,7 +3,7 @@ import Foundation
 import SwiftUI
 
 /// Supported languages in the app
-enum AppLanguage: String, CaseIterable {
+enum AppLanguage: String, CaseIterable, Codable {
     case japanese = "ja"
     case english = "en"
 
@@ -24,10 +24,6 @@ enum AppLanguage: String, CaseIterable {
 }
 
 /// ViewModel managing onboarding flow state, language selection, and permission requests.
-///
-/// Handles navigation through the 7-page onboarding experience starting with language selection,
-/// manages permission request state, and coordinates with the permission manager for HealthKit and
-/// location access. Tracks completion status for app initialization.
 @MainActor
 final class OnboardingViewModel: ObservableObject {
 
@@ -48,10 +44,11 @@ final class OnboardingViewModel: ObservableObject {
     /// Whether onboarding flow has been completed
     @Published var isOnboardingCompleted: Bool = false
 
-    // MARK: - Private Properties
+    // MARK: - Dependencies
 
     private let permissionManager = PermissionManager.shared
     private let userDefaults = UserDefaults.standard
+    private let progressiveDisclosure = OnboardingProgressiveDisclosure()
 
     // MARK: - Constants
 
@@ -78,7 +75,7 @@ final class OnboardingViewModel: ObservableObject {
 
     /// Navigate to next page in onboarding flow
     func nextPage() {
-        guard currentPage < 6 else { return }
+        guard currentPage < 7 else { return }
         currentPage += 1
         print("📱 Onboarding: Advanced to page \(currentPage)")
     }
@@ -92,7 +89,7 @@ final class OnboardingViewModel: ObservableObject {
 
     /// Jump directly to specific page
     func goToPage(_ page: Int) {
-        guard page >= 0 && page <= 6 else { return }
+        guard page >= 0 && page <= 7 else { return }
         currentPage = page
         print("📱 Onboarding: Jumped to page \(currentPage)")
     }
@@ -150,6 +147,13 @@ final class OnboardingViewModel: ObservableObject {
         userDefaults.removeObject(forKey: UserDefaultsKeys.onboardingStartTime)
         userDefaults.removeObject(forKey: UserDefaultsKeys.selectedLanguage)
 
+        // Clear progressive disclosure state
+        userDefaults.removeObject(forKey: UserDefaultsKeys.disclosureLevel)
+        userDefaults.removeObject(forKey: UserDefaultsKeys.explainedDataCategories)
+        userDefaults.removeObject(forKey: UserDefaultsKeys.privacyConcerns)
+        userDefaults.removeObject(forKey: UserDefaultsKeys.prefersDetailedExplanations)
+        userDefaults.removeObject(forKey: UserDefaultsKeys.currentDisclosureStage)
+
         // Clear localization manager's language preference
         userDefaults.removeObject(forKey: "user_language_preference")
 
@@ -175,6 +179,14 @@ final class OnboardingViewModel: ObservableObject {
             self.locationStatus = .notDetermined
             print("🔄 Reset permission statuses to: notDetermined")
 
+            // Reset progressive disclosure state
+            self.disclosureLevel = .minimal
+            self.explainedDataCategories = []
+            self.privacyConcerns = []
+            self.prefersDetailedExplanations = false
+            self.currentDisclosureStage = .introduction
+            print("🔄 Reset progressive disclosure state to defaults")
+
             // Post notification for other app components that onboarding was reset
             NotificationCenter.default.post(
                 name: .onboardingDidReset,
@@ -189,6 +201,44 @@ final class OnboardingViewModel: ObservableObject {
         }
     }
 
+    // MARK: - Progressive Disclosure Delegate Methods
+
+    /// Progressive disclosure support
+    var progressiveDisclosureLevel: ProgressiveDisclosureLevel {
+        progressiveDisclosure.disclosureLevel
+    }
+
+    func updateDisclosureLevel(_ level: ProgressiveDisclosureLevel) {
+        progressiveDisclosure.updateDisclosureLevel(level)
+    }
+
+    func markDataCategoryExplained(_ category: HealthDataCategory) {
+        progressiveDisclosure.markDataCategoryExplained(category)
+    }
+
+    func recordPrivacyConcern(_ concern: PrivacyConcern) {
+        progressiveDisclosure.recordPrivacyConcern(concern)
+    }
+
+    func setDetailedExplanationPreference(_ prefers: Bool) {
+        progressiveDisclosure.setDetailedExplanationPreference(prefers)
+    }
+
+    func advanceDisclosureStage() {
+        progressiveDisclosure.advanceDisclosureStage()
+    }
+
+    func getPersonalizedExplanation(for category: HealthDataCategory) -> DataExplanation {
+        return progressiveDisclosure.getPersonalizedExplanation(for: category)
+    }
+
+    func shouldShowDetailedPermissionExplanation(for permission: PermissionType) -> Bool {
+        return progressiveDisclosure.shouldShowDetailedPermissionExplanation(for: permission)
+    }
+
+    func getRecommendedSharingLevel() -> DataSharingLevel {
+        return progressiveDisclosure.getRecommendedSharingLevel()
+    }
     // MARK: - Private Methods
 
     /// Load existing onboarding completion state
@@ -211,7 +261,8 @@ final class OnboardingViewModel: ObservableObject {
 
             // Load selected language
             if let savedLanguage = self.userDefaults.string(forKey: UserDefaultsKeys.selectedLanguage),
-                let language = AppLanguage(rawValue: savedLanguage) {
+                let language = AppLanguage(rawValue: savedLanguage)
+            {
                 self.selectedLanguage = language
                 Task { @MainActor in
                     LocalizationManager.shared.setLanguage(language.localizationLanguage)
@@ -266,12 +317,12 @@ extension OnboardingViewModel {
 
     /// Progress through onboarding flow (0.0 to 1.0)
     var onboardingProgress: Double {
-        Double(currentPage) / 6.0
+        Double(currentPage) / 7.0
     }
 
     /// Whether user is on the final onboarding page
     var isOnFinalPage: Bool {
-        currentPage == 6
+        currentPage == 7
     }
 
     /// Whether user can proceed to next page
@@ -282,10 +333,40 @@ extension OnboardingViewModel {
         case 2: return true  // Data sources page - always can proceed
         case 3: return true  // AI analysis page - always can proceed
         case 4: return true  // Daily plans page - always can proceed
-        case 5: return true  // HealthKit page - can skip
-        case 6: return true  // Location page - final page
+        case 5: return true  // Progressive disclosure page - always can proceed
+        case 6: return true  // HealthKit page - can skip
+        case 7: return true  // Location page - final page
         default: return false
         }
+    }
+
+    /// Whether user should see progressive disclosure flow
+    var shouldShowProgressiveDisclosure: Bool {
+        currentDisclosureStage != .completion && !isOnboardingCompleted
+    }
+
+    /// Current disclosure progress as percentage
+    var disclosureProgress: Double {
+        let totalStages = DisclosureStage.allCases.count
+        let currentIndex = DisclosureStage.allCases.firstIndex(of: currentDisclosureStage) ?? 0
+        return Double(currentIndex) / Double(totalStages)
+    }
+
+    /// Personalized onboarding message based on disclosure level
+    var personalizedOnboardingMessage: String {
+        switch disclosureLevel {
+        case .minimal:
+            return "プライバシーを重視したシンプルな設定を行います"
+        case .selective:
+            return "お好みに合わせてカスタマイズできます"
+        case .comprehensive:
+            return "詳細な分析で最適な健康サポートを提供します"
+        }
+    }
+
+    /// Whether to show detailed explanations for current user
+    var shouldShowDetailedExplanations: Bool {
+        return prefersDetailedExplanations || disclosureLevel == .comprehensive || !privacyConcerns.isEmpty
     }
 }
 

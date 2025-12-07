@@ -38,11 +38,11 @@ final class HomeViewModel: ObservableObject {
     // User profile for API requests
     private let userProfile = UserProfile(
         age: 28,
-        gender: "male",
-        goals: ["fatigue_recovery", "focus"],
-        dietaryPreferences: "No restrictions",
-        exerciseHabits: "Regular weight training",
-        exerciseFrequency: "weekly"
+        gender: .male,
+        healthGoals: [.generalFitness, .stressManagement],
+        activityLevel: .moderatelyActive,
+        healthInterests: [.exercise, .nutrition],
+        languagePreference: "japanese"
     )
 
     // MARK: - Initialization

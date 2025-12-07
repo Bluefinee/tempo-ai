@@ -131,37 +131,30 @@ struct LocationData: Codable {
     }
 }
 
-struct UserProfile: Codable {
-    let age: Int
-    let gender: String
-    let goals: [String]
-    let dietaryPreferences: String
-    let exerciseHabits: String
-    let exerciseFrequency: String
+/// Weather data for contextual health analysis
+struct WeatherData: Codable {
+    let temperature: Double
+    let humidity: Double
+    let condition: String
+    let uvIndex: Double?
+    let airQuality: String?
+
+    init(
+        temperature: Double,
+        humidity: Double,
+        condition: String,
+        uvIndex: Double? = nil,
+        airQuality: String? = nil
+    ) {
+        self.temperature = temperature
+        self.humidity = humidity
+        self.condition = condition
+        self.uvIndex = uvIndex
+        self.airQuality = airQuality
+    }
 }
 
 // MARK: - API Request Models
-struct AnalysisRequest: Codable {
-    let healthData: HealthData
-    let location: LocationData
-    let userProfile: UserProfile
-    let healthAnalysis: HealthAnalysis?
-    let requestContext: RequestContext?
-
-    init(
-        healthData: HealthData,
-        location: LocationData,
-        userProfile: UserProfile,
-        healthAnalysis: HealthAnalysis? = nil,
-        requestContext: RequestContext? = nil
-    ) {
-        self.healthData = healthData
-        self.location = location
-        self.userProfile = userProfile
-        self.healthAnalysis = healthAnalysis
-        self.requestContext = requestContext
-    }
-}
 
 struct RequestContext: Codable {
     let timeOfDay: String

@@ -33,10 +33,10 @@ import XCTest
  * ```
  */
 class BaseUITest: XCTestCase {
-    
+
     /// The main application instance for UI testing
     var app: XCUIApplication!
-    
+
     /**
      * Sets up the test environment before each test method execution.
      * Configures the application with test-specific environment variables
@@ -47,15 +47,15 @@ class BaseUITest: XCTestCase {
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.
         continueAfterFailure = false
-        
+
         app = XCUIApplication()
-        
+
         // Enable UI testing mode for predictable app behavior
         app.launchEnvironment["UI_TESTING"] = "1"
-        
+
         // Disable animations for more stable and faster tests
         app.launchEnvironment["UITESTING_DISABLE_ANIMATIONS"] = "1"
-        
+
         app.launch()
     }
 

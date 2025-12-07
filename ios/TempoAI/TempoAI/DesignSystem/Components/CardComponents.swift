@@ -50,11 +50,11 @@ struct InteractiveCard<Content: View>: View {
     }
 
     var body: some View {
-        Button(action: {
+        Button {
             let impactFeedback = UIImpactFeedbackGenerator(style: .light)
             impactFeedback.impactOccurred()
             action()
-        }) {
+        } label: {
             content()
                 .padding(Spacing.md)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -64,13 +64,18 @@ struct InteractiveCard<Content: View>: View {
                 .scaleEffect(isPressed ? 0.98 : 1.0)
         }
         .buttonStyle(PlainButtonStyle())
-        .onLongPressGesture(minimumDuration: .infinity, maximumDistance: .infinity) {
-            // Never triggered
-        } onPressingChanged: { pressing in
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                isPressed = pressing
+        .onLongPressGesture(
+            minimumDuration: .infinity,
+            maximumDistance: .infinity,
+            perform: {
+                // Never triggered
+            },
+            onPressingChanged: { pressing in
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                    isPressed = pressing
+                }
             }
-        }
+        )
     }
 }
 
@@ -94,13 +99,13 @@ struct ExpandableCard<Header: View, Content: View>: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             // Header
-            Button(action: {
+            Button {
                 withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
                     isExpanded.toggle()
                 }
                 let impactFeedback = UIImpactFeedbackGenerator(style: .light)
                 impactFeedback.impactOccurred()
-            }) {
+            } label: {
                 HStack {
                     header()
 

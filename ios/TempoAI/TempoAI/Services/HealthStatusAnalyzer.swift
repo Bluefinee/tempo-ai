@@ -21,14 +21,14 @@ final class HealthStatusAnalyzer: ObservableObject {
 
     private let userAge: Int
     private let userGender: String
-    private let activityLevel: HealthMetricsScoring.ActivityLevel
+    private let activityLevel: ActivityLevel
 
     // MARK: - Initialization
 
     init(
         userAge: Int = 30,
         userGender: String = "male",
-        activityLevel: HealthMetricsScoring.ActivityLevel = .moderatelyActive
+        activityLevel: ActivityLevel = .moderatelyActive
     ) {
         self.userAge = userAge
         self.userGender = userGender
@@ -56,7 +56,9 @@ final class HealthStatusAnalyzer: ObservableObject {
                 status: .unknown,
                 overallScore: 0.0,
                 confidence: 0.0,
-                dataQuality: .poor
+                dataQuality: DataQuality(
+                    completeness: 0.0, recency: 0.0, accuracy: 0.0, consistency: 0.0, overallScore: 0.0,
+                    recommendations: [])
             )
             currentAnalysis = fallbackAnalysis
             return fallbackAnalysis
@@ -85,7 +87,7 @@ final class HealthStatusAnalyzer: ObservableObject {
         // Validate data availability
         let dataQuality = assessDataQuality(healthData)
 
-        if dataQuality == .poor {
+        if dataQuality.overallScore < 0.5 {
             throw AnalysisError.insufficientData
         }
 
@@ -181,10 +183,22 @@ final class HealthStatusAnalyzer: ObservableObject {
         if healthData.heartRate?.resting != nil { dataPoints += 1 }
 
         switch dataPoints {
-        case 4: return .excellent
-        case 3: return .good
-        case 2: return .fair
-        default: return .poor
+        case 4:
+            return DataQuality(
+                completeness: 1.0, recency: 1.0, accuracy: 0.95, consistency: 0.9, overallScore: 0.96,
+                recommendations: [])
+        case 3:
+            return DataQuality(
+                completeness: 0.8, recency: 0.9, accuracy: 0.85, consistency: 0.8, overallScore: 0.84,
+                recommendations: [])
+        case 2:
+            return DataQuality(
+                completeness: 0.6, recency: 0.7, accuracy: 0.75, consistency: 0.7, overallScore: 0.71,
+                recommendations: [])
+        default:
+            return DataQuality(
+                completeness: 0.3, recency: 0.5, accuracy: 0.6, consistency: 0.5, overallScore: 0.47,
+                recommendations: [])
         }
     }
 
@@ -202,7 +216,7 @@ final class HealthStatusAnalyzer: ObservableObject {
     }
 
     private func calculateConfidence(dataQuality: DataQuality, scores: [Double]) -> Double {
-        let dataQualityScore = dataQuality.score
+        let dataQualityScore = dataQuality.overallScore
         let scoreVariance = calculateVariance(scores)
         let consistencyScore = max(0.5, 1.0 - scoreVariance)
 
@@ -321,10 +335,6 @@ struct HealthRecommendation {
     let title: String
     let description: String
     let priority: AlertPriority
-}
-
-enum RecommendationCategory {
-    case sleep, exercise, nutrition, stress, lifestyle
 }
 
 struct HealthInsight {

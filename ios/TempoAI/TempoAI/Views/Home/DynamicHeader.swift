@@ -57,7 +57,7 @@ struct DynamicHeader: View {
     private var subtitleText: some View {
         Text(NSLocalizedString("home_subtitle", comment: "Personalized health advice based on your data"))
             .subheadStyle()
-            .opacity(isAnimating ? OpacityLevel.heavy : OpacityLevel.hidden)
+            .opacity(isAnimating ? 1.0 : 0.0)
             .offset(y: isAnimating ? 0 : 10)
             .accessibilityIdentifier("dynamic_header_description")
     }

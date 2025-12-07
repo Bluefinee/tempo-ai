@@ -53,10 +53,10 @@ final class HealthKitManagerTests: XCTestCase {
         // When: Requesting authorization
         try await healthKitManager.requestAuthorization()
 
-        // Then: Should be authorized
+        // Then: Should have requested permission
         XCTAssertTrue(mockHealthStore.requestAuthorizationCalled)
-        XCTAssertTrue(healthKitManager.isAuthorized)
-        XCTAssertEqual(healthKitManager.authorizationStatus, "Authorized")
+        XCTAssertTrue(healthKitManager.hasRequestedPermission)
+        XCTAssertEqual(healthKitManager.permissionStatus, "Permission Requested")
     }
 
     func testRequestAuthorizationDenied() async throws {
@@ -67,10 +67,10 @@ final class HealthKitManagerTests: XCTestCase {
         // When: Requesting authorization
         try await healthKitManager.requestAuthorization()
 
-        // Then: Should not be authorized
+        // Then: Should have requested permission (Apple spec: status independent of user choice)
         XCTAssertTrue(mockHealthStore.requestAuthorizationCalled)
-        XCTAssertFalse(healthKitManager.isAuthorized)
-        XCTAssertEqual(healthKitManager.authorizationStatus, "Denied")
+        XCTAssertTrue(healthKitManager.hasRequestedPermission)
+        XCTAssertEqual(healthKitManager.permissionStatus, "Permission Requested")
     }
 
     func testRequestAuthorizationNotDetermined() async throws {
@@ -81,10 +81,10 @@ final class HealthKitManagerTests: XCTestCase {
         // When: Requesting authorization
         try await healthKitManager.requestAuthorization()
 
-        // Then: Should not be authorized
+        // Then: Should have requested permission (Apple spec: status independent of user choice)
         XCTAssertTrue(mockHealthStore.requestAuthorizationCalled)
-        XCTAssertFalse(healthKitManager.isAuthorized)
-        XCTAssertEqual(healthKitManager.authorizationStatus, "Not Determined")
+        XCTAssertTrue(healthKitManager.hasRequestedPermission)
+        XCTAssertEqual(healthKitManager.permissionStatus, "Permission Requested")
     }
 
     func testRequestAuthorizationHealthKitNotAvailable() async throws {
@@ -127,18 +127,18 @@ final class HealthKitManagerTests: XCTestCase {
         XCTAssertGreaterThan(mockHealthStore.executedQueries.count, 0)
     }
 
-    func testFetchTodayHealthDataWhenNotAuthorized() async throws {
-        // Given: Manager is not authorized
-        healthKitManager.isAuthorized = false
+    func testFetchTodayHealthDataWhenPermissionNotRequested() async throws {
+        // Given: Manager has not requested permission
+        healthKitManager.hasRequestedPermission = false
 
-        // When & Then: Should throw not authorized error
+        // When & Then: Should throw permission not requested error
         do {
             _ = try await healthKitManager.fetchTodayHealthData()
-            XCTFail("Expected HealthKitError.notAuthorized")
-        } catch HealthKitError.notAuthorized {
+            XCTFail("Expected HealthKitError.permissionNotRequested")
+        } catch HealthKitError.permissionNotRequested {
             // Expected error
         } catch {
-            XCTFail("Expected HealthKitError.notAuthorized but got: \(error)")
+            XCTFail("Expected HealthKitError.permissionNotRequested but got: \(error)")
         }
     }
 
@@ -261,15 +261,16 @@ final class HealthKitManagerTests: XCTestCase {
 
     // MARK: - Error Handling Tests
 
-    func testAuthorizationStatusTypes() async throws {
-        // Test unknown authorization status
+    func testPermissionRequestCompletion() async throws {
+        // Test that permission request completion is consistent regardless of authorization status
         mockHealthStore.isHealthDataAvailableResult = true
         mockHealthStore.authorizationStatusResult = HKAuthorizationStatus(rawValue: 999) ?? .notDetermined
 
         try await healthKitManager.requestAuthorization()
 
-        XCTAssertFalse(healthKitManager.isAuthorized)
-        XCTAssertEqual(healthKitManager.authorizationStatus, "Unknown")
+        // Apple spec: Permission request completion is independent of user's actual choice
+        XCTAssertTrue(healthKitManager.hasRequestedPermission)
+        XCTAssertEqual(healthKitManager.permissionStatus, "Permission Requested")
     }
 
     // MARK: - Performance Tests

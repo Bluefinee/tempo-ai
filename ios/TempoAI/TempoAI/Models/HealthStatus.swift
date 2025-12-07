@@ -180,6 +180,88 @@ enum AlertPriority: Int, CaseIterable {
     }
 }
 
+// MARK: - Health Metrics
+
+/// Individual health metric with score and category
+struct HealthMetric: Codable, Identifiable {
+    let id: UUID
+    let category: MetricCategory
+    let score: Double
+    let value: String
+    let trend: MetricTrend
+
+    /// Normalized score value (0.0 to 1.0) for UI display
+    var normalizedValue: Double {
+        max(0.0, min(1.0, score))
+    }
+
+    init(category: MetricCategory, score: Double, value: String, trend: MetricTrend = .stable, id: UUID = UUID()) {
+        self.id = id
+        self.category = category
+        self.score = score
+        self.value = value
+        self.trend = trend
+    }
+}
+
+/// Categories of health metrics
+enum MetricCategory: String, CaseIterable, Codable {
+    case hrv = "hrv"
+    case sleep = "sleep"
+    case activity = "activity"
+    case heartRate = "heartRate"
+
+    var displayName: String {
+        switch self {
+        case .hrv: return NSLocalizedString("metric_hrv", comment: "HRV")
+        case .sleep: return NSLocalizedString("metric_sleep", comment: "Sleep")
+        case .activity: return NSLocalizedString("metric_activity", comment: "Activity")
+        case .heartRate: return NSLocalizedString("metric_heart_rate", comment: "Heart Rate")
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .hrv: return "heart.fill"
+        case .sleep: return "moon.stars.fill"
+        case .activity: return "figure.walk"
+        case .heartRate: return "waveform.path.ecg"
+        }
+    }
+
+    var color: Color {
+        switch self {
+        case .hrv: return .red
+        case .sleep: return .blue
+        case .activity: return .green
+        case .heartRate: return .orange
+        }
+    }
+}
+
+/// Trend direction for metrics
+enum MetricTrend: String, CaseIterable, Codable {
+    case improving = "improving"
+    case stable = "stable"
+    case declining = "declining"
+
+    var icon: String {
+        switch self {
+        case .improving: return "arrow.up.circle.fill"
+        case .stable: return "minus.circle.fill"
+        case .declining: return "arrow.down.circle.fill"
+        }
+    }
+
+    var color: Color {
+        switch self {
+        case .improving: return .green
+        case .stable: return .gray
+        case .declining: return .red
+        }
+    }
+}
+
 // MARK: - Health Analysis Result
 
 /// Comprehensive health analysis result containing status and supporting metrics
@@ -188,7 +270,10 @@ struct HealthAnalysis: Codable {
     let overallScore: Double
     let confidence: Double
 
-    // Individual metric scores
+    // Health metrics array
+    let metrics: [HealthMetric]
+
+    // Individual metric scores (for backward compatibility)
     let hrvScore: Double?
     let sleepScore: Double?
     let activityScore: Double?
@@ -203,6 +288,7 @@ struct HealthAnalysis: Codable {
         status: HealthStatus,
         overallScore: Double,
         confidence: Double = 1.0,
+        metrics: [HealthMetric] = [],
         hrvScore: Double? = nil,
         sleepScore: Double? = nil,
         activityScore: Double? = nil,
@@ -213,6 +299,52 @@ struct HealthAnalysis: Codable {
         self.status = status
         self.overallScore = overallScore
         self.confidence = confidence
+
+        // If metrics array is empty, create from individual scores
+        if metrics.isEmpty {
+            var derivedMetrics: [HealthMetric] = []
+
+            if let hrvScore = hrvScore {
+                derivedMetrics.append(
+                    HealthMetric(
+                        category: .hrv,
+                        score: hrvScore,
+                        value: String(format: "%.1f ms", hrvScore * 50)
+                    ))
+            }
+
+            if let sleepScore = sleepScore {
+                derivedMetrics.append(
+                    HealthMetric(
+                        category: .sleep,
+                        score: sleepScore,
+                        value: String(format: "%.1f hrs", sleepScore * 10)
+                    ))
+            }
+
+            if let activityScore = activityScore {
+                derivedMetrics.append(
+                    HealthMetric(
+                        category: .activity,
+                        score: activityScore,
+                        value: String(format: "%.0f steps", activityScore * 10000)
+                    ))
+            }
+
+            if let heartRateScore = heartRateScore {
+                derivedMetrics.append(
+                    HealthMetric(
+                        category: .heartRate,
+                        score: heartRateScore,
+                        value: String(format: "%.0f bpm", 60 + heartRateScore * 40)
+                    ))
+            }
+
+            self.metrics = derivedMetrics
+        } else {
+            self.metrics = metrics
+        }
+
         self.hrvScore = hrvScore
         self.sleepScore = sleepScore
         self.activityScore = activityScore

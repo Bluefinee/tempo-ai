@@ -2,6 +2,10 @@ import Combine
 import Foundation
 import SwiftUI
 
+#if os(iOS)
+    import UIKit
+#endif
+
 /// ViewModel managing home screen state and health analysis integration.
 ///
 /// Coordinates between HealthKit data collection, health status analysis,
@@ -19,14 +23,16 @@ final class HomeViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var showingPermissions: Bool = false
     @Published var isMockData: Bool = false
+    @Published var healthKitPermissionStatus: PermissionStatus = .notDetermined
+    @Published var locationPermissionStatus: PermissionStatus = .notDetermined
 
     // MARK: - Private Properties
 
-    private lazy var healthKitManager = HealthKitManager()
+    private let healthKitManager = HealthKitManager.shared
     private lazy var locationManager = LocationManager()
     private lazy var healthStatusAnalyzer = HealthStatusAnalyzer()
     private lazy var apiClient = APIClient.shared
-    private lazy var adviceTrackingService = AdviceTrackingService()
+    private lazy var permissionManager = PermissionManager.shared
     private var cancellables = Set<AnyCancellable>()
 
     // User profile for API requests
@@ -43,12 +49,13 @@ final class HomeViewModel: ObservableObject {
 
     init() {
         setupDataRefreshObservers()
+        setupPermissionObservers()
+        updatePermissionStatus()
     }
 
     deinit {
-        Task { @MainActor in
-            healthKitManager.stopBackgroundDataObservation()
-        }
+        // Note: Cleanup handled by deallocation
+        // Background observation will stop when HealthKitManager is deallocated
     }
 
     // MARK: - Public Methods
@@ -85,66 +92,57 @@ final class HomeViewModel: ObservableObject {
     }
 
     /// Refresh AI advice based on current health data
+    /// Uses date-based caching to prevent duplicate generation for the same day
     func refreshAdvice() async {
         guard !isLoadingAdvice else { return }
+
+        // Check if we already have today's advice
+        if let currentAdvice = todayAdvice, currentAdvice.isFromToday {
+            print("📋 Using cached advice from today (created \(Int(currentAdvice.ageInHours)) hours ago)")
+            return
+        }
 
         isLoadingAdvice = true
         defer { isLoadingAdvice = false }
 
+        print("📋 Generating new advice for today...")
+
         do {
             let healthData = try await healthKitManager.fetchTodayHealthData()
 
-            guard let locationData = locationManager.locationData else {
-                throw APIError.serverError("Location data not available")
-            }
+            // Use available location data or provide default location for Tokyo
+            let locationData =
+                locationManager.locationData
+                ?? LocationData(
+                    latitude: 35.6762,
+                    longitude: 139.6503
+                )
 
             // Use enhanced API with health analysis context
             do {
                 let advice: DailyAdvice
 
-                // Try enhanced API with health analysis if available
-                if let currentAnalysis = healthAnalysis {
-                    // Get user feedback insights for personalization
-                    let feedbackInsights = adviceTrackingService.getFeedbackInsights()
-                    let userPreferences = adviceTrackingService.getUserPreferences()
-
-                    advice = try await apiClient.analyzeHealthEnhanced(
-                        healthData: healthData,
-                        location: locationData,
-                        userProfile: userProfile,
-                        healthAnalysis: currentAnalysis,
-                        previousAdviceFollowed: feedbackInsights != nil
-                            ? adviceTrackingService.hasConsistentFollowThrough() : nil,
-                        userFeedback: generateUserFeedbackSummary(from: feedbackInsights, preferences: userPreferences)
-                    )
-                } else {
-                    // Fallback to standard API
-                    advice = try await apiClient.analyzeHealth(
-                        healthData: healthData,
-                        location: locationData,
-                        userProfile: userProfile,
-                        healthAnalysis: healthAnalysis
-                    )
-                }
+                // Use standard API - simplified approach
+                advice = try await apiClient.analyzeHealth(
+                    healthData: healthData,
+                    location: locationData,
+                    userProfile: userProfile,
+                    healthAnalysis: healthAnalysis
+                )
 
                 todayAdvice = advice
                 isMockData = false
 
-                // Start tracking the new advice session
-                adviceTrackingService.startAdviceSession(advice: advice, healthAnalysis: healthAnalysis)
+                // Note: Advice tracking simplified for now
+                print("✅ AI advice generated successfully")
 
             } catch {
                 #if DEBUG
-                    print("Real API failed, using mock data: \(error.localizedDescription)")
+                    print("🚨 API call failed in DEBUG mode, using mock data: \(error.localizedDescription)")
 
-                    // Fallback to mock API in DEBUG builds only
-                    let advice = try await apiClient.analyzeHealthMock(
-                        healthData: healthData,
-                        location: locationData,
-                        userProfile: userProfile,
-                        healthAnalysis: healthAnalysis
-                    )
-                    todayAdvice = advice
+                    // In DEBUG, use local mock data instead of calling backend mock endpoint
+                    let mockAdvice = createLocalMockAdvice()
+                    todayAdvice = mockAdvice
                     isMockData = true
                 #else
                     // In production, show the actual error
@@ -156,6 +154,13 @@ final class HomeViewModel: ObservableObject {
             errorMessage = error.localizedDescription
             print("Advice generation error: \(error)")
         }
+    }
+
+    /// Force refresh advice generation regardless of cache
+    func forceRefreshAdvice() async {
+        print("📋 Force generating new advice (bypassing cache)...")
+        todayAdvice = nil  // Clear cache
+        await refreshAdvice()
     }
 
     /// Refresh both health analysis and advice
@@ -177,30 +182,7 @@ final class HomeViewModel: ObservableObject {
         }
     }
 
-    /// Record that user followed specific advice
-    func recordAdviceFollowed(_ adviceType: AdviceType, quality: AdviceQuality? = nil) {
-        adviceTrackingService.recordAdviceFollowed(adviceType, quality: quality)
-    }
-
-    /// Submit feedback for current advice
-    func submitAdviceFeedback(
-        overallRating: Int,
-        mostHelpful: [AdviceType],
-        leastHelpful: [AdviceType],
-        comments: String? = nil
-    ) {
-        adviceTrackingService.submitFeedback(
-            overallRating: overallRating,
-            mostHelpful: mostHelpful,
-            leastHelpful: leastHelpful,
-            comments: comments
-        )
-    }
-
-    /// Get advice tracking service for UI binding
-    var adviceTracker: AdviceTrackingService {
-        adviceTrackingService
-    }
+    // Note: Advice tracking features simplified for now
 
     // MARK: - Computed Properties
 
@@ -230,16 +212,65 @@ final class HomeViewModel: ObservableObject {
         isMockData && todayAdvice != nil
     }
 
+    /// Whether to show permission banner and which type
+    var permissionBannerType: PermissionBannerType? {
+        let healthKitNeeded = healthKitPermissionStatus != .granted
+        let locationNeeded = locationPermissionStatus != .granted
+
+        if healthKitNeeded && locationNeeded {
+            return .both
+        } else if healthKitNeeded {
+            return .healthKit
+        } else if locationNeeded {
+            return .location
+        } else {
+            return nil
+        }
+    }
+
     // MARK: - Private Methods
 
+    /// Update permission status from PermissionManager
+    private func updatePermissionStatus() {
+        healthKitPermissionStatus = permissionManager.healthKitPermissionStatus
+        locationPermissionStatus = permissionManager.locationPermissionStatus
+    }
+
+    /// Setup observers for permission status changes
+    private func setupPermissionObservers() {
+        // Observe HealthKit permission changes
+        NotificationCenter.default.publisher(for: .healthKitPermissionChanged)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.updatePermissionStatus()
+            }
+            .store(in: &cancellables)
+
+        // Observe location permission changes
+        NotificationCenter.default.publisher(for: .locationPermissionChanged)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.updatePermissionStatus()
+            }
+            .store(in: &cancellables)
+    }
+
+    /// Open iOS Settings app to permission section
+    func openPermissionSettings() {
+        #if os(iOS)
+            if let settingsUrl = URL(string: UIApplication.openSettingsURLString) {
+                UIApplication.shared.open(settingsUrl)
+            }
+        #endif
+    }
+
     private func setupPermissions() async {
-        do {
-            try await healthKitManager.requestAuthorization()
-            locationManager.requestLocation()
-        } catch {
-            errorMessage = "HealthKit setup failed: \(error.localizedDescription)"
-            print("Permission setup error: \(error)")
+        let success = await healthKitManager.requestAuthorization()
+        if !success {
+            errorMessage = "HealthKit authorization failed. Please check your permissions in Settings."
+            print("HealthKit permission setup error")
         }
+        locationManager.requestLocation()
     }
 
     private func setupDataRefreshObservers() {
@@ -254,6 +285,7 @@ final class HomeViewModel: ObservableObject {
             .store(in: &cancellables)
 
         // Automatically refresh advice when health analysis changes
+        // Note: refreshAdvice() will check date cache to prevent duplicate generation
         $healthAnalysis
             .dropFirst()  // Skip initial nil value
             .compactMap { $0 }
@@ -266,46 +298,74 @@ final class HomeViewModel: ObservableObject {
             .store(in: &cancellables)
     }
 
-    private func generateUserFeedbackSummary(
-        from insights: FeedbackInsights?, preferences: UserAdvicePreferences
-    ) -> String? {
-        guard let insights = insights else { return nil }
+    // Feedback functionality simplified for now
 
-        var summary: [String] = []
-
-        if insights.averageRating >= 4.0 {
-            summary.append("User generally satisfied with advice quality")
-        } else if insights.averageRating < 3.0 {
-            summary.append("User requests more personalized recommendations")
-        }
-
-        if !preferences.preferredAdviceTypes.isEmpty {
-            let preferred = preferences.preferredAdviceTypes.prefix(3).map { $0.rawValue }.joined(separator: ", ")
-            summary.append("Prefers \(preferred) advice")
-        }
-
-        if !preferences.avoidAdviceTypes.isEmpty {
-            let avoided = preferences.avoidAdviceTypes.prefix(2).map { $0.rawValue }.joined(separator: ", ")
-            summary.append("Less interested in \(avoided) recommendations")
-        }
-
-        switch preferences.communicationStyle {
-        case .concise:
-            summary.append("Prefers brief, actionable advice")
-        case .detailed:
-            summary.append("Values detailed explanations and rationale")
-        case .balanced:
-            break
-        }
-
-        if insights.followThroughRate > 0.8 {
-            summary.append("High compliance with previous recommendations")
-        } else if insights.followThroughRate < 0.5 {
-            summary.append("May need simpler, more achievable recommendations")
-        }
-
-        return summary.isEmpty ? nil : summary.joined(separator: "; ")
+    /// Create local mock advice for DEBUG mode
+    private func createLocalMockAdvice() -> DailyAdvice {
+        return DailyAdvice(
+            theme: "開発モード",
+            summary: "これは開発用のサンプルデータです。実際のAI分析ではありません。",
+            breakfast: MealAdvice(
+                recommendation: "バランスの良い朝食",
+                reason: "開発用サンプル",
+                examples: ["トースト", "卵", "野菜サラダ"],
+                timing: "7:00-9:00",
+                avoid: ["甘いもの", "重いもの"]
+            ),
+            lunch: MealAdvice(
+                recommendation: "軽めの昼食",
+                reason: "開発用サンプル",
+                examples: ["おにぎり", "味噌汁"],
+                timing: "12:00-13:00",
+                avoid: ["揚げ物"]
+            ),
+            dinner: MealAdvice(
+                recommendation: "栄養価の高い夕食",
+                reason: "開発用サンプル",
+                examples: ["焼き魚", "野菜炒め", "ご飯"],
+                timing: "18:00-20:00",
+                avoid: ["カフェイン", "アルコール"]
+            ),
+            exercise: ExerciseAdvice(
+                recommendation: "軽い散歩",
+                intensity: .low,
+                reason: "開発用サンプル",
+                timing: "夕方",
+                avoid: []
+            ),
+            hydration: HydrationAdvice(
+                target: "2リットル",
+                schedule: HydrationSchedule(
+                    morning: "500ml",
+                    afternoon: "750ml",
+                    evening: "750ml"
+                ),
+                reason: "開発用サンプル"
+            ),
+            breathing: BreathingAdvice(
+                technique: "深呼吸",
+                duration: "5分",
+                frequency: "1日3回",
+                instructions: ["鼻から吸って", "口から吐く"]
+            ),
+            sleepPreparation: SleepPreparationAdvice(
+                bedtime: "22:00",
+                routine: ["入浴", "読書"],
+                avoid: ["カフェイン摂取", "画面を見る"]
+            ),
+            weatherConsiderations: WeatherConsiderations(
+                warnings: ["気圧変化に注意"],
+                opportunities: ["適切な服装を選択", "散歩に良い天気"]
+            ),
+            priorityActions: ["開発用データです", "実際のアドバイスではありません"]
+        )
     }
+}
+
+// MARK: - Notification Names
+
+extension Notification.Name {
+    static let healthKitDataUpdated = Notification.Name("healthKitDataUpdated")
 }
 
 // MARK: - Preview Support

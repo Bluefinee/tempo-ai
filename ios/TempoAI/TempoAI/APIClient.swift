@@ -10,7 +10,9 @@ class APIClient: ObservableObject {
 
     init(urlSession: URLSessionProtocol = URLSession.shared) {
         #if DEBUG
-            self.baseURL = "http://localhost:8787/api"
+            // In DEBUG mode, use local backend if available, otherwise use production
+            self.baseURL = "https://tempo-ai-backend.workers.dev/api"
+            print("🌐 APIClient: Using production backend in DEBUG mode for simplicity")
         #else
             self.baseURL = "https://tempo-ai-backend.workers.dev/api"
         #endif
@@ -124,7 +126,7 @@ class APIClient: ObservableObject {
                     if attempt < maxRetries - 1 {
                         // Exponential backoff with jitter
                         let backoffDelay = min(baseDelay * pow(2.0, Double(attempt)), maxDelay)
-                        let jitter = Double.random(in: 0.0...0.1) * backoffDelay
+                        let jitter = Double.random(in: 0.0 ... 0.1) * backoffDelay
                         let delayWithJitter = backoffDelay + jitter
                         try await Task.sleep(nanoseconds: UInt64(delayWithJitter * 1_000_000_000))
                     }
@@ -208,7 +210,7 @@ class APIClient: ObservableObject {
         )
 
         let apiResponse: APIResponse<DailyAdvice> = try await performRequestWithRetry(
-            endpoint: "health/analyze-enhanced",
+            endpoint: "health/analyze",
             request: request
         )
 

@@ -65,14 +65,19 @@ final class PermissionManager: NSObject, ObservableObject {
     // MARK: - Public Methods
 
     /// Request HealthKit permissions for all required health data types
+    /// - Returns: Permission status after request completion
     func requestHealthKitPermission() async -> PermissionStatus {
         print("🏥 PermissionManager: Requesting HealthKit permissions...")
 
-        guard HKHealthStore.isHealthDataAvailable() else {
-            print("❌ HealthKit not available on this device")
-            await updateHealthKitStatus(.denied)
-            return .denied
-        }
+        #if os(iOS)
+            guard HKHealthStore.isHealthDataAvailable() else {
+                print("❌ HealthKit not available on this iOS device")
+                await updateHealthKitStatus(.denied)
+                return .denied
+            }
+        #else
+            print("⚠️ Running on macOS - simulating HealthKit permission request for development")
+        #endif
 
         do {
             try await healthStore.requestAuthorization(toShare: [], read: healthKitTypesToRead)
@@ -88,22 +93,34 @@ final class PermissionManager: NSObject, ObservableObject {
     }
 
     /// Request location permissions for weather data
+    /// - Returns: Permission status after request completion
     func requestLocationPermission() async -> PermissionStatus {
         print("📍 PermissionManager: Requesting location permissions...")
 
-        let currentStatus = CLLocationManager().authorizationStatus
+        let currentStatus: CLAuthorizationStatus = locationManager.authorizationStatus
+        print("📍 Current location authorization status: \(currentStatus)")
 
         // If already authorized, return immediately
-        if currentStatus == .authorizedWhenInUse || currentStatus == .authorizedAlways {
-            let status = PermissionStatus.from(clStatus: currentStatus)
-            await updateLocationStatus(status)
-            return status
-        }
+        #if os(iOS)
+            if currentStatus == .authorizedWhenInUse || currentStatus == .authorizedAlways {
+                let status: PermissionStatus = PermissionStatus.from(clStatus: currentStatus)
+                print("📍 Location already authorized on iOS: \(status)")
+                await updateLocationStatus(status)
+                return status
+            }
+        #elseif os(macOS)
+            if currentStatus == .authorizedAlways {
+                let status: PermissionStatus = PermissionStatus.from(clStatus: currentStatus)
+                print("📍 Location already authorized on macOS: \(status)")
+                await updateLocationStatus(status)
+                return status
+            }
+            print("📍 Requesting location permission on macOS (may show system dialog)")
+        #endif
 
         // Request permission and wait for response
         return await withCheckedContinuation { continuation in
             self.locationContinuation = continuation
-
             DispatchQueue.main.async {
                 self.locationManager.requestWhenInUseAuthorization()
             }
@@ -153,9 +170,14 @@ final class PermissionManager: NSObject, ObservableObject {
     }
 
     private func determineHealthKitStatus() -> PermissionStatus {
-        guard HKHealthStore.isHealthDataAvailable() else {
-            return .denied
-        }
+        #if os(iOS)
+            guard HKHealthStore.isHealthDataAvailable() else {
+                return .denied
+            }
+        #else
+            // On macOS, simulate permission checking for development
+            print("🏥 Simulating HealthKit status check on macOS")
+        #endif
 
         // Check authorization status for each required type
         var allAuthorized = true
@@ -201,9 +223,10 @@ final class PermissionManager: NSObject, ObservableObject {
 extension PermissionManager: @preconcurrency CLLocationManagerDelegate {
 
     nonisolated func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-        let status = PermissionStatus.from(clStatus: manager.authorizationStatus)
+        let authStatus: CLAuthorizationStatus = manager.authorizationStatus
 
         Task { @MainActor in
+            let status: PermissionStatus = PermissionStatus.from(clStatus: authStatus)
             await updateLocationStatus(status)
 
             // Complete any pending permission request
@@ -213,7 +236,7 @@ extension PermissionManager: @preconcurrency CLLocationManagerDelegate {
             }
         }
 
-        print("📍 Location authorization changed to: \(manager.authorizationStatus.rawValue) -> \(status)")
+        print("📍 Location authorization changed to: \(authStatus.rawValue)")
     }
 }
 
@@ -269,8 +292,13 @@ enum PermissionStatus: String, CaseIterable {
         switch clStatus {
         case .notDetermined:
             return .notDetermined
-        case .authorizedWhenInUse, .authorizedAlways:
-            return .granted
+        #if os(iOS)
+            case .authorizedWhenInUse, .authorizedAlways:
+                return .granted
+        #elseif os(macOS)
+            case .authorizedAlways:
+                return .granted
+        #endif
         case .denied:
             return .denied
         case .restricted:

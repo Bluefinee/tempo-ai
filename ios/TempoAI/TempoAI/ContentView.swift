@@ -79,6 +79,8 @@ struct PlaceholderView: View {
 /// health goals, exercise habits, and dietary preferences. Currently serves
 /// as a read-only display with editing functionality planned for Phase 2.
 struct ProfileView: View {
+    @StateObject private var onboardingViewModel = OnboardingViewModel()
+
     var body: some View {
         NavigationStack {
             VStack(spacing: 24) {
@@ -112,6 +114,32 @@ struct ProfileView: View {
                     .font(.caption)
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
+
+                #if DEBUG
+                    VStack(spacing: 16) {
+                        Divider()
+
+                        Text("開発用ツール")
+                            .font(.headline)
+                            .foregroundColor(.orange)
+
+                        Button("オンボーディングをリセット") {
+                            onboardingViewModel.resetOnboarding()
+
+                            // Force app to restart by exiting
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                exit(0)
+                            }
+                        }
+                        .buttonStyle(.bordered)
+                        .foregroundColor(.red)
+
+                        Text("このボタンはデバッグビルドでのみ表示されます")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.top)
+                #endif
 
                 Spacer()
             }

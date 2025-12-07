@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 // MARK: - Health Data Models
 
@@ -236,12 +237,14 @@ struct DailyAdvice: Codable, Identifiable {
     let sleepPreparation: SleepPreparationAdvice
     let weatherConsiderations: WeatherConsiderations
     let priorityActions: [String]
+    let createdAt: Date
 
     private enum CodingKeys: String, CodingKey {
         case id, theme, summary, breakfast, lunch, dinner, exercise, hydration, breathing
         case sleepPreparation = "sleep_preparation"
         case weatherConsiderations = "weather_considerations"
         case priorityActions = "priority_actions"
+        case createdAt = "created_at"
     }
 
     init(from decoder: Decoder) throws {
@@ -259,6 +262,7 @@ struct DailyAdvice: Codable, Identifiable {
         self.sleepPreparation = try container.decode(SleepPreparationAdvice.self, forKey: .sleepPreparation)
         self.weatherConsiderations = try container.decode(WeatherConsiderations.self, forKey: .weatherConsiderations)
         self.priorityActions = try container.decode([String].self, forKey: .priorityActions)
+        self.createdAt = try container.decodeIfPresent(Date.self, forKey: .createdAt) ?? Date()
     }
 
     // Memberwise initializer for testing and previews
@@ -274,7 +278,8 @@ struct DailyAdvice: Codable, Identifiable {
         breathing: BreathingAdvice,
         sleepPreparation: SleepPreparationAdvice,
         weatherConsiderations: WeatherConsiderations,
-        priorityActions: [String]
+        priorityActions: [String],
+        createdAt: Date = Date()
     ) {
         self.id = id
         self.theme = theme
@@ -288,6 +293,103 @@ struct DailyAdvice: Codable, Identifiable {
         self.sleepPreparation = sleepPreparation
         self.weatherConsiderations = weatherConsiderations
         self.priorityActions = priorityActions
+        self.createdAt = createdAt
+    }
+}
+
+// MARK: - DailyAdvice Extensions
+
+extension DailyAdvice {
+    /// Check if this advice was created today (same calendar day)
+    var isFromToday: Bool {
+        Calendar.current.isDateInToday(createdAt)
+    }
+
+    /// Check if this advice was created on the specified date
+    func isFrom(date: Date) -> Bool {
+        Calendar.current.isDate(createdAt, inSameDayAs: date)
+    }
+
+    /// Get age of this advice in hours
+    var ageInHours: Double {
+        Date().timeIntervalSince(createdAt) / 3600
+    }
+
+    // MARK: - EnhancedAdviceCard Compatibility
+
+    /// Category for advice card display
+    var category: Category {
+        .general  // Default category, can be made more sophisticated later
+    }
+
+    /// Title for display in advice card
+    var title: String {
+        theme
+    }
+
+    /// Detailed information for expanded view
+    var details: [String] {
+        // Convert summary to an array, split by sentences
+        let sentences = summary.components(separatedBy: ". ").filter { !$0.isEmpty }
+        return sentences.map { $0.trimmingCharacters(in: .whitespaces) }
+    }
+
+    /// Tips array for display
+    var tips: [String] {
+        priorityActions
+    }
+
+    /// Weather impact information
+    var weatherImpact: String? {
+        // Extract weather information from weather considerations
+        if !weatherConsiderations.opportunities.isEmpty {
+            return weatherConsiderations.opportunities.first
+        } else if !weatherConsiderations.warnings.isEmpty {
+            return weatherConsiderations.warnings.first
+        }
+        return nil
+    }
+}
+
+// MARK: - DailyAdvice Category
+
+extension DailyAdvice {
+    enum Category {
+        case general
+        case exercise
+        case nutrition
+        case sleep
+        case mindfulness
+
+        var icon: String {
+            switch self {
+            case .general: return "sparkles"
+            case .exercise: return "figure.run"
+            case .nutrition: return "leaf.fill"
+            case .sleep: return "moon.stars.fill"
+            case .mindfulness: return "brain.head.profile"
+            }
+        }
+
+        var color: Color {
+            switch self {
+            case .general: return ColorPalette.info
+            case .exercise: return ColorPalette.success
+            case .nutrition: return ColorPalette.warning
+            case .sleep: return ColorPalette.info
+            case .mindfulness: return ColorPalette.info
+            }
+        }
+
+        var rawValue: String {
+            switch self {
+            case .general: return "general"
+            case .exercise: return "exercise"
+            case .nutrition: return "nutrition"
+            case .sleep: return "sleep"
+            case .mindfulness: return "mindfulness"
+            }
+        }
     }
 }
 

@@ -3,7 +3,7 @@ import SwiftUI
 
 // MARK: - Permissions View
 struct PermissionsView: View {
-    let healthKitManager: HealthKitManager
+    @StateObject private var healthKitManager = HealthKitManager.shared
     let locationManager: LocationManager
     let onDismiss: () -> Void
 
@@ -11,8 +11,12 @@ struct PermissionsView: View {
     @State private var alertMessage: String = ""
 
     private var isLocationAuthorized: Bool {
-        locationManager.authorizationStatus == .authorizedWhenInUse
-            || locationManager.authorizationStatus == .authorizedAlways
+        #if os(iOS)
+            return locationManager.authorizationStatus == .authorizedWhenInUse
+                || locationManager.authorizationStatus == .authorizedAlways
+        #else
+            return locationManager.authorizationStatus == .authorizedAlways
+        #endif
     }
 
     var body: some View {
@@ -28,8 +32,8 @@ struct PermissionsView: View {
                         icon: "heart.fill",
                         title: "HealthKit",
                         description: "Access your health data for personalized advice",
-                        status: healthKitManager.isAuthorized ? "Authorized" : "Not Authorized",
-                        color: healthKitManager.isAuthorized ? .green : .red
+                        status: healthKitManager.authorizationStatus.rawValue.capitalized,
+                        color: healthKitManager.authorizationStatus == .granted ? .green : .orange
                     )
                     .accessibilityIdentifier(UIIdentifiers.PermissionsView.healthKitRow)
 
@@ -44,14 +48,13 @@ struct PermissionsView: View {
                 }
                 .accessibilityIdentifier(UIIdentifiers.PermissionsView.permissionsList)
 
-                if !healthKitManager.isAuthorized {
+                if healthKitManager.authorizationStatus != .granted {
                     Button("Enable HealthKit") {
                         Task {
-                            do {
-                                try await healthKitManager.requestAuthorization()
-                            } catch {
+                            let success = await healthKitManager.requestAuthorization()
+                            if !success {
                                 await MainActor.run {
-                                    alertMessage = "HealthKit authorization failed: \(error.localizedDescription)"
+                                    alertMessage = "HealthKit permission request failed. Please check your settings."
                                     showErrorAlert = true
                                 }
                             }
@@ -69,14 +72,31 @@ struct PermissionsView: View {
                     .accessibilityIdentifier(UIIdentifiers.PermissionsView.locationButton)
                 }
 
+                // Loading indicator when requesting permissions
+                if healthKitManager.isLoading {
+                    VStack(spacing: 8) {
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle())
+
+                        Text("Requesting HealthKit permission...")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding()
+                    .background(.regularMaterial)
+                    .cornerRadius(12)
+                }
+
                 Spacer()
             }
             .accessibilityIdentifier(UIIdentifiers.PermissionsView.mainView)
             .padding()
             .navigationTitle("Settings")
-            .navigationBarTitleDisplayMode(.inline)
+            #if os(iOS)
+                .navigationBarTitleDisplayMode(.inline)
+            #endif
             .toolbar(content: {
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .automatic) {
                     Button("Done") {
                         onDismiss()
                     }

@@ -12,8 +12,8 @@
 import { z } from 'zod'
 
 /**
- * Open-Meteo APIから取得される天気データ
- * 現在の気象データと今日の予報データを含む
+ * Enhanced weather data with air quality and environmental factors
+ * Open-Meteo APIから取得される天気データと環境情報
  */
 export interface WeatherData {
   /** 現在の気象データ */
@@ -36,6 +36,8 @@ export interface WeatherData {
     cloud_cover: number
     /** 風速（m/s、地上10m） */
     wind_speed_10m: number
+    /** UV指数（現在値） */
+    uv_index?: number
   }
   /** 今日の予報データ */
   daily: {
@@ -54,11 +56,87 @@ export interface WeatherData {
     /** 1日の総降水量（mmの配列） */
     precipitation_sum: number[]
   }
+  /** 大気質データ（Optional - from separate API） */
+  airQuality?: {
+    /** 大気質指数（AQI） */
+    aqi: number
+    /** 大気質カテゴリ */
+    category: AirQualityCategory
+    /** PM2.5濃度（μg/m³） */
+    pm2_5?: number
+    /** PM10濃度（μg/m³） */
+    pm10?: number
+    /** オゾン濃度（μg/m³） */
+    ozone?: number
+    /** 二酸化窒素濃度（μg/m³） */
+    nitrogen_dioxide?: number
+    /** データ取得時刻 */
+    timestamp: string
+  }
+  /** 花粉データ（Optional - seasonal/regional） */
+  pollen?: {
+    /** 花粉レベル */
+    level: PollenLevel
+    /** 主要花粉の種類 */
+    types: string[]
+    /** データ取得時刻 */
+    timestamp: string
+  }
+  /** 健康リスク評価 */
+  healthRisk?: {
+    /** 全体的な環境健康リスク */
+    overall: HealthRiskLevel
+    /** UV暴露リスク */
+    uvExposure: HealthRiskLevel
+    /** 大気質リスク */
+    airQuality: HealthRiskLevel
+    /** アレルギー/花粉リスク */
+    allergen: HealthRiskLevel
+    /** 運動適性スコア（0-100） */
+    exerciseSuitability: number
+  }
+}
+
+/** 大気質カテゴリ */
+export enum AirQualityCategory {
+  GOOD = 'good',
+  MODERATE = 'moderate',
+  UNHEALTHY_SENSITIVE = 'unhealthy_sensitive',
+  UNHEALTHY = 'unhealthy',
+  VERY_UNHEALTHY = 'very_unhealthy',
+  HAZARDOUS = 'hazardous'
+}
+
+/** 花粉レベル */
+export enum PollenLevel {
+  LOW = 'low',
+  MODERATE = 'moderate',
+  HIGH = 'high',
+  VERY_HIGH = 'very_high'
+}
+
+/** 健康リスクレベル */
+export enum HealthRiskLevel {
+  LOW = 'low',
+  MODERATE = 'moderate',
+  HIGH = 'high',
+  VERY_HIGH = 'very_high'
 }
 
 /**
- * Zod schema for WeatherData validation
+ * Zod schemas for weather data validation
  */
+
+/** Air Quality Category enum schema */
+export const AirQualityCategorySchema = z.nativeEnum(AirQualityCategory)
+
+/** Pollen Level enum schema */
+export const PollenLevelSchema = z.nativeEnum(PollenLevel)
+
+/** Health Risk Level enum schema */
+export const HealthRiskLevelSchema = z.nativeEnum(HealthRiskLevel)
+
+/** Enhanced WeatherData schema with optional environmental data */
 export const WeatherDataSchema = z.object({
   current: z.object({
     time: z.string(),
@@ -70,6 +148,7 @@ export const WeatherDataSchema = z.object({
     weather_code: z.number(),
     cloud_cover: z.number(),
     wind_speed_10m: z.number(),
+    uv_index: z.number().optional(),
   }),
   daily: z.object({
     time: z.array(z.string()),
@@ -80,4 +159,25 @@ export const WeatherDataSchema = z.object({
     uv_index_max: z.array(z.number()),
     precipitation_sum: z.array(z.number()),
   }),
+  airQuality: z.object({
+    aqi: z.number(),
+    category: AirQualityCategorySchema,
+    pm2_5: z.number().optional(),
+    pm10: z.number().optional(),
+    ozone: z.number().optional(),
+    nitrogen_dioxide: z.number().optional(),
+    timestamp: z.string(),
+  }).optional(),
+  pollen: z.object({
+    level: PollenLevelSchema,
+    types: z.array(z.string()),
+    timestamp: z.string(),
+  }).optional(),
+  healthRisk: z.object({
+    overall: HealthRiskLevelSchema,
+    uvExposure: HealthRiskLevelSchema,
+    airQuality: HealthRiskLevelSchema,
+    allergen: HealthRiskLevelSchema,
+    exerciseSuitability: z.number().min(0).max(100),
+  }).optional(),
 })

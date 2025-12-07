@@ -23,8 +23,8 @@ final class PermissionManager: NSObject, ObservableObject {
 
     // MARK: - Private Properties
 
-    private let healthStore = HKHealthStore()
-    private let locationManager = CLLocationManager()
+    private let healthStore: HKHealthStore = HKHealthStore()
+    private let locationManager: CLLocationManager = CLLocationManager()
     private var locationContinuation: CheckedContinuation<PermissionStatus, Never>?
 
     // MARK: - HealthKit Types
@@ -152,20 +152,18 @@ final class PermissionManager: NSObject, ObservableObject {
     }
 
     private func updatePermissionStatuses() {
-        Task { @MainActor in
-            // Update HealthKit status
-            let healthStatus = determineHealthKitStatus()
-            if healthKitPermissionStatus != healthStatus {
-                healthKitPermissionStatus = healthStatus
-                NotificationCenter.default.post(name: .healthKitPermissionChanged, object: nil)
-            }
+        // Update HealthKit status
+        let healthStatus = determineHealthKitStatus()
+        if healthKitPermissionStatus != healthStatus {
+            healthKitPermissionStatus = healthStatus
+            NotificationCenter.default.post(name: .healthKitPermissionChanged, object: nil)
+        }
 
-            // Update Location status
-            let locationStatus = PermissionStatus.from(clStatus: locationManager.authorizationStatus)
-            if locationPermissionStatus != locationStatus {
-                locationPermissionStatus = locationStatus
-                NotificationCenter.default.post(name: .locationPermissionChanged, object: nil)
-            }
+        // Update Location status
+        let locationStatus = PermissionStatus.from(clStatus: locationManager.authorizationStatus)
+        if locationPermissionStatus != locationStatus {
+            locationPermissionStatus = locationStatus
+            NotificationCenter.default.post(name: .locationPermissionChanged, object: nil)
         }
     }
 

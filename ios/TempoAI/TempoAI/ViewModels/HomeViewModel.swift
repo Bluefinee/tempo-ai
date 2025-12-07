@@ -54,8 +54,9 @@ final class HomeViewModel: ObservableObject {
     }
 
     deinit {
-        // Note: Cleanup handled by deallocation
+        // Cleanup handled automatically by Combine cancellables
         // Background observation will stop when HealthKitManager is deallocated
+        cancellables.removeAll()
     }
 
     // MARK: - Public Methods

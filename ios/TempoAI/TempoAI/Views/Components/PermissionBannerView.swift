@@ -138,15 +138,15 @@ enum PermissionBannerType {
 #Preview("HealthKit Banner") {
     VStack(spacing: 16) {
         PermissionBannerView(type: .healthKit) {
-            print("HealthKit banner tapped")
+            // Preview action
         }
 
         PermissionBannerView(type: .location) {
-            print("Location banner tapped")
+            // Preview action
         }
 
         PermissionBannerView(type: .both) {
-            print("Both permissions banner tapped")
+            // Preview action
         }
     }
     .padding()

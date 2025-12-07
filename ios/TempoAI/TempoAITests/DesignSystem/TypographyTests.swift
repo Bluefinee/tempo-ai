@@ -13,17 +13,7 @@ import SwiftUI
 /// Test suite for Typography design system component
 /// Ensures consistent font hierarchy and accessibility compliance
 final class TypographyTests: XCTestCase {
-    
-    // MARK: - Setup & Teardown
-    
-    override func setUpWithError() throws {
-        try super.setUpWithError()
-    }
-    
-    override func tearDownWithError() throws {
-        try super.tearDownWithError()
-    }
-    
+
     // MARK: - Typography Hierarchy Tests
     
     func testTypographyHierarchy_AllStylesAreDefined() {

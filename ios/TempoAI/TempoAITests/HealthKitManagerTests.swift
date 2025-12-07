@@ -283,21 +283,21 @@ final class HealthKitManagerTests: XCTestCase {
         // When: Testing performance with proper async handling
         let options = XCTMeasureOptions()
         options.iterationCount = 5
-        
+
         measure(options: options) {
-            let semaphore = DispatchSemaphore(value: 0)
-            
+            let expectation = XCTestExpectation(description: "Fetch health data")
+
             Task {
                 do {
                     _ = try await healthKitManager.fetchTodayHealthData()
-                    semaphore.signal()
+                    expectation.fulfill()
                 } catch {
                     XCTFail("Performance test failed: \(error)")
-                    semaphore.signal()
+                    expectation.fulfill()
                 }
             }
-            
-            semaphore.wait()
+
+            wait(for: [expectation], timeout: 5.0)
         }
     }
 

@@ -232,9 +232,7 @@ final class OnboardingViewModel: ObservableObject {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            DispatchQueue.main.async {
-                self?.healthKitStatus = self?.permissionManager.healthKitPermissionStatus ?? .notDetermined
-            }
+            self?.healthKitStatus = self?.permissionManager.healthKitPermissionStatus ?? .notDetermined
         }
 
         // Observe location permission changes
@@ -243,9 +241,7 @@ final class OnboardingViewModel: ObservableObject {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            DispatchQueue.main.async {
-                self?.locationStatus = self?.permissionManager.locationPermissionStatus ?? .notDetermined
-            }
+            self?.locationStatus = self?.permissionManager.locationPermissionStatus ?? .notDetermined
         }
     }
 }

@@ -70,7 +70,7 @@
 "onboarding_daily_plans_lifestyle" = "過ごし方プラン";
 "onboarding_daily_plans_description" = "あなたの体と相談しながら\n最適な1日を作りましょう";
 "onboarding_welcome_subtitle" = "あなただけのヘルスケア\nアドバイザー";
-"onboarding_welcome_description" = "毎朝、最適なアドバイスを\nあなたのデータから生成";
+"onboarding_welcome_tagline" = "毎朝、最適なアドバイスを\nあなたのデータから生成";
 
 // MARK: - Health Status
 "health_status_optimal_title" = "絶好調";

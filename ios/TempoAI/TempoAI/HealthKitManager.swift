@@ -146,8 +146,9 @@ final class HealthKitManager: ObservableObject {
             return createMockHealthData()
         #endif
 
-        // For now, return simplified mock data
-        // Real implementation would query actual HealthKit data
+        // TODO: [Phase 2] Implement real HealthKit data queries
+        // Current implementation returns mock data for development
+        // Real implementation would query actual HealthKit data using HKStatisticsQuery
         return createMockHealthData()
     }
 

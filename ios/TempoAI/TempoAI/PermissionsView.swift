@@ -103,7 +103,7 @@ struct PermissionsView: View {
                     .accessibilityIdentifier(UIIdentifiers.PermissionsView.dismissButton)
                 }
             })
-            .onChange(of: locationManager.errorMessage) { newValue in
+            .onChange(of: locationManager.errorMessage) { oldValue, newValue in
                 if let error = newValue {
                     alertMessage = error
                     showErrorAlert = true

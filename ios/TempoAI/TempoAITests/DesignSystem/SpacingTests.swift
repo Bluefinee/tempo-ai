@@ -13,17 +13,7 @@ import SwiftUI
 /// Test suite for Spacing design system component
 /// Ensures consistent 8px grid system and proper layout constants
 final class SpacingTests: XCTestCase {
-    
-    // MARK: - Setup & Teardown
-    
-    override func setUpWithError() throws {
-        try super.setUpWithError()
-    }
-    
-    override func tearDownWithError() throws {
-        try super.tearDownWithError()
-    }
-    
+
     // MARK: - Core Spacing Tests
     
     func testSpacingValues_AreDefinedCorrectly() {

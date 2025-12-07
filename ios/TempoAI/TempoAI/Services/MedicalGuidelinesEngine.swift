@@ -31,8 +31,10 @@ class MedicalGuidelinesEngine {
                     type: .concerning,
                     severity: heartRate < (lower - 10) ? .high : .moderate,
                     description: "Resting heart rate is below normal range",
-                    value: heartRate,
-                    reference: "Normal: \(Int(lower))-\(Int(upper)) bpm"
+                    value: "\(Int(heartRate)) bpm",
+                    normalRange: "\(Int(lower))-\(Int(upper)) bpm",
+                    explanation: "Resting heart rate below normal may indicate good fitness or underlying condition",
+                    actionRequired: true
                 ))
             score = 60
         } else if heartRate > upper {

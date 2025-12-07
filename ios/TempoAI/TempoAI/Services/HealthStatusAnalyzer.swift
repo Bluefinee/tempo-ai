@@ -131,7 +131,7 @@ final class HealthStatusAnalyzer: ObservableObject {
 
     // MARK: - Individual Metric Analysis
 
-    private func analyzeHRV(_ hrvData: HRVData?) -> Double {
+    private func analyzeHRV(_ hrvData: HRVMetrics?) -> Double {
         guard let hrv = hrvData?.average else { return 0.5 }
         return HealthMetricsScoring.calculateHRVScore(
             average: hrv,

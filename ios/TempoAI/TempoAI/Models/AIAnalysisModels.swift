@@ -251,35 +251,47 @@ struct UserProfile: Codable {
     let age: Int?
     let gender: Gender?
     let healthGoals: [HealthGoal]
+    let goals: [String]
     let activityLevel: ActivityLevel
     let healthInterests: [HealthInterest]
     let languagePreference: String
     let culturalContext: CulturalContext?
     let medicalConditions: [String]
     let preferences: UserPreferences
+    let exerciseFrequency: String?
+    let dietaryPreferences: [String]
+    let exerciseHabits: [String]
 
     init(
         userId: String = UUID().uuidString,
         age: Int? = nil,
         gender: Gender? = nil,
         healthGoals: [HealthGoal] = [],
+        goals: [String] = [],
         activityLevel: ActivityLevel = .none,
         healthInterests: [HealthInterest] = [],
         languagePreference: String = "japanese",
         culturalContext: CulturalContext? = nil,
         medicalConditions: [String] = [],
-        preferences: UserPreferences = UserPreferences()
+        preferences: UserPreferences = UserPreferences(),
+        exerciseFrequency: String? = nil,
+        dietaryPreferences: [String] = [],
+        exerciseHabits: [String] = []
     ) {
         self.userId = userId
         self.age = age
         self.gender = gender
         self.healthGoals = healthGoals
+        self.goals = goals
         self.activityLevel = activityLevel
         self.healthInterests = healthInterests
         self.languagePreference = languagePreference
         self.culturalContext = culturalContext
         self.medicalConditions = medicalConditions
         self.preferences = preferences
+        self.exerciseFrequency = exerciseFrequency
+        self.dietaryPreferences = dietaryPreferences
+        self.exerciseHabits = exerciseHabits
     }
 }
 

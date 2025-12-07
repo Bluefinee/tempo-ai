@@ -42,8 +42,11 @@ enum FindingType: String, CaseIterable {
     case normal
     case caution
     case concern
+    case concerning
     case critical
     case positive
+    case warning
+    case excellent
 }
 
 /// Finding severity levels
@@ -103,6 +106,7 @@ struct DataQuality: Codable {
 
 /// Medical analysis structure
 struct MedicalAnalysis {
+    let categoryScore: Double
     let findings: [HealthFinding]
     let riskFactors: [HealthRiskFactor]
     let recommendations: [String]

@@ -8,14 +8,14 @@ typealias HealthKitData = HealthData
 
 struct HealthData: Codable {
     let sleep: SleepData?
-    let hrv: HRVData?
+    let hrv: HRVMetrics?
     let heartRate: HeartRateData?
     let activity: ActivityData?
     let timestamp: Date
 
     init(
         sleep: SleepData? = nil,
-        hrv: HRVData? = nil,
+        hrv: HRVMetrics? = nil,
         heartRate: HeartRateData? = nil,
         activity: ActivityData? = nil,
         timestamp: Date = Date()
@@ -59,20 +59,6 @@ struct SleepData: Codable {
     }
 }
 
-struct HRVData: Codable {
-    let average: Double?
-    let min: Double?
-    let max: Double?
-
-    // Computed properties for analysis compatibility
-    var averageHRV: Double? { average }
-
-    init(average: Double? = nil, min: Double? = nil, max: Double? = nil) {
-        self.average = average
-        self.min = min
-        self.max = max
-    }
-}
 
 struct HeartRateData: Codable {
     let resting: Double?

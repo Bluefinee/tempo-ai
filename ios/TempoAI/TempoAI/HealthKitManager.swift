@@ -554,11 +554,7 @@ final class HealthKitManager: ObservableObject {
                 awake: (comprehensiveData.sleep.awakeDuration ?? 0) / 3600,
                 efficiency: comprehensiveData.sleep.sleepEfficiency
             ),
-            hrv: HRVData(
-                average: comprehensiveData.vitalSigns.heartRateVariability?.average ?? 35.0,
-                min: (comprehensiveData.vitalSigns.heartRateVariability?.average ?? 35.0) - 5,
-                max: (comprehensiveData.vitalSigns.heartRateVariability?.average ?? 35.0) + 10
-            ),
+            hrv: comprehensiveData.vitalSigns.heartRateVariability,
             heartRate: HeartRateData(
                 resting: Int(comprehensiveData.vitalSigns.heartRate?.resting ?? 60),
                 average: Int(comprehensiveData.vitalSigns.heartRate?.average ?? 70),

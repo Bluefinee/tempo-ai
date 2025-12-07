@@ -68,31 +68,31 @@ class LocalHealthAnalyzer: ObservableObject {
         // 1. Cardiovascular Health Analysis
         let cardiovascularInsights = cardiovascularAnalyzer.analyzeCardiovascularHealth(
             healthData.vitalSigns,
-            age: userProfile.age,
-            gender: userProfile.gender
+            age: userProfile.age ?? 30,
+            gender: userProfile.gender?.rawValue ?? "unknown"
         )
 
         // 2. Sleep Quality Assessment
         let sleepInsights = sleepAnalyzer.analyzeSleepQuality(
             healthData.sleep,
-            age: userProfile.age,
-            lifestyle: userProfile.exerciseFrequency
+            age: userProfile.age ?? 30,
+            lifestyle: userProfile.exerciseFrequency ?? "moderate"
         )
 
         // 3. Activity and Fitness Analysis
         let activityInsights = activityAnalyzer.analyzeActivityPatterns(
             healthData.activity,
             bodyMeasurements: healthData.bodyMeasurements,
-            age: userProfile.age,
-            gender: userProfile.gender
+            age: userProfile.age ?? 30,
+            gender: userProfile.gender?.rawValue ?? "unknown"
         )
 
         // 4. Metabolic Health Assessment
         let metabolicInsights = metabolicAnalyzer.analyzeMetabolicHealth(
             bodyMeasurements: healthData.bodyMeasurements,
             activity: healthData.activity,
-            nutrition: healthData.nutrition,
-            age: userProfile.age
+            nutrition: healthData.nutrition ?? NutritionData(),
+            age: userProfile.age ?? 30
         )
 
         // 5. Risk Factor Identification
@@ -163,7 +163,7 @@ class LocalHealthAnalyzer: ObservableObject {
         language: String = "english"
     ) -> QuickHealthInsights {
 
-        let overallScore = calculateQuickHealthScore(healthData, age: userProfile.age)
+        let overallScore = calculateQuickHealthScore(healthData, age: userProfile.age ?? 30)
         let priority = identifyTopPriority(healthData, userProfile: userProfile)
         let quickTip = generateQuickTip(priority: priority, language: language)
 
@@ -172,7 +172,7 @@ class LocalHealthAnalyzer: ObservableObject {
             summary: generateQuickSummary(score: overallScore, language: language),
             topPriority: priority,
             quickTip: quickTip,
-            dataQuality: assessDataQuality(healthData).rawValue,
+            dataQuality: assessDataQuality(healthData).overallScore,
             timestamp: Date()
         )
     }

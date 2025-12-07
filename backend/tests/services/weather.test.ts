@@ -65,30 +65,30 @@ describe('Weather Service', () => {
       // Verify basic weather data structure
       expect(result.current).toEqual(mockWeatherResponse.current)
       expect(result.daily).toEqual(mockWeatherResponse.daily)
-      
+
       // Verify enhanced environmental data is included
       expect(result).toHaveProperty('airQuality')
       expect(result).toHaveProperty('pollen')
       expect(result).toHaveProperty('healthRisk')
-      
+
       // Verify air quality data structure
       expect(result.airQuality).toHaveProperty('aqi')
       expect(result.airQuality).toHaveProperty('category')
       expect(result.airQuality).toHaveProperty('timestamp')
-      
+
       // Verify pollen data structure
       expect(result.pollen).toHaveProperty('level')
       expect(result.pollen).toHaveProperty('types')
       expect(result.pollen).toHaveProperty('timestamp')
-      
+
       // Verify health risk assessment structure
       expect(result.healthRisk).toHaveProperty('overall')
       expect(result.healthRisk).toHaveProperty('uvExposure')
       expect(result.healthRisk).toHaveProperty('airQuality')
       expect(result.healthRisk).toHaveProperty('allergen')
       expect(result.healthRisk).toHaveProperty('exerciseSuitability')
-      expect(typeof result.healthRisk.exerciseSuitability).toBe('number')
-      
+      expect(typeof result.healthRisk?.exerciseSuitability).toBe('number')
+
       expect(mockFetch).toHaveBeenCalledWith(
         expect.stringContaining('latitude=35.6895&longitude=139.6917'),
       )

@@ -104,7 +104,7 @@ export enum AirQualityCategory {
   UNHEALTHY_SENSITIVE = 'unhealthy_sensitive',
   UNHEALTHY = 'unhealthy',
   VERY_UNHEALTHY = 'very_unhealthy',
-  HAZARDOUS = 'hazardous'
+  HAZARDOUS = 'hazardous',
 }
 
 /** 花粉レベル */
@@ -112,7 +112,7 @@ export enum PollenLevel {
   LOW = 'low',
   MODERATE = 'moderate',
   HIGH = 'high',
-  VERY_HIGH = 'very_high'
+  VERY_HIGH = 'very_high',
 }
 
 /** 健康リスクレベル */
@@ -120,7 +120,7 @@ export enum HealthRiskLevel {
   LOW = 'low',
   MODERATE = 'moderate',
   HIGH = 'high',
-  VERY_HIGH = 'very_high'
+  VERY_HIGH = 'very_high',
 }
 
 /**
@@ -159,25 +159,31 @@ export const WeatherDataSchema = z.object({
     uv_index_max: z.array(z.number()),
     precipitation_sum: z.array(z.number()),
   }),
-  airQuality: z.object({
-    aqi: z.number(),
-    category: AirQualityCategorySchema,
-    pm2_5: z.number().optional(),
-    pm10: z.number().optional(),
-    ozone: z.number().optional(),
-    nitrogen_dioxide: z.number().optional(),
-    timestamp: z.string(),
-  }).optional(),
-  pollen: z.object({
-    level: PollenLevelSchema,
-    types: z.array(z.string()),
-    timestamp: z.string(),
-  }).optional(),
-  healthRisk: z.object({
-    overall: HealthRiskLevelSchema,
-    uvExposure: HealthRiskLevelSchema,
-    airQuality: HealthRiskLevelSchema,
-    allergen: HealthRiskLevelSchema,
-    exerciseSuitability: z.number().min(0).max(100),
-  }).optional(),
+  airQuality: z
+    .object({
+      aqi: z.number(),
+      category: AirQualityCategorySchema,
+      pm2_5: z.number().optional(),
+      pm10: z.number().optional(),
+      ozone: z.number().optional(),
+      nitrogen_dioxide: z.number().optional(),
+      timestamp: z.string(),
+    })
+    .optional(),
+  pollen: z
+    .object({
+      level: PollenLevelSchema,
+      types: z.array(z.string()),
+      timestamp: z.string(),
+    })
+    .optional(),
+  healthRisk: z
+    .object({
+      overall: HealthRiskLevelSchema,
+      uvExposure: HealthRiskLevelSchema,
+      airQuality: HealthRiskLevelSchema,
+      allergen: HealthRiskLevelSchema,
+      exerciseSuitability: z.number().min(0).max(100),
+    })
+    .optional(),
 })

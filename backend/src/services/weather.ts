@@ -10,10 +10,10 @@
  */
 
 import type { WeatherData } from '../types/weather'
-import { 
-  AirQualityCategory, 
-  PollenLevel, 
-  HealthRiskLevel 
+import {
+  AirQualityCategory,
+  HealthRiskLevel,
+  PollenLevel,
 } from '../types/weather'
 // import { WeatherDataSchema } from '../types/weather' // Commented out for MVP
 import { APIError } from '../utils/errors'
@@ -80,8 +80,12 @@ export const getWeather = async (
     }
 
     // Transform Open-Meteo response to our WeatherData format
-    const transformedData = await transformToWeatherData(parsed, latitude, longitude)
-    
+    const transformedData = await transformToWeatherData(
+      parsed as OpenMeteoResponse,
+      latitude,
+      longitude,
+    )
+
     // Validate transformed data with Zod schema (skip validation for MVP)
     // TODO: Re-enable validation once optional property handling is resolved
     // const validationResult = WeatherDataSchema.safeParse(transformedData)
@@ -112,13 +116,38 @@ export const getWeather = async (
   }
 }
 
+// OpenMeteo API response types
+interface OpenMeteoResponse {
+  current: {
+    time: string
+    temperature_2m: number
+    relative_humidity_2m: number
+    apparent_temperature: number
+    precipitation: number
+    rain: number
+    weather_code: number
+    cloud_cover: number
+    wind_speed_10m: number
+    uv_index?: number
+  }
+  daily: {
+    time: string[]
+    temperature_2m_max: number[]
+    temperature_2m_min: number[]
+    sunrise: string[]
+    sunset: string[]
+    uv_index_max: number[]
+    precipitation_sum: number[]
+  }
+}
+
 /**
  * Open-MeteoレスポンスをWeatherDataフォーマットに変換し、環境データを統合
  */
 async function transformToWeatherData(
-  openMeteoData: any,
+  openMeteoData: OpenMeteoResponse,
   latitude: number,
-  longitude: number
+  longitude: number,
 ): Promise<WeatherData> {
   const current = openMeteoData.current
   const daily = openMeteoData.daily
@@ -134,7 +163,7 @@ async function transformToWeatherData(
       rain: current.rain,
       weather_code: current.weather_code,
       cloud_cover: current.cloud_cover,
-      wind_speed_10m: current.wind_speed_10m
+      wind_speed_10m: current.wind_speed_10m,
     },
     daily: {
       time: daily.time,
@@ -143,10 +172,10 @@ async function transformToWeatherData(
       sunrise: daily.sunrise,
       sunset: daily.sunset,
       uv_index_max: daily.uv_index_max,
-      precipitation_sum: daily.precipitation_sum
-    }
+      precipitation_sum: daily.precipitation_sum,
+    },
   }
-  
+
   // Add UV index if available
   if (current.uv_index !== undefined) {
     weatherData.current.uv_index = current.uv_index
@@ -156,10 +185,10 @@ async function transformToWeatherData(
   try {
     // Get air quality data (simulated for MVP - in production would use real API)
     weatherData.airQuality = await getAirQualityData(latitude, longitude)
-    
+
     // Get pollen data (simulated for MVP)
     weatherData.pollen = await getPollenData(latitude, longitude)
-    
+
     // Calculate health risk assessment
     weatherData.healthRisk = calculateHealthRisk(weatherData)
   } catch (error) {
@@ -177,7 +206,7 @@ async function getAirQualityData(_latitude: number, _longitude: number) {
   // Simulated air quality data based on location
   // In production, integrate with real air quality APIs like OpenWeatherMap or IQAir
   const baseAQI = Math.floor(Math.random() * 150) + 30 // 30-180 range
-  
+
   let category: AirQualityCategory
   if (baseAQI <= 50) category = AirQualityCategory.GOOD
   else if (baseAQI <= 100) category = AirQualityCategory.MODERATE
@@ -193,7 +222,7 @@ async function getAirQualityData(_latitude: number, _longitude: number) {
     pm10: baseAQI * 0.8,
     ozone: baseAQI * 0.3,
     nitrogen_dioxide: baseAQI * 0.4,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   }
 }
 
@@ -203,11 +232,11 @@ async function getAirQualityData(_latitude: number, _longitude: number) {
 async function getPollenData(_latitude: number, _longitude: number) {
   const now = new Date()
   const month = now.getMonth() + 1
-  
+
   // Seasonal pollen levels (simplified for MVP)
   let level: PollenLevel
   const pollenTypes: string[] = []
-  
+
   if (month >= 3 && month <= 5) {
     // Spring - tree pollen
     level = Math.random() > 0.5 ? PollenLevel.HIGH : PollenLevel.VERY_HIGH
@@ -224,11 +253,11 @@ async function getPollenData(_latitude: number, _longitude: number) {
     // Winter - low pollen
     level = PollenLevel.LOW
   }
-  
+
   return {
     level,
     types: pollenTypes,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   }
 }
 
@@ -237,7 +266,7 @@ async function getPollenData(_latitude: number, _longitude: number) {
  */
 function calculateHealthRisk(weatherData: WeatherData) {
   const { current, airQuality, pollen } = weatherData
-  
+
   // UV exposure risk
   let uvExposure: HealthRiskLevel = HealthRiskLevel.LOW
   if (current.uv_index) {
@@ -245,7 +274,7 @@ function calculateHealthRisk(weatherData: WeatherData) {
     else if (current.uv_index >= 6) uvExposure = HealthRiskLevel.HIGH
     else if (current.uv_index >= 3) uvExposure = HealthRiskLevel.MODERATE
   }
-  
+
   // Air quality risk
   let airQualityRisk: HealthRiskLevel = HealthRiskLevel.LOW
   if (airQuality) {
@@ -264,7 +293,7 @@ function calculateHealthRisk(weatherData: WeatherData) {
         airQualityRisk = HealthRiskLevel.LOW
     }
   }
-  
+
   // Allergen risk from pollen
   let allergenRisk: HealthRiskLevel = HealthRiskLevel.LOW
   if (pollen) {
@@ -280,40 +309,39 @@ function calculateHealthRisk(weatherData: WeatherData) {
         break
     }
   }
-  
+
   // Overall environmental health risk (weighted average)
   const riskScores = {
     [HealthRiskLevel.LOW]: 0,
     [HealthRiskLevel.MODERATE]: 1,
     [HealthRiskLevel.HIGH]: 2,
-    [HealthRiskLevel.VERY_HIGH]: 3
+    [HealthRiskLevel.VERY_HIGH]: 3,
   }
-  
-  const avgScore = (
+
+  const avgScore =
     riskScores[uvExposure] * 0.3 +
     riskScores[airQualityRisk] * 0.4 +
     riskScores[allergenRisk] * 0.3
-  )
-  
+
   let overall: HealthRiskLevel = HealthRiskLevel.LOW
   if (avgScore >= 2.5) overall = HealthRiskLevel.VERY_HIGH
   else if (avgScore >= 1.5) overall = HealthRiskLevel.HIGH
   else if (avgScore >= 0.5) overall = HealthRiskLevel.MODERATE
-  
+
   // Exercise suitability score (0-100)
   const exerciseSuitability = calculateExerciseSuitability(
     current,
     airQuality,
     pollen,
-    uvExposure
+    uvExposure,
   )
-  
+
   return {
     overall,
     uvExposure,
     airQuality: airQualityRisk,
     allergen: allergenRisk,
-    exerciseSuitability
+    exerciseSuitability,
   }
 }
 
@@ -321,43 +349,45 @@ function calculateHealthRisk(weatherData: WeatherData) {
  * 運動適性スコアを計算（0-100）
  */
 function calculateExerciseSuitability(
-  current: any,
-  airQuality: any,
-  pollen: any,
-  uvExposure: HealthRiskLevel
+  current: WeatherData['current'],
+  airQuality: WeatherData['airQuality'],
+  pollen: WeatherData['pollen'],
+  uvExposure: HealthRiskLevel,
 ): number {
   let score = 100
-  
+
   // Temperature considerations
   if (current.temperature_2m < 0 || current.temperature_2m > 35) {
     score -= 20
   } else if (current.temperature_2m < 5 || current.temperature_2m > 30) {
     score -= 10
   }
-  
+
   // Precipitation impact
   if (current.precipitation > 5) score -= 25
   else if (current.precipitation > 1) score -= 10
-  
+
   // Wind impact
   if (current.wind_speed_10m > 15) score -= 15
   else if (current.wind_speed_10m > 10) score -= 5
-  
+
   // Air quality impact
-  if (airQuality?.category === AirQualityCategory.UNHEALTHY || 
-      airQuality?.category === AirQualityCategory.VERY_UNHEALTHY) {
+  if (
+    airQuality?.category === AirQualityCategory.UNHEALTHY ||
+    airQuality?.category === AirQualityCategory.VERY_UNHEALTHY
+  ) {
     score -= 30
   } else if (airQuality?.category === AirQualityCategory.UNHEALTHY_SENSITIVE) {
     score -= 15
   }
-  
+
   // UV exposure impact
   if (uvExposure === HealthRiskLevel.VERY_HIGH) score -= 15
   else if (uvExposure === HealthRiskLevel.HIGH) score -= 10
-  
+
   // Pollen impact for sensitive individuals
   if (pollen?.level === PollenLevel.VERY_HIGH) score -= 20
   else if (pollen?.level === PollenLevel.HIGH) score -= 10
-  
+
   return Math.max(0, Math.min(100, score))
 }

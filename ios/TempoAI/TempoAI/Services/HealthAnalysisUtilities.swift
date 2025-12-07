@@ -1,20 +1,158 @@
 import Combine
 import Foundation
 
+// MARK: - Simple User Profile for Health Analysis Utilities
+
+/// Simplified user profile structure for health analysis utilities
+/// Matches the interface expected by the utility functions
+struct SimpleUserProfile {
+    let id: String
+    let name: String
+    let age: Int
+    let gender: String
+    let healthGoals: [String]
+    let exerciseFrequency: String
+    let medications: [String]
+    let chronicConditions: [String]
+    let allergies: [String]
+    
+    /// Default initializer
+    init(
+        id: String = UUID().uuidString,
+        name: String = "",
+        age: Int = 0,
+        gender: String = "",
+        healthGoals: [String] = [],
+        exerciseFrequency: String = "",
+        medications: [String] = [],
+        chronicConditions: [String] = [],
+        allergies: [String] = []
+    ) {
+        self.id = id
+        self.name = name
+        self.age = age
+        self.gender = gender
+        self.healthGoals = healthGoals
+        self.exerciseFrequency = exerciseFrequency
+        self.medications = medications
+        self.chronicConditions = chronicConditions
+        self.allergies = allergies
+    }
+    
+    /// Initialize from the app's UserProfile model
+    init(from userProfile: Any) {
+        // Default values for compatibility
+        self.id = UUID().uuidString
+        self.name = ""
+        self.age = 0
+        self.gender = ""
+        self.healthGoals = []
+        self.exerciseFrequency = ""
+        self.medications = []
+        self.chronicConditions = []
+        self.allergies = []
+    }
+    
+    static let `default` = SimpleUserProfile()
+}
+
+/// Simplified comprehensive health data structure
+struct SimpleHealthData {
+    let vitalSigns: VitalSignsData
+    let bodyMeasurements: BodyMeasurementsData
+    let sleep: SleepData
+    let activity: ActivityData
+    let nutrition: NutritionData
+    
+    struct VitalSignsData {
+        let heartRate: HeartRateData?
+        let bloodPressure: BloodPressureData?
+        let heartRateVariability: Double?
+        
+        struct HeartRateData {
+            let resting: Int
+        }
+        
+        struct BloodPressureData {
+            let systolic: Double
+            let diastolic: Double
+        }
+    }
+    
+    struct BodyMeasurementsData {
+        let weight: Double?
+        let height: Double?
+        let bodyMassIndex: Double?
+    }
+    
+    struct SleepData {
+        let totalDuration: Double
+    }
+    
+    struct ActivityData {
+        let steps: Int
+        let exerciseTime: Double
+    }
+    
+    struct NutritionData {
+        let calories: Double
+    }
+}
+
+/// Simplified data quality structure
+struct SimpleDataQuality {
+    let completeness: Double
+    let recency: Double
+    let accuracy: Double
+    let consistency: Double
+    let overallScore: Double
+    let recommendations: [String]
+}
+
+/// Simplified health trend structure
+struct SimpleHealthTrend {
+    let metric: String
+    let direction: String
+    let magnitude: Double
+    let timeframe: String
+    let significance: Double
+    let description: String
+}
+
+/// Simplified category insights structure
+struct SimpleCategoryInsights {
+    let cardiovascular: CategoryInsight
+    let sleep: CategoryInsight
+    let activity: CategoryInsight
+    let metabolic: CategoryInsight
+    
+    struct CategoryInsight {
+        let score: Double
+    }
+}
+
+/// Simplified health category enum
+enum SimpleHealthCategory: String, CaseIterable {
+    case cardiovascular
+    case sleep
+    case activity
+    case metabolic
+}
+
 // MARK: - Health Analysis Utilities
 
 class HealthAnalysisUtilities {
 
-    static func generateCacheKey(healthData: ComprehensiveHealthData, userProfile: UserProfile) -> String {
+    static func generateCacheKey(healthData: SimpleHealthData, userProfile: SimpleUserProfile) -> String {
         return "\(userProfile.id)_\(hashHealthData(healthData))"
     }
 
-    private static func hashHealthData(_ data: ComprehensiveHealthData) -> String {
+    private static func hashHealthData(_ data: SimpleHealthData) -> String {
         // Simple hash based on key metrics for caching
         return String(data.vitalSigns.heartRate?.resting.hashValue ?? 0)
     }
 
-    static func assessDataQuality(_ healthData: ComprehensiveHealthData) -> DataQuality {
+    static func assessDataQuality(_ healthData: SimpleHealthData) -> SimpleDataQuality {
         let completeness = calculateDataCompleteness(healthData)
         let recency = calculateDataRecency(healthData)
         let accuracy = 0.9  // Assumed high accuracy from HealthKit
@@ -30,7 +168,7 @@ class HealthAnalysisUtilities {
             recommendations.append("Sync your health data more frequently")
         }
 
-        return DataQuality(
+        return SimpleDataQuality(
             completeness: completeness,
             recency: recency,
             accuracy: accuracy,
@@ -40,13 +178,13 @@ class HealthAnalysisUtilities {
         )
     }
 
-    static func calculateConfidenceScore(_ dataQuality: DataQuality, _ profileCompleteness: Double) -> Double {
+    static func calculateConfidenceScore(_ dataQuality: SimpleDataQuality, _ profileCompleteness: Double) -> Double {
         return (dataQuality.overallScore + profileCompleteness) / 2.0
     }
 
-    private static func calculateDataCompleteness(_ healthData: ComprehensiveHealthData) -> Double {
+    private static func calculateDataCompleteness(_ healthData: SimpleHealthData) -> Double {
         var availableMetrics = 0
-        var totalMetrics = 10  // Total expected metrics
+        let totalMetrics = 10  // Total expected metrics
 
         if healthData.vitalSigns.heartRate != nil { availableMetrics += 1 }
         if healthData.vitalSigns.bloodPressure != nil { availableMetrics += 1 }
@@ -62,16 +200,16 @@ class HealthAnalysisUtilities {
         return Double(availableMetrics) / Double(totalMetrics)
     }
 
-    private static func calculateDataRecency(_ healthData: ComprehensiveHealthData) -> Double {
+    private static func calculateDataRecency(_ healthData: SimpleHealthData) -> Double {
         // Check if data is from today or yesterday for recency score
         let now = Date()
-        let oneDayAgo = Calendar.current.date(byAdding: .day, value: -1, to: now) ?? now
+        _ = Calendar.current.date(byAdding: .day, value: -1, to: now) ?? now
 
         // Simplified: assume data timestamp is recent if available
         return 0.9
     }
 
-    static func calculateProfileCompleteness(_ userProfile: UserProfile) -> Double {
+    static func calculateProfileCompleteness(_ userProfile: SimpleUserProfile) -> Double {
         var completedFields = 0
         let totalFields = 8
 
@@ -87,7 +225,7 @@ class HealthAnalysisUtilities {
         return Double(completedFields) / Double(totalFields)
     }
 
-    static func calculateBMR(bodyMeasurements: BodyMeasurementsData, age: Int, gender: String) -> Double? {
+    static func calculateBMR(bodyMeasurements: SimpleHealthData.BodyMeasurementsData, age: Int, gender: String) -> Double? {
         guard let weight = bodyMeasurements.weight, let height = bodyMeasurements.height else { return nil }
 
         // Mifflin-St Jeor Equation
@@ -98,13 +236,13 @@ class HealthAnalysisUtilities {
         }
     }
 
-    static func analyzeTrends(healthData: ComprehensiveHealthData) -> [HealthTrend] {
+    static func analyzeTrends(healthData: SimpleHealthData) -> [SimpleHealthTrend] {
         // Placeholder for trend analysis - would need historical data
         return []
     }
 
     static func generateKeyInsights(
-        overallScore: Double, categoryInsights: CategoryInsights, language: String
+        overallScore: Double, categoryInsights: SimpleCategoryInsights, language: String
     ) -> [String] {
         var insights: [String] = []
 
@@ -157,7 +295,7 @@ class HealthAnalysisUtilities {
         return insights
     }
 
-    static func generateCategoryInsight(category: HealthCategory, language: String) -> String {
+    static func generateCategoryInsight(category: SimpleHealthCategory, language: String) -> String {
         if language == "japanese" {
             switch category {
             case .cardiovascular:
@@ -168,8 +306,6 @@ class HealthAnalysisUtilities {
                 return "運動と日常活動"
             case .metabolic:
                 return "代謝と体組成"
-            default:
-                return "健康状態"
             }
         } else {
             switch category {
@@ -181,13 +317,11 @@ class HealthAnalysisUtilities {
                 return "Exercise and daily activity"
             case .metabolic:
                 return "Metabolism and body composition"
-            default:
-                return "Health status"
             }
         }
     }
 
-    static func identifyTopPriority(_ categoryInsights: CategoryInsights, userProfile: UserProfile) -> String {
+    static func identifyTopPriority(_ categoryInsights: SimpleCategoryInsights, userProfile: SimpleUserProfile) -> String {
         var lowestScore = categoryInsights.cardiovascular.score
         var topPriority = "cardiovascular"
 

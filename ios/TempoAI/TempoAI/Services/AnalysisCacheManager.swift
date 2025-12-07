@@ -97,12 +97,12 @@ actor AnalysisCacheManager {
         requestType: AnalysisRequestType
     ) -> String {
         // Create a deterministic hash of the input parameters
-        let dataComponents = [
+        let dataComponents: [String] = [
             "\(healthData.vitalSigns.heartRate?.resting ?? 0)",
             "\(healthData.activity.steps)",
             "\(healthData.sleep.totalDuration)",
             "\(userProfile.age ?? 0)",
-            userProfile.gender ?? "unknown",
+            userProfile.gender?.rawValue ?? "unknown",
             requestType.rawValue,
         ]
 

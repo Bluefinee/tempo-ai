@@ -71,8 +71,8 @@ class CardiovascularAnalyzer {
     private func identifyCardiovascularRisks(findings: [HealthFinding], score: Double) -> [HealthRiskFactor] {
         var risks: [HealthRiskFactor] = []
 
-        for finding in findings where finding.severity == .high || finding.severity == .critical {
-            let riskLevel: RiskLevel = finding.severity == .critical ? .severe : .high
+        for finding in findings where finding.severity == .high || finding.severity == .severe {
+            let riskLevel: RiskLevel = finding.severity == .severe ? .severe : .high
             risks.append(
                 HealthRiskFactor(
                     category: .cardiovascular,
@@ -141,11 +141,14 @@ class SleepCategoryAnalyzer {
     }
 
     private func calculateSleepStageBreakdown(_ sleep: EnhancedSleepData) -> SleepStageBreakdown {
+        let deepDuration = sleep.deepSleep ?? 0
+        let remDuration = sleep.remSleep ?? 0
+        let lightDuration = sleep.lightSleep ?? 0
+        
         return SleepStageBreakdown(
-            deepPercentage: sleep.deepSleepDuration / sleep.totalDuration * 100,
-            remPercentage: sleep.remSleepDuration / sleep.totalDuration * 100,
-            lightPercentage: (sleep.totalDuration - sleep.deepSleepDuration - sleep.remSleepDuration)
-                / sleep.totalDuration * 100
+            deepPercentage: deepDuration / sleep.totalDuration * 100,
+            remPercentage: remDuration / sleep.totalDuration * 100,
+            lightPercentage: lightDuration / sleep.totalDuration * 100
         )
     }
 
@@ -219,7 +222,7 @@ class ActivityAnalyzer {
         // Caloric Expenditure Analysis
         if let bmr = calculateBMR(bodyMeasurements: bodyMeasurements, age: age, gender: gender) {
             let caloricAnalysis = medicalGuidelines.analyzeCaloricExpenditure(
-                activeCalories: activity.activeCalories, bmr: bmr, age: age)
+                activeCalories: Int(activity.activeEnergyBurned), bmr: bmr, age: age)
             findings.append(contentsOf: caloricAnalysis.findings)
             score = min(score, caloricAnalysis.categoryScore)
         }
@@ -366,7 +369,7 @@ class MetabolicAnalyzer {
                 HealthRiskFactor(
                     category: .metabolic,
                     description: finding.description,
-                    severity: finding.severity == .critical ? .high : .moderate,
+                    severity: finding.severity == .severe ? .high : .moderate,
                     recommendations: ["Monitor metabolic markers and consider lifestyle modifications"],
                     dataPoints: [finding.value]
                 )

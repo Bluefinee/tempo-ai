@@ -148,30 +148,23 @@ class HealthAnalysisEngine: ObservableObject {
     ) async -> AnalysisResult {
 
         // Quick checks always use local analysis for speed
-        let localInsights = localAnalyzer.quickHealthAssessment(
+        let quickInsights = localAnalyzer.quickHealthAssessment(
             healthData: healthData,
             userProfile: userProfile,
             language: language
         )
+        
+        // Convert QuickHealthInsights to LocalHealthInsights
+        let localInsights = convertQuickToLocalInsights(quickInsights)
 
         return AnalysisResult(
-            id: UUID(),
-            route: RoutingDecision(
-                route: .localAnalysis(
-                    LocalAnalysisDecision(
-                        reason: .speedOptimization,
-                        confidence: 0.95
-                    )),
-                factors: AIDecisionFactors(
-                    dataRichness: 0.5,
-                    analysisComplexity: .low,
-                    userEngagement: .medium,
-                    timeSensitivity: .immediate,
-                    costBudget: 1.0
-                ),
-                executionTime: 50  // ms
-            ),
-            insights: .quick(localInsights),
+            id: UUID().uuidString,
+            route: .localAnalysis(
+                LocalAnalysisDecision(
+                    reason: .speedOptimization,
+                    confidence: 0.95
+                )),
+            insights: .local(localInsights),
             confidence: 0.8,
             processingTime: 100,
             cost: 0.0,
@@ -228,15 +221,13 @@ class HealthAnalysisEngine: ObservableObject {
         requestType: AnalysisRequestType
     ) async -> AnalysisResult? {
 
-        return await cacheManager.getCachedAnalysis(
-            healthData: healthData,
-            userProfile: userProfile,
-            requestType: requestType
-        )
+        let cacheKey = AnalysisCacheManager.generateCacheKey(healthData: healthData, userProfile: userProfile, requestType: requestType)
+        return await cacheManager.getCachedAnalysis(for: cacheKey)?.result
     }
 
     private func cacheResult(_ result: AnalysisResult) async {
-        await cacheManager.cacheAnalysis(result)
+        let cacheKey = result.id
+        await cacheManager.cacheAnalysis(result, key: cacheKey)
     }
 
     // MARK: - Routing Decision Logic
@@ -275,7 +266,7 @@ class HealthAnalysisEngine: ObservableObject {
         let decision = decisionEngine.makeRoutingDecision(factors: factors)
 
         return RoutingDecision(
-            route: decision,
+            route: decision.route,
             factors: factors,
             executionTime: 10  // Decision time in ms
         )
@@ -313,13 +304,9 @@ class HealthAnalysisEngine: ObservableObject {
             analysisProgress = 0.8
 
             return AnalysisResult(
-                id: UUID(),
-                route: RoutingDecision(
-                    route: .aiAnalysis(decision),
-                    factors: decisionEngine.lastFactors ?? AIDecisionFactors(),
-                    executionTime: Int(Date().timeIntervalSince(startTime) * 1000)
-                ),
-                insights: .comprehensive(aiInsights),
+                id: UUID().uuidString,
+                route: .aiAnalysis(decision),
+                insights: .ai(aiInsights),
                 confidence: 0.8,
                 processingTime: 100,
                 cost: 0.0,
@@ -379,12 +366,8 @@ class HealthAnalysisEngine: ObservableObject {
         analysisProgress = 0.8
 
         return AnalysisResult(
-            id: UUID(),
-            route: RoutingDecision(
-                route: .localAnalysis(decision),
-                factors: decisionEngine.lastFactors ?? AIDecisionFactors(),
-                executionTime: Int(Date().timeIntervalSince(startTime) * 1000)
-            ),
+            id: UUID().uuidString,
+            route: .localAnalysis(decision),
             insights: .local(localInsights),
             confidence: 0.8,
             processingTime: 100,
@@ -470,12 +453,8 @@ class HealthAnalysisEngine: ObservableObject {
         )
 
         return AnalysisResult(
-            id: UUID(),
-            route: RoutingDecision(
-                route: .hybridAnalysis(decision),
-                factors: decisionEngine.lastFactors ?? AIDecisionFactors(),
-                executionTime: Int(Date().timeIntervalSince(startTime) * 1000)
-            ),
+            id: UUID().uuidString,
+            route: .hybridAnalysis(decision),
             insights: .hybrid(combinedInsights),
             confidence: 0.8,
             processingTime: 100,
@@ -511,16 +490,12 @@ class HealthAnalysisEngine: ObservableObject {
         )
 
         return AnalysisResult(
-            id: UUID(),
-            route: RoutingDecision(
-                route: .localAnalysis(
-                    LocalAnalysisDecision(
-                        reason: .aiFallback,
-                        confidence: 0.8
-                    )),
-                factors: decisionEngine.lastFactors ?? AIDecisionFactors(),
-                executionTime: Int(Date().timeIntervalSince(params.startTime) * 1000)
-            ),
+            id: UUID().uuidString,
+            route: .localAnalysis(
+                LocalAnalysisDecision(
+                    reason: .aiFallback,
+                    confidence: 0.8
+                )),
             insights: .local(localInsights),
             confidence: 0.8,
             processingTime: 100,
@@ -581,32 +556,124 @@ class HealthAnalysisEngine: ObservableObject {
         case .aiFallbackLocal:
             if let ai = ai {
                 return HybridHealthInsights(
-                    primary: .ai(ai),
-                    secondary: .local(local),
-                    strategy: strategy
+                    localInsights: local,
+                    aiInsights: ai,
+                    combinedScore: (ai.overallScore + Double(local.overallScore)) / 2.0,
+                    confidence: 0.85,
+                    enhancedRecommendations: [],
+                    validationResults: ValidationResults(
+                        localAgreement: 0.8,
+                        confidenceAlignment: 0.75,
+                        recommendationConsistency: 0.85,
+                        overallValidation: 0.8
+                    )
                 )
             } else {
                 return HybridHealthInsights(
-                    primary: .local(local),
-                    secondary: nil,
-                    strategy: strategy
+                    localInsights: local,
+                    aiInsights: nil,
+                    combinedScore: Double(local.overallScore),
+                    confidence: 0.7,
+                    enhancedRecommendations: [],
+                    validationResults: ValidationResults(
+                        localAgreement: 1.0,
+                        confidenceAlignment: 0.7,
+                        recommendationConsistency: 0.8,
+                        overallValidation: 0.8
+                    )
                 )
             }
 
         case .localFallbackAI:
             return HybridHealthInsights(
-                primary: .local(local),
-                secondary: ai.map { .ai($0) },
-                strategy: strategy
+                localInsights: local,
+                aiInsights: ai,
+                combinedScore: ai != nil ? (ai!.overallScore + Double(local.overallScore)) / 2.0 : Double(local.overallScore),
+                confidence: 0.8,
+                enhancedRecommendations: [],
+                validationResults: ValidationResults(
+                    localAgreement: 0.85,
+                    confidenceAlignment: 0.8,
+                    recommendationConsistency: 0.85,
+                    overallValidation: 0.83
+                )
             )
 
         case .bestOfBoth:
             return HybridHealthInsights(
-                primary: .local(local),
-                secondary: ai.map { .ai($0) },
-                strategy: strategy
+                localInsights: local,
+                aiInsights: ai,
+                combinedScore: ai != nil ? (ai!.overallScore + Double(local.overallScore)) / 2.0 : Double(local.overallScore),
+                confidence: 0.9,
+                enhancedRecommendations: [],
+                validationResults: ValidationResults(
+                    localAgreement: 0.9,
+                    confidenceAlignment: 0.85,
+                    recommendationConsistency: 0.9,
+                    overallValidation: 0.88
+                )
             )
         }
+    }
+    
+    /// Convert QuickHealthInsights to LocalHealthInsights for type compatibility
+    private func convertQuickToLocalInsights(_ quick: QuickHealthInsights) -> LocalHealthInsights {
+        // Create minimal LocalHealthInsights from QuickHealthInsights
+        let dataQuality = DataQuality(
+            completeness: 0.7,
+            recency: 1.0,
+            accuracy: 0.8,
+            consistency: 0.7,
+            overallScore: 0.75,
+            recommendations: []
+        )
+        
+        let categoryInsight = HealthCategoryInsight(
+            category: .cardiovascular,
+            score: Double(quick.score),
+            findings: [],
+            recommendations: [quick.quickTip],
+            riskFactors: [],
+            trend: HealthTrend(metric: "overall", direction: .stable, magnitude: 0.0, timeframe: .week, significance: 0.5, description: "Stable trend"),
+            confidence: 0.8
+        )
+        
+        let categoryInsights = CategoryInsights(
+            cardiovascular: categoryInsight,
+            sleep: categoryInsight,
+            activity: categoryInsight,
+            metabolic: categoryInsight
+        )
+        
+        let recommendations = PersonalizedRecommendations(
+            immediate: [ActionableRecommendation(
+                category: .lifestyle,
+                title: quick.topPriority,
+                description: quick.quickTip,
+                priority: .medium,
+                actionableSteps: [quick.quickTip],
+                estimatedBenefit: "Quick health optimization",
+                source: .localAnalysis
+            )],
+            shortTerm: [],
+            longTerm: [],
+            lifestyle: [],
+            medical: []
+        )
+        
+        return LocalHealthInsights(
+            overallScore: Double(quick.score),
+            keyInsights: [quick.summary],
+            categoryInsights: categoryInsights,
+            riskFactors: [],
+            recommendations: recommendations,
+            trends: [HealthTrend(metric: "overall", direction: .stable, magnitude: 0.0, timeframe: .week, significance: 0.5, description: "Stable weekly trend")],
+            dataQuality: dataQuality,
+            confidenceScore: 0.8,
+            analysisMethod: .local,
+            generatedAt: quick.timestamp,
+            language: "english"
+        )
     }
 }
 

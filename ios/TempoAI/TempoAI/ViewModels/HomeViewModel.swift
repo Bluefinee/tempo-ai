@@ -39,7 +39,7 @@ final class HomeViewModel: ObservableObject {
     private let userProfile = UserProfile(
         age: 28,
         gender: .male,
-        healthGoals: [.generalFitness, .stressManagement],
+        healthGoals: [.generalFitness, .stressReduction],
         activityLevel: .moderatelyActive,
         healthInterests: [.exercise, .nutrition],
         languagePreference: "japanese"

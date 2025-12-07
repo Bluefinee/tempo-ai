@@ -75,8 +75,15 @@ struct AnalysisResult: Identifiable {
          isPartial: Bool = false,
          metadata: [String: Any] = [:],
          analysisMethod: AnalysisMethod = .local,
-         requestType: AnalysisRequestType = .standard,
-         routingDecision: RoutingDecision = .local,
+         requestType: AnalysisRequestType = .daily,
+         routingDecision: RoutingDecision = RoutingDecision(
+             route: .localAnalysis(LocalAnalysisDecision(
+                 reason: .speedOptimization,
+                 confidence: 0.8
+             )),
+             factors: AIDecisionFactors(),
+             executionTime: 100
+         ),
          performanceMetrics: AnalysisPerformanceMetrics = AnalysisPerformanceMetrics(totalTime: 0, cacheHit: false, dataQuality: 1.0),
          generatedAt: Date = Date(),
          language: String = "japanese") {

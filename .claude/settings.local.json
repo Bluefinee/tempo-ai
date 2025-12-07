@@ -76,7 +76,9 @@
       "Bash(../scripts/fix-all.sh:*)",
       "Bash(./fix-all.sh)",
       "Bash(git log:*)",
-      "Bash(timeout:*)"
+      "Bash(timeout:*)",
+      "mcp__serena__check_onboarding_performed",
+      "mcp__serena__find_referencing_symbols"
     ],
     "deny": [],
     "ask": [],

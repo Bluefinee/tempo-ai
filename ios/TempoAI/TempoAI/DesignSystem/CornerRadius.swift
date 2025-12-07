@@ -30,4 +30,3 @@ enum CornerRadius {
         return height / 2
     }
 }
-// swiftlint:enable identifier_name

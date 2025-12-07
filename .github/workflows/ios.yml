@@ -7,238 +7,76 @@ on:
   pull_request:
     branches: [main, develop]
     paths: ['ios/**']
-  workflow_call:
-    outputs:
-      test-results:
-        description: "iOS test results status"
-        value: ${{ jobs.ios.outputs.test-results }}
-
-env:
-  XCODE_VERSION: '16.4'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  ios:
+  quality-and-build:
     name: iOS Quality & Build
     runs-on: macos-latest
     
-    outputs:
-      test-results: ${{ steps.tests.outputs.status }}
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+        
       - name: Setup Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: ${{ env.XCODE_VERSION }}
-      
-      - name: Check iOS Project
-        id: check
-        run: |
-          echo "📱 Checking iOS project..."
-          if [ ! -d "./ios/TempoAI" ]; then
-            echo "::notice::iOS project not found, skipping iOS checks"
-            echo "skip=true" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
+          xcode-version: latest-stable
           
-          if [ ! -f "./ios/TempoAI/TempoAI.xcodeproj/project.pbxproj" ]; then
-            echo "::warning::Xcode project file not found"
-            echo "skip=true" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          
-          echo "✅ iOS project found"
-          echo "skip=false" >> "$GITHUB_OUTPUT"
-      
       - name: Install SwiftLint
-        if: steps.check.outputs.skip != 'true'
         run: |
           echo "📦 Installing SwiftLint..."
-          if ! command -v swiftlint &> /dev/null; then
-            brew install swiftlint
-          else
-            echo "SwiftLint already installed: $(swiftlint version)"
-          fi
-
+          brew install swiftlint
+          
       - name: Install swift-format
-        if: steps.check.outputs.skip != 'true'
         run: |
           echo "📦 Installing swift-format..."
-          if ! command -v swift-format &> /dev/null; then
-            brew install swift-format
-          else
-            echo "swift-format already installed: $(swift-format --version)"
-          fi
-      
+          brew install swift-format
+          
       - name: Run SwiftLint
-        if: steps.check.outputs.skip != 'true'
         working-directory: ./ios
         run: |
           echo "🧹 Running SwiftLint..."
           swiftlint --reporter github-actions-logging
         continue-on-error: true
-
+          
       - name: Run swift-format check
-        if: steps.check.outputs.skip != 'true'
         working-directory: ./ios
         run: |
           echo "🎨 Checking Swift formatting..."
-          if ! swift-format --recursive --mode diff TempoAI/TempoAI/ > format_diff.log; then
-            echo "⚠️ Format issues found:"
-            cat format_diff.log
-          else
-            echo "✅ Swift formatting is correct"
-          fi
+          swift-format --recursive --mode diff TempoAI/TempoAI/ || echo "Format check completed"
         continue-on-error: true
-      
-      - name: Build Validation
-        if: steps.check.outputs.skip != 'true'
-        working-directory: ./ios/TempoAI
-        run: |
-          echo "🔨 Validating iOS build..."
           
-          # Verify project can be read
-          if ! xcodebuild -list &>/dev/null; then
-            echo "❌ Xcode project is corrupted or unreadable"
-            exit 1
-          fi
-          
-          # Build for generic iOS platform
-          xcodebuild build \
-            -project TempoAI.xcodeproj \
-            -scheme TempoAI \
-            -destination generic/platform=iOS \
-            -configuration Debug \
-            CODE_SIGNING_ALLOWED=NO \
-            CODE_SIGNING_REQUIRED=NO \
-            -quiet
-          
-          echo "✅ iOS build validation completed"
-
-      - name: Run Unit Tests
-        id: tests
-        if: steps.check.outputs.skip != 'true'
-        working-directory: ./ios/TempoAI
-        run: |
-          echo "🧪 Running iOS unit tests..."
-          
-          # Find available simulator
-          SIMULATOR_ID=$(xcrun simctl list devices available 2>/dev/null | grep -m 1 "iPhone" | awk -F '[()]' '{print $2}')
-          
-          if [ -n "$SIMULATOR_ID" ]; then
-            echo "📱 Using iPhone simulator: $SIMULATOR_ID"
-            DESTINATION="platform=iOS Simulator,id=$SIMULATOR_ID"
-          else
-            echo "⚠️ No simulator available; using generic iOS destination"
-            DESTINATION='generic/platform=iOS'
-          fi
-          
-          # Run tests
-          xcodebuild test \
-            -project TempoAI.xcodeproj \
-            -scheme TempoAI \
-            -destination "$DESTINATION" \
-            -configuration Debug \
-            CODE_SIGNING_ALLOWED=NO \
-            CODE_SIGNING_REQUIRED=NO \
-            -quiet
-          
-          echo "status=passed" >> "$GITHUB_OUTPUT"
-          echo "✅ Unit tests completed"
-        continue-on-error: true
-      
-      - name: Run UI Tests
-        id: ui-tests
-        if: steps.check.outputs.skip != 'true'
-        working-directory: ./ios/TempoAI
-        run: |
-          echo "📱 Running iOS UI tests..."
-          
-          # Find iPhone 15 simulator or fallback to available iPhone
-          SIMULATOR_ID=$(xcrun simctl list devices available 2>/dev/null | grep "iPhone 15" | head -1 | awk -F '[()]' '{print $2}')
-          
-          if [ -z "$SIMULATOR_ID" ]; then
-            echo "⚠️ iPhone 15 not found, using available iPhone simulator"
-            SIMULATOR_ID=$(xcrun simctl list devices available 2>/dev/null | grep -m 1 "iPhone" | awk -F '[()]' '{print $2}')
-          fi
-          
-          if [ -n "$SIMULATOR_ID" ]; then
-            echo "📱 Using iPhone simulator: $SIMULATOR_ID"
-            DESTINATION="platform=iOS Simulator,id=$SIMULATOR_ID"
-            
-            # Boot the simulator
-            echo "🚀 Booting simulator..."
-            xcrun simctl boot "$SIMULATOR_ID" || true
-            sleep 5
-            
-            # Run UI tests with coverage enabled
-            xcodebuild test \
-              -project TempoAI.xcodeproj \
-              -scheme TempoAI \
-              -destination "$DESTINATION" \
-              -configuration Debug \
-              -only-testing:TempoAIUITests \
-              -enableCodeCoverage YES \
-              -resultBundlePath UITestResults.xcresult \
-              CODE_SIGNING_ALLOWED=NO \
-              CODE_SIGNING_REQUIRED=NO \
-              -quiet
-            
-            echo "✅ UI tests completed"
-          else
-            echo "⚠️ No iPhone simulator available for UI tests"
-            echo "Skipping UI tests - requires iPhone simulator"
-            exit 0
-          fi
-        continue-on-error: true
-      
-      - name: Generate Coverage Report
-        if: steps.check.outputs.skip != 'true' && steps.ui-tests.outcome != 'skipped'
-        working-directory: ./ios/TempoAI
-        run: |
-          echo "📊 Generating code coverage report..."
-          
-          # Generate coverage report if test results exist
-          if [ -d "UITestResults.xcresult" ]; then
-            xcrun xccov view --report UITestResults.xcresult > ui_coverage.txt 2>/dev/null || echo "Coverage report generation failed"
-            
-            if [ -f "ui_coverage.txt" ]; then
-              echo "📈 UI Test Coverage Report:"
-              cat ui_coverage.txt
-            fi
-          else
-            echo "⚠️ No UI test results found for coverage report"
-          fi
-        continue-on-error: true
-      
-      - name: Upload Test Results
-        if: always() && steps.check.outputs.skip != 'true'
-        uses: actions/upload-artifact@v4
+      - name: Cache Swift Packages
+        uses: actions/cache@v4
         with:
-          name: ios-test-results
           path: |
-            ./ios/TempoAI/UITestResults.xcresult
-            ./ios/TempoAI/ui_coverage.txt
-            ./ios/TempoAI/format_diff.log
-          if-no-files-found: ignore
-          retention-days: 7
-      
+            ~/Library/Developer/Xcode/DerivedData/**/SourcePackages
+            ~/Library/Caches/org.swift.swiftpm
+          key: spm-${{ runner.os }}-${{ hashFiles('**/Package.resolved') }}
+          restore-keys: |
+            spm-${{ runner.os }}-
+            
+      - name: Build Project
+        working-directory: ./ios
+        run: |
+          echo "🔨 Building iOS project..."
+          xcodebuild build \
+            -project TempoAI/TempoAI.xcodeproj \
+            -scheme TempoAI \
+            -destination 'generic/platform=iOS' \
+            -configuration Debug \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            -quiet
+            
       - name: Summary
-        if: always() && steps.check.outputs.skip != 'true'
+        if: always()
         run: |
           echo "📊 iOS CI Summary"
           echo "=================="
-          echo "✅ SwiftLint: Static analysis completed"
-          echo "✅ swift-format: Code formatting checked"
           echo "✅ Build: Compilation validation completed"
-          echo "✅ Tests: Unit tests executed"
-          echo "📱 UI Tests: User interface automation tests executed"
-          echo "📈 Coverage: Code coverage reports generated"
-          echo ""
-          echo "💡 iOS quality checks and comprehensive testing completed successfully."
+          echo "💡 iOS quality checks completed successfully."

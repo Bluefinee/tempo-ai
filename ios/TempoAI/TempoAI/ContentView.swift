@@ -1,11 +1,21 @@
 import SwiftUI
 
-/// Main content view providing tabbed navigation for the TempoAI application.
-///
-/// This view serves as the root navigation container, organizing the app's primary
-/// features into four distinct tabs: Today (Home), History, Trends, and Profile.
-/// Each tab provides access to different aspects of the health and wellness experience.
 struct ContentView: View {
+    @StateObject private var onboardingCoordinator = OnboardingCoordinator()
+
+    var body: some View {
+        Group {
+            if onboardingCoordinator.isCompleted {
+                MainAppView()
+            } else {
+                OnboardingFlowView()
+                    .environmentObject(onboardingCoordinator)
+            }
+        }
+    }
+}
+
+struct MainAppView: View {
     var body: some View {
         TabView {
             HomeView()
@@ -14,39 +24,25 @@ struct ContentView: View {
                     Text("Today")
                 }
 
-            PlaceholderView(title: "History", icon: "clock.fill", message: "過去のアドバイス履歴\n(Phase 3で実装予定)")
-                .tabItem {
-                    Image(systemName: "clock.fill")
-                    Text("History")
-                }
+            PlaceholderView(
+                title: "History",
+                icon: "clock.fill",
+                message: "過去のアドバイス履歴\nPhase 2で実装予定"
+            )
+            .tabItem {
+                Image(systemName: "clock.fill")
+                Text("History")
+            }
 
-            PlaceholderView(title: "Trends", icon: "chart.line.uptrend.xyaxis", message: "健康データトレンド\n(Phase 4で実装予定)")
+            SettingsView()
                 .tabItem {
-                    Image(systemName: "chart.line.uptrend.xyaxis")
-                    Text("Trends")
-                }
-
-            ProfileView()
-                .tabItem {
-                    Image(systemName: "person.circle.fill")
-                    Text("Profile")
+                    Image(systemName: "gearshape.fill")
+                    Text("Settings")
                 }
         }
-        .accessibilityIdentifier(UIIdentifiers.ContentView.tabView)
-        .tint(.primary)
     }
 }
 
-/// Placeholder view for unimplemented features in future development phases.
-///
-/// This view provides a consistent interface for features that are planned
-/// but not yet implemented, displaying relevant information about the feature
-/// and its expected implementation timeline.
-///
-/// - Parameters:
-///   - title: The feature title displayed in navigation
-///   - icon: SF Symbol name for the feature icon
-///   - message: Descriptive message about the feature and implementation status
 struct PlaceholderView: View {
     let title: String
     let icon: String
@@ -54,131 +50,129 @@ struct PlaceholderView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 24) {
+            VStack(spacing: Spacing.xl) {
                 Image(systemName: icon)
                     .font(.system(size: 60))
-                    .foregroundColor(.secondary)
-                    .accessibilityIdentifier(UIIdentifiers.PlaceholderView.icon)
+                    .foregroundColor(ColorPalette.gray400)
 
                 Text(message)
-                    .font(.title3)
-                    .foregroundColor(.secondary)
+                    .typography(.body)
+                    .foregroundColor(ColorPalette.gray600)
                     .multilineTextAlignment(.center)
-                    .accessibilityIdentifier(UIIdentifiers.PlaceholderView.message)
             }
-            .accessibilityIdentifier(UIIdentifiers.PlaceholderView.mainView)
             .padding()
             .navigationTitle(title)
         }
     }
 }
 
-/// User profile view displaying personal settings and health preferences.
-///
-/// This view presents the user's profile information including demographics,
-/// health goals, exercise habits, and dietary preferences. Currently serves
-/// as a read-only display with editing functionality planned for Phase 2.
-struct ProfileView: View {
+struct SettingsView: View {
+    @ObservedObject private var userProfileManager = UserProfileManager.shared
+    @ObservedObject private var focusTagManager = FocusTagManager.shared
+
     var body: some View {
         NavigationStack {
-            VStack(spacing: 24) {
-                VStack(spacing: 16) {
-                    Image(systemName: "person.circle.fill")
-                        .font(.system(size: 80))
-                        .foregroundColor(.blue)
-
-                    Text("Profile Settings")
-                        .font(.title2)
-                        .fontWeight(.semibold)
+            List {
+                Section("ユーザー設定") {
+                    UserModeRow(userMode: userProfileManager.currentMode) {
+                        // TODO: Present mode selection sheet/view
+                        // For now, just update to next mode for testing
+                        let nextMode: UserMode = userProfileManager.currentMode == .standard ? .athlete : .standard
+                        userProfileManager.updateMode(nextMode)
+                    }
                 }
 
-                VStack(spacing: 16) {
-                    ProfileRow(title: "Age", value: "28")
-                        .accessibilityIdentifier(UIIdentifiers.ProfileView.profileRow(for: "age"))
-                    ProfileRow(title: "Gender", value: "Male")
-                        .accessibilityIdentifier(UIIdentifiers.ProfileView.profileRow(for: "gender"))
-                    ProfileRow(title: "Goals", value: "Fatigue Recovery, Focus")
-                        .accessibilityIdentifier(UIIdentifiers.ProfileView.profileRow(for: "goals"))
-                    ProfileRow(title: "Exercise Frequency", value: "Active")
-                        .accessibilityIdentifier(UIIdentifiers.ProfileView.profileRow(for: "exercise"))
-                    ProfileRow(title: "Dietary Preferences", value: "No restrictions")
-                        .accessibilityIdentifier(UIIdentifiers.ProfileView.profileRow(for: "dietary"))
+                Section("関心タグ") {
+                    ForEach(FocusTag.allCases, id: \.self) { tag in
+                        FocusTagRow(
+                            tag: tag,
+                            isSelected: focusTagManager.activeTags.contains(tag)
+                        ) {
+                            focusTagManager.toggleTag(tag)
+                        }
+                    }
                 }
-                .padding()
-                .background(.regularMaterial)
-                .cornerRadius(16)
-
-                Text("プロフィール編集機能は\nPhase 2で実装予定です")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                    .multilineTextAlignment(.center)
 
                 #if DEBUG
-                    VStack(spacing: 16) {
-                        Divider()
-
-                        Text("開発用ツール")
-                            .font(.headline)
-                            .foregroundColor(.orange)
-
-                        Button("オンボーディングをリセット") {
+                    Section("開発者ツール") {
+                        Button("オンボーディングリセット") {
                             resetOnboarding()
-
-                            // Force app to restart by exiting
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                                exit(0)
-                            }
                         }
-                        .buttonStyle(.bordered)
-                        .foregroundColor(.red)
-
-                        Text("このボタンはデバッグビルドでのみ表示されます")
-                            .font(.caption2)
-                            .foregroundColor(.secondary)
+                        .foregroundColor(ColorPalette.error)
                     }
-                    .padding(.top)
                 #endif
-
-                Spacer()
             }
-            .accessibilityIdentifier(UIIdentifiers.ProfileView.mainView)
-            .padding()
-            .navigationTitle("Profile")
+            .navigationTitle("Settings")
+        }
+    }
+
+    #if DEBUG
+        private func resetOnboarding() {
+            UserDefaults.standard.removeObject(forKey: "onboarding_completed")
+            UserDefaults.standard.removeObject(forKey: "focus_tags_onboarding_completed")
+            UserDefaults.standard.removeObject(forKey: "active_focus_tags")
+            exit(0)
+        }
+    #endif
+}
+
+struct UserModeRow: View {
+    let userMode: UserMode
+    let onTap: () -> Void
+
+    var body: some View {
+        HStack {
+            Text("バッテリーモード")
+                .typography(.body)
+
+            Spacer()
+
+            Text(userMode.displayName)
+                .typography(.body)
+                .foregroundColor(ColorPalette.gray600)
+
+            Image(systemName: "chevron.right")
+                .font(.caption)
+                .foregroundColor(ColorPalette.gray400)
+        }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            onTap()
         }
     }
 }
 
-#if DEBUG
-    /// Resets onboarding state for development purposes
-    private func resetOnboarding() {
-        UserDefaults.standard.removeObject(forKey: "onboardingCompleted")
-        UserDefaults.standard.removeObject(forKey: "onboardingStartTime")
-    }
-#endif
-
-/// Individual row component for displaying profile information.
-///
-/// Creates a consistent horizontal layout for profile data with title and value pairs.
-/// Used within ProfileView to display various user attributes and preferences.
-///
-/// - Parameters:
-///   - title: The label for the profile attribute
-///   - value: The current value for the attribute
-struct ProfileRow: View {
-    let title: String
-    let value: String
+struct FocusTagRow: View {
+    let tag: FocusTag
+    let isSelected: Bool
+    let onToggle: () -> Void
 
     var body: some View {
         HStack {
-            Text(title)
-                .font(.subheadline)
-                .foregroundColor(.secondary)
+            Text(tag.emoji)
+                .font(.title2)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(tag.displayName)
+                    .typography(.body)
+
+                Text(tag.description)
+                    .typography(.caption)
+                    .foregroundColor(ColorPalette.gray500)
+            }
 
             Spacer()
 
-            Text(value)
-                .font(.subheadline)
-                .fontWeight(.medium)
+            Toggle(
+                "",
+                isOn: .init(
+                    get: { isSelected },
+                    set: { _ in onToggle() }
+                ))
+        }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            onToggle()
         }
     }
 }

@@ -52,7 +52,6 @@ enum Spacing {
         return round(value / 8) * 8
     }
 }
-// swiftlint:enable identifier_name
 
 // MARK: - Insets
 
@@ -90,7 +89,7 @@ struct LayoutConstants {
     static let minTapTarget: CGFloat = 44
 
     /// Standard button height
-    static let buttonHeight: CGFloat = 48
+    static let buttonHeight: CGFloat = 50
 
     /// Compact button height
     static let compactButtonHeight: CGFloat = 36

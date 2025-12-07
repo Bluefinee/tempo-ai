@@ -14,14 +14,14 @@ class CardiovascularAnalyzer {
         // Heart Rate Analysis
         if let heartRate = vitals.heartRate {
             let heartRateAnalysis = medicalGuidelines.analyzeRestingHeartRate(
-                heartRate.resting, age: age, gender: gender)
+                heartRate.resting ?? 70.0, age: age, gender: gender)
             findings.append(contentsOf: heartRateAnalysis.findings)
             score = min(score, heartRateAnalysis.categoryScore)
         }
 
         // HRV Analysis
         if let hrv = vitals.heartRateVariability {
-            let hrvAnalysis = medicalGuidelines.analyzeHRV(hrv.rmssd, age: age, gender: gender)
+            let hrvAnalysis = medicalGuidelines.analyzeHRV(hrv.rmssd ?? hrv.average, age: age, gender: gender)
             findings.append(contentsOf: hrvAnalysis.findings)
             score = min(score, hrvAnalysis.categoryScore)
         }

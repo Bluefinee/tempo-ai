@@ -1,3 +1,4 @@
+import Combine
 import Foundation
 
 // MARK: - Progressive Disclosure Types
@@ -251,7 +252,8 @@ class DataExplanationProvider: ObservableObject {
                     ? "心拍数、血圧、体温などの基本的な健康指標" : "Basic health metrics like heart rate, blood pressure, and temperature",
                 detailedDescription: isJapanese
                     ? "バイタルサインは体の基本的な機能を示す重要な指標です。これらのデータを分析することで、健康状態の変化を早期に発見し、適切なアドバイスを提供できます。"
-                    : "Vital signs are important indicators of your body's basic functions. By analyzing this data, we can detect early changes in your health and provide appropriate advice.",
+                    : "Vital signs are important indicators of your body's basic functions. " +
+                        "By analyzing this data, we can detect early changes in your health and provide appropriate advice.",
                 benefits: isJapanese
                     ? ["健康状態の早期発見", "個別化された健康アドバイス", "トレンド分析"]
                     : ["Early health detection", "Personalized health advice", "Trend analysis"],
@@ -268,7 +270,8 @@ class DataExplanationProvider: ObservableObject {
                     ? "歩数、運動時間、カロリー消費などの活動データ" : "Activity data like steps, exercise time, and calories burned",
                 detailedDescription: isJapanese
                     ? "身体活動データは健康維持に欠かせない要素です。適切な運動レベルを維持することで、生活習慣病の予防や健康増進に役立ちます。"
-                    : "Physical activity data is essential for health maintenance. Maintaining appropriate exercise levels helps prevent lifestyle diseases and promotes health.",
+                    : "Physical activity data is essential for health maintenance. " +
+                        "Maintaining appropriate exercise levels helps prevent lifestyle diseases and promotes health.",
                 benefits: isJapanese
                     ? ["運動習慣の改善", "カロリー管理", "フィットネス目標達成"]
                     : ["Exercise habit improvement", "Calorie management", "Fitness goal achievement"],
@@ -283,7 +286,8 @@ class DataExplanationProvider: ObservableObject {
                 shortDescription: isJapanese ? "睡眠時間、睡眠の質、睡眠パターンのデータ" : "Sleep duration, quality, and pattern data",
                 detailedDescription: isJapanese
                     ? "良質な睡眠は健康の基盤です。睡眠データを分析することで、睡眠の質を改善し、日中のパフォーマンス向上につながります。"
-                    : "Quality sleep is the foundation of health. By analyzing sleep data, we can improve sleep quality and enhance daytime performance.",
+                    : "Quality sleep is the foundation of health. " +
+                        "By analyzing sleep data, we can improve sleep quality and enhance daytime performance.",
                 benefits: isJapanese
                     ? ["睡眠の質改善", "生活リズムの最適化", "疲労回復の促進"]
                     : ["Sleep quality improvement", "Life rhythm optimization", "Recovery enhancement"],
@@ -300,7 +304,8 @@ class DataExplanationProvider: ObservableObject {
                     ? "食事記録、カロリー摂取、栄養バランスのデータ" : "Food logs, calorie intake, and nutritional balance data",
                 detailedDescription: isJapanese
                     ? "適切な栄養摂取は健康維持の重要な要素です。食事データを分析することで、栄養バランスを改善し、健康的な食習慣をサポートします。"
-                    : "Proper nutrition is a crucial element of health maintenance. By analyzing dietary data, we can improve nutritional balance and support healthy eating habits.",
+                    : "Proper nutrition is a crucial element of health maintenance. " +
+                        "By analyzing dietary data, we can improve nutritional balance and support healthy eating habits.",
                 benefits: isJapanese
                     ? ["栄養バランスの改善", "体重管理", "食習慣の最適化"]
                     : ["Nutritional balance improvement", "Weight management", "Eating habit optimization"],
@@ -318,7 +323,8 @@ class DataExplanationProvider: ObservableObject {
                     ? "ストレスレベル、気分、精神的な健康状態のデータ" : "Stress levels, mood, and mental wellness data",
                 detailedDescription: isJapanese
                     ? "メンタルヘルスは全体的な健康に大きく影響します。気分やストレスレベルを追跡することで、精神的な健康をサポートし、生活の質を向上させます。"
-                    : "Mental health significantly impacts overall wellness. By tracking mood and stress levels, we can support mental wellness and improve quality of life.",
+                    : "Mental health significantly impacts overall wellness. " +
+                        "By tracking mood and stress levels, we can support mental wellness and improve quality of life.",
                 benefits: isJapanese
                     ? ["ストレス管理", "気分の改善", "メンタルヘルスケア"]
                     : ["Stress management", "Mood improvement", "Mental healthcare"],
@@ -334,7 +340,8 @@ class DataExplanationProvider: ObservableObject {
                     ? "位置情報、天気、空気質などの環境要因" : "Location, weather, air quality and other environmental factors",
                 detailedDescription: isJapanese
                     ? "環境要因は健康に大きな影響を与えます。位置情報や環境データを活用することで、環境に応じた健康アドバイスを提供できます。"
-                    : "Environmental factors significantly impact health. By utilizing location and environmental data, we can provide health advice adapted to your environment.",
+                    : "Environmental factors significantly impact health. " +
+                        "By utilizing location and environmental data, we can provide health advice adapted to your environment.",
                 benefits: isJapanese
                     ? ["環境に応じたアドバイス", "健康リスクの予防", "最適な活動提案"]
                     : ["Environment-based advice", "Health risk prevention", "Optimal activity suggestions"],

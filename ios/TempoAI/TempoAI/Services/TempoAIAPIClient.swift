@@ -256,7 +256,6 @@ struct QuickAIInsights: Codable {
     let timestamp: Date
 }
 
-
 /// Tempo AI specific errors
 enum TempoAIAPIError: Error, LocalizedError {
     case invalidURL

@@ -7,7 +7,6 @@ import Foundation
 /// All scoring algorithms are based on evidence-based health research and population studies.
 struct HealthMetricsScoring {
 
-
     // MARK: - HRV Scoring
 
     /// Calculate HRV score based on age-appropriate baseline

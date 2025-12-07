@@ -83,7 +83,6 @@ struct PersonalizedRecommendations {
     let medical: [ActionableRecommendation]
 }
 
-
 /// Recommendation priorities
 enum Priority: String, CaseIterable {
     case low
@@ -121,4 +120,96 @@ enum RecommendationType: String, CaseIterable {
     case medical
     case lifestyle
     case monitoring
+    case immediate
+    case shortTerm
+    case longTerm
+}
+
+// MARK: - Additional LocalHealthAnalyzer Types
+
+struct LocalHealthInsights {
+    let overallScore: Double
+    let keyInsights: [String]
+    let categoryInsights: CategoryInsights
+    let riskFactors: [HealthRiskFactor]
+    let recommendations: PersonalizedRecommendations
+    let trends: [HealthTrend]
+    let dataQuality: DataQuality
+    let confidenceScore: Double
+    let analysisMethod: AnalysisMethod
+    let generatedAt: Date
+    let language: String
+}
+
+struct CategoryInsights {
+    let cardiovascular: HealthCategoryInsight
+    let sleep: HealthCategoryInsight
+    let activity: HealthCategoryInsight
+    let metabolic: HealthCategoryInsight
+}
+
+struct QuickHealthInsights {
+    let score: Int
+    let summary: String
+    let topPriority: String
+    let quickTip: String
+    let dataQuality: String
+    let timestamp: Date
+}
+
+// MARK: - User Profile Extension
+
+extension UserProfile {
+    var estimatedFitnessLevel: String {
+        switch exerciseFrequency {
+        case "daily":
+            return "high"
+        case "weekly":
+            return "moderate"
+        case "monthly":
+            return "low"
+        default:
+            return "sedentary"
+        }
+    }
+}
+
+// MARK: - LocalHealthInsights Extensions for Notifications
+
+extension LocalHealthInsights {
+
+    /// Check if insights have significant findings that warrant notifications
+    var hasSignificantFindings: Bool {
+        return overallScore < 70  // Overall health score is concerning
+            || riskFactors.contains { $0.severity >= 7 }  // High-severity risk factors
+            || recommendations.immediate.contains { $0.priority == .high }  // High-priority recommendations
+    }
+
+    /// Convert LocalHealthInsights to AIHealthInsights for notification compatibility
+    func toAIHealthInsights() -> AIHealthInsights {
+        return AIHealthInsights(
+            id: UUID().uuidString,
+            summary: "健康分析が完了しました。全体スコア: \(Int(overallScore))点",
+            analysisDate: Date(),
+            overallScore: Int(overallScore),
+            riskFactors: riskFactors.map { factor in
+                RiskFactor(
+                    category: factor.category,
+                    severity: Int(factor.severity),
+                    description: factor.factor,
+                    recommendation: factor.recommendation ?? "定期的なモニタリングをお勧めします"
+                )
+            },
+            recommendations: recommendations.immediate.map { rec in
+                Recommendation(
+                    title: rec.title,
+                    description: rec.description,
+                    priority: rec.priority.rawValue,
+                    category: rec.category?.rawValue ?? "general",
+                    estimatedImpact: rec.expectedBenefit
+                )
+            },
+            language: language
+        )
+    }
 }

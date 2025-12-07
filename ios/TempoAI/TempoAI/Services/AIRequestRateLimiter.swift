@@ -21,6 +21,7 @@ import Foundation
 class AIRequestRateLimiter: ObservableObject {
 
     // MARK: - Properties
+    @MainActor static let shared: AIRequestRateLimiter = AIRequestRateLimiter()
 
     @Published var currentUsage: AIUsageStatus = AIUsageStatus()
     @Published var budgetStatus: BudgetStatus = BudgetStatus()
@@ -1097,9 +1098,3 @@ struct OptimizationRecommendation {
 // MARK: - Extensions
 
 extension AnalysisRequestType: Codable {}
-
-extension AnalysisRequestType: CaseIterable {
-    static var allCases: [AnalysisRequestType] {
-        return [.quick, .daily, .comprehensive, .weekly, .critical, .userRequested]
-    }
-}

@@ -3,7 +3,7 @@ import Foundation
 import SwiftUI
 
 /// Supported languages in the app
-enum AppLanguage: String, CaseIterable {
+enum AppLanguage: String, CaseIterable, Codable {
     case japanese = "ja"
     case english = "en"
 
@@ -24,10 +24,6 @@ enum AppLanguage: String, CaseIterable {
 }
 
 /// ViewModel managing onboarding flow state, language selection, and permission requests.
-///
-/// Handles navigation through the 7-page onboarding experience starting with language selection,
-/// manages permission request state, and coordinates with the permission manager for HealthKit and
-/// location access. Tracks completion status for app initialization.
 @MainActor
 final class OnboardingViewModel: ObservableObject {
 
@@ -48,10 +44,11 @@ final class OnboardingViewModel: ObservableObject {
     /// Whether onboarding flow has been completed
     @Published var isOnboardingCompleted: Bool = false
 
-    // MARK: - Private Properties
+    // MARK: - Dependencies
 
     private let permissionManager = PermissionManager.shared
     private let userDefaults = UserDefaults.standard
+    private let progressiveDisclosure = OnboardingProgressiveDisclosure()
 
     // MARK: - Constants
 
@@ -59,29 +56,7 @@ final class OnboardingViewModel: ObservableObject {
         static let onboardingCompleted = "OnboardingCompleted"
         static let onboardingStartTime = "OnboardingStartTime"
         static let selectedLanguage = "SelectedLanguage"
-        static let disclosureLevel = "DisclosureLevel"
-        static let explainedDataCategories = "ExplainedDataCategories"
-        static let privacyConcerns = "PrivacyConcerns"
-        static let prefersDetailedExplanations = "PrefersDetailedExplanations"
-        static let currentDisclosureStage = "CurrentDisclosureStage"
     }
-
-    // MARK: - Progressive Disclosure Support
-
-    /// Progressive disclosure level representing user's data sharing comfort
-    @Published var disclosureLevel: ProgressiveDisclosureLevel = .minimal
-
-    /// Tracks which health data categories user has seen explanations for
-    @Published var explainedDataCategories: Set<HealthDataCategory> = []
-
-    /// User's expressed data privacy concerns
-    @Published var privacyConcerns: Set<PrivacyConcern> = []
-
-    /// Whether user prefers detailed explanations
-    @Published var prefersDetailedExplanations: Bool = false
-
-    /// Current disclosure stage in the progressive flow
-    @Published var currentDisclosureStage: DisclosureStage = .introduction
 
     // MARK: - Initialization
 
@@ -226,154 +201,43 @@ final class OnboardingViewModel: ObservableObject {
         }
     }
 
-    // MARK: - Progressive Disclosure Methods
+    // MARK: - Progressive Disclosure Delegate Methods
 
-    /// Update the user's disclosure level based on their choices
+    /// Progressive disclosure support
+    var progressiveDisclosureLevel: ProgressiveDisclosureLevel {
+        progressiveDisclosure.disclosureLevel
+    }
+
     func updateDisclosureLevel(_ level: ProgressiveDisclosureLevel) {
-        disclosureLevel = level
-        userDefaults.set(level.rawValue, forKey: UserDefaultsKeys.disclosureLevel)
-        print("🔒 Disclosure level updated to: \(level)")
-
-        // Adjust data collection strategy based on level
-        adjustDataCollectionStrategy(for: level)
+        progressiveDisclosure.updateDisclosureLevel(level)
     }
 
-    /// Mark a data category as explained to the user
     func markDataCategoryExplained(_ category: HealthDataCategory) {
-        explainedDataCategories.insert(category)
-        let categoryStrings = explainedDataCategories.map { $0.rawValue }
-        userDefaults.set(categoryStrings, forKey: UserDefaultsKeys.explainedDataCategories)
-        print("📝 Marked data category as explained: \(category)")
+        progressiveDisclosure.markDataCategoryExplained(category)
     }
 
-    /// Record user's privacy concerns for personalized experience
     func recordPrivacyConcern(_ concern: PrivacyConcern) {
-        privacyConcerns.insert(concern)
-        let concernStrings = privacyConcerns.map { $0.rawValue }
-        userDefaults.set(concernStrings, forKey: UserDefaultsKeys.privacyConcerns)
-        print("⚠️ Recorded privacy concern: \(concern)")
-
-        // Adapt onboarding flow based on concerns
-        adaptFlowForPrivacyConcerns()
+        progressiveDisclosure.recordPrivacyConcern(concern)
     }
 
-    /// Set user's preference for detailed explanations
     func setDetailedExplanationPreference(_ prefers: Bool) {
-        prefersDetailedExplanations = prefers
-        userDefaults.set(prefers, forKey: UserDefaultsKeys.prefersDetailedExplanations)
-        print("📖 Detailed explanation preference set to: \(prefers)")
+        progressiveDisclosure.setDetailedExplanationPreference(prefers)
     }
 
-    /// Advance to next disclosure stage
     func advanceDisclosureStage() {
-        let nextStage = currentDisclosureStage.nextStage()
-        if nextStage != currentDisclosureStage {
-            currentDisclosureStage = nextStage
-            userDefaults.set(nextStage.rawValue, forKey: UserDefaultsKeys.currentDisclosureStage)
-            print("➡️ Advanced to disclosure stage: \(nextStage)")
-        }
+        progressiveDisclosure.advanceDisclosureStage()
     }
 
-    /// Get personalized data explanation based on user's disclosure level and concerns
     func getPersonalizedExplanation(for category: HealthDataCategory) -> DataExplanation {
-        return DataExplanationProvider.shared.getExplanation(
-            for: category,
-            level: disclosureLevel,
-            concerns: privacyConcerns,
-            detailedPreference: prefersDetailedExplanations,
-            language: selectedLanguage
-        )
+        return progressiveDisclosure.getPersonalizedExplanation(for: category)
     }
 
-    /// Check if user should see detailed permission explanation
     func shouldShowDetailedPermissionExplanation(for permission: PermissionType) -> Bool {
-        switch disclosureLevel {
-        case .minimal:
-            return false
-        case .selective:
-            return !explainedDataCategories.contains(permission.relatedDataCategory)
-        case .comprehensive:
-            return prefersDetailedExplanations
-        }
+        return progressiveDisclosure.shouldShowDetailedPermissionExplanation(for: permission)
     }
 
-    /// Get recommended data sharing level based on user's comfort and needs
     func getRecommendedSharingLevel() -> DataSharingLevel {
-        switch disclosureLevel {
-        case .minimal:
-            return .essential
-        case .selective:
-            return privacyConcerns.isEmpty ? .standard : .careful
-        case .comprehensive:
-            return .full
-        }
-    }
-
-    // MARK: - Private Progressive Disclosure Helper Methods
-
-    /// Adjust data collection strategy based on disclosure level
-    private func adjustDataCollectionStrategy(for level: ProgressiveDisclosureLevel) {
-        switch level {
-        case .minimal:
-            // Only collect essential health metrics
-            print("📊 Adjusting to minimal data collection")
-        case .selective:
-            // Allow user to choose specific categories
-            print("📊 Adjusting to selective data collection")
-        case .comprehensive:
-            // Collect all available data for best insights
-            print("📊 Adjusting to comprehensive data collection")
-        }
-    }
-
-    /// Adapt onboarding flow based on user's privacy concerns
-    private func adaptFlowForPrivacyConcerns() {
-        if privacyConcerns.contains(.dataSharing) {
-            prefersDetailedExplanations = true
-            print("🔒 Adapting flow for data sharing concerns")
-        }
-
-        if privacyConcerns.contains(.thirdPartyAccess) {
-            // Show additional explanations about AI processing
-            print("🔒 Adapting flow for third-party access concerns")
-        }
-
-        if privacyConcerns.contains(.dataRetention) {
-            // Emphasize data deletion options
-            print("🔒 Adapting flow for data retention concerns")
-        }
-    }
-
-    /// Load progressive disclosure state from UserDefaults
-    private func loadProgressiveDisclosureState() {
-        // Load disclosure level
-        if let levelString = userDefaults.string(forKey: UserDefaultsKeys.disclosureLevel),
-            let level = ProgressiveDisclosureLevel(rawValue: levelString)
-        {
-            disclosureLevel = level
-        }
-
-        // Load explained data categories
-        if let categoryStrings = userDefaults.array(forKey: UserDefaultsKeys.explainedDataCategories) as? [String] {
-            explainedDataCategories = Set(categoryStrings.compactMap { HealthDataCategory(rawValue: $0) })
-        }
-
-        // Load privacy concerns
-        if let concernStrings = userDefaults.array(forKey: UserDefaultsKeys.privacyConcerns) as? [String] {
-            privacyConcerns = Set(concernStrings.compactMap { PrivacyConcern(rawValue: $0) })
-        }
-
-        // Load detailed explanation preference
-        prefersDetailedExplanations = userDefaults.bool(forKey: UserDefaultsKeys.prefersDetailedExplanations)
-
-        // Load current disclosure stage
-        if let stageString = userDefaults.string(forKey: UserDefaultsKeys.currentDisclosureStage),
-            let stage = DisclosureStage(rawValue: stageString)
-        {
-            currentDisclosureStage = stage
-        }
-
-        print("🔒 Loaded progressive disclosure state - Level: \(disclosureLevel), Stage: \(currentDisclosureStage)")
+        return progressiveDisclosure.getRecommendedSharingLevel()
     }
     // MARK: - Private Methods
 
@@ -405,13 +269,9 @@ final class OnboardingViewModel: ObservableObject {
                 }
             }
 
-            // Load progressive disclosure state
-            self.loadProgressiveDisclosureState()
-
             print("📱 Loaded onboarding state - Completed: \(self.isOnboardingCompleted), Page: \(self.currentPage)")
             print("🌍 Language: \(self.selectedLanguage.displayName)")
             print("📊 Permission status - HealthKit: \(self.healthKitStatus), Location: \(self.locationStatus)")
-            print("🔒 Progressive disclosure - Level: \(self.disclosureLevel), Stage: \(self.currentDisclosureStage)")
         }
     }
 

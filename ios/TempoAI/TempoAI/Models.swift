@@ -138,7 +138,7 @@ struct WeatherData: Codable {
     let condition: String
     let uvIndex: Double?
     let airQuality: String?
-    
+
     init(
         temperature: Double,
         humidity: Double,

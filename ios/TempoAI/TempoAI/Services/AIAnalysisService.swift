@@ -403,7 +403,7 @@ struct PersonalizedInsights: Codable {
 }
 
 /// Local health analysis results
-struct LocalHealthAnalysis {
+struct LocalHealthAnalysis: Codable {
     let riskFactors: [HealthRiskFactor]
     let trends: [HealthTrend]
     let alerts: [HealthAlert]

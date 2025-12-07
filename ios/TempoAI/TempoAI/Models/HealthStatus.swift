@@ -294,7 +294,8 @@ struct HealthAnalysis: Codable {
         activityScore: Double? = nil,
         heartRateScore: Double? = nil,
         analysisDate: Date = Date(),
-        dataQuality: DataQuality = DataQuality(completeness: 0.8, recency: 0.9, accuracy: 0.85, consistency: 0.8, overallScore: 0.84, recommendations: [])
+        dataQuality: DataQuality = DataQuality(
+            completeness: 0.8, recency: 0.9, accuracy: 0.85, consistency: 0.8, overallScore: 0.84, recommendations: [])
     ) {
         self.status = status
         self.overallScore = overallScore
@@ -358,4 +359,3 @@ struct HealthAnalysis: Codable {
         self.recommendedActions = status.recommendedActions
     }
 }
-

@@ -29,7 +29,7 @@ enum HeartRateZone: String, CaseIterable, Codable {
     /// Classify heart rate zone based on current and resting heart rate
     static func classify(heartRate: Double?, restingRate: Double) -> HeartRateZone {
         guard let heartRate = heartRate else { return .unknown }
-        
+
         // Estimate age as 30 for general classification
         // In a real app, this would come from user profile
         return zone(heartRate: heartRate, age: 30)
@@ -60,7 +60,6 @@ enum BloodPressureCategory: String, CaseIterable, Codable {
         }
     }
 }
-
 
 /// BMI category classifications
 enum BMICategory: String, CaseIterable, Codable {

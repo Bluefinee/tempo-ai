@@ -20,6 +20,7 @@ import Foundation
 class HealthAnalysisEngine: ObservableObject {
 
     // MARK: - Properties
+    static let shared: HealthAnalysisEngine = HealthAnalysisEngine()
 
     @Published var isAnalyzing: Bool = false
     @Published var analysisProgress: Double = 0.0
@@ -700,7 +701,6 @@ struct AnalysisResult: Identifiable {
     let language: String
 }
 
-
 /// Analysis insights union type
 enum AnalysisInsights {
     case quick(QuickHealthInsights)
@@ -994,11 +994,17 @@ actor AnalysisCacheManager {
 
         // Create temporary mock data for compilation
         let mockVitalSigns = VitalSignsData()
-        let mockActivity = EnhancedActivityData(steps: 5000, distance: 3.0, activeEnergyBurned: 300, basalEnergyBurned: 1200, exerciseTime: 30, standHours: 8, activeMinutes: 30)
+        let mockActivity = EnhancedActivityData(
+            steps: 5000, distance: 3.0, activeEnergyBurned: 300, basalEnergyBurned: 1200, exerciseTime: 30,
+            standHours: 8, activeMinutes: 30)
         let mockBodyMeasurements = BodyMeasurementsData(weight: nil, bodyFatPercentage: nil, leanBodyMass: nil)
-        let mockSleep = EnhancedSleepData(totalDuration: 8.0 * 3600, inBedTime: 8.5 * 3600, deepSleep: 2.0 * 3600, remSleep: 1.5 * 3600, lightSleep: 4.5 * 3600, sleepEfficiency: 85.0)
-        let mockHealthData = ComprehensiveHealthData(vitalSigns: mockVitalSigns, activity: mockActivity, bodyMeasurements: mockBodyMeasurements, sleep: mockSleep)
-        
+        let mockSleep = EnhancedSleepData(
+            totalDuration: 8.0 * 3600, inBedTime: 8.5 * 3600, deepSleep: 2.0 * 3600, remSleep: 1.5 * 3600,
+            lightSleep: 4.5 * 3600, sleepEfficiency: 85.0)
+        let mockHealthData = ComprehensiveHealthData(
+            vitalSigns: mockVitalSigns, activity: mockActivity, bodyMeasurements: mockBodyMeasurements, sleep: mockSleep
+        )
+
         let key = generateCacheKey(
             healthData: mockHealthData,  // Would extract from result
             userProfile: UserProfile(),  // Would extract from result
@@ -1036,7 +1042,8 @@ actor AnalysisCacheManager {
     ) -> String {
 
         let dataHash = "\(healthData.timestamp.timeIntervalSince1970)"
-        let profileHash = "\(userProfile.age ?? 0)-\(userProfile.gender?.rawValue ?? "unknown")-\(userProfile.activityLevel.rawValue)"
+        let profileHash =
+            "\(userProfile.age ?? 0)-\(userProfile.gender?.rawValue ?? "unknown")-\(userProfile.activityLevel.rawValue)"
 
         return "\(requestType.rawValue)-\(dataHash)-\(profileHash)"
     }

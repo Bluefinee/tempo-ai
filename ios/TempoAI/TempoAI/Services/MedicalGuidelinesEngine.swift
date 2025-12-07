@@ -349,8 +349,10 @@ class MedicalGuidelinesEngine {
                     type: .concerning,
                     severity: .moderate,
                     description: "Deep sleep percentage is low",
-                    value: breakdown.deepPercentage,
-                    reference: "Healthy: 15-25%"
+                    value: "\(String(format: "%.1f", breakdown.deepPercentage))%",
+                    normalRange: "15-25%",
+                    explanation: "Insufficient deep sleep may affect physical recovery and memory consolidation",
+                    actionRequired: true
                 ))
             score = min(score, 60)
         } else if breakdown.deepPercentage < 15 {
@@ -359,8 +361,10 @@ class MedicalGuidelinesEngine {
                     type: .warning,
                     severity: .low,
                     description: "Deep sleep could be improved",
-                    value: breakdown.deepPercentage,
-                    reference: "Healthy: 15-25%"
+                    value: "\(String(format: "%.1f", breakdown.deepPercentage))%",
+                    normalRange: "15-25%",
+                    explanation: "Below optimal deep sleep may impact recovery and immune function",
+                    actionRequired: false
                 ))
             score = min(score, 80)
         }
@@ -372,8 +376,10 @@ class MedicalGuidelinesEngine {
                     type: .warning,
                     severity: .low,
                     description: "REM sleep percentage is low",
-                    value: breakdown.remPercentage,
-                    reference: "Healthy: 20-30%"
+                    value: "\(String(format: "%.1f", breakdown.remPercentage))%",
+                    normalRange: "20-30%",
+                    explanation: "Low REM sleep may affect cognitive function and emotional regulation",
+                    actionRequired: false
                 ))
             score = min(score, 75)
         }
@@ -401,8 +407,10 @@ class MedicalGuidelinesEngine {
                     type: .normal,
                     severity: .low,
                     description: "Daily steps meet recommended targets",
-                    value: Double(steps),
-                    reference: "Recommended: ≥\(target) steps"
+                    value: "\(steps) steps",
+                    normalRange: "≥\(target) steps",
+                    explanation: "Meeting daily step targets supports cardiovascular health and weight management",
+                    actionRequired: false
                 ))
         } else if steps >= Int(Double(target) * 0.7) {
             findings.append(
@@ -410,8 +418,10 @@ class MedicalGuidelinesEngine {
                     type: .warning,
                     severity: .low,
                     description: "Daily steps are below recommended target",
-                    value: Double(steps),
-                    reference: "Recommended: ≥\(target) steps"
+                    value: "\(steps) steps",
+                    normalRange: "≥\(target) steps",
+                    explanation: "Increasing daily activity can improve cardiovascular health and energy levels",
+                    actionRequired: false
                 ))
             score = 75
         } else {
@@ -420,8 +430,10 @@ class MedicalGuidelinesEngine {
                     type: .concerning,
                     severity: .moderate,
                     description: "Daily steps are significantly below target",
-                    value: Double(steps),
-                    reference: "Recommended: ≥\(target) steps"
+                    value: "\(steps) steps",
+                    normalRange: "≥\(target) steps",
+                    explanation: "Low activity levels may increase risk of cardiovascular disease and metabolic issues",
+                    actionRequired: true
                 ))
             score = 50
         }
@@ -450,8 +462,10 @@ class MedicalGuidelinesEngine {
                     type: .normal,
                     severity: .low,
                     description: "Exercise time meets WHO recommendations",
-                    value: Double(weeklyMinutes),
-                    reference: "Recommended: ≥150 min/week"
+                    value: "\(weeklyMinutes) min/week",
+                    normalRange: "≥150 min/week",
+                    explanation: "Meeting exercise guidelines supports optimal cardiovascular and metabolic health",
+                    actionRequired: false
                 ))
         } else if weeklyMinutes >= target / 2 {
             findings.append(
@@ -459,8 +473,10 @@ class MedicalGuidelinesEngine {
                     type: .warning,
                     severity: .low,
                     description: "Exercise time is below recommendations",
-                    value: Double(weeklyMinutes),
-                    reference: "Recommended: ≥150 min/week"
+                    value: "\(weeklyMinutes) min/week",
+                    normalRange: "≥150 min/week",
+                    explanation: "Increasing exercise duration can improve cardiovascular health and reduce disease risk",
+                    actionRequired: false
                 ))
             score = 70
         } else {
@@ -469,8 +485,10 @@ class MedicalGuidelinesEngine {
                     type: .concerning,
                     severity: .moderate,
                     description: "Exercise time is significantly below recommendations",
-                    value: Double(weeklyMinutes),
-                    reference: "Recommended: ≥150 min/week"
+                    value: "\(weeklyMinutes) min/week",
+                    normalRange: "≥150 min/week",
+                    explanation: "Insufficient exercise may significantly increase risk of cardiovascular disease and diabetes",
+                    actionRequired: true
                 ))
             score = 50
         }
@@ -498,8 +516,10 @@ class MedicalGuidelinesEngine {
                     type: .excellent,
                     severity: .low,
                     description: "Active caloric expenditure is excellent",
-                    value: Double(activeCalories),
-                    reference: "Target: ≥30% of BMR"
+                    value: "\(activeCalories) calories",
+                    normalRange: "≥30% of BMR",
+                    explanation: "Excellent caloric expenditure indicates high activity levels and metabolic health",
+                    actionRequired: false
                 ))
         } else if ratio >= 0.2 {
             findings.append(
@@ -507,8 +527,10 @@ class MedicalGuidelinesEngine {
                     type: .normal,
                     severity: .low,
                     description: "Active caloric expenditure is adequate",
-                    value: Double(activeCalories),
-                    reference: "Target: ≥30% of BMR"
+                    value: "\(activeCalories) calories",
+                    normalRange: "≥30% of BMR",
+                    explanation: "Adequate caloric expenditure supports healthy weight management and fitness",
+                    actionRequired: false
                 ))
         } else {
             findings.append(
@@ -516,8 +538,10 @@ class MedicalGuidelinesEngine {
                     type: .warning,
                     severity: .low,
                     description: "Active caloric expenditure could be increased",
-                    value: Double(activeCalories),
-                    reference: "Target: ≥30% of BMR"
+                    value: "\(activeCalories) calories",
+                    normalRange: "≥30% of BMR",
+                    explanation: "Increasing activity could improve metabolic health and weight management",
+                    actionRequired: false
                 ))
             score = 70
         }
@@ -546,8 +570,10 @@ class MedicalGuidelinesEngine {
                     type: .concerning,
                     severity: .moderate,
                     description: "BMI indicates underweight",
-                    value: bmi,
-                    reference: "Healthy: 18.5-\(upperNormalLimit)"
+                    value: "\(String(format: "%.1f", bmi))",
+                    normalRange: "18.5-\(String(format: "%.1f", upperNormalLimit))",
+                    explanation: "Underweight BMI may indicate nutritional deficiency or underlying health issues",
+                    actionRequired: true
                 ))
             score = 60
         } else if bmi <= upperNormalLimit {
@@ -556,8 +582,10 @@ class MedicalGuidelinesEngine {
                     type: .normal,
                     severity: .low,
                     description: "BMI is within healthy range",
-                    value: bmi,
-                    reference: "Healthy: 18.5-\(upperNormalLimit)"
+                    value: "\(String(format: "%.1f", bmi))",
+                    normalRange: "18.5-\(String(format: "%.1f", upperNormalLimit))",
+                    explanation: "Healthy BMI indicates appropriate weight for height",
+                    actionRequired: false
                 ))
         } else if bmi <= 29.9 {
             findings.append(
@@ -565,8 +593,10 @@ class MedicalGuidelinesEngine {
                     type: .warning,
                     severity: .moderate,
                     description: "BMI indicates overweight",
-                    value: bmi,
-                    reference: "Healthy: 18.5-\(upperNormalLimit)"
+                    value: "\(String(format: "%.1f", bmi))",
+                    normalRange: "18.5-\(String(format: "%.1f", upperNormalLimit))",
+                    explanation: "Overweight BMI may increase risk of cardiovascular disease and diabetes",
+                    actionRequired: true
                 ))
             score = 70
         } else {
@@ -575,8 +605,10 @@ class MedicalGuidelinesEngine {
                     type: .concerning,
                     severity: .high,
                     description: "BMI indicates obesity",
-                    value: bmi,
-                    reference: "Healthy: 18.5-\(upperNormalLimit)"
+                    value: "\(String(format: "%.1f", bmi))",
+                    normalRange: "18.5-\(String(format: "%.1f", upperNormalLimit))",
+                    explanation: "Obesity significantly increases risk of cardiovascular disease, diabetes, and other health complications",
+                    actionRequired: true
                 ))
             score = 50
         }
@@ -603,8 +635,10 @@ class MedicalGuidelinesEngine {
                     type: .normal,
                     severity: .low,
                     description: "Body fat percentage is within healthy range",
-                    value: bodyFat,
-                    reference: "Healthy: varies by age/gender"
+                    value: "\(String(format: "%.1f", bodyFat))%",
+                    normalRange: "varies by age/gender",
+                    explanation: "Healthy body fat percentage supports optimal metabolic function",
+                    actionRequired: false
                 ))
         } else if bodyFat <= 30 {
             findings.append(
@@ -612,8 +646,10 @@ class MedicalGuidelinesEngine {
                     type: .warning,
                     severity: .low,
                     description: "Body fat percentage is elevated",
-                    value: bodyFat,
-                    reference: "Healthy: varies by age/gender"
+                    value: "\(String(format: "%.1f", bodyFat))%",
+                    normalRange: "varies by age/gender",
+                    explanation: "Elevated body fat may increase risk of metabolic disorders",
+                    actionRequired: false
                 ))
             score = 75
         } else {
@@ -622,8 +658,10 @@ class MedicalGuidelinesEngine {
                     type: .concerning,
                     severity: .moderate,
                     description: "Body fat percentage is high",
-                    value: bodyFat,
-                    reference: "Healthy: varies by age/gender"
+                    value: "\(String(format: "%.1f", bodyFat))%",
+                    normalRange: "varies by age/gender",
+                    explanation: "High body fat percentage significantly increases risk of cardiovascular disease and diabetes",
+                    actionRequired: true
                 ))
             score = 60
         }
@@ -644,27 +682,31 @@ class MedicalGuidelinesEngine {
         var score: Double = 100
 
         // Water intake analysis
-        if nutrition.water < 1.5 {
+        if let water = nutrition.water, water < 1.5 {
             findings.append(
                 HealthFinding(
                     type: .warning,
                     severity: .low,
                     description: "Water intake may be insufficient",
-                    value: nutrition.water,
-                    reference: "Recommended: ≥2L/day"
+                    value: "\(String(format: "%.1f", water))L",
+                    normalRange: "≥2L/day",
+                    explanation: "Adequate hydration is essential for cellular function and metabolic processes",
+                    actionRequired: false
                 ))
             score = min(score, 75)
         }
 
         // Sodium analysis
-        if nutrition.sodium > 2300 {
+        if let sodium = nutrition.sodium, sodium > 2300 {
             findings.append(
                 HealthFinding(
                     type: .warning,
                     severity: .moderate,
                     description: "Sodium intake is above recommended limit",
-                    value: Double(nutrition.sodium),
-                    reference: "Limit: <2300mg/day"
+                    value: "\(Int(sodium))mg",
+                    normalRange: "<2300mg/day",
+                    explanation: "Excessive sodium intake may increase blood pressure and cardiovascular disease risk",
+                    actionRequired: true
                 ))
             score = min(score, 70)
         }

@@ -185,35 +185,42 @@ extension LocalHealthInsights {
     /// Check if insights have significant findings that warrant notifications
     var hasSignificantFindings: Bool {
         return overallScore < 70  // Overall health score is concerning
-            || riskFactors.contains { $0.severity >= 7 }  // High-severity risk factors
+            || riskFactors.contains { $0.severity == .high || $0.severity == .critical }  // High-severity risk factors
             || recommendations.immediate.contains { $0.priority == .high }  // High-priority recommendations
     }
 
     /// Convert LocalHealthInsights to AIHealthInsights for notification compatibility
     func toAIHealthInsights() -> AIHealthInsights {
+        let keyInsights = [
+            "Cardiovascular: Score \(Int(categoryInsights.cardiovascular.score))",
+            "Sleep: Score \(Int(categoryInsights.sleep.score))",
+            "Activity: Score \(Int(categoryInsights.activity.score))",
+            "Metabolic: Score \(Int(categoryInsights.metabolic.score))"
+        ]
+        
+        let improvementOps = riskFactors.map { factor in
+            "\(factor.category.rawValue): \(factor.description)"
+        }
+        
+        let aiRecommendations = recommendations.immediate.map { rec in
+            AIRecommendation(
+                category: rec.category ?? .lifestyle,
+                title: rec.title,
+                description: rec.description,
+                priority: rec.priority,
+                actionableSteps: [rec.description],
+                estimatedBenefit: "Health improvement expected"
+            )
+        }
+        
         return AIHealthInsights(
-            id: UUID().uuidString,
-            summary: "健康分析が完了しました。全体スコア: \(Int(overallScore))点",
-            analysisDate: Date(),
-            overallScore: Int(overallScore),
-            riskFactors: riskFactors.map { factor in
-                RiskFactor(
-                    category: factor.category,
-                    severity: Int(factor.severity),
-                    description: factor.factor,
-                    recommendation: factor.recommendation ?? "定期的なモニタリングをお勧めします"
-                )
-            },
-            recommendations: recommendations.immediate.map { rec in
-                Recommendation(
-                    title: rec.title,
-                    description: rec.description,
-                    priority: rec.priority.rawValue,
-                    category: rec.category?.rawValue ?? "general",
-                    estimatedImpact: rec.expectedBenefit
-                )
-            },
-            language: language
+            overallScore: overallScore,
+            keyInsights: keyInsights,
+            improvementOpportunities: improvementOps,
+            recommendations: aiRecommendations,
+            todaysOptimalPlan: "今日の健康目標に集中し、\(Int(overallScore))点のスコア向上を目指しましょう",
+            culturalNotes: "日本の健康管理の観点から分析されました",
+            confidenceScore: confidenceScore
         )
     }
 }

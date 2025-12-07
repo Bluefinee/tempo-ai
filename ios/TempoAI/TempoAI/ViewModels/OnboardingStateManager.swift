@@ -8,8 +8,8 @@ class OnboardingStateManager: ObservableObject {
     // MARK: - Published Properties
     @Published var currentPage: Int = 0
     @Published var selectedLanguage: AppLanguage = .english
-    @Published var healthKitStatus: PermissionStatus = .notRequested
-    @Published var locationStatus: PermissionStatus = .notRequested
+    @Published var healthKitStatus: PermissionStatus = .notDetermined
+    @Published var locationStatus: PermissionStatus = .notDetermined
     @Published var isOnboardingCompleted: Bool = false
 
     // MARK: - Private Properties

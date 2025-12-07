@@ -6,7 +6,7 @@ import Foundation
 class OnboardingProgressiveDisclosure: ObservableObject {
 
     // MARK: - Published Properties
-    @Published var disclosureLevel: ProgressiveDisclosureLevel = .basic
+    @Published var disclosureLevel: ProgressiveDisclosureLevel = .minimal
     @Published var explainedDataCategories: Set<String> = []
     @Published var privacyConcerns: [String] = []
     @Published var prefersDetailedExplanations: Bool = false

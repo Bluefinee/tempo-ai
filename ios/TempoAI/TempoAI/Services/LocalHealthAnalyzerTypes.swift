@@ -213,3 +213,57 @@ extension LocalHealthInsights {
         )
     }
 }
+
+// MARK: - Health Trend Analysis
+
+/// Health trend analysis results
+struct HealthTrendAnalysis {
+    let period: DateInterval
+    let categories: [HealthTrendCategory]
+    let overallTrend: TrendDirection
+    let significantChanges: [HealthTrendChange]
+    let recommendations: [String]
+    let confidence: Double
+    let dataQuality: DataQuality
+}
+
+/// Individual health category trend
+struct HealthTrendCategory {
+    let category: HealthCategory
+    let trend: TrendDirection
+    let changePercentage: Double
+    let significance: TrendSignificance
+    let values: [HealthTrendDataPoint]
+}
+
+/// Individual data point in a trend
+struct HealthTrendDataPoint {
+    let date: Date
+    let value: Double
+    let unit: String
+}
+
+/// Direction of health trend
+enum TrendDirection: String, CaseIterable {
+    case improving
+    case stable
+    case declining
+    case unknown
+}
+
+/// Statistical significance of trend
+enum TrendSignificance: String, CaseIterable {
+    case high
+    case moderate
+    case low
+    case negligible
+}
+
+/// Significant health change detected
+struct HealthTrendChange {
+    let category: HealthCategory
+    let changeDescription: String
+    let magnitude: Double
+    let timeframe: String
+    let actionRequired: Bool
+}

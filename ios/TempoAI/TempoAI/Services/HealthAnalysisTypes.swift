@@ -46,14 +46,32 @@ import Foundation
 
 // MARK: - Analysis Result Types
 
-// AnalysisResult is defined in HealthAnalysisEngine.swift with Identifiable support
-// This avoids duplicate type definitions
+struct AnalysisResult {
+    let id: String
+    let route: AnalysisRoute
+    let insights: AnalysisInsights
+    let confidence: Double
+    let processingTime: TimeInterval
+    let cost: Double?
+    let timestamp: Date
+    let isPartial: Bool
+    let metadata: [String: Any]
+}
 
-// AnalysisInsights is defined in HealthAnalysisEngine.swift
-// This avoids duplicate type definitions
+enum AnalysisInsights {
+    case ai(AIHealthInsights)
+    case local(LocalHealthInsights)
+    case hybrid(HybridHealthInsights)
+}
 
-// HybridHealthInsights is defined in HealthAnalysisEngine.swift
-// This avoids duplicate type definitions
+struct HybridHealthInsights {
+    let localInsights: LocalHealthInsights
+    let aiInsights: AIHealthInsights?
+    let combinedScore: Double
+    let confidence: Double
+    let enhancedRecommendations: [ActionableRecommendation]
+    let validationResults: ValidationResults
+}
 
 struct ValidationResults {
     let localAgreement: Double
@@ -70,8 +88,15 @@ struct ValidationResults {
 
 // MARK: - Cache Related Types
 
-// CachedAnalysis is defined in HealthAnalysisEngine.swift
-// This avoids duplicate type definitions
+struct CachedAnalysis {
+    let id: String
+    let requestHash: String
+    let result: AnalysisResult
+    let expirationDate: Date
+    let hitCount: Int
+    let lastAccessed: Date
+    let size: Int
+}
 
 struct CacheConfiguration {
     let maxSize: Int
@@ -79,6 +104,14 @@ struct CacheConfiguration {
     let compressionEnabled: Bool
     let encryptionEnabled: Bool
     let evictionPolicy: CacheEvictionPolicy
+    
+    static let `default` = CacheConfiguration(
+        maxSize: 50,
+        maxAge: 3600, // 1 hour
+        compressionEnabled: true,
+        encryptionEnabled: false,
+        evictionPolicy: .lru
+    )
 }
 
 enum CacheEvictionPolicy: String, CaseIterable {

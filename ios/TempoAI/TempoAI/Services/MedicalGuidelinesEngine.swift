@@ -43,8 +43,10 @@ class MedicalGuidelinesEngine {
                     type: .warning,
                     severity: heartRate > (upper + 20) ? .high : .moderate,
                     description: "Resting heart rate is elevated",
-                    value: heartRate,
-                    reference: "Normal: \(Int(lower))-\(Int(upper)) bpm"
+                    value: "\(Int(heartRate)) bpm",
+                    normalRange: "\(Int(lower))-\(Int(upper)) bpm",
+                    explanation: "Elevated resting heart rate may indicate stress or cardiovascular issues",
+                    actionRequired: true
                 ))
             score = heartRate > (upper + 20) ? 40 : 70
         } else {
@@ -53,12 +55,22 @@ class MedicalGuidelinesEngine {
                     type: .normal,
                     severity: .low,
                     description: "Resting heart rate is within normal range",
-                    value: heartRate,
-                    reference: "Normal: \(Int(lower))-\(Int(upper)) bpm"
+                    value: "\(Int(heartRate)) bpm",
+                    normalRange: "\(Int(lower))-\(Int(upper)) bpm",
+                    explanation: "Resting heart rate within normal range indicates good cardiovascular health",
+                    actionRequired: false
                 ))
         }
 
-        return MedicalAnalysis(categoryScore: score, findings: findings)
+        return MedicalAnalysis(
+            categoryScore: score,
+            findings: findings,
+            riskFactors: [],
+            recommendations: [],
+            referrals: [],
+            followUpNeeded: false,
+            urgencyLevel: .low
+        )
     }
 
     func analyzeHRV(_ hrv: Double, age: Int, gender: String) -> MedicalAnalysis {
@@ -76,8 +88,10 @@ class MedicalGuidelinesEngine {
                     type: .concerning,
                     severity: .moderate,
                     description: "Heart rate variability is below expected range",
-                    value: hrv,
-                    reference: "Expected: ~\(Int(expectedHRV)) ms"
+                    value: "\(Int(hrv)) ms",
+                    normalRange: "~\(Int(expectedHRV)) ms",
+                    explanation: "Low HRV may indicate stress or reduced cardiovascular fitness",
+                    actionRequired: true
                 ))
             score = 60
         } else if ratio > 1.3 {
@@ -86,8 +100,10 @@ class MedicalGuidelinesEngine {
                     type: .excellent,
                     severity: .low,
                     description: "Heart rate variability is excellent",
-                    value: hrv,
-                    reference: "Expected: ~\(Int(expectedHRV)) ms"
+                    value: "\(Int(hrv)) ms",
+                    normalRange: "~\(Int(expectedHRV)) ms",
+                    explanation: "High HRV indicates excellent cardiovascular fitness and stress resilience",
+                    actionRequired: false
                 ))
         } else {
             findings.append(
@@ -95,12 +111,22 @@ class MedicalGuidelinesEngine {
                     type: .normal,
                     severity: .low,
                     description: "Heart rate variability is within expected range",
-                    value: hrv,
-                    reference: "Expected: ~\(Int(expectedHRV)) ms"
+                    value: "\(Int(hrv)) ms",
+                    normalRange: "~\(Int(expectedHRV)) ms",
+                    explanation: "Normal HRV indicates good cardiovascular health",
+                    actionRequired: false
                 ))
         }
 
-        return MedicalAnalysis(categoryScore: score, findings: findings)
+        return MedicalAnalysis(
+            categoryScore: score,
+            findings: findings,
+            riskFactors: [],
+            recommendations: [],
+            referrals: [],
+            followUpNeeded: false,
+            urgencyLevel: .low
+        )
     }
 
     func analyzeBloodPressure(systolic: Double, diastolic: Double, age: Int) -> MedicalAnalysis {
@@ -114,8 +140,10 @@ class MedicalGuidelinesEngine {
                     type: .concerning,
                     severity: .high,
                     description: "Hypertensive Crisis - seek immediate medical attention",
-                    value: systolic,
-                    reference: "Normal: <120/80 mmHg"
+                    value: "\(Int(systolic))/\(Int(diastolic)) mmHg",
+                    normalRange: "<120/80 mmHg",
+                    explanation: "Hypertensive crisis requires immediate medical intervention",
+                    actionRequired: true
                 ))
             score = 20
         } else if systolic >= 140 || diastolic >= 90 {
@@ -124,8 +152,10 @@ class MedicalGuidelinesEngine {
                     type: .concerning,
                     severity: .moderate,
                     description: "Stage 2 Hypertension",
-                    value: systolic,
-                    reference: "Normal: <120/80 mmHg"
+                    value: "\(Int(systolic))/\(Int(diastolic)) mmHg",
+                    normalRange: "<120/80 mmHg",
+                    explanation: "Stage 2 hypertension requires medical management",
+                    actionRequired: true
                 ))
             score = 40
         } else if systolic >= 130 || diastolic >= 80 {
@@ -134,8 +164,10 @@ class MedicalGuidelinesEngine {
                     type: .warning,
                     severity: .moderate,
                     description: "Stage 1 Hypertension",
-                    value: systolic,
-                    reference: "Normal: <120/80 mmHg"
+                    value: "\(Int(systolic))/\(Int(diastolic)) mmHg",
+                    normalRange: "<120/80 mmHg",
+                    explanation: "Stage 1 hypertension - consider lifestyle modifications",
+                    actionRequired: true
                 ))
             score = 65
         } else if systolic >= 120 {
@@ -144,8 +176,10 @@ class MedicalGuidelinesEngine {
                     type: .warning,
                     severity: .low,
                     description: "Elevated Blood Pressure",
-                    value: systolic,
-                    reference: "Normal: <120/80 mmHg"
+                    value: "\(Int(systolic))/\(Int(diastolic)) mmHg",
+                    normalRange: "<120/80 mmHg",
+                    explanation: "Slightly elevated blood pressure - monitor closely",
+                    actionRequired: false
                 ))
             score = 80
         } else {
@@ -154,12 +188,22 @@ class MedicalGuidelinesEngine {
                     type: .normal,
                     severity: .low,
                     description: "Normal Blood Pressure",
-                    value: systolic,
-                    reference: "Normal: <120/80 mmHg"
+                    value: "\(Int(systolic))/\(Int(diastolic)) mmHg",
+                    normalRange: "<120/80 mmHg",
+                    explanation: "Blood pressure is within normal range",
+                    actionRequired: false
                 ))
         }
 
-        return MedicalAnalysis(categoryScore: score, findings: findings)
+        return MedicalAnalysis(
+            categoryScore: score,
+            findings: findings,
+            riskFactors: [],
+            recommendations: [],
+            referrals: [],
+            followUpNeeded: false,
+            urgencyLevel: .low
+        )
     }
 
     func analyzeSleepDuration(hours: Double, age: Int) -> MedicalAnalysis {
@@ -175,8 +219,10 @@ class MedicalGuidelinesEngine {
                     type: .concerning,
                     severity: .moderate,
                     description: "Sleep duration is significantly below recommendations",
-                    value: hours,
-                    reference: "Recommended: \(min)-\(max) hours"
+                    value: "\(String(format: "%.1f", hours)) hours",
+                    normalRange: "\(min)-\(max) hours",
+                    explanation: "Insufficient sleep may impact cognitive function and health",
+                    actionRequired: true
                 ))
             score = 50
         } else if hours < min {
@@ -185,8 +231,10 @@ class MedicalGuidelinesEngine {
                     type: .warning,
                     severity: .low,
                     description: "Sleep duration is below recommendations",
-                    value: hours,
-                    reference: "Recommended: \(min)-\(max) hours"
+                    value: "\(String(format: "%.1f", hours)) hours",
+                    normalRange: "\(min)-\(max) hours",
+                    explanation: "Below recommended sleep duration may affect daily performance",
+                    actionRequired: false
                 ))
             score = 75
         } else if hours > max + 2 {
@@ -195,8 +243,10 @@ class MedicalGuidelinesEngine {
                     type: .warning,
                     severity: .low,
                     description: "Sleep duration is significantly above recommendations",
-                    value: hours,
-                    reference: "Recommended: \(min)-\(max) hours"
+                    value: "\(String(format: "%.1f", hours)) hours",
+                    normalRange: "\(min)-\(max) hours",
+                    explanation: "Excessive sleep may indicate underlying health issues",
+                    actionRequired: false
                 ))
             score = 75
         } else {
@@ -205,12 +255,22 @@ class MedicalGuidelinesEngine {
                     type: .normal,
                     severity: .low,
                     description: "Sleep duration is within recommended range",
-                    value: hours,
-                    reference: "Recommended: \(min)-\(max) hours"
+                    value: "\(String(format: "%.1f", hours)) hours",
+                    normalRange: "\(min)-\(max) hours",
+                    explanation: "Sleep duration meets age-appropriate recommendations",
+                    actionRequired: false
                 ))
         }
 
-        return MedicalAnalysis(categoryScore: score, findings: findings)
+        return MedicalAnalysis(
+            categoryScore: score,
+            findings: findings,
+            riskFactors: [],
+            recommendations: [],
+            referrals: [],
+            followUpNeeded: false,
+            urgencyLevel: .low
+        )
     }
 
     func analyzeSleepEfficiency(efficiency: Double, age: Int) -> MedicalAnalysis {
@@ -225,8 +285,10 @@ class MedicalGuidelinesEngine {
                     type: .excellent,
                     severity: .low,
                     description: "Sleep efficiency is excellent",
-                    value: efficiencyPercent,
-                    reference: "Good: >85%"
+                    value: "\(String(format: "%.1f", efficiencyPercent))%",
+                    normalRange: ">85%",
+                    explanation: "Excellent sleep efficiency indicates good sleep quality",
+                    actionRequired: false
                 ))
         } else if efficiencyPercent >= 85 {
             findings.append(
@@ -234,8 +296,10 @@ class MedicalGuidelinesEngine {
                     type: .normal,
                     severity: .low,
                     description: "Sleep efficiency is good",
-                    value: efficiencyPercent,
-                    reference: "Good: >85%"
+                    value: "\(String(format: "%.1f", efficiencyPercent))%",
+                    normalRange: ">85%",
+                    explanation: "Good sleep efficiency supports healthy rest",
+                    actionRequired: false
                 ))
         } else if efficiencyPercent >= 75 {
             findings.append(
@@ -243,8 +307,10 @@ class MedicalGuidelinesEngine {
                     type: .warning,
                     severity: .low,
                     description: "Sleep efficiency could be improved",
-                    value: efficiencyPercent,
-                    reference: "Good: >85%"
+                    value: "\(String(format: "%.1f", efficiencyPercent))%",
+                    normalRange: ">85%",
+                    explanation: "Sleep efficiency below optimal may indicate sleep fragmentation",
+                    actionRequired: false
                 ))
             score = 75
         } else {
@@ -253,13 +319,23 @@ class MedicalGuidelinesEngine {
                     type: .concerning,
                     severity: .moderate,
                     description: "Sleep efficiency is poor",
-                    value: efficiencyPercent,
-                    reference: "Good: >85%"
+                    value: "\(String(format: "%.1f", efficiencyPercent))%",
+                    normalRange: ">85%",
+                    explanation: "Poor sleep efficiency indicates sleep quality issues requiring attention",
+                    actionRequired: true
                 ))
             score = 50
         }
 
-        return MedicalAnalysis(categoryScore: score, findings: findings)
+        return MedicalAnalysis(
+            categoryScore: score,
+            findings: findings,
+            riskFactors: [],
+            recommendations: [],
+            referrals: [],
+            followUpNeeded: false,
+            urgencyLevel: .low
+        )
     }
 
     func analyzeSleepStages(_ breakdown: SleepStageBreakdown, age: Int) -> MedicalAnalysis {
@@ -302,7 +378,15 @@ class MedicalGuidelinesEngine {
             score = min(score, 75)
         }
 
-        return MedicalAnalysis(categoryScore: score, findings: findings)
+        return MedicalAnalysis(
+            categoryScore: score,
+            findings: findings,
+            riskFactors: [],
+            recommendations: [],
+            referrals: [],
+            followUpNeeded: false,
+            urgencyLevel: .low
+        )
     }
 
     func analyzeStepCount(steps: Int, age: Int, gender: String) -> MedicalAnalysis {
@@ -342,7 +426,15 @@ class MedicalGuidelinesEngine {
             score = 50
         }
 
-        return MedicalAnalysis(categoryScore: score, findings: findings)
+        return MedicalAnalysis(
+            categoryScore: score,
+            findings: findings,
+            riskFactors: [],
+            recommendations: [],
+            referrals: [],
+            followUpNeeded: false,
+            urgencyLevel: .low
+        )
     }
 
     func analyzeExerciseTime(minutes: Int, age: Int) -> MedicalAnalysis {
@@ -383,7 +475,15 @@ class MedicalGuidelinesEngine {
             score = 50
         }
 
-        return MedicalAnalysis(categoryScore: score, findings: findings)
+        return MedicalAnalysis(
+            categoryScore: score,
+            findings: findings,
+            riskFactors: [],
+            recommendations: [],
+            referrals: [],
+            followUpNeeded: false,
+            urgencyLevel: .low
+        )
     }
 
     func analyzeCaloricExpenditure(activeCalories: Int, bmr: Double, age: Int) -> MedicalAnalysis {
@@ -422,7 +522,15 @@ class MedicalGuidelinesEngine {
             score = 70
         }
 
-        return MedicalAnalysis(categoryScore: score, findings: findings)
+        return MedicalAnalysis(
+            categoryScore: score,
+            findings: findings,
+            riskFactors: [],
+            recommendations: [],
+            referrals: [],
+            followUpNeeded: false,
+            urgencyLevel: .low
+        )
     }
 
     func analyzeBMI(_ bmi: Double, age: Int) -> MedicalAnalysis {
@@ -473,7 +581,15 @@ class MedicalGuidelinesEngine {
             score = 50
         }
 
-        return MedicalAnalysis(categoryScore: score, findings: findings)
+        return MedicalAnalysis(
+            categoryScore: score,
+            findings: findings,
+            riskFactors: [],
+            recommendations: [],
+            referrals: [],
+            followUpNeeded: false,
+            urgencyLevel: .low
+        )
     }
 
     func analyzeBodyFat(_ bodyFat: Double, age: Int) -> MedicalAnalysis {
@@ -512,7 +628,15 @@ class MedicalGuidelinesEngine {
             score = 60
         }
 
-        return MedicalAnalysis(categoryScore: score, findings: findings)
+        return MedicalAnalysis(
+            categoryScore: score,
+            findings: findings,
+            riskFactors: [],
+            recommendations: [],
+            referrals: [],
+            followUpNeeded: false,
+            urgencyLevel: .low
+        )
     }
 
     func analyzeNutrition(_ nutrition: NutritionData, age: Int) -> MedicalAnalysis {
@@ -545,7 +669,15 @@ class MedicalGuidelinesEngine {
             score = min(score, 70)
         }
 
-        return MedicalAnalysis(categoryScore: score, findings: findings)
+        return MedicalAnalysis(
+            categoryScore: score,
+            findings: findings,
+            riskFactors: [],
+            recommendations: [],
+            referrals: [],
+            followUpNeeded: false,
+            urgencyLevel: .low
+        )
     }
 
     // MARK: - Reference Value Helpers

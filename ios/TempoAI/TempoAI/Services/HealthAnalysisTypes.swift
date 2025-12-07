@@ -5,12 +5,8 @@ import Foundation
 // AnalysisRequestType is defined in HealthAnalysisEngine.swift
 // This avoids duplicate type definitions
 
-enum AnalysisRoute: String, CaseIterable {
-    case ai = "ai"
-    case local = "local"
-    case hybrid = "hybrid"
-    case fallback = "fallback"
-}
+// AnalysisRoute is defined in HealthAnalysisEngine.swift with computed properties
+// This avoids duplicate type definitions
 
 struct AIAnalysisDecision {
     let shouldUseAI: Bool
@@ -21,17 +17,8 @@ struct AIAnalysisDecision {
     let fallbackToLocal: Bool
 }
 
-enum AIAnalysisReason: String, CaseIterable {
-    case highComplexity = "high_complexity"
-    case patternRecognition = "pattern_recognition"
-    case trendsAnalysis = "trends_analysis"
-    case userPreference = "user_preference"
-    case comprehensiveAnalysis = "comprehensive_analysis"
-    case criticalHealth = "critical_health"
-    case dataRichness = "data_richness"
-    case timePermitting = "time_permitting"
-    case budgetAvailable = "budget_available"
-}
+// AIAnalysisReason is defined in HealthAnalysisEngine.swift with computed properties
+// This avoids duplicate type definitions
 
 struct LocalAnalysisDecision {
     let canProcessLocally: Bool
@@ -42,16 +29,8 @@ struct LocalAnalysisDecision {
     let limitations: [String]
 }
 
-enum LocalAnalysisReason: String, CaseIterable {
-    case simpleMetrics = "simple_metrics"
-    case standardGuidelines = "standard_guidelines"
-    case quickAssessment = "quick_assessment"
-    case offlineMode = "offline_mode"
-    case privacyPreferred = "privacy_preferred"
-    case budgetConstraints = "budget_constraints"
-    case fastResponseNeeded = "fast_response_needed"
-    case basicAnalysisOnly = "basic_analysis_only"
-}
+// LocalAnalysisReason is defined in HealthAnalysisEngine.swift with computed properties
+// This avoids duplicate type definitions
 
 struct HybridAnalysisDecision {
     let strategy: HybridStrategy
@@ -61,13 +40,8 @@ struct HybridAnalysisDecision {
     let costBenefit: Double
 }
 
-enum HybridStrategy: String, CaseIterable {
-    case localFirst = "local_first"
-    case aiEnhanced = "ai_enhanced"
-    case parallel = "parallel"
-    case sequential = "sequential"
-    case validationBased = "validation_based"
-}
+// HybridStrategy is defined in HealthAnalysisEngine.swift with computed properties
+// This avoids duplicate type definitions
 
 // RoutingDecision is defined in HealthAnalysisEngine.swift
 // This avoids duplicate type definitions
@@ -75,33 +49,17 @@ enum HybridStrategy: String, CaseIterable {
 // AIDecisionFactors is defined in HealthAnalysisEngine.swift
 // This avoids duplicate type definitions
 
-struct LocalAnalysisFallbackParams {
-    let maxWaitTime: TimeInterval
-    let minimumAccuracyThreshold: Double
-    let enabledComponents: [String]
-    let degradedModeSettings: [String: Any]
-}
+// LocalAnalysisFallbackParams is defined in HealthAnalysisEngine.swift
+// This avoids duplicate type definitions
 
-enum AnalysisComplexity: String, CaseIterable {
-    case simple = "simple"
-    case moderate = "moderate"
-    case complex = "complex"
-    case veryComplex = "very_complex"
-}
+// AnalysisComplexity is defined in HealthAnalysisEngine.swift with computed properties
+// This avoids duplicate type definitions
 
-enum UserEngagement: String, CaseIterable {
-    case passive = "passive"
-    case active = "active"
-    case interactive = "interactive"
-    case critical = "critical"
-}
+// UserEngagement is defined in HealthAnalysisEngine.swift with computed properties
+// This avoids duplicate type definitions
 
-enum TimeSensitivity: String, CaseIterable {
-    case realTime = "real_time"
-    case immediate = "immediate"
-    case standard = "standard"
-    case deferred = "deferred"
-}
+// TimeSensitivity is defined in HealthAnalysisEngine.swift with computed properties
+// This avoids duplicate type definitions
 
 // MARK: - Analysis Result Types
 

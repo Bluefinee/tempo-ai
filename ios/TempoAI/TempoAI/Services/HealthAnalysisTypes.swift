@@ -62,36 +62,16 @@ struct ValidationResults {
     let overallValidation: Double
 }
 
-struct AnalysisPerformanceMetrics {
-    let routingDecisionTime: TimeInterval
-    let analysisExecutionTime: TimeInterval
-    let totalProcessingTime: TimeInterval
-    let accuracy: Double?
-    let costEfficiency: Double?
-    let userSatisfaction: Double?
-    let route: AnalysisRoute
-}
+// AnalysisPerformanceMetrics is defined in HealthAnalysisEngine.swift
+// This avoids duplicate type definitions
 
-struct AnalysisCapabilities {
-    let aiAvailable: Bool
-    let localCapabilities: [String]
-    let hybridStrategies: [HybridStrategy]
-    let estimatedAIResponseTime: TimeInterval?
-    let localProcessingSpeed: Double
-    let budgetRemaining: Double?
-}
+// AnalysisCapabilities is defined in HealthAnalysisEngine.swift
+// This avoids duplicate type definitions
 
 // MARK: - Cache Related Types
 
-struct CachedAnalysis {
-    let id: String
-    let requestHash: String
-    let result: AnalysisResult
-    let expirationDate: Date
-    let hitCount: Int
-    let lastAccessed: Date
-    let size: Int
-}
+// CachedAnalysis is defined in HealthAnalysisEngine.swift
+// This avoids duplicate type definitions
 
 struct CacheConfiguration {
     let maxSize: Int

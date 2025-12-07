@@ -224,15 +224,9 @@ class OnboardingProgressiveDisclosure: ObservableObject {
     }
 }
 
-// MARK: - Disclosure Stage Enum
-
-enum DisclosureStage: String, CaseIterable {
-    case introduction = "introduction"
-    case dataCategories = "data_categories"
-    case permissions = "permissions"
-    case dataUsage = "data_usage"
-    case completion = "completion"
-}
+// MARK: - Disclosure Stage Reference
+// DisclosureStage enum is defined in Models/ProgressiveDisclosureTypes.swift
+// This avoids duplicate type definitions
 
 // MARK: - Notification Extensions
 

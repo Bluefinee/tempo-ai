@@ -80,7 +80,9 @@ class AIRequestRateLimiter: ObservableObject {
             timestamp: now,
             cost: cost > 0 ? cost : costCalculator.estimateCost(for: requestType),
             responseTime: responseTime,
-            userSatisfaction: userSatisfaction
+            userSatisfaction: userSatisfaction,
+            success: true,
+            tokensUsed: nil
         )
 
         // Store the request record
@@ -794,6 +796,32 @@ struct AIRequestRecord: Codable {
     let cost: Double
     let responseTime: TimeInterval
     let userSatisfaction: Double?
+    let success: Bool
+    let tokensUsed: Int?
+    
+    // Computed properties for API compatibility
+    var requestType: AnalysisRequestType { type }
+    var estimatedCost: Double { cost }
+    
+    init(
+        id: UUID = UUID(),
+        type: AnalysisRequestType,
+        timestamp: Date = Date(),
+        cost: Double,
+        responseTime: TimeInterval,
+        userSatisfaction: Double? = nil,
+        success: Bool = true,
+        tokensUsed: Int? = nil
+    ) {
+        self.id = id
+        self.type = type
+        self.timestamp = timestamp
+        self.cost = cost
+        self.responseTime = responseTime
+        self.userSatisfaction = userSatisfaction
+        self.success = success
+        self.tokensUsed = tokensUsed
+    }
 }
 
 struct AIUsageStatus {

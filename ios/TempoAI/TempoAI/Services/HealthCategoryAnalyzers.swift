@@ -71,15 +71,15 @@ class CardiovascularAnalyzer {
     private func identifyCardiovascularRisks(findings: [HealthFinding], score: Double) -> [HealthRiskFactor] {
         var risks: [HealthRiskFactor] = []
 
-        for finding in findings where finding.severity == .high || finding.severity == .severe {
-            let riskLevel: RiskLevel = finding.severity == .severe ? .severe : .high
+        for finding in findings where finding.severity == .high || finding.severity == .critical {
+            let riskLevel: RiskLevel = finding.severity == .critical ? .severe : .high
             risks.append(
                 HealthRiskFactor(
                     category: .cardiovascular,
-                    riskLevel: riskLevel,
-                    factor: finding.description,
-                    severity: finding.severity == .severe ? 9 : 7,
-                    recommendation: "Monitor closely and consider medical consultation"
+                    description: finding.description,
+                    severity: finding.severity == .high ? .high : .moderate,
+                    recommendations: ["Monitor closely and consider medical consultation"],
+                    dataPoints: [finding.value]
                 )
             )
         }
@@ -89,11 +89,12 @@ class CardiovascularAnalyzer {
 
     private func calculateCardiovascularTrend(_ vitals: VitalSignsData) -> HealthTrend {
         return HealthTrend(
-            category: .cardiovascular,
+            metric: "cardiovascular",
             direction: .stable,
             magnitude: 0.0,
-            timeframe: "7 days",
-            confidence: 0.8
+            timeframe: .week,
+            significance: 0.8,
+            description: "Stable cardiovascular metrics over the past week"
         )
     }
 }
@@ -172,10 +173,10 @@ class SleepCategoryAnalyzer {
             risks.append(
                 HealthRiskFactor(
                     category: .sleep,
-                    riskLevel: .high,
-                    factor: "Chronic sleep deprivation",
-                    severity: 8,
-                    recommendation: "Prioritize sleep hygiene and consider professional evaluation"
+                    description: "Chronic sleep deprivation",
+                    severity: .high,
+                    recommendations: ["Prioritize sleep hygiene and consider professional evaluation"],
+                    dataPoints: ["Sleep duration analysis"]
                 )
             )
         }
@@ -185,11 +186,12 @@ class SleepCategoryAnalyzer {
 
     private func calculateSleepTrend(_ sleep: EnhancedSleepData) -> HealthTrend {
         return HealthTrend(
-            category: .sleep,
+            metric: "sleep",
             direction: .stable,
             magnitude: 0.0,
-            timeframe: "7 days",
-            confidence: 0.8
+            timeframe: .week,
+            significance: 0.8,
+            description: "Stable sleep patterns over the past week"
         )
     }
 }
@@ -271,10 +273,10 @@ class ActivityAnalyzer {
             risks.append(
                 HealthRiskFactor(
                     category: .activity,
-                    riskLevel: .moderate,
-                    factor: "Sedentary lifestyle",
-                    severity: 6,
-                    recommendation: "Incorporate regular physical activity into daily routine"
+                    description: "Sedentary lifestyle",
+                    severity: .moderate,
+                    recommendations: ["Incorporate regular physical activity into daily routine"],
+                    dataPoints: ["Activity level analysis"]
                 )
             )
         }
@@ -284,11 +286,12 @@ class ActivityAnalyzer {
 
     private func calculateActivityTrend(_ activity: EnhancedActivityData) -> HealthTrend {
         return HealthTrend(
-            category: .activity,
+            metric: "activity",
             direction: .stable,
             magnitude: 0.0,
-            timeframe: "7 days",
-            confidence: 0.8
+            timeframe: .week,
+            significance: 0.8,
+            description: "Stable activity patterns over the past week"
         )
     }
 }
@@ -362,10 +365,10 @@ class MetabolicAnalyzer {
             risks.append(
                 HealthRiskFactor(
                     category: .metabolic,
-                    riskLevel: riskLevel,
-                    factor: finding.description,
-                    severity: finding.severity == .severe ? 8 : 6,
-                    recommendation: "Monitor metabolic markers and consider lifestyle modifications"
+                    description: finding.description,
+                    severity: finding.severity == .critical ? .high : .moderate,
+                    recommendations: ["Monitor metabolic markers and consider lifestyle modifications"],
+                    dataPoints: [finding.value]
                 )
             )
         }
@@ -375,11 +378,12 @@ class MetabolicAnalyzer {
 
     private func calculateMetabolicTrend(_ bodyMeasurements: BodyMeasurementsData) -> HealthTrend {
         return HealthTrend(
-            category: .metabolic,
+            metric: "metabolic",
             direction: .stable,
             magnitude: 0.0,
-            timeframe: "30 days",
-            confidence: 0.8
+            timeframe: .month,
+            significance: 0.8,
+            description: "Stable metabolic health over the past month"
         )
     }
 }

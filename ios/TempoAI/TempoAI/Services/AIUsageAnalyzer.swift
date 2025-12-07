@@ -180,7 +180,7 @@ class AIUsageAnalyzer {
         let successfulRequests = records.filter { $0.success }.count
         let failedRequests = totalRequests - successfulRequests
 
-        let totalTokensUsed = records.map { $0.tokensUsed }.reduce(0, +)
+        let totalTokensUsed = records.compactMap { $0.tokensUsed }.reduce(0, +)
         let totalCostIncurred = records.map { $0.estimatedCost }.reduce(0, +)
 
         var requestsByType: [AnalysisRequestType: Int] = [:]

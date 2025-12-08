@@ -19,7 +19,7 @@ struct OnboardingFlowView: View {
                     .ignoresSafeArea()
 
                 VStack(spacing: 0) {
-                    // Simple progress indicator (Labor Illusion)
+                    // Simple progress indicator
                     if coordinator.currentPage != .welcome && coordinator.currentPage != .completion {
                         HStack {
                             ForEach(0..<OnboardingPage.allCases.count, id: \.self) { index in
@@ -32,7 +32,7 @@ struct OnboardingFlowView: View {
                         .padding(.top, Spacing.lg)
                     }
 
-                    // Direct page rendering (no TabView complexity)
+                    // Direct page rendering
                     Group {
                         switch coordinator.currentPage {
                         case .welcome:

@@ -175,16 +175,6 @@ struct FocusTagCard: View {
     }
 }
 
-extension FocusTag {
-    var themeColor: Color {
-        switch self {
-        case .work: return ColorPalette.info
-        case .beauty: return .pink
-        case .diet: return .green
-        case .chill: return .mint
-        }
-    }
-}
 
 #Preview {
     FocusTagsPage(

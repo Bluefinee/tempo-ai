@@ -70,6 +70,7 @@ class AIAnalysisService: ObservableObject {
             currentAdvice = response
             return response
         } catch {
+            print("⚠️ AI分析リクエストエラー: \(error.localizedDescription)")
             return createFallbackAdvice(for: battery)
         }
     }
@@ -92,6 +93,7 @@ class AIAnalysisService: ObservableObject {
 
 @MainActor
 class APIClient {
+    // TODO: 実API統合時に使用予定
     private let baseURL = URL(string: "https://your-backend-url.com")!
 
     func requestAnalysis(_ request: AnalysisRequest) async throws -> AnalysisResponse {

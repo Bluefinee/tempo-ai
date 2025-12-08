@@ -6,7 +6,7 @@ struct UserModePage: View {
     let onBack: (() -> Void)?
 
     var body: some View {
-        GeometryReader { geometry in
+        GeometryReader { _ in
             VStack(spacing: 0) {
                 // Header section (Serial Position Effect - important info at top)
                 VStack(spacing: Spacing.md) {

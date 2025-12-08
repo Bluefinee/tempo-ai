@@ -8,8 +8,8 @@
 
 import Combine
 import Foundation
-import SwiftUI
 import os.log
+import SwiftUI
 
 /**
  * ハイブリッド分析エンジン
@@ -39,7 +39,6 @@ class HybridAnalysisEngine: ObservableObject {
     
     // MARK: - Private Properties
     
-    private var cancellables: Set<AnyCancellable> = []
     private var lastAnalysisTime: Date?
     private var lastEnergyLevel: Double?
     
@@ -56,8 +55,6 @@ class HybridAnalysisEngine: ObservableObject {
         self.aiAnalysisService = aiAnalysisService
         self.cacheManager = cacheManager
         self.staticAnalysisEngine = StaticAnalysisEngine()
-        
-        setupAnalysisFlow()
     }
     
     // MARK: - Public Methods
@@ -97,47 +94,6 @@ class HybridAnalysisEngine: ObservableObject {
     }
     
     // MARK: - Private Methods - Analysis Flow
-    
-    /**
-     * 分析フローの設定
-     */
-    private func setupAnalysisFlow() {
-        // バッテリーエンジンの変更を監視
-        batteryEngine.$currentBattery
-            .debounce(for: .seconds(2), scheduler: DispatchQueue.main)
-            .sink { [weak self] _ in
-                Task {
-                    await self?.generateAnalysisIfNeeded()
-                }
-            }
-            .store(in: &cancellables)
-        
-        // 定期更新（5分間隔）
-        Timer.publish(every: 300, on: .main, in: .common)
-            .autoconnect()
-            .sink { [weak self] _ in
-                Task {
-                    await self?.generateAnalysisIfNeeded()
-                }
-            }
-            .store(in: &cancellables)
-    }
-    
-    /**
-     * 必要に応じて分析を実行（重複実行を防止）
-     */
-    private func generateAnalysisIfNeeded() async {
-        let now = Date()
-        
-        // 前回から5分以内は実行しない
-        if let lastTime = lastAnalysisTime,
-           now.timeIntervalSince(lastTime) < 300 {
-            return
-        }
-        
-        await generateAnalysis()
-        lastAnalysisTime = now
-    }
     
     /**
      * 静的分析を実行

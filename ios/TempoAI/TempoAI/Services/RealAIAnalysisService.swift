@@ -114,7 +114,7 @@ class RealAIAnalysisService: AIAnalysisServiceProtocol {
      */
     private func performRealAPIRequest(_ request: AIAnalysisRequest) async throws -> AIAnalysisResponse {
         guard let url = URL(string: APIConstants.baseURL + APIConstants.focusAnalysisEndpoint) else {
-            throw AIAnalysisServiceError.invalidStaticAnalysis
+            throw AIAnalysisServiceError.invalidURL
         }
         
         var urlRequest = URLRequest(url: url)
@@ -123,19 +123,39 @@ class RealAIAnalysisService: AIAnalysisServiceProtocol {
         urlRequest.setValue("application/json", forHTTPHeaderField: "Accept")
         
         // リクエストボディ設定
-        urlRequest.httpBody = try encoder.encode(request)
+        do {
+            urlRequest.httpBody = try encoder.encode(request)
+        } catch {
+            throw AIAnalysisServiceError.networkError(error)
+        }
         
-        let (data, response) = try await urlSession.data(for: urlRequest)
+        let (data, response): (Data, URLResponse)
+        do {
+            (data, response) = try await urlSession.data(for: urlRequest)
+        } catch {
+            throw AIAnalysisServiceError.networkError(error)
+        }
         
         guard let httpResponse = response as? HTTPURLResponse else {
-            throw AIAnalysisServiceError.invalidStaticAnalysis
+            throw AIAnalysisServiceError.invalidResponse
         }
         
-        guard httpResponse.statusCode == 200 else {
-            throw AIAnalysisServiceError.invalidStaticAnalysis
+        switch httpResponse.statusCode {
+        case 200:
+            break
+        case 400...499:
+            throw AIAnalysisServiceError.clientError(httpResponse.statusCode)
+        case 500...599:
+            throw AIAnalysisServiceError.serverError(httpResponse.statusCode)
+        default:
+            throw AIAnalysisServiceError.unexpectedStatusCode(httpResponse.statusCode)
         }
         
-        return try decoder.decode(AIAnalysisResponse.self, from: data)
+        do {
+            return try decoder.decode(AIAnalysisResponse.self, from: data)
+        } catch {
+            throw AIAnalysisServiceError.decodingError(error)
+        }
     }
     
     /**

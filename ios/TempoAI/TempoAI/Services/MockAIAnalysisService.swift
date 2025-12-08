@@ -113,11 +113,38 @@ class MockAIAnalysisService: AIAnalysisServiceProtocol {
 
 enum AIAnalysisServiceError: Error, LocalizedError {
     case invalidStaticAnalysis
+    case invalidURL
+    case invalidResponse
+    case invalidResponseData(String)
+    case networkError(Error)
+    case clientError(Int)
+    case serverError(Int)
+    case unexpectedStatusCode(Int)
+    case decodingError(Error)
+    case timeoutError
     
     var errorDescription: String? {
         switch self {
         case .invalidStaticAnalysis:
             return "静的分析データが無効です"
+        case .invalidURL:
+            return "無効なAPIエンドポイントです"
+        case .invalidResponse:
+            return "無効なサーバーレスポンスです"
+        case .invalidResponseData(let message):
+            return "レスポンスデータが無効です: \(message)"
+        case .networkError(let error):
+            return "ネットワークエラー: \(error.localizedDescription)"
+        case .clientError(let code):
+            return "クライアントエラー: \(code)"
+        case .serverError(let code):
+            return "サーバーエラー: \(code)"
+        case .unexpectedStatusCode(let code):
+            return "予期しないステータスコード: \(code)"
+        case .decodingError(let error):
+            return "データ解析エラー: \(error.localizedDescription)"
+        case .timeoutError:
+            return "リクエストがタイムアウトしました"
         }
     }
 }

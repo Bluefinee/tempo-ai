@@ -67,121 +67,78 @@ struct PlaceholderView: View {
 }
 
 struct SettingsView: View {
-    @ObservedObject private var userProfileManager = UserProfileManager.shared
     @ObservedObject private var focusTagManager = FocusTagManager.shared
-    @State private var showingProfileSettings = false
-    @State private var showingAISettings = false
-    @State private var showingDataPermissions = false
-    @State private var showingPrivacySettings = false
 
     var body: some View {
         NavigationStack {
-            ScrollView {
+            VStack(spacing: Spacing.xl) {
+                Spacer()
+                
+                // Coming Soon Message
                 VStack(spacing: Spacing.lg) {
-                    // Header
-                    VStack(spacing: Spacing.sm) {
-                        Text("設定")
-                            .font(.system(size: 32, weight: .light))
+                    Image(systemName: "gearshape.fill")
+                        .font(.system(size: 64, weight: .light))
+                        .foregroundColor(ColorPalette.primaryAccent)
+                    
+                    VStack(spacing: Spacing.md) {
+                        Text("設定機能準備中")
+                            .font(.system(size: 28, weight: .light))
                             .foregroundColor(ColorPalette.richBlack)
-
-                        Text("あなたの体験をカスタマイズ")
+                        
+                        Text("Phase 1.5以降で実装予定\n\n現在は6つの関心分野選択で\nパーソナライズをお楽しみください")
                             .font(.system(size: 16, weight: .regular))
                             .foregroundColor(ColorPalette.gray600)
+                            .multilineTextAlignment(.center)
+                            .lineSpacing(2)
                     }
-                    .padding(.top, Spacing.lg)
-
-                    // Settings Cards
-                    VStack(spacing: Spacing.md) {
-                        // Profile Settings
-                        SettingsCardRow(
-                            icon: "person.circle.fill",
-                            title: "あなたのプロフィール",
-                            subtitle: "AIがあなたに合わせて最適化",
-                            status: userProfileManager.currentMode.displayName,
-                            color: Color(.systemBlue)
-                        ) {
-                            showingProfileSettings = true
-                        }
-
-                        // AI Analysis Settings
-                        SettingsCardRow(
-                            icon: "brain.head.profile",
-                            title: "AI分析とカスタマイズ",
-                            subtitle: aiSettingsSubtitle,
-                            status: "\(focusTagManager.activeTags.count)つの関心領域",
-                            color: Color(.systemPurple)
-                        ) {
-                            showingAISettings = true
-                        }
-
-                        // Data Permissions
-                        SettingsCardRow(
-                            icon: "heart.text.square.fill",
-                            title: "データ連携",
-                            subtitle: "さらに詳しい分析で精度向上",
-                            status: "6項目許可済み",  // TODO: Make this dynamic
-                            color: Color(.systemRed)
-                        ) {
-                            showingDataPermissions = true
-                        }
-
-                        // Privacy and Notifications
-                        SettingsCardRow(
-                            icon: "lock.shield.fill",
-                            title: "プライバシーと通知",
-                            subtitle: "あなたのデータはデバイス内で処理",
-                            status: "安全に保護",
-                            color: Color(.systemGreen)
-                        ) {
-                            showingPrivacySettings = true
-                        }
-                    }
-                    .padding(.horizontal, Spacing.lg)
-
-                    #if DEBUG
-                        // Developer Tools (Debug only)
-                        VStack {
-                            Button("オンボーディングリセット") {
-                                resetOnboarding()
+                    
+                    // Show current focus areas
+                    if !focusTagManager.activeTags.isEmpty {
+                        VStack(spacing: Spacing.sm) {
+                            Text("選択済み関心分野")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(ColorPalette.gray500)
+                            
+                            HStack(spacing: Spacing.sm) {
+                                ForEach(Array(focusTagManager.activeTags), id: \.self) { tag in
+                                    Text(tag.displayName)
+                                        .font(.system(size: 12, weight: .medium))
+                                        .foregroundColor(tag.themeColor)
+                                        .padding(.horizontal, Spacing.sm)
+                                        .padding(.vertical, Spacing.xs)
+                                        .background(
+                                            RoundedRectangle(cornerRadius: CornerRadius.sm)
+                                                .fill(tag.themeColor.opacity(0.1))
+                                        )
+                                }
                             }
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundColor(ColorPalette.error)
-                            .padding()
-                            .background(
-                                RoundedRectangle(cornerRadius: CornerRadius.md)
-                                    .fill(ColorPalette.error.opacity(0.1))
-                            )
                         }
-                        .padding(.top, Spacing.xl)
-                    #endif
-
-                    Spacer()
+                        .padding(.top, Spacing.lg)
+                    }
                 }
+                
+                Spacer()
+                
+                #if DEBUG
+                    // Developer Tools (Debug only)
+                    VStack {
+                        Button("オンボーディングリセット") {
+                            resetOnboarding()
+                        }
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(ColorPalette.error)
+                        .padding()
+                        .background(
+                            RoundedRectangle(cornerRadius: CornerRadius.md)
+                                .fill(ColorPalette.error.opacity(0.1))
+                        )
+                    }
+                #endif
             }
-            .background(ColorPalette.gray50)
+            .padding(Spacing.lg)
+            .background(ColorPalette.pureWhite)
             .navigationBarHidden(true)
         }
-        // TODO: Settings views will be implemented in future phases
-        // .sheet(isPresented: $showingProfileSettings) {
-        //     ProfileSettingsView()
-        // }
-        // .sheet(isPresented: $showingAISettings) {
-        //     AIAnalysisSettingsView()
-        // }
-        // .sheet(isPresented: $showingDataPermissions) {
-        //     DataPermissionsView()
-        // }
-        // .sheet(isPresented: $showingPrivacySettings) {
-        //     PrivacySettingsView()
-        // }
-    }
-
-    private var aiSettingsSubtitle: String {
-        let tags = Array(focusTagManager.activeTags.prefix(3))
-        if tags.isEmpty {
-            return "タップして関心領域を設定"
-        }
-        return tags.map { $0.displayName }.joined(separator: "、")
     }
 
     #if DEBUG

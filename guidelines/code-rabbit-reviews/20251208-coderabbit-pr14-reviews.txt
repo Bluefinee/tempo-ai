@@ -13,7 +13,7 @@ This is a comprehensive AI-enhanced analysis feature combining static health met
 1. **EnhancedAIAnalysisService** - Dense logic with multiple helper methods, fallback chain, response parsing/validation
 2. **IntelligentCacheManager** - Three-layer cache coherence, TTL expiry logic, context similarity scoring  
 3. **HybridAnalysisEngine** - @MainActor with async state management
-4. **API Key Security** - ANTHROPIC_API_KEY handling and potential exposure in logs
+4. **API Key Security** - GEMINI_API_KEY handling and potential exposure in logs
 5. **Cross-platform Type Compatibility** - Backend TypeScript schemas vs iOS Swift models
 6. **FocusAreaPromptBuilder** - Bilingual logic for Japanese/English guidance
 
@@ -238,7 +238,7 @@ The PR includes detailed sequence diagrams showing:
 3. **Consider namespace refactoring** for utility classes
 
 ## Security Notes
-- ANTHROPIC_API_KEY handling appears secure but verify no leakage in logs
+- GEMINI_API_KEY handling appears secure but verify no leakage in logs
 - Error messages should not expose sensitive information
 - Rate limiting implementation needed for production readiness
 

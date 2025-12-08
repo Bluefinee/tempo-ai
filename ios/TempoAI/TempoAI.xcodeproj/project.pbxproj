@@ -375,6 +375,9 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSAppTransportSecurity_NSAllowsLocalNetworking = YES;
+				INFOPLIST_KEY_NSAppTransportSecurity_NSExceptionDomains_127.0.0.1_NSTemporaryExceptionAllowsInsecureHTTPLoads = YES;
+				INFOPLIST_KEY_NSAppTransportSecurity_NSExceptionDomains_localhost_NSTemporaryExceptionAllowsInsecureHTTPLoads = YES;
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "This app uses HealthKit to monitor your daily activity (steps, distance, calories, exercise time), analyze sleep patterns, and track heart rate data to provide personalized health insights and recommendations.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "This app may write health data to HealthKit to track your wellness progress and sync data across devices for comprehensive health analysis.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "This app uses your location to provide weather-based health advice and environmental recommendations tailored to your current area.";

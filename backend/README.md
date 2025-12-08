@@ -1,6 +1,6 @@
 # Tempo AI API
 
-Cloudflare Workers APIサーバー for Tempo AI - パーソナライズされた健康アドバイスを提供するAIプラットフォーム
+Cloudflare Workers API サーバー for Tempo AI - パーソナライズされた健康アドバイスを提供する AI プラットフォーム
 
 ## 🚀 Quick Start
 
@@ -113,18 +113,18 @@ npm run deps:update
 
 ### 1. 環境変数設定
 
-`.dev.vars`ファイルを作成してAPIキーを設定:
+`.dev.vars`ファイルを作成して API キーを設定:
 
 ```bash
 # .dev.vars
-ANTHROPIC_API_KEY=sk-ant-api03-your-api-key-here
+GEMINI_API_KEY=sk-ant-api03-your-api-key-here
 ```
 
 ### 2. 本番環境での設定
 
 ```bash
 # Claude API キー設定
-wrangler secret put ANTHROPIC_API_KEY
+wrangler secret put GEMINI_API_KEY
 
 # 入力画面でAPIキーを設定
 ```
@@ -133,14 +133,14 @@ wrangler secret put ANTHROPIC_API_KEY
 
 ### メインエンドポイント
 
-- `GET /` - API情報
+- `GET /` - API 情報
 - `GET /api/health/status` - ヘルスチェック
-- `POST /api/health/analyze` - HealthKitデータ分析
+- `POST /api/health/analyze` - HealthKit データ分析
 
 ### テスト用エンドポイント
 
-- `POST /api/test/weather` - 天気API単体テスト
-- `POST /api/test/analyze-mock` - モックAI分析
+- `POST /api/test/weather` - 天気 API 単体テスト
+- `POST /api/test/analyze-mock` - モック AI 分析
 
 ### リクエスト例
 
@@ -154,12 +154,14 @@ curl -X POST http://localhost:8787/api/health/analyze \
 ## 🧪 テスト戦略
 
 ### ユニットテスト
+
 - `vitest`使用
 - ユーティリティ関数のテスト
 - エラーハンドリングのテスト
 
 ### 統合テスト
-- APIエンドポイントの動作確認
+
+- API エンドポイントの動作確認
 - 外部サービス統合テスト
 - `tests/scripts/test-api.sh`で自動実行
 
@@ -203,29 +205,32 @@ npm run deploy          # デプロイ
 ### よくある問題
 
 1. **型エラーが出る場合**
+
    ```bash
    npm run type-check
    ```
 
 2. **フォーマットエラー**
+
    ```bash
    npm run format
    ```
 
-3. **ESLintエラー**
+3. **ESLint エラー**
+
    ```bash
    npm run lint:fix
    ```
 
-4. **APIテストが失敗する場合**
+4. **API テストが失敗する場合**
    - 開発サーバーが起動しているか確認
-   - `.dev.vars`にAPIキーが設定されているか確認
+   - `.dev.vars`に API キーが設定されているか確認
 
 ### パフォーマンス
 
-- **CPU time**: <15ms (Cloudflare Workers課金対象)
-- **Wall time**: 10-20秒 (AI分析含む)
-- **並列処理**: 天気API + AI分析を効率化
+- **CPU time**: <15ms (Cloudflare Workers 課金対象)
+- **Wall time**: 10-20 秒 (AI 分析含む)
+- **並列処理**: 天気 API + AI 分析を効率化
 
 ## 📄 ライセンス
 

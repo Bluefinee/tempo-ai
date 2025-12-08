@@ -77,32 +77,32 @@ struct SettingsView: View {
         NavigationStack {
             VStack(spacing: Spacing.xl) {
                 Spacer()
-                
+
                 // Coming Soon Message
                 VStack(spacing: Spacing.lg) {
                     Image(systemName: "gearshape.fill")
                         .font(.system(size: 64, weight: .light))
                         .foregroundColor(ColorPalette.primaryAccent)
-                    
+
                     VStack(spacing: Spacing.md) {
                         Text("設定機能準備中")
                             .font(.system(size: 28, weight: .light))
                             .foregroundColor(ColorPalette.richBlack)
-                        
+
                         Text("Phase 1.5以降で実装予定\n\n現在は6つの関心分野選択で\nパーソナライズをお楽しみください")
                             .font(.system(size: 16, weight: .regular))
                             .foregroundColor(ColorPalette.gray600)
                             .multilineTextAlignment(.center)
                             .lineSpacing(2)
                     }
-                    
+
                     // Show current focus areas
                     if !focusTagManager.activeTags.isEmpty {
                         VStack(spacing: Spacing.sm) {
                             Text("選択済み関心分野")
                                 .font(.system(size: 14, weight: .medium))
                                 .foregroundColor(ColorPalette.gray500)
-                            
+
                             HStack(spacing: Spacing.sm) {
                                 ForEach(Array(focusTagManager.activeTags), id: \.self) { tag in
                                     Text(tag.displayName)
@@ -120,9 +120,9 @@ struct SettingsView: View {
                         .padding(.top, Spacing.lg)
                     }
                 }
-                
+
                 Spacer()
-                
+
                 #if DEBUG
                     // Developer Tools (Debug only)
                     VStack {

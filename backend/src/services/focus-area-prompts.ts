@@ -13,18 +13,25 @@ import type { AIAnalysisRequest, FocusTagType } from '../types/ai-analysis'
  */
 export class FocusAreaPromptBuilder {
   /**
-   * 関心分野に特化したプロンプトを構築
+   * 今日選択された関心分野に特化したプロンプトを構築
    */
   static buildFocusSpecificPrompt(
     request: AIAnalysisRequest,
     language: 'ja' | 'en' = 'ja',
+    todaysFocus?: string | string[],
   ): string {
-    const basePersona = this.getBasePersona(language)
-    const focusSpecificGuidance = this.buildFocusSpecificGuidance(request.userContext.activeTags, language)
-    const contextualData = this.formatContextualData(request)
-    const outputFormat = this.getOutputFormat(language)
+    const basePersona = FocusAreaPromptBuilder.getBasePersona(language)
+    // 今日選択された分野のみの特化ガイダンス
+    const todaysGuidance = FocusAreaPromptBuilder.buildTodaysFocusGuidance(
+      todaysFocus || request.userContext.activeTags,
+      language,
+    )
+    const contextualData = FocusAreaPromptBuilder.formatContextualData(request)
+    const outputFormat = FocusAreaPromptBuilder.getOutputFormat(language)
 
-    return [basePersona, focusSpecificGuidance, contextualData, outputFormat].join('\n\n')
+    return [basePersona, todaysGuidance, contextualData, outputFormat].join(
+      '\n\n',
+    )
   }
 
   /**
@@ -63,20 +70,47 @@ Expression Guidelines:
   }
 
   /**
-   * 関心分野別の専門ガイダンス
+   * 今日選択された分野の専門ガイダンス
    */
-  private static buildFocusSpecificGuidance(activeTags: FocusTagType[], language: 'ja' | 'en'): string {
-    const specialists = activeTags.map((tag) => this.getSpecialistGuidance(tag, language)).join('\n\n')
+  private static buildTodaysFocusGuidance(
+    todaysFocus: string | string[],
+    language: 'ja' | 'en',
+  ): string {
+    const header =
+      language === 'ja' ? '## 今日の専門分析対象' : "## Today's Focus Analysis"
 
-    const header = language === 'ja' ? '## 関心分野別専門分析' : '## Focus Area Specialist Analysis'
-
-    return `${header}\n\n${specialists}`
+    if (Array.isArray(todaysFocus)) {
+      // 組み合わせ分析
+      const combo = todaysFocus
+        .map((tag) =>
+          FocusAreaPromptBuilder.getSpecialistGuidance(
+            tag as FocusTagType,
+            language,
+          ),
+        )
+        .join('\n\n')
+      return `${header}（組み合わせ分析: ${todaysFocus.join(' + ')}）\n\n${combo}`
+    } else {
+      // 単体分析
+      const specialist = FocusAreaPromptBuilder.getSpecialistGuidance(
+        todaysFocus as FocusTagType,
+        language,
+      )
+      return `${header}（今日の分野: ${todaysFocus}）\n\n${specialist}`
+    }
   }
+
+  /**
+   * 関心分野別の専門ガイダンス（従来メソッド維持）
+   */
 
   /**
    * 個別関心分野の専門ガイダンス
    */
-  private static getSpecialistGuidance(focusTag: FocusTagType, language: 'ja' | 'en'): string {
+  private static getSpecialistGuidance(
+    focusTag: FocusTagType,
+    language: 'ja' | 'en',
+  ): string {
     const guidance = FOCUS_AREA_GUIDANCE[focusTag]
     return language === 'ja' ? guidance.japanese : guidance.english
   }
@@ -116,41 +150,36 @@ Expression Guidelines:
    */
   private static getOutputFormat(language: 'ja' | 'en'): string {
     if (language === 'ja') {
-      return `## 出力形式
+      return `## 1日分包括分析 - 6分野UI表示用
 
-以下のJSON形式で回答してください：
+以下のJSON形式で、6つの関心分野全てに対応したUIコンテンツを生成してください：
+
 {
   "headline": {
-    "title": "簡潔で共感的なタイトル",
-    "subtitle": "具体的な行動指針",
-    "impactLevel": "low|medium|high|critical",
+    "title": "今日の総合評価（30文字以内）",
+    "subtitle": "最重要アクション1つ（50文字以内）",
+    "impactLevel": "low|medium|high",
     "confidence": 85
   },
-  "energyComment": "エネルギー状態への共感的コメント",
+  "energyComment": "エネルギー状態の専門的分析（100文字程度）",
   "tagInsights": [
     {
-      "tag": "関心分野名",
-      "icon": "SFシンボル名",
-      "message": "専門的観点からのインサイト",
+      "tag": "今日選択された分野名（例: beauty, diet, beauty+diet）",
+      "icon": "適切なSFシンボル名", 
+      "message": "今日のデータから導かれた専門的インサイト - UIに適したサイズ（120文字以内）",
       "urgency": "info|warning|critical"
     }
   ],
   "aiActionSuggestions": [
     {
-      "title": "今日のトライ提案",
-      "description": "詳細説明と動機付け",
+      "title": "今日の最重要アクション（15文字以内）",
+      "description": "効果と理由の説明 - UIに適したサイズ（150文字以内）", 
       "actionType": "rest|hydrate|exercise|focus|social|beauty",
-      "estimatedTime": "5分",
+      "estimatedTime": "5-15分",
       "difficulty": "easy|medium|hard"
     }
   ],
-  "detailAnalysis": "環境要因と体調の関連性の詳細解説",
-  "dataQuality": {
-    "healthDataCompleteness": 90,
-    "weatherDataAge": 15,
-    "analysisTimestamp": "2024-12-08T10:30:00Z"
-  },
-  "generatedAt": "2024-12-08T10:30:00Z"
+  "detailAnalysis": "今日のデータの相関関係分析 - UI表示に適したサイズ（200文字以内）"
 }`
     } else {
       return `## Output Format
@@ -404,16 +433,24 @@ export class TodaysTryContextAnalyzer {
     }
 
     // 時間帯分析
-    const timeOpportunity = this.analyzeTimeOpportunity(request.userContext.timeOfDay)
+    const timeOpportunity = TodaysTryContextAnalyzer.analyzeTimeOpportunity(
+      request.userContext.timeOfDay,
+    )
     opportunities.push(timeOpportunity)
 
     // 最優先の機会を返却
-    const sortedOpportunities = opportunities.sort((a, b) => this.getPriorityWeight(b.priority) - this.getPriorityWeight(a.priority))
-    return sortedOpportunities[0] || {
-      type: 'general_wellness',
-      priority: 'low' as const,
-      reasoning: '一般的なウェルネス維持',
-    }
+    const sortedOpportunities = opportunities.sort(
+      (a, b) =>
+        TodaysTryContextAnalyzer.getPriorityWeight(b.priority) -
+        TodaysTryContextAnalyzer.getPriorityWeight(a.priority),
+    )
+    return (
+      sortedOpportunities[0] || {
+        type: 'general_wellness',
+        priority: 'low' as const,
+        reasoning: '一般的なウェルネス維持',
+      }
+    )
   }
 
   private static analyzeTimeOpportunity(timeOfDay: string): TryOpportunity {

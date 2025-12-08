@@ -12,9 +12,6 @@
  * Cloudflare Workers環境変数の型定義
  */
 export type Bindings = {
-  /** Anthropic Claude API キー（レガシー） */
-  ANTHROPIC_API_KEY?: string
-  
-  /** Google Gemini API キー */
-  GEMINI_API_KEY: string
+  /** Anthropic Claude API キー */
+  CLAUDE_API_KEY: string
 }

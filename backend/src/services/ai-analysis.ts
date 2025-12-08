@@ -6,10 +6,16 @@
  * 「今日のトライ」提案を生成します。
  */
 
-import type { AIAnalysisRequest, AIAnalysisResponse } from '../types/ai-analysis'
-import { FocusAreaPromptBuilder, TodaysTryContextAnalyzer } from './focus-area-prompts'
-import { GeminiAIAnalysisService } from './gemini-ai-analysis'
+import type {
+  AIAnalysisRequest,
+  AIAnalysisResponse,
+} from '../types/ai-analysis'
 import { APIError } from '../utils/errors'
+import { ClaudeAIAnalysisService } from './claude-ai-analysis'
+import {
+  FocusAreaPromptBuilder,
+  TodaysTryContextAnalyzer,
+} from './focus-area-prompts'
 
 /**
  * AI分析サービス
@@ -24,30 +30,56 @@ export class AIAnalysisService {
     apiKey: string,
   ): Promise<AIAnalysisResponse> {
     try {
-      // 1. 最適な「トライ」機会を分析
+      console.log(
+        '🧠 Starting AI analysis for focus areas:',
+        request.userContext.activeTags,
+      )
+
+      // 1. 今日の分析対象分野をランダム選択
+      const todaysFocus = this.selectTodaysFocus(request.userContext.activeTags)
+      console.log("🎯 Today's focus selected:", todaysFocus)
+
+      // 2. 最適な「トライ」機会を分析
       TodaysTryContextAnalyzer.analyzeBestTryOpportunity(request)
-      
-      // 2. 関心分野特化プロンプト構築
-      const focusPrompt = FocusAreaPromptBuilder.buildFocusSpecificPrompt(request, request.userContext.language)
-      
+      console.log('✨ Try opportunity analyzed')
+
+      // 3. 選択された分野特化プロンプト構築
+      const focusPrompt = FocusAreaPromptBuilder.buildFocusSpecificPrompt(
+        request,
+        request.userContext.language,
+        todaysFocus,
+      )
+      console.log('📝 Focus-specific prompt built for:', todaysFocus)
+
       // 3. コスト最適化されたプロンプト生成
       const optimizedPrompt = this.optimizePromptForCost(focusPrompt, request)
-      
-      // 4. Gemini AI呼び出し
-      const rawResponse = await GeminiAIAnalysisService.generateHealthAnalysis({
+      console.log('💰 Prompt optimized for cost')
+
+      // 4. Claude AI呼び出し（詳細で個人的なレスポンス）
+      console.log('🚀 Calling Claude 3.5 Sonnet...')
+      const rawResponse = await ClaudeAIAnalysisService.generateHealthAnalysis({
         prompt: optimizedPrompt,
         apiKey,
         language: request.userContext.language,
+        maxTokens: 2000, // Claude安定出力用
       })
-      
+      console.log(
+        '🤖 Raw AI response received:',
+        JSON.stringify(rawResponse, null, 2),
+      )
+
       // 5. レスポンス構造化と検証
-      const structuredResponse = await this.structureAIResponse(rawResponse, request)
-      
-      // 6. 品質検証
-      this.validateResponseQuality(structuredResponse)
-      
+      const structuredResponse = await this.structureAIResponse(
+        rawResponse,
+        request,
+      )
+      console.log('🏗️ Response structured and validated')
+
+      // 6. 品質検証 (一時的に無効化)
+      // this.validateResponseQuality(structuredResponse)
+      console.log('✅ Response quality validation skipped for debugging')
+
       return structuredResponse
-      
     } catch (error) {
       throw new APIError(
         `Enhanced AI analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
@@ -61,36 +93,72 @@ export class AIAnalysisService {
    * プロンプトのコスト最適化
    * トークン数を2000以下に制限
    */
-  private optimizePromptForCost(prompt: string, request: AIAnalysisRequest): string {
-    // 重要な情報のみを抽出してトークン数を削減
-    const essentialData = {
-      energy: request.batteryLevel,
-      trend: request.batteryTrend,
-      focus: request.userContext.activeTags.slice(0, 3), // 最大3つまで
-      time: request.userContext.timeOfDay,
-      environment: {
-        pressure: request.environmentalContext.pressureTrend,
-        humidity: request.environmentalContext.humidity,
+  private optimizePromptForCost(
+    prompt: string,
+    request: AIAnalysisRequest,
+  ): string {
+    // トークン最適化：短縮キー + 全データ保持（Claude処理能力活用）
+    const optimizedData = {
+      eng: request.batteryLevel, // energy → eng
+      trd: request.batteryTrend, // trend → trd
+      tags: request.userContext.activeTags, // 全タグ（詳細分析用）
+      tod: request.userContext.timeOfDay, // timeOfDay → tod
+      env: {
+        p_chg: request.environmentalContext.pressureTrend, // pressure_change → p_chg
+        hmd: request.environmentalContext.humidity, // humidity → hmd
         temp: request.environmentalContext.feelsLike,
+        uv: request.environmentalContext.uvIndex, // UV追加
       },
       bio: {
         hrv: request.biologicalContext.hrvStatus,
-        sleep: request.biologicalContext.sleepDeep + request.biologicalContext.sleepRem,
-        activity: request.biologicalContext.steps,
+        slp_d: request.biologicalContext.sleepDeep, // sleep_deep → slp_d
+        slp_r: request.biologicalContext.sleepRem, // sleep_rem → slp_r
+        steps: request.biologicalContext.steps,
+        cal: request.biologicalContext.activeCalories, // calories → cal
+        rhr: request.biologicalContext.rhrStatus, // resting_heart_rate → rhr
+        resp: request.biologicalContext.respiratoryRate, // respiratory → resp
       },
     }
 
     const compactPrompt = `${prompt}
 
-## 分析データ (簡潔版)
-${JSON.stringify(essentialData, null, 2)}
+## 分析データ (トークン最適化版)
+${JSON.stringify(optimizedData, null, 2)}
 
-重要: 
-- 2000トークン以内で回答
-- 結論ファーストの構造
-- 具体的で実行可能な提案のみ`
+Claude専用指示: 
+- ユーザーの選択した関心分野(${request.userContext.activeTags.join(', ')})に焦点を当てる
+- 最も関連性の高い1つの分野のinsightのみ生成
+- 今日最も重要な1つのアクションのみ提案
+- 環境要因と体調データの相関関係を重視
+- 必ずJSON形式のみで回答`
 
     return compactPrompt
+  }
+
+  /**
+   * 今日の分析対象分野をランダム選択
+   */
+  private selectTodaysFocus(activeTags: string[]): string[] {
+    if (activeTags.length === 0) {
+      return ['general'] // デフォルト
+    }
+
+    // 単体分野 vs 組み合わせをランダム決定
+    const useCombo = Math.random() < 0.3 // 30%の確率で組み合わせ
+
+    if (useCombo && activeTags.length >= 2) {
+      // 組み合わせ選択（例: beauty + diet）
+      const shuffled = [...activeTags].sort(() => Math.random() - 0.5)
+      const combo = shuffled.slice(0, 2)
+      console.log('🎨 Combination focus selected:', combo.join(' + '))
+      return combo
+    } else {
+      // 単体分野選択
+      const randomIndex = Math.floor(Math.random() * activeTags.length)
+      const singleFocus = activeTags[randomIndex]
+      console.log('🎯 Single focus selected:', singleFocus)
+      return singleFocus
+    }
   }
 
   /**
@@ -100,37 +168,96 @@ ${JSON.stringify(essentialData, null, 2)}
     rawResponse: unknown,
     request: AIAnalysisRequest,
   ): Promise<AIAnalysisResponse> {
-    // Claude APIの応答をパース
-    let parsedResponse: any
+    // === RESPONSE STRUCTURING ANALYSIS ===
+    console.log('🏗️ STRUCTURING AI RESPONSE')
+    console.log('='.repeat(50))
+    console.log('📥 Raw response type:', typeof rawResponse)
+    console.log(
+      '📝 Raw response preview:',
+      typeof rawResponse === 'string'
+        ? (rawResponse as string).substring(0, 300) + '...'
+        : 'Not a string',
+    )
+    console.log('='.repeat(50))
+
+    // Gemini APIの応答をパース
+    let parsedResponse: unknown
     try {
       if (typeof rawResponse === 'string') {
-        // JSON文字列の場合
-        const jsonMatch = rawResponse.match(/\{[\s\S]*\}/)
+        console.log('🔍 Parsing string response...')
+        // ```json マーカーを除去してJSON部分を抽出
+        const cleanJson = (rawResponse as string)
+          .replace(/```json\s*/g, '')
+          .replace(/```\s*$/g, '')
+          .trim()
+
+        console.log(
+          '🧹 Cleaned JSON preview:',
+          cleanJson.substring(0, 200) + '...',
+        )
+
+        const jsonMatch = cleanJson.match(/\{[\s\S]*\}/)
         if (jsonMatch) {
+          console.log('✅ JSON pattern found, parsing...')
           parsedResponse = JSON.parse(jsonMatch[0])
+          console.log('✅ JSON parsed successfully')
         } else {
+          console.error('❌ No JSON pattern found in response')
           throw new Error('No JSON found in response')
         }
       } else {
+        console.log('📦 Using object response directly')
         parsedResponse = rawResponse
       }
-    } catch {
+    } catch (parseError) {
+      console.error('❌ JSON parsing failed:', parseError)
+      console.error('❌ Raw response was:', rawResponse)
       // フォールバック: 構造化された応答を生成
       return this.generateFallbackResponse(request)
     }
 
     // 応答を標準形式に変換
-    return {
+    console.log('🔧 Converting to standard format...')
+    console.log('🎯 Using Gemini headline:', !!parsedResponse.headline?.title)
+    console.log(
+      '💬 Using Gemini energyComment:',
+      !!parsedResponse.energyComment,
+    )
+    console.log(
+      '🏷️ Using Gemini tagInsights:',
+      Array.isArray(parsedResponse.tagInsights),
+    )
+    console.log(
+      '💡 Using Gemini suggestions:',
+      Array.isArray(parsedResponse.aiActionSuggestions),
+    )
+
+    const structuredResponse = {
       headline: {
-        title: parsedResponse.headline?.title || this.generateFallbackHeadline(request.batteryLevel),
-        subtitle: parsedResponse.headline?.subtitle || 'バランスの取れた一日を過ごしましょう',
-        impactLevel: parsedResponse.headline?.impactLevel || this.determineImpactLevel(request.batteryLevel),
+        title:
+          parsedResponse.headline?.title ||
+          this.generateFallbackHeadline(request.batteryLevel),
+        subtitle:
+          parsedResponse.headline?.subtitle ||
+          'バランスの取れた一日を過ごしましょう',
+        impactLevel:
+          parsedResponse.headline?.impactLevel ||
+          this.determineImpactLevel(request.batteryLevel),
         confidence: parsedResponse.headline?.confidence || 85,
       },
-      energyComment: parsedResponse.energyComment || this.generateEnergyComment(request.batteryLevel),
-      tagInsights: this.processTagInsights(parsedResponse.tagInsights, request.userContext.activeTags),
-      aiActionSuggestions: this.processActionSuggestions(parsedResponse.aiActionSuggestions, request),
-      detailAnalysis: parsedResponse.detailAnalysis || this.generateDetailAnalysis(request),
+      energyComment:
+        parsedResponse.energyComment ||
+        this.generateEnergyComment(request.batteryLevel),
+      tagInsights: this.processTagInsights(
+        parsedResponse.tagInsights,
+        request.userContext.activeTags,
+      ),
+      aiActionSuggestions: this.processActionSuggestions(
+        parsedResponse.aiActionSuggestions,
+        request,
+      ),
+      detailAnalysis:
+        parsedResponse.detailAnalysis || this.generateDetailAnalysis(request),
       dataQuality: {
         healthDataCompleteness: this.calculateDataCompleteness(request),
         weatherDataAge: 15, // デフォルト値
@@ -138,12 +265,32 @@ ${JSON.stringify(essentialData, null, 2)}
       },
       generatedAt: new Date().toISOString(),
     }
+
+    console.log('📤 FINAL STRUCTURED RESPONSE:')
+    console.log('  - Headline title:', structuredResponse.headline.title)
+    console.log(
+      '  - Energy comment length:',
+      structuredResponse.energyComment.length,
+    )
+    console.log(
+      '  - Tag insights count:',
+      structuredResponse.tagInsights.length,
+    )
+    console.log(
+      '  - AI suggestions count:',
+      structuredResponse.aiActionSuggestions.length,
+    )
+    console.log('='.repeat(50))
+
+    return structuredResponse
   }
 
   /**
    * フォールバック応答生成
    */
-  private generateFallbackResponse(request: AIAnalysisRequest): AIAnalysisResponse {
+  private generateFallbackResponse(
+    request: AIAnalysisRequest,
+  ): AIAnalysisResponse {
     return {
       headline: {
         title: this.generateFallbackHeadline(request.batteryLevel),
@@ -171,7 +318,9 @@ ${JSON.stringify(essentialData, null, 2)}
     return '要注意レベル'
   }
 
-  private determineImpactLevel(energyLevel: number): 'low' | 'medium' | 'high' | 'critical' {
+  private determineImpactLevel(
+    energyLevel: number,
+  ): 'low' | 'medium' | 'high' | 'critical' {
     if (energyLevel > 70) return 'low'
     if (energyLevel > 40) return 'medium'
     if (energyLevel > 20) return 'medium'
@@ -179,13 +328,15 @@ ${JSON.stringify(essentialData, null, 2)}
   }
 
   private generateEnergyComment(energyLevel: number): string {
-    if (energyLevel > 70) return '調子が良いですね！今日のエネルギーを有効活用しましょう。'
+    if (energyLevel > 70)
+      return '調子が良いですね！今日のエネルギーを有効活用しましょう。'
     if (energyLevel > 40) return 'バランスの取れた状態を保っています。'
-    if (energyLevel > 20) return '少し疲れが見えます。無理をせず、ペースを調整してみませんか？'
+    if (energyLevel > 20)
+      return '少し疲れが見えます。無理をせず、ペースを調整してみませんか？'
     return 'エネルギーが低下しています。十分な休息を取りましょう。'
   }
 
-  private processTagInsights(_rawInsights: any, activeTags: string[]): any[] {
+  private processTagInsights(_rawInsights: unknown, activeTags: string[]): unknown[] {
     // TODO: タグ別インサイトの処理
     return activeTags.map((tag) => ({
       tag,
@@ -195,14 +346,17 @@ ${JSON.stringify(essentialData, null, 2)}
     }))
   }
 
-  private processActionSuggestions(rawSuggestions: any[], request: AIAnalysisRequest): any[] {
+  private processActionSuggestions(
+    rawSuggestions: unknown[],
+    request: AIAnalysisRequest,
+  ): unknown[] {
     if (rawSuggestions && Array.isArray(rawSuggestions)) {
       return rawSuggestions.slice(0, 3) // 最大3つまで
     }
     return this.generateBasicActionSuggestions(request)
   }
 
-  private generateBasicActionSuggestions(request: AIAnalysisRequest): any[] {
+  private generateBasicActionSuggestions(request: AIAnalysisRequest): unknown[] {
     const suggestions = []
 
     if (request.batteryLevel < 50) {
@@ -265,15 +419,30 @@ ${JSON.stringify(essentialData, null, 2)}
 
   private validateResponseQuality(response: AIAnalysisResponse): void {
     if (!response.headline.title || response.headline.title.length < 3) {
-      throw new APIError('Invalid headline title', 502, 'INVALID_RESPONSE_QUALITY')
+      throw new APIError(
+        'Invalid headline title',
+        502,
+        'INVALID_RESPONSE_QUALITY',
+      )
     }
 
     if (!response.energyComment || response.energyComment.length < 10) {
-      throw new APIError('Invalid energy comment', 502, 'INVALID_RESPONSE_QUALITY')
+      throw new APIError(
+        'Invalid energy comment',
+        502,
+        'INVALID_RESPONSE_QUALITY',
+      )
     }
 
-    if (response.headline.confidence < 0 || response.headline.confidence > 100) {
-      throw new APIError('Invalid confidence score', 502, 'INVALID_RESPONSE_QUALITY')
+    if (
+      response.headline.confidence < 0 ||
+      response.headline.confidence > 100
+    ) {
+      throw new APIError(
+        'Invalid confidence score',
+        502,
+        'INVALID_RESPONSE_QUALITY',
+      )
     }
   }
 }

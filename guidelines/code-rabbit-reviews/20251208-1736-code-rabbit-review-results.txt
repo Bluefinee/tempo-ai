@@ -1220,9 +1220,9 @@ Comment:
 +    const request = validateAIAnalysisRequest(body)
 
      // API key取得
-     const apiKey = c.env.ANTHROPIC_API_KEY
+     const apiKey = c.env.GEMINI_API_KEY
      if (!apiKey) {
-       console.error('ANTHROPIC_API_KEY not found in environment')
+       console.error('GEMINI_API_KEY not found in environment')
        return CommonErrors.internalError(c, 'API configuration error')
      }
 

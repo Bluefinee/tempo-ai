@@ -5,28 +5,31 @@
  * アダプター関数群。データの一貫性とタイプセーフティを保証します。
  */
 
+import type { AIAnalysisRequest, FocusTagType } from '../types/ai-analysis'
 import type { HealthData } from '../types/health'
 import type { WeatherData } from '../types/weather'
-import type { AIAnalysisRequest, FocusTagType } from '../types/ai-analysis'
+
+// 基準値定数
+const BASELINE_HRV_MS = 50 // 30歳健康成人の平均HRV
+const BASELINE_RHR_BPM = 65 // 成人平均安静時心拍数
+const BASELINE_RESPIRATORY_RATE = 16 // 基準呼吸数
 
 /**
  * HealthDataからBiologicalContextを生成
  */
-export const createBiologicalContext = (healthData: HealthData): AIAnalysisRequest['biologicalContext'] => {
-  // HRVの基準値（30歳健康成人の平均値: 50ms）
-  const baselineHRV = 50
-  const hrvStatus = healthData.hrv.average - baselineHRV
-
-  // 安静時心拍数の基準値（成人平均: 65bpm）
-  const baselineRHR = 65
-  const rhrStatus = healthData.heartRate.resting - baselineRHR
+export const createBiologicalContext = (
+  healthData: HealthData,
+): AIAnalysisRequest['biologicalContext'] => {
+  const hrvStatus = healthData.hrv.average - BASELINE_HRV_MS
+  const rhrStatus = healthData.heartRate.resting - BASELINE_RHR_BPM
 
   // 睡眠時間を分単位に変換（既存データは時間単位）
   const sleepDeepMinutes = Math.round(healthData.sleep.deep * 60)
   const sleepRemMinutes = Math.round(healthData.sleep.rem * 60)
 
-  // 呼吸数の推定（HRVから算出、基準値: 16回/分）
-  const estimatedRespiratoryRate = 16 + (hrvStatus < 0 ? 2 : -1)
+  // 呼吸数の推定（HRVから算出）
+  const estimatedRespiratoryRate =
+    BASELINE_RESPIRATORY_RATE + (hrvStatus < 0 ? 2 : -1)
 
   return {
     hrvStatus,
@@ -46,13 +49,15 @@ export const createEnvironmentalContext = (
   currentWeather: WeatherData,
 ): AIAnalysisRequest['environmentalContext'] => {
   // 気圧変化の計算（前回データがある場合）
-  let pressureTrend = 0
+  const pressureTrend = 0
   // TODO: Open-Meteo APIから気圧データを取得して計算
 
   return {
     pressureTrend,
     humidity: currentWeather.current.relative_humidity_2m,
-    feelsLike: currentWeather.current.apparent_temperature || currentWeather.current.temperature_2m,
+    feelsLike:
+      currentWeather.current.apparent_temperature ||
+      currentWeather.current.temperature_2m,
     uvIndex: currentWeather.current.uv_index || 0,
     weatherCode: currentWeather.current.weather_code,
   }
@@ -67,11 +72,16 @@ export const calculateEnergyLevel = (
   environmentalContext: AIAnalysisRequest['environmentalContext'],
 ): number => {
   // 睡眠スコア（0-100）
-  const sleepScore = Math.min(100, (healthData.sleep.duration / 8.0) * healthData.sleep.efficiency)
+  const sleepScore = Math.min(
+    100,
+    (healthData.sleep.duration / 8.0) * healthData.sleep.efficiency,
+  )
 
   // HRVスコア（0-100）
-  const baselineHRV = 50
-  const hrvRatio = Math.max(0.5, Math.min(1.5, healthData.hrv.average / baselineHRV))
+  const hrvRatio = Math.max(
+    0.5,
+    Math.min(1.5, healthData.hrv.average / BASELINE_HRV_MS),
+  )
   const hrvScore = hrvRatio * 100
 
   // 基本エネルギー（睡眠60% + HRV40%）
@@ -104,7 +114,9 @@ export const calculateBatteryTrend = (
 /**
  * 時間帯の計算
  */
-export const calculateTimeOfDay = (date: Date = new Date()): AIAnalysisRequest['userContext']['timeOfDay'] => {
+export const calculateTimeOfDay = (
+  date: Date = new Date(),
+): AIAnalysisRequest['userContext']['timeOfDay'] => {
   const hour = date.getHours()
   if (hour >= 6 && hour < 12) return 'morning'
   if (hour >= 12 && hour < 17) return 'afternoon'
@@ -142,6 +154,17 @@ export const createAIAnalysisRequest = (
   }
 }
 
+interface StaticAnalysisResult {
+  energyLevel: number
+  batteryState: 'low' | 'medium' | 'high' | 'critical'
+  basicMetrics: {
+    sleepScore: number
+    activityScore: number
+    stressScore: number
+  }
+  generatedAt: string
+}
+
 /**
  * 静的分析結果を生成
  * AI分析が利用できない場合のフォールバック
@@ -149,20 +172,29 @@ export const createAIAnalysisRequest = (
 export const createStaticAnalysis = (
   healthData: HealthData,
   environmentalContext: AIAnalysisRequest['environmentalContext'],
-) => {
+): StaticAnalysisResult => {
   const energyLevel = calculateEnergyLevel(healthData, environmentalContext)
 
   // バッテリー状態の判定
-  let batteryState: 'low' | 'medium' | 'high' | 'critical'
-  if (energyLevel < 20) batteryState = 'critical'
-  else if (energyLevel < 40) batteryState = 'low'
-  else if (energyLevel < 70) batteryState = 'medium'
-  else batteryState = 'high'
+  const batteryState: 'low' | 'medium' | 'high' | 'critical' =
+    energyLevel < 20
+      ? 'critical'
+      : energyLevel < 40
+        ? 'low'
+        : energyLevel < 70
+          ? 'medium'
+          : 'high'
 
   // 基本メトリクスの計算
-  const sleepScore = Math.min(100, (healthData.sleep.duration / 8.0) * healthData.sleep.efficiency)
+  const sleepScore = Math.min(
+    100,
+    (healthData.sleep.duration / 8.0) * healthData.sleep.efficiency,
+  )
   const activityScore = Math.min(100, (healthData.activity.steps / 10000) * 100)
-  const stressScore = Math.max(0, 100 - Math.abs(healthData.hrv.average - 50) * 2)
+  const stressScore = Math.max(
+    0,
+    100 - Math.abs(healthData.hrv.average - BASELINE_HRV_MS) * 2,
+  )
 
   return {
     energyLevel,

@@ -52,7 +52,9 @@ export const AIAnalysisRequestSchema = z.object({
   /** ユーザーコンテキスト */
   userContext: z.object({
     /** アクティブなフォーカスタグ */
-    activeTags: z.array(z.enum(['work', 'beauty', 'diet', 'chill', 'sleep', 'fitness'])),
+    activeTags: z.array(
+      z.enum(['work', 'beauty', 'diet', 'chill', 'sleep', 'fitness']),
+    ),
     /** 時間帯 */
     timeOfDay: z.enum(['morning', 'afternoon', 'evening', 'night']),
     /** 言語設定 */
@@ -95,7 +97,7 @@ export const AIAnalysisResponseSchema = z.object({
       message: z.string().min(1),
       /** 緊急度 */
       urgency: z.enum(['info', 'warning', 'critical']),
-    })
+    }),
   ),
   /** AI生成アクション提案 */
   aiActionSuggestions: z.array(
@@ -105,12 +107,19 @@ export const AIAnalysisResponseSchema = z.object({
       /** 詳細説明 */
       description: z.string().min(1),
       /** アクションタイプ */
-      actionType: z.enum(['rest', 'hydrate', 'exercise', 'focus', 'social', 'beauty']),
+      actionType: z.enum([
+        'rest',
+        'hydrate',
+        'exercise',
+        'focus',
+        'social',
+        'beauty',
+      ]),
       /** 推定所要時間 */
       estimatedTime: z.string(),
       /** 難易度 */
       difficulty: z.enum(['easy', 'medium', 'hard']),
-    })
+    }),
   ),
   /** 詳細分析 */
   detailAnalysis: z.string().min(1),
@@ -261,7 +270,9 @@ export const validateAIAnalysisRequest = (data: unknown): AIAnalysisRequest => {
 /**
  * AI分析レスポンスを検証
  */
-export const validateAIAnalysisResponse = (data: unknown): AIAnalysisResponse => {
+export const validateAIAnalysisResponse = (
+  data: unknown,
+): AIAnalysisResponse => {
   return AIAnalysisResponseSchema.parse(data)
 }
 

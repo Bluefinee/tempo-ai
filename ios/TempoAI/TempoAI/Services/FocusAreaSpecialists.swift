@@ -10,14 +10,25 @@
 import Foundation
 import SwiftUI
 
-/**
- * フォーカスエリア専門分析エンジン
- * 各関心分野の専門的観点からの分析と提案
- */
+// MARK: - Thresholds
+private enum Thresholds {
+    static let highEnergyLevel: Double = 70
+    static let mediumEnergyLevel: Double = 40
+    static let lowEnergyLevel: Double = 30
+    static let pressureDropThreshold: Double = -3
+    static let severePressureDropThreshold: Double = -5
+    static let lowHumidityThreshold: Double = 40
+    static let veryLowHumidityThreshold: Double = 30
+    static let optimalTempMin: Double = 15
+    static let optimalTempMax: Double = 25
+    static let highTempThreshold: Double = 28
+}
+
+/// フォーカスエリア専門分析エンジン
+/// 各関心分野の専門的観点からの分析と提案
 class FocusAreaSpecialists {
-    
     // MARK: - Today's Try Generation
-    
+
     /**
      * 関心分野別の「今日のトライ」を生成
      */
@@ -29,7 +40,7 @@ class FocusAreaSpecialists {
         userMode: UserMode
     ) -> [TodaysTryAdvice] {
         var tryAdvices: [TodaysTryAdvice] = []
-        
+
         // シングルフォーカス分析
         for focusArea in focusAreas {
             let advice = generateSingleFocusAdvice(
@@ -41,7 +52,7 @@ class FocusAreaSpecialists {
             )
             tryAdvices.append(advice)
         }
-        
+
         // マルチフォーカスシナジー分析
         if focusAreas.count > 1 {
             let synergyAdvice = generateMultiFocusSynergy(
@@ -51,12 +62,12 @@ class FocusAreaSpecialists {
             )
             tryAdvices.append(contentsOf: synergyAdvice)
         }
-        
+
         return tryAdvices.sorted { $0.priority.rawValue > $1.priority.rawValue }
     }
-    
+
     // MARK: - Single Focus Area Analysis
-    
+
     /**
      * 単一関心分野の専門分析
      */
@@ -69,28 +80,35 @@ class FocusAreaSpecialists {
     ) -> TodaysTryAdvice {
         switch focusArea {
         case .work:
-            return generateWorkAdvice(energyLevel: energyLevel, environmentalContext: environmentalContext, timeOfDay: timeOfDay)
+            return generateWorkAdvice(
+                energyLevel: energyLevel, environmentalContext: environmentalContext, timeOfDay: timeOfDay)
         case .beauty:
-            return generateBeautyAdvice(energyLevel: energyLevel, environmentalContext: environmentalContext, timeOfDay: timeOfDay)
+            return generateBeautyAdvice(
+                energyLevel: energyLevel, environmentalContext: environmentalContext, timeOfDay: timeOfDay)
         case .diet:
-            return generateDietAdvice(energyLevel: energyLevel, environmentalContext: environmentalContext, timeOfDay: timeOfDay)
+            return generateDietAdvice(
+                energyLevel: energyLevel, environmentalContext: environmentalContext, timeOfDay: timeOfDay)
         case .sleep:
-            return generateSleepAdvice(energyLevel: energyLevel, environmentalContext: environmentalContext, timeOfDay: timeOfDay)
+            return generateSleepAdvice(
+                energyLevel: energyLevel, environmentalContext: environmentalContext, timeOfDay: timeOfDay)
         case .fitness:
-            return generateFitnessAdvice(energyLevel: energyLevel, environmentalContext: environmentalContext, timeOfDay: timeOfDay, userMode: userMode)
+            return generateFitnessAdvice(
+                energyLevel: energyLevel, environmentalContext: environmentalContext, timeOfDay: timeOfDay,
+                userMode: userMode)
         case .chill:
-            return generateChillAdvice(energyLevel: energyLevel, environmentalContext: environmentalContext, timeOfDay: timeOfDay)
+            return generateChillAdvice(
+                energyLevel: energyLevel, environmentalContext: environmentalContext, timeOfDay: timeOfDay)
         }
     }
-    
+
     // MARK: - Work Specialist
-    
+
     private static func generateWorkAdvice(
         energyLevel: Double,
         environmentalContext: EnvironmentalContext,
         timeOfDay: TimeOfDay
     ) -> TodaysTryAdvice {
-        if energyLevel > 70 && timeOfDay == .morning {
+        if energyLevel > Thresholds.highEnergyLevel && timeOfDay == .morning {
             return TodaysTryAdvice(
                 focusArea: .work,
                 title: "集中力の黄金時間",
@@ -100,7 +118,7 @@ class FocusAreaSpecialists {
                 difficulty: .easy,
                 priority: .high
             )
-        } else if environmentalContext.pressureTrend < -3 {
+        } else if environmentalContext.pressureTrend < Thresholds.pressureDropThreshold {
             return TodaysTryAdvice(
                 focusArea: .work,
                 title: "気圧低下による集中力対策",
@@ -122,15 +140,15 @@ class FocusAreaSpecialists {
             )
         }
     }
-    
+
     // MARK: - Beauty Specialist
-    
+
     private static func generateBeautyAdvice(
         energyLevel: Double,
         environmentalContext: EnvironmentalContext,
         timeOfDay: TimeOfDay
     ) -> TodaysTryAdvice {
-        if environmentalContext.humidity < 40 {
+        if environmentalContext.humidity < Thresholds.lowHumidityThreshold {
             return TodaysTryAdvice(
                 focusArea: .beauty,
                 title: "乾燥対策の緊急ケア",
@@ -140,7 +158,7 @@ class FocusAreaSpecialists {
                 difficulty: .easy,
                 priority: .high
             )
-        } else if timeOfDay == .evening && energyLevel > 50 {
+        } else if timeOfDay == .evening && energyLevel > (Thresholds.highEnergyLevel * 0.7) {
             return TodaysTryAdvice(
                 focusArea: .beauty,
                 title: "夜の美容ゴールデンタイム",
@@ -162,15 +180,15 @@ class FocusAreaSpecialists {
             )
         }
     }
-    
+
     // MARK: - Diet Specialist
-    
+
     private static func generateDietAdvice(
         energyLevel: Double,
         environmentalContext: EnvironmentalContext,
         timeOfDay: TimeOfDay
     ) -> TodaysTryAdvice {
-        if timeOfDay == .afternoon && energyLevel < 60 {
+        if timeOfDay == .afternoon && energyLevel < (Thresholds.highEnergyLevel * 0.85) {
             return TodaysTryAdvice(
                 focusArea: .diet,
                 title: "午後のエネルギー補給",
@@ -202,15 +220,15 @@ class FocusAreaSpecialists {
             )
         }
     }
-    
+
     // MARK: - Sleep Specialist
-    
+
     private static func generateSleepAdvice(
         energyLevel: Double,
         environmentalContext: EnvironmentalContext,
         timeOfDay: TimeOfDay
     ) -> TodaysTryAdvice {
-        if timeOfDay == .evening && energyLevel < 40 {
+        if timeOfDay == .evening && energyLevel < Thresholds.mediumEnergyLevel {
             return TodaysTryAdvice(
                 focusArea: .sleep,
                 title: "深い眠りの準備",
@@ -242,23 +260,22 @@ class FocusAreaSpecialists {
             )
         }
     }
-    
+
     // MARK: - Fitness Specialist
-    
+
     private static func generateFitnessAdvice(
         energyLevel: Double,
         environmentalContext: EnvironmentalContext,
         timeOfDay: TimeOfDay,
         userMode: UserMode
     ) -> TodaysTryAdvice {
-        if energyLevel > 70 && environmentalContext.feelsLike > 15 && environmentalContext.feelsLike < 25 {
+        if energyLevel > Thresholds.highEnergyLevel && environmentalContext.feelsLike > Thresholds.optimalTempMin && environmentalContext.feelsLike < Thresholds.optimalTempMax {
             return TodaysTryAdvice(
                 focusArea: .fitness,
                 title: "理想的運動条件",
                 description: "エネルギー豊富、気温\(Int(environmentalContext.feelsLike))℃で運動に最適です",
-                actionSuggestion: userMode == .athlete ? 
-                    "今日は高強度トレーニングに挑戦する絶好のタイミングです" :
-                    "普段より5分長いウォーキングにチャレンジしませんか？体が求めている刺激を与えてあげましょう",
+                actionSuggestion: userMode == .athlete
+                    ? "今日は高強度トレーニングに挑戦する絶好のタイミングです" : "普段より5分長いウォーキングにチャレンジしませんか？体が求めている刺激を与えてあげましょう",
                 estimatedTime: userMode == .athlete ? "45分" : "20分",
                 difficulty: userMode == .athlete ? .hard : .medium,
                 priority: .high
@@ -285,15 +302,15 @@ class FocusAreaSpecialists {
             )
         }
     }
-    
+
     // MARK: - Chill Specialist
-    
+
     private static func generateChillAdvice(
         energyLevel: Double,
         environmentalContext: EnvironmentalContext,
         timeOfDay: TimeOfDay
     ) -> TodaysTryAdvice {
-        if environmentalContext.pressureTrend < -3 {
+        if environmentalContext.pressureTrend < Thresholds.pressureDropThreshold {
             return TodaysTryAdvice(
                 focusArea: .chill,
                 title: "気圧低下への対処",
@@ -303,7 +320,7 @@ class FocusAreaSpecialists {
                 difficulty: .easy,
                 priority: .high
             )
-        } else if energyLevel < 30 {
+        } else if energyLevel < Thresholds.lowEnergyLevel {
             return TodaysTryAdvice(
                 focusArea: .chill,
                 title: "深いリラクゼーション",
@@ -325,9 +342,9 @@ class FocusAreaSpecialists {
             )
         }
     }
-    
+
     // MARK: - Multi-Focus Synergy
-    
+
     /**
      * 複数関心分野の組み合わせシナジー分析
      */
@@ -337,55 +354,56 @@ class FocusAreaSpecialists {
         timeOfDay: TimeOfDay
     ) -> [TodaysTryAdvice] {
         var synergyAdvices: [TodaysTryAdvice] = []
-        
+
         // Sleep × Beauty シナジー
         if focusAreas.contains(.sleep) && focusAreas.contains(.beauty) {
-            synergyAdvices.append(TodaysTryAdvice(
-                focusArea: .beauty,
-                title: "美容睡眠の黄金時間",
-                description: "睡眠と美容の相乗効果を最大化しましょう",
-                actionSuggestion: "22時からのナイトルーチンで、美肌と深い睡眠を同時に手に入れませんか？",
-                estimatedTime: "30分",
-                difficulty: .medium,
-                priority: .high
-            ))
+            synergyAdvices.append(
+                TodaysTryAdvice(
+                    focusArea: .beauty,
+                    title: "美容睡眠の黄金時間",
+                    description: "睡眠と美容の相乗効果を最大化しましょう",
+                    actionSuggestion: "22時からのナイトルーチンで、美肌と深い睡眠を同時に手に入れませんか？",
+                    estimatedTime: "30分",
+                    difficulty: .medium,
+                    priority: .high
+                ))
         }
-        
+
         // Work × Fitness シナジー
         if focusAreas.contains(.work) && focusAreas.contains(.fitness) {
-            synergyAdvices.append(TodaysTryAdvice(
-                focusArea: .work,
-                title: "アクティブワーク",
-                description: "脳と体の両方を活性化する時間です",
-                actionSuggestion: "15分の散歩ミーティング（電話会議）で、運動と仕事を同時に効率化しませんか？",
-                estimatedTime: "15分",
-                difficulty: .medium,
-                priority: .medium
-            ))
+            synergyAdvices.append(
+                TodaysTryAdvice(
+                    focusArea: .work,
+                    title: "アクティブワーク",
+                    description: "脳と体の両方を活性化する時間です",
+                    actionSuggestion: "15分の散歩ミーティング（電話会議）で、運動と仕事を同時に効率化しませんか？",
+                    estimatedTime: "15分",
+                    difficulty: .medium,
+                    priority: .medium
+                ))
         }
-        
+
         // Diet × Fitness シナジー
         if focusAreas.contains(.diet) && focusAreas.contains(.fitness) {
-            synergyAdvices.append(TodaysTryAdvice(
-                focusArea: .diet,
-                title: "運動前後の栄養戦略",
-                description: "食事と運動のタイミングを最適化しましょう",
-                actionSuggestion: "運動前にバナナ半分、運動後にプロテインドリンクの組み合わせを試してみませんか？",
-                estimatedTime: "5分",
-                difficulty: .easy,
-                priority: .medium
-            ))
+            synergyAdvices.append(
+                TodaysTryAdvice(
+                    focusArea: .diet,
+                    title: "運動前後の栄養戦略",
+                    description: "食事と運動のタイミングを最適化しましょう",
+                    actionSuggestion: "運動前にバナナ半分、運動後にプロテインドリンクの組み合わせを試してみませんか？",
+                    estimatedTime: "5分",
+                    difficulty: .easy,
+                    priority: .medium
+                ))
         }
-        
+
         return synergyAdvices
     }
 }
 
 // MARK: - Supporting Types
 
-/**
- * 今日のトライアドバイス
- */
+/// 今日のトライアドバイス
 struct TodaysTryAdvice: Identifiable {
     let id: UUID = UUID()
     let focusArea: FocusTag
@@ -397,14 +415,12 @@ struct TodaysTryAdvice: Identifiable {
     let priority: TryPriority
 }
 
-/**
- * トライの優先度
- */
+/// トライの優先度
 enum TryPriority: Int, CaseIterable {
     case high = 3
     case medium = 2
     case low = 1
-    
+
     var color: Color {
         switch self {
         case .high: return ColorPalette.primaryAccent
@@ -412,7 +428,7 @@ enum TryPriority: Int, CaseIterable {
         case .low: return ColorPalette.secondaryAccent
         }
     }
-    
+
     var badgeText: String {
         switch self {
         case .high: return "今すぐ"
@@ -422,11 +438,8 @@ enum TryPriority: Int, CaseIterable {
     }
 }
 
-/**
- * 環境要因ベースの智恵生成器
- */
+/// 環境要因ベースの智恵生成器
 class EnvironmentalWisdomGenerator {
-    
     /**
      * 環境要因と体調の関連性を解説
      */
@@ -435,20 +448,21 @@ class EnvironmentalWisdomGenerator {
         energyLevel: Double
     ) -> String? {
         // 気圧と頭痛の関連
-        if environmentalContext.pressureTrend < -5 {
-            return "頭痛や体のだるさは、気圧が\(abs(Int(environmentalContext.pressureTrend)))hPa下がったことが原因かもしれません。あなたの体調管理が悪いわけではありません。"
+        if environmentalContext.pressureTrend < Thresholds.severePressureDropThreshold {
+            return
+                "頭痛や体のだるさは、気圧が\(abs(Int(environmentalContext.pressureTrend)))hPa下がったことが原因かもしれません。あなたの体調管理が悪いわけではありません。"
         }
-        
+
         // 湿度と肌トラブルの関連
-        if environmentalContext.humidity < 30 {
+        if environmentalContext.humidity < Thresholds.veryLowHumidityThreshold {
             return "肌の調子が気になりますか？湿度\(Int(environmentalContext.humidity))%と低く、お肌が乾燥しやすい状況です。スキンケアを変える前に、環境要因を考慮してみてください。"
         }
-        
+
         // 高温と疲労感の関連
-        if environmentalContext.feelsLike > 28 {
+        if environmentalContext.feelsLike > Thresholds.highTempThreshold {
             return "今日疲れやすく感じるのは、体感温度\(Int(environmentalContext.feelsLike))℃の暑さで体が体温調節にエネルギーを使っているからです。"
         }
-        
+
         return nil
     }
 }

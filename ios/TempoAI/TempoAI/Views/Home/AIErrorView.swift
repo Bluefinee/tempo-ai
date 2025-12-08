@@ -8,15 +8,13 @@
 
 import SwiftUI
 
-/**
- * AI接続エラー表示ビュー
- * エラー状況を明示しつつ、代替手段を提供
- */
+/// AI接続エラー表示ビュー
+/// エラー状況を明示しつつ、代替手段を提供
 struct AIErrorView: View {
     let error: AnalysisError?
     let fallbackAvailable: Bool
     let onRetry: () -> Void
-    
+
     var body: some View {
         VStack(spacing: Spacing.lg) {
             // エラーアイコンとメッセージ
@@ -24,32 +22,32 @@ struct AIErrorView: View {
                 Image(systemName: "exclamationmark.triangle.fill")
                     .font(.system(size: 32))
                     .foregroundColor(ColorPalette.warning)
-                
+
                 VStack(spacing: Spacing.sm) {
                     Text("AI分析に接続できません")
                         .typography(.headline)
                         .foregroundColor(ColorPalette.richBlack)
                         .multilineTextAlignment(.center)
-                    
+
                     Text(errorMessage)
                         .typography(.body)
                         .foregroundColor(ColorPalette.gray600)
                         .multilineTextAlignment(.center)
                 }
             }
-            
+
             // 代替手段の説明
             if fallbackAvailable {
                 VStack(spacing: Spacing.sm) {
                     HStack {
                         Image(systemName: "checkmark.circle.fill")
                             .foregroundColor(ColorPalette.success)
-                        
+
                         Text("基本分析は継続中")
                             .typography(.subhead)
                             .foregroundColor(ColorPalette.success)
                     }
-                    
+
                     Text("エネルギー計算やヘルスケアデータ表示は正常に動作しています。AI分析は後で再試行できます。")
                         .typography(.caption)
                         .foregroundColor(ColorPalette.gray600)
@@ -61,7 +59,7 @@ struct AIErrorView: View {
                         .fill(ColorPalette.success.opacity(0.1))
                 )
             }
-            
+
             // アクションボタン
             VStack(spacing: Spacing.sm) {
                 Button("AI分析を再試行") {
@@ -73,7 +71,7 @@ struct AIErrorView: View {
                 .frame(height: 44)
                 .background(ColorPalette.primaryAccent)
                 .cornerRadius(CornerRadius.md)
-                
+
                 Button("基本分析のみで継続") {
                     // 基本分析モードに切り替え
                     // TODO: 基本分析モード実装
@@ -93,7 +91,7 @@ struct AIErrorView: View {
                 .stroke(ColorPalette.warning.opacity(0.3), lineWidth: 1)
         )
     }
-    
+
     private var errorMessage: String {
         if let error = error {
             switch error {
@@ -112,19 +110,17 @@ struct AIErrorView: View {
     }
 }
 
-/**
- * データソース表示バッジ
- * AI/Fallback/キャッシュ等の状態を明示
- */
+/// データソース表示バッジ
+/// AI/Fallback/キャッシュ等の状態を明示
 struct DataSourceBadge: View {
     let source: AnalysisSource
-    
+
     var body: some View {
         HStack(spacing: Spacing.xs) {
             Image(systemName: sourceIcon)
                 .font(.caption)
                 .foregroundColor(sourceColor)
-            
+
             Text(sourceText)
                 .typography(.caption)
                 .foregroundColor(sourceColor)
@@ -136,7 +132,7 @@ struct DataSourceBadge: View {
                 .fill(sourceColor.opacity(0.1))
         )
     }
-    
+
     private var sourceIcon: String {
         switch source {
         case .hybrid: return "brain.head.profile"
@@ -146,7 +142,7 @@ struct DataSourceBadge: View {
         case .staticOnly: return "function"
         }
     }
-    
+
     private var sourceText: String {
         switch source {
         case .hybrid: return "AI分析"
@@ -156,7 +152,7 @@ struct DataSourceBadge: View {
         case .staticOnly: return "静的分析"
         }
     }
-    
+
     private var sourceColor: Color {
         switch source {
         case .hybrid: return ColorPalette.success
@@ -168,32 +164,30 @@ struct DataSourceBadge: View {
     }
 }
 
-/**
- * AI分析結果の有効期限表示
- * 朝の分析が一日中有効であることを示す
- */
+/// AI分析結果の有効期限表示
+/// 朝の分析が一日中有効であることを示す
 struct AnalysisValidityIndicator: View {
     let generatedAt: Date
     let validUntil: Date?
-    
+
     var body: some View {
         VStack(spacing: Spacing.xs) {
             HStack(spacing: Spacing.xs) {
                 Image(systemName: "clock")
                     .font(.caption)
                     .foregroundColor(ColorPalette.gray500)
-                
+
                 Text("分析時刻: \(formattedGeneratedTime)")
                     .typography(.caption)
                     .foregroundColor(ColorPalette.gray500)
             }
-            
+
             if let validUntil = validUntil {
                 HStack(spacing: Spacing.xs) {
                     Image(systemName: "checkmark.circle")
                         .font(.caption)
                         .foregroundColor(ColorPalette.success)
-                    
+
                     Text("有効期限: \(formattedValidUntil)")
                         .typography(.caption)
                         .foregroundColor(ColorPalette.success)
@@ -207,17 +201,17 @@ struct AnalysisValidityIndicator: View {
                 .fill(ColorPalette.gray50)
         )
     }
-    
+
     private var formattedGeneratedTime: String {
         let formatter = DateFormatter()
         formatter.dateStyle = .none
         formatter.timeStyle = .short
         return formatter.string(from: generatedAt)
     }
-    
+
     private var formattedValidUntil: String {
         guard let validUntil = validUntil else { return "" }
-        
+
         let formatter = DateFormatter()
         formatter.dateStyle = .none
         formatter.timeStyle = .short

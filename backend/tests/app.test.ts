@@ -273,7 +273,7 @@ describe('Main Application Integration', () => {
           }),
         },
         {
-          ANTHROPIC_API_KEY: 'test-key',
+          GEMINI_API_KEY: 'test-key',
         },
       )
 

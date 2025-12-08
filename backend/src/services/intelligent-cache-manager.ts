@@ -6,7 +6,10 @@
  * API呼び出しを60%削減し、$0.10/ユーザー/日の目標を達成します。
  */
 
-import type { AIAnalysisRequest, AIAnalysisResponse } from '../types/ai-analysis'
+import type {
+  AIAnalysisRequest,
+  AIAnalysisResponse,
+} from '../types/ai-analysis'
 
 /**
  * インテリジェントキャッシュマネージャー
@@ -15,6 +18,7 @@ import type { AIAnalysisRequest, AIAnalysisResponse } from '../types/ai-analysis
 export class IntelligentCacheManager {
   private readonly memoryCache = new Map<string, CachedAnalysis>()
   private readonly costTracker = new Map<string, DailyCostTracker>()
+  private readonly timeoutIds = new Map<string, NodeJS.Timeout>()
 
   /**
    * キャッシュからAI分析を取得、またはフレッシュ分析を実行
@@ -27,7 +31,10 @@ export class IntelligentCacheManager {
 
     // Layer 1: 最近の同一コンテキスト（1時間）
     const recentCache = this.memoryCache.get(cacheKey)
-    if (recentCache && this.isContextSimilar(recentCache.originalRequest, request, 0.95)) {
+    if (
+      recentCache &&
+      this.isContextSimilar(recentCache.originalRequest, request, 0.95)
+    ) {
       return {
         analysis: this.enhanceWithFreshData(recentCache.analysis, request),
         source: 'memory_cache',
@@ -84,11 +91,18 @@ export class IntelligentCacheManager {
     threshold: number,
   ): boolean {
     const energyDiff = Math.abs(cached.batteryLevel - current.batteryLevel)
-    const humidityDiff = Math.abs(cached.environmentalContext.humidity - current.environmentalContext.humidity)
-    const pressureDiff = Math.abs(cached.environmentalContext.pressureTrend - current.environmentalContext.pressureTrend)
+    const humidityDiff = Math.abs(
+      cached.environmentalContext.humidity -
+        current.environmentalContext.humidity,
+    )
+    const pressureDiff = Math.abs(
+      cached.environmentalContext.pressureTrend -
+        current.environmentalContext.pressureTrend,
+    )
 
     // 重み付きスコア計算
-    const similarity = 1 - (energyDiff / 100 + humidityDiff / 100 + pressureDiff / 20) / 3
+    const similarity =
+      1 - (energyDiff / 100 + humidityDiff / 100 + pressureDiff / 20) / 3
 
     return similarity >= threshold
   }
@@ -96,12 +110,17 @@ export class IntelligentCacheManager {
   /**
    * 類似コンテキストを検索
    */
-  private findSimilarContext(request: AIAnalysisRequest): CachedAnalysis | null {
+  private findSimilarContext(
+    request: AIAnalysisRequest,
+  ): CachedAnalysis | null {
     let bestMatch: CachedAnalysis | null = null
     let bestSimilarity = 0
 
     for (const cached of this.memoryCache.values()) {
-      const similarity = this.calculateSimilarity(cached.originalRequest, request)
+      const similarity = this.calculateSimilarity(
+        cached.originalRequest,
+        request,
+      )
       if (similarity > bestSimilarity && similarity > 0.7) {
         bestMatch = cached
         bestSimilarity = similarity
@@ -114,12 +133,16 @@ export class IntelligentCacheManager {
   /**
    * 類似度計算
    */
-  private calculateSimilarity(cached: AIAnalysisRequest, current: AIAnalysisRequest): number {
+  private calculateSimilarity(
+    cached: AIAnalysisRequest,
+    current: AIAnalysisRequest,
+  ): number {
     let score = 0
     let factors = 0
 
     // エネルギーレベル類似度（重要度高）
-    const energySimilarity = 1 - Math.abs(cached.batteryLevel - current.batteryLevel) / 100
+    const energySimilarity =
+      1 - Math.abs(cached.batteryLevel - current.batteryLevel) / 100
     score += energySimilarity * 0.4
     factors += 0.4
 
@@ -133,14 +156,22 @@ export class IntelligentCacheManager {
     const tagIntersection = cached.userContext.activeTags.filter((tag) =>
       current.userContext.activeTags.includes(tag),
     )
-    const tagUnion = new Set([...cached.userContext.activeTags, ...current.userContext.activeTags])
+    const tagUnion = new Set([
+      ...cached.userContext.activeTags,
+      ...current.userContext.activeTags,
+    ])
     const tagSimilarity = tagIntersection.length / tagUnion.size
     score += tagSimilarity * 0.3
     factors += 0.3
 
     // 環境類似度（重要度低）
     const envSimilarity =
-      1 - Math.abs(cached.environmentalContext.humidity - current.environmentalContext.humidity) / 100
+      1 -
+      Math.abs(
+        cached.environmentalContext.humidity -
+          current.environmentalContext.humidity,
+      ) /
+        100
     score += envSimilarity * 0.1
     factors += 0.1
 
@@ -150,17 +181,26 @@ export class IntelligentCacheManager {
   /**
    * キャッシュ適応可能性判定
    */
-  private canAdapt(cached: CachedAnalysis, current: AIAnalysisRequest): boolean {
+  private canAdapt(
+    cached: CachedAnalysis,
+    current: AIAnalysisRequest,
+  ): boolean {
     const age = Date.now() - cached.timestamp.getTime()
     const maxAge = 4 * 60 * 60 * 1000 // 4時間
 
-    return age < maxAge && this.calculateSimilarity(cached.originalRequest, current) > 0.6
+    return (
+      age < maxAge &&
+      this.calculateSimilarity(cached.originalRequest, current) > 0.6
+    )
   }
 
   /**
    * キャッシュ済み分析を現在のコンテキストに適応
    */
-  private adaptCachedAnalysis(cached: CachedAnalysis, _current: AIAnalysisRequest): AIAnalysisResponse {
+  private adaptCachedAnalysis(
+    cached: CachedAnalysis,
+    _current: AIAnalysisRequest,
+  ): AIAnalysisResponse {
     const adapted = { ...cached.analysis }
 
     // 基本的な適応処理（詳細な比較は後で実装）
@@ -172,7 +212,10 @@ export class IntelligentCacheManager {
   /**
    * フレッシュデータで拡張
    */
-  private enhanceWithFreshData(cached: AIAnalysisResponse, _current: AIAnalysisRequest): AIAnalysisResponse {
+  private enhanceWithFreshData(
+    cached: AIAnalysisResponse,
+    _current: AIAnalysisRequest,
+  ): AIAnalysisResponse {
     return {
       ...cached,
       dataQuality: {
@@ -202,10 +245,18 @@ export class IntelligentCacheManager {
 
     this.memoryCache.set(cacheKey, cached)
 
+    // 既存のタイムアウトをクリア
+    const existingTimeout = this.timeoutIds.get(cacheKey)
+    if (existingTimeout) {
+      clearTimeout(existingTimeout)
+    }
+
     // TTL後の自動削除
-    setTimeout(() => {
+    const timeoutId = setTimeout(() => {
       this.memoryCache.delete(cacheKey)
+      this.timeoutIds.delete(cacheKey)
     }, ttlSeconds * 1000)
+    this.timeoutIds.set(cacheKey, timeoutId)
   }
 
   /**
@@ -250,7 +301,9 @@ export class IntelligentCacheManager {
     // 予算制限チェック
     const dailyBudget = 0.1 // $0.10/日
     if (tracker.totalCost > dailyBudget) {
-      console.warn(`Daily budget exceeded for user ${userId}: $${tracker.totalCost.toFixed(4)}`)
+      console.warn(
+        `Daily budget exceeded for user ${userId}: $${tracker.totalCost.toFixed(4)}`,
+      )
       // TODO: キャッシュ専用モードに切り替え
     }
   }
@@ -260,10 +313,18 @@ export class IntelligentCacheManager {
    */
   async getDailyCostReport(): Promise<CostReport> {
     const today = new Date().toDateString()
-    const todayTrackers = Array.from(this.costTracker.values()).filter((tracker) => tracker.date === today)
+    const todayTrackers = Array.from(this.costTracker.values()).filter(
+      (tracker) => tracker.date === today,
+    )
 
-    const totalCost = todayTrackers.reduce((sum, tracker) => sum + tracker.totalCost, 0)
-    const totalRequests = todayTrackers.reduce((sum, tracker) => sum + tracker.requestCount, 0)
+    const totalCost = todayTrackers.reduce(
+      (sum, tracker) => sum + tracker.totalCost,
+      0,
+    )
+    const totalRequests = todayTrackers.reduce(
+      (sum, tracker) => sum + tracker.requestCount,
+      0,
+    )
     const activeUsers = todayTrackers.length
 
     return {
@@ -272,10 +333,21 @@ export class IntelligentCacheManager {
       averageCostPerUser: activeUsers > 0 ? totalCost / activeUsers : 0,
       totalRequests,
       activeUsers,
-      budgetUtilization: totalCost / (activeUsers * 0.1), // 対予算比率
+      budgetUtilization: activeUsers > 0 ? totalCost / (activeUsers * 0.1) : 0, // 対予算比率
     }
   }
 
+  /**
+   * クリーンアップメソッド
+   */
+  cleanup(): void {
+    for (const timeoutId of this.timeoutIds.values()) {
+      clearTimeout(timeoutId)
+    }
+    this.timeoutIds.clear()
+    this.memoryCache.clear()
+    this.costTracker.clear()
+  }
 }
 
 // MARK: - Supporting Types

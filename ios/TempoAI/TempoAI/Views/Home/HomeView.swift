@@ -17,13 +17,13 @@ struct HomeView: View {
             healthService: healthService,
             weatherService: weatherService
         )
-        
+
         _batteryEngine = StateObject(wrappedValue: batteryEngine)
-        
-        // HybridAnalysisEngine初期化
-        let aiService = RealAIAnalysisService()
+
+        // HybridAnalysisEngine初期化 - 標準的なNetworkManagerを使用
+        let aiService = StandardAIAnalysisService()
         let cacheManager = AnalysisCacheManager()
-        
+
         _hybridAnalysisEngine = StateObject(
             wrappedValue: HybridAnalysisEngine(
                 batteryEngine: batteryEngine,
@@ -50,7 +50,8 @@ struct HomeView: View {
                                         DataSourceBadge(source: analysisResult.source)
                                         AnalysisValidityIndicator(
                                             generatedAt: aiAnalysis.generatedAt,
-                                            validUntil: Calendar.current.date(byAdding: .hour, value: 8, to: aiAnalysis.generatedAt)
+                                            validUntil: Calendar.current.date(
+                                                byAdding: .hour, value: 8, to: aiAnalysis.generatedAt)
                                         )
                                     }
                                 } else {
@@ -94,7 +95,8 @@ struct HomeView: View {
 
                         // AI提案がある場合はAI提案を表示、なければ従来の提案
                         if let aiAnalysis = hybridAnalysisEngine.currentAnalysis?.aiAnalysis,
-                           !aiAnalysis.aiActionSuggestions.isEmpty {
+                            !aiAnalysis.aiActionSuggestions.isEmpty
+                        {
                             AITodaysTriesView(suggestions: aiAnalysis.aiActionSuggestions)
                                 .padding(.horizontal, Spacing.lg)
                         } else if !focusTagManager.activeTags.isEmpty {
@@ -107,11 +109,12 @@ struct HomeView: View {
 
                         // AI詳細分析とタグインサイト表示
                         if let aiAnalysis = hybridAnalysisEngine.currentAnalysis?.aiAnalysis,
-                           !aiAnalysis.tagInsights.isEmpty {
+                            !aiAnalysis.tagInsights.isEmpty
+                        {
                             AITagInsightsView(insights: aiAnalysis.tagInsights)
                                 .padding(.horizontal, Spacing.lg)
                         }
-                        
+
                         // AI分析ローディング状態
                         if hybridAnalysisEngine.isEnhancingWithAI {
                             AILoadingView()
@@ -156,10 +159,9 @@ struct HomeView: View {
 
             // 従来のアドバイス生成
             await generateAdvice()
-            
+
             // 新しいハイブリッド分析実行
             await hybridAnalysisEngine.generateAnalysis()
-            
         } catch {
             print("Failed to refresh data: \(error)")
         }

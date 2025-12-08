@@ -193,7 +193,7 @@ describe('Health Routes', () => {
           body: JSON.stringify(validRequestBody),
         },
         {
-          ANTHROPIC_API_KEY: 'test-api-key',
+          GEMINI_API_KEY: 'test-api-key',
         },
       )
 
@@ -213,7 +213,7 @@ describe('Health Routes', () => {
           body: 'invalid json',
         },
         {
-          ANTHROPIC_API_KEY: 'test-api-key',
+          GEMINI_API_KEY: 'test-api-key',
         },
       )
 
@@ -238,7 +238,7 @@ describe('Health Routes', () => {
           body: JSON.stringify(invalidBody),
         },
         {
-          ANTHROPIC_API_KEY: 'test-api-key',
+          GEMINI_API_KEY: 'test-api-key',
         },
       )
 
@@ -263,7 +263,7 @@ describe('Health Routes', () => {
           body: JSON.stringify(invalidBody),
         },
         {
-          ANTHROPIC_API_KEY: 'test-api-key',
+          GEMINI_API_KEY: 'test-api-key',
         },
       )
 
@@ -288,7 +288,7 @@ describe('Health Routes', () => {
           body: JSON.stringify(invalidBody),
         },
         {
-          ANTHROPIC_API_KEY: 'test-api-key',
+          GEMINI_API_KEY: 'test-api-key',
         },
       )
 
@@ -316,7 +316,7 @@ describe('Health Routes', () => {
           body: JSON.stringify(invalidBody),
         },
         {
-          ANTHROPIC_API_KEY: 'test-api-key',
+          GEMINI_API_KEY: 'test-api-key',
         },
       )
 
@@ -344,7 +344,7 @@ describe('Health Routes', () => {
           body: JSON.stringify(invalidBody),
         },
         {
-          ANTHROPIC_API_KEY: 'test-api-key',
+          GEMINI_API_KEY: 'test-api-key',
         },
       )
 
@@ -354,7 +354,7 @@ describe('Health Routes', () => {
       expect(result.error).toContain('Validation failed:')
     })
 
-    it('should return 500 when ANTHROPIC_API_KEY is missing', async () => {
+    it('should return 500 when GEMINI_API_KEY is missing', async () => {
       const app = healthRoutes
       const response = await app.request(
         '/analyze',
@@ -364,7 +364,7 @@ describe('Health Routes', () => {
           body: JSON.stringify(validRequestBody),
         },
         {
-          // No ANTHROPIC_API_KEY in env
+          // No GEMINI_API_KEY in env
         },
       )
 
@@ -386,7 +386,7 @@ describe('Health Routes', () => {
           body: JSON.stringify(validRequestBody),
         },
         {
-          ANTHROPIC_API_KEY: 'test-api-key',
+          GEMINI_API_KEY: 'test-api-key',
         },
       )
 
@@ -412,7 +412,7 @@ describe('Health Routes', () => {
           body: JSON.stringify(validRequestBody),
         },
         {
-          ANTHROPIC_API_KEY: 'test-api-key',
+          GEMINI_API_KEY: 'test-api-key',
         },
       )
 
@@ -436,7 +436,7 @@ describe('Health Routes', () => {
           body: JSON.stringify(validRequestBody),
         },
         {
-          ANTHROPIC_API_KEY: 'test-api-key',
+          GEMINI_API_KEY: 'test-api-key',
         },
       )
 
@@ -470,7 +470,7 @@ describe('Health Routes', () => {
           body: JSON.stringify(edgeCaseBody),
         },
         {
-          ANTHROPIC_API_KEY: 'test-api-key',
+          GEMINI_API_KEY: 'test-api-key',
         },
       )
 
@@ -495,7 +495,7 @@ describe('Health Routes', () => {
           body: JSON.stringify(extremeBody),
         },
         {
-          ANTHROPIC_API_KEY: 'test-api-key',
+          GEMINI_API_KEY: 'test-api-key',
         },
       )
 

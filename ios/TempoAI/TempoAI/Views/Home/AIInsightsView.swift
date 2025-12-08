@@ -7,41 +7,37 @@
 
 import SwiftUI
 
-/**
- * AI分析結果表示ビュー
- * ヘッドライン、タグインサイト、今日のトライを統合表示
- */
+/// AI分析結果表示ビュー
+/// ヘッドライン、タグインサイト、今日のトライを統合表示
 struct AIInsightsView: View {
     let analysis: AIAnalysisResponse
-    
+
     var body: some View {
         VStack(spacing: Spacing.lg) {
             // ヘッドライン表示
             AIHeadlineCard(headline: analysis.headline)
-            
+
             // タグ別インサイト
             if !analysis.tagInsights.isEmpty {
                 AITagInsightsView(insights: analysis.tagInsights)
             }
-            
+
             // 今日のトライ提案
             if !analysis.aiActionSuggestions.isEmpty {
                 AITodaysTriesView(suggestions: analysis.aiActionSuggestions)
             }
-            
+
             // 詳細分析（折りたたみ）
             AIDetailAnalysisView(detailText: analysis.detailAnalysis)
         }
     }
 }
 
-/**
- * AIヘッドライン表示カード
- * UXの「Answer First」原則を体現
- */
+/// AIヘッドライン表示カード
+/// UXの「Answer First」原則を体現
 struct AIHeadlineCard: View {
     let headline: HeadlineInsight
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.sm) {
             HStack {
@@ -49,19 +45,19 @@ struct AIHeadlineCard: View {
                 Circle()
                     .fill(impactLevelColor)
                     .frame(width: 12, height: 12)
-                
+
                 Text(headline.title)
                     .typography(.headline)
                     .foregroundColor(ColorPalette.richBlack)
-                
+
                 Spacer()
-                
+
                 // AI信頼度表示
                 Text("\(Int(headline.confidence))%")
                     .typography(.caption)
                     .foregroundColor(ColorPalette.gray500)
             }
-            
+
             Text(headline.subtitle)
                 .typography(.body)
                 .foregroundColor(ColorPalette.gray600)
@@ -78,7 +74,7 @@ struct AIHeadlineCard: View {
                 .stroke(impactLevelColor.opacity(0.3), lineWidth: 1)
         )
     }
-    
+
     private var impactLevelColor: Color {
         switch headline.impactLevel {
         case .low: return ColorPalette.success
@@ -89,18 +85,16 @@ struct AIHeadlineCard: View {
     }
 }
 
-/**
- * タグ別インサイト表示
- */
+/// タグ別インサイト表示
 struct AITagInsightsView: View {
     let insights: [TagInsight]
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.md) {
             Text("関心分野からの分析")
                 .typography(.subhead)
                 .foregroundColor(ColorPalette.richBlack)
-            
+
             LazyVStack(spacing: Spacing.sm) {
                 ForEach(insights, id: \.tag) { insight in
                     AITagInsightCard(insight: insight)
@@ -110,12 +104,10 @@ struct AITagInsightsView: View {
     }
 }
 
-/**
- * 個別タグインサイトカード
- */
+/// 個別タグインサイトカード
 struct AITagInsightCard: View {
     let insight: TagInsight
-    
+
     var body: some View {
         HStack(spacing: Spacing.md) {
             // タグアイコン
@@ -123,15 +115,15 @@ struct AITagInsightCard: View {
                 .font(.title2)
                 .foregroundColor(insight.tag.themeColor)
                 .frame(width: 32, height: 32)
-            
+
             VStack(alignment: .leading, spacing: Spacing.xs) {
                 HStack {
                     Text(insight.tag.displayName)
                         .typography(.subhead)
                         .foregroundColor(ColorPalette.richBlack)
-                    
+
                     Spacer()
-                    
+
                     // 緊急度バッジ
                     if insight.urgency != .info {
                         Text(urgencyText)
@@ -145,13 +137,13 @@ struct AITagInsightCard: View {
                             )
                     }
                 }
-                
+
                 Text(insight.message)
                     .typography(.caption)
                     .foregroundColor(ColorPalette.gray600)
                     .multilineTextAlignment(.leading)
             }
-            
+
             Spacer()
         }
         .padding(Spacing.md)
@@ -160,7 +152,7 @@ struct AITagInsightCard: View {
                 .fill(insight.tag.themeColor.opacity(0.05))
         )
     }
-    
+
     private var urgencyText: String {
         switch insight.urgency {
         case .info: return ""
@@ -168,7 +160,7 @@ struct AITagInsightCard: View {
         case .critical: return "重要"
         }
     }
-    
+
     private var urgencyColor: Color {
         switch insight.urgency {
         case .info: return ColorPalette.info
@@ -178,18 +170,16 @@ struct AITagInsightCard: View {
     }
 }
 
-/**
- * 今日のトライ提案表示
- */
+/// 今日のトライ提案表示
 struct AITodaysTriesView: View {
     let suggestions: [AIActionSuggestion]
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.md) {
             Text("今日のトライ")
                 .typography(.subhead)
                 .foregroundColor(ColorPalette.richBlack)
-            
+
             LazyVStack(spacing: Spacing.sm) {
                 ForEach(suggestions.prefix(3), id: \.title) { suggestion in
                     AITryCard(suggestion: suggestion)
@@ -199,12 +189,10 @@ struct AITodaysTriesView: View {
     }
 }
 
-/**
- * 今日のトライカード
- */
+/// 今日のトライカード
 struct AITryCard: View {
     let suggestion: AIActionSuggestion
-    
+
     var body: some View {
         HStack(spacing: Spacing.md) {
             // アクションタイプアイコン
@@ -212,15 +200,15 @@ struct AITryCard: View {
                 .font(.title3)
                 .foregroundColor(difficultyColor)
                 .frame(width: 28, height: 28)
-            
+
             VStack(alignment: .leading, spacing: Spacing.xs) {
                 HStack {
                     Text(suggestion.title)
                         .typography(.subhead)
                         .foregroundColor(ColorPalette.richBlack)
-                    
+
                     Spacer()
-                    
+
                     // 所要時間バッジ
                     Text(suggestion.estimatedTime)
                         .typography(.caption)
@@ -232,13 +220,13 @@ struct AITryCard: View {
                                 .fill(ColorPalette.gray100)
                         )
                 }
-                
+
                 Text(suggestion.description)
                     .typography(.caption)
                     .foregroundColor(ColorPalette.gray600)
                     .multilineTextAlignment(.leading)
             }
-            
+
             // 実行ボタン
             Button("試す") {
                 // TODO: アクション実行ロジック
@@ -258,7 +246,7 @@ struct AITryCard: View {
                 .shadow(color: ColorPalette.richBlack.opacity(0.08), radius: 2, x: 0, y: 1)
         )
     }
-    
+
     private var actionTypeIcon: String {
         switch suggestion.actionType {
         case .rest: return "bed.double"
@@ -269,7 +257,7 @@ struct AITryCard: View {
         case .beauty: return "sparkles"
         }
     }
-    
+
     private var difficultyColor: Color {
         switch suggestion.difficulty {
         case .easy: return ColorPalette.success
@@ -279,13 +267,11 @@ struct AITryCard: View {
     }
 }
 
-/**
- * 詳細分析表示（折りたたみ可能）
- */
+/// 詳細分析表示（折りたたみ可能）
 struct AIDetailAnalysisView: View {
     let detailText: String
     @State private var isExpanded: Bool = false
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.sm) {
             Button(action: { isExpanded.toggle() }) {
@@ -293,16 +279,16 @@ struct AIDetailAnalysisView: View {
                     Text("詳細分析")
                         .typography(.subhead)
                         .foregroundColor(ColorPalette.richBlack)
-                    
+
                     Spacer()
-                    
+
                     Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
                         .font(.caption)
                         .foregroundColor(ColorPalette.gray500)
                 }
             }
             .buttonStyle(PlainButtonStyle())
-            
+
             if isExpanded {
                 Text(detailText)
                     .typography(.caption)
@@ -320,34 +306,33 @@ struct AIDetailAnalysisView: View {
     }
 }
 
-/**
- * AI分析ローディング表示
- * UXの「Labor Illusion」原則を実装
- */
+/// AI分析ローディング表示
+/// UXの「Labor Illusion」原則を実装
 struct AILoadingView: View {
     @State private var animationPhase: Int = 0
-    
+    @State private var loadingTimer: Timer?
+
     private let loadingMessages = [
         "ヘルスケアデータを分析中...",
         "環境要因を考慮中...",
         "パーソナライズ提案を生成中...",
-        "最適なアドバイスを準備中..."
+        "最適なアドバイスを準備中...",
     ]
-    
+
     var body: some View {
         VStack(spacing: Spacing.lg) {
             HStack(spacing: Spacing.md) {
                 ProgressView()
                     .progressViewStyle(CircularProgressViewStyle(tint: ColorPalette.primaryAccent))
                     .scaleEffect(0.8)
-                
+
                 Text(loadingMessages[animationPhase])
                     .typography(.caption)
                     .foregroundColor(ColorPalette.gray600)
-                
+
                 Spacer()
             }
-            
+
             // プログレスバー
             ProgressView(value: Double(animationPhase + 1), total: Double(loadingMessages.count))
                 .progressViewStyle(LinearProgressViewStyle(tint: ColorPalette.primaryAccent))
@@ -364,18 +349,21 @@ struct AILoadingView: View {
         .onAppear {
             startLoadingAnimation()
         }
+        .onDisappear {
+            loadingTimer?.invalidate()
+        }
     }
-    
+
     private func startLoadingAnimation() {
-        Timer.scheduledTimer(withTimeInterval: 0.8, repeats: true) { timer in
+        loadingTimer = Timer.scheduledTimer(withTimeInterval: 0.8, repeats: true) { _ in
             withAnimation(.easeInOut(duration: 0.5)) {
                 animationPhase = (animationPhase + 1) % loadingMessages.count
             }
-            
-            // 10秒後にタイマー停止（タイムアウト対策）
-            DispatchQueue.main.asyncAfter(deadline: .now() + 10) {
-                timer.invalidate()
-            }
+        }
+        
+        // 10秒後にタイマー停止（タイムアウト対策）
+        DispatchQueue.main.asyncAfter(deadline: .now() + 10) { [weak loadingTimer] in
+            loadingTimer?.invalidate()
         }
     }
 }

@@ -21,7 +21,7 @@ struct HomeView: View {
         _batteryEngine = StateObject(wrappedValue: batteryEngine)
         
         // HybridAnalysisEngine初期化
-        let aiService = MockAIAnalysisService()
+        let aiService = RealAIAnalysisService()
         let cacheManager = AnalysisCacheManager()
         
         _hybridAnalysisEngine = StateObject(
@@ -39,8 +39,13 @@ struct HomeView: View {
             ScrollView {
                 LazyVStack(spacing: Spacing.xl) {
                     VStack(spacing: Spacing.lg) {
-                        AdviceHeaderView(headline: currentAdvice) {
-                            showAdviceDetail()
+                        // AI分析結果がある場合はAIヘッドラインを表示、なければ従来のアドバイス
+                        if let aiAnalysis = hybridAnalysisEngine.currentAnalysis?.aiAnalysis {
+                            AIHeadlineCard(headline: aiAnalysis.headline)
+                        } else {
+                            AdviceHeaderView(headline: currentAdvice) {
+                                showAdviceDetail()
+                            }
                         }
 
                         LiquidBatteryView(battery: batteryEngine.currentBattery)
@@ -52,7 +57,12 @@ struct HomeView: View {
                         )
                         .padding(.horizontal, Spacing.lg)
 
-                        if !focusTagManager.activeTags.isEmpty {
+                        // AI提案がある場合はAI提案を表示、なければ従来の提案
+                        if let aiAnalysis = hybridAnalysisEngine.currentAnalysis?.aiAnalysis,
+                           !aiAnalysis.aiActionSuggestions.isEmpty {
+                            AITodaysTriesView(suggestions: aiAnalysis.aiActionSuggestions)
+                                .padding(.horizontal, Spacing.lg)
+                        } else if !focusTagManager.activeTags.isEmpty {
                             SmartSuggestionsView(
                                 activeTags: focusTagManager.activeTags,
                                 healthData: healthData,
@@ -60,11 +70,15 @@ struct HomeView: View {
                             )
                         }
 
-                        // AI分析結果表示（プログレッシブエンハンスメント）
-                        if let aiAnalysis = hybridAnalysisEngine.currentAnalysis?.aiAnalysis {
-                            AIInsightsView(analysis: aiAnalysis)
+                        // AI詳細分析とタグインサイト表示
+                        if let aiAnalysis = hybridAnalysisEngine.currentAnalysis?.aiAnalysis,
+                           !aiAnalysis.tagInsights.isEmpty {
+                            AITagInsightsView(insights: aiAnalysis.tagInsights)
                                 .padding(.horizontal, Spacing.lg)
-                        } else if hybridAnalysisEngine.isEnhancingWithAI {
+                        }
+                        
+                        // AI分析ローディング状態
+                        if hybridAnalysisEngine.isEnhancingWithAI {
                             AILoadingView()
                                 .padding(.horizontal, Spacing.lg)
                         }

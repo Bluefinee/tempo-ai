@@ -120,8 +120,8 @@ struct AIAnalysisResponse: Codable {
     let energyComment: String
     /// タグ別インサイト（関心分野別の専門的観点）
     let tagInsights: [TagInsight]
-    /// スマート提案（今日のトライ）
-    let smartSuggestions: [SmartSuggestion]
+    /// AI生成アクション提案
+    let aiActionSuggestions: [AIActionSuggestion]
     /// 詳細分析（根拠データ）
     let detailAnalysis: String
     /// データ品質情報
@@ -180,7 +180,7 @@ enum Urgency: String, Codable, CaseIterable {
 /**
  * 実行可能な小さなアクション提案
  */
-struct SmartSuggestion: Codable {
+struct AIActionSuggestion: Codable {
     /// 提案タイトル
     let title: String
     /// 詳細説明

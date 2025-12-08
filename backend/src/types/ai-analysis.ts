@@ -97,8 +97,8 @@ export const AIAnalysisResponseSchema = z.object({
       urgency: z.enum(['info', 'warning', 'critical']),
     }),
   ),
-  /** スマート提案 */
-  smartSuggestions: z.array(
+  /** AI生成アクション提案 */
+  aiActionSuggestions: z.array(
     z.object({
       /** 提案タイトル */
       title: z.string().min(1),

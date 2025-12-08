@@ -25,7 +25,7 @@ class MockAIAnalysisService: AIAnalysisServiceProtocol {
             ),
             energyComment: energyComment,
             tagInsights: generateTagInsights(),
-            smartSuggestions: generateSmartSuggestions(energyLevel: staticAnalysis.energyLevel),
+            aiActionSuggestions: generateSmartSuggestions(energyLevel: staticAnalysis.energyLevel),
             detailAnalysis: generateDetailAnalysis(staticAnalysis: staticAnalysis),
             dataQuality: DataQuality(
                 healthDataCompleteness: 90.0,
@@ -73,10 +73,10 @@ class MockAIAnalysisService: AIAnalysisServiceProtocol {
         ]
     }
     
-    private func generateSmartSuggestions(energyLevel: Double) -> [SmartSuggestion] {
+    private func generateSmartSuggestions(energyLevel: Double) -> [AIActionSuggestion] {
         if energyLevel < 50 {
             return [
-                SmartSuggestion(
+                AIActionSuggestion(
                     title: "深呼吸をする",
                     description: "3回の深呼吸で気持ちをリセットしませんか？",
                     actionType: .rest,
@@ -86,7 +86,7 @@ class MockAIAnalysisService: AIAnalysisServiceProtocol {
             ]
         } else {
             return [
-                SmartSuggestion(
+                AIActionSuggestion(
                     title: "軽い散歩",
                     description: "外の空気を吸いながら、5分間歩いてみましょう",
                     actionType: .exercise,

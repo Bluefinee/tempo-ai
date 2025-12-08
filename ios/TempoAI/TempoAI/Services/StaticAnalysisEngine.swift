@@ -38,9 +38,9 @@ class StaticAnalysisEngine {
         let startTime = Date()
         
         // 基本メトリクス計算
-        let sleepScore = calculateSleepScore(healthData.sleep)
-        let activityScore = calculateActivityScore(healthData.activity)
-        let stressScore = calculateStressScore(healthData.hrv)
+        let sleepScore = calculateSleepScore(healthData.sleepData)
+        let activityScore = calculateActivityScore(healthData.activityData)
+        let stressScore = calculateStressScore(healthData.hrvData)
         
         // エネルギーレベル計算
         let energyLevel = calculateEnergyLevel(
@@ -88,12 +88,12 @@ class StaticAnalysisEngine {
      */
     private func calculateActivityScore(_ activityData: ActivityData) -> Double {
         // 歩数評価（0-60点）
-        let stepsScore = min(60, (Double(activityData.steps) / Double(AnalysisConstants.optimalSteps)) * 60)
+        let stepsScore = min(60, (Double(activityData.stepCount) / Double(AnalysisConstants.optimalSteps)) * 60)
         
-        // 活動時間評価（0-40点）
-        let activeMinutesScore = min(40, (Double(activityData.activeMinutes) / 30.0) * 40)
+        // 活動エネルギー評価（0-40点）
+        let activeEnergyScore = min(40, (activityData.activeEnergyBurned / 400.0) * 40)
         
-        return min(100, stepsScore + activeMinutesScore)
+        return min(100, stepsScore + activeEnergyScore)
     }
     
     /**
@@ -101,7 +101,7 @@ class StaticAnalysisEngine {
      */
     private func calculateStressScore(_ hrvData: HRVData) -> Double {
         // HRV基準値との比較
-        let hrvRatio = hrvData.average / AnalysisConstants.baselineHRV
+        let hrvRatio = hrvData.current / AnalysisConstants.baselineHRV
         
         // 理想的な範囲：0.8-1.2
         if hrvRatio >= 0.8 && hrvRatio <= 1.2 {
@@ -140,25 +140,23 @@ class StaticAnalysisEngine {
         var adjustment: Double = 0
         
         // 温度調整
-        let temperature = weather.current.temperature_2m
+        let temperature = weather.temperature
         if temperature < 5 || temperature > 30 {
             adjustment -= 5 // 極端な温度はエネルギーを消耗
         }
         
         // 湿度調整
-        let humidity = weather.current.relative_humidity_2m
+        let humidity = weather.humidity
         if humidity < 30 {
             adjustment -= 3 // 乾燥はエネルギーを消耗
         } else if humidity > 80 {
             adjustment -= 2 // 高湿度も負担
         }
         
-        // 気圧調整（データがある場合）
-        if let pressure = weather.current.surface_pressure {
-            let pressureDiff = abs(pressure - 1013.25) // 標準気圧との差
-            if pressureDiff > 20 {
-                adjustment -= 4 // 気圧変動は体調に影響
-            }
+        // 気圧調整
+        let pressureDiff = abs(weather.surfacePressure - 1013.25) // 標準気圧との差
+        if pressureDiff > 20 {
+            adjustment -= 4 // 気圧変動は体調に影響
         }
         
         return adjustment

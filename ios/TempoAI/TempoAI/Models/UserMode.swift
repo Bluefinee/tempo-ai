@@ -19,7 +19,7 @@ enum UserMode: String, Codable, CaseIterable {
         }
     }
 
-    var description: String {
+    var detailedDescription: String {
         switch self {
         case .standard:
             return "無理なく続けられる健康習慣で、心身のコンディションを整えます。日常生活の質を高めたいあなたへ"

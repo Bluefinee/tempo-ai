@@ -1,5 +1,6 @@
 import Combine
 import Foundation
+import SwiftUI
 
 enum FocusTag: String, Codable, CaseIterable {
     case chill

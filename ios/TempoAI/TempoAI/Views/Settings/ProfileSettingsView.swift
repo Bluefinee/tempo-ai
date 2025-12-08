@@ -166,7 +166,7 @@ struct ProfileUserModeCard: View {
                         .font(.system(size: 16, weight: .medium))
                         .foregroundColor(ColorPalette.richBlack)
 
-                    Text(mode.description)
+                    Text(mode.detailedDescription)
                         .font(.system(size: 13, weight: .regular))
                         .foregroundColor(ColorPalette.gray600)
                         .multilineTextAlignment(.leading)

@@ -32,17 +32,11 @@ struct OnboardingFlowView: View {
                         .padding(.top, Spacing.lg)
                     }
 
-                    // Direct page rendering
+                    // Simplified direct page rendering
                     Group {
                         switch coordinator.currentPage {
                         case .welcome:
                             WelcomePage(onNext: coordinator.nextPage)
-                        case .userMode:
-                            UserModePage(
-                                selectedMode: $coordinator.selectedUserMode,
-                                onNext: coordinator.nextPage,
-                                onBack: coordinator.previousPage
-                            )
                         case .focusTags:
                             FocusTagsPage(
                                 selectedTags: $coordinator.selectedTags,

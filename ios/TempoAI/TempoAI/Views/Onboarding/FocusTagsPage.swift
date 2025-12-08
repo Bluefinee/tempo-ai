@@ -89,7 +89,7 @@ struct FocusTagsPage: View {
         .background(ColorPalette.pureWhite)
     }
 
-    private let columns: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: Spacing.md), count: 2)
+    private let columns: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: Spacing.md), count: 3)
 
     private func toggleTag(_ tag: FocusTag) {
         if selectedTags.contains(tag) {
@@ -106,12 +106,7 @@ struct FocusTagCard: View {
     let onToggle: () -> Void
 
     private var tagColor: Color {
-        switch tag {
-        case .chill: return ColorPalette.secondaryAccent
-        case .work: return ColorPalette.primaryAccent
-        case .beauty: return Color(.systemPink)
-        case .diet: return ColorPalette.warmAccent
-        }
+        return tag.themeColor
     }
 
     var body: some View {
@@ -126,14 +121,16 @@ struct FocusTagCard: View {
                     
                     VStack(spacing: Spacing.xs) {
                         Text(tag.displayName)
-                            .font(.system(size: 16, weight: .semibold))
+                            .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(isSelected ? ColorPalette.pureWhite : ColorPalette.richBlack)
+                            .lineLimit(2)
+                            .multilineTextAlignment(.center)
                         
-                        Text(tag == .chill ? "ストレス管理" : 
-                             tag == .work ? "集中力最適化" :
-                             tag == .beauty ? "肌・睡眠重視" : "食事管理")
-                            .font(.system(size: 12, weight: .regular))
+                        Text(shortDescription)
+                            .font(.system(size: 10, weight: .regular))
                             .foregroundColor(isSelected ? ColorPalette.pureWhite.opacity(0.8) : ColorPalette.gray600)
+                            .lineLimit(2)
+                            .multilineTextAlignment(.center)
                     }
                 }
                 .padding(Spacing.lg)
@@ -172,6 +169,17 @@ struct FocusTagCard: View {
         }
         .buttonStyle(PlainButtonStyle())
         .contentShape(Rectangle())
+    }
+    
+    private var shortDescription: String {
+        switch tag {
+        case .chill: return "ストレス管理"
+        case .work: return "集中力最適化"
+        case .beauty: return "肌・美容"
+        case .diet: return "食事管理"
+        case .sleep: return "睡眠質向上"
+        case .fitness: return "運動最適化"
+        }
     }
 }
 

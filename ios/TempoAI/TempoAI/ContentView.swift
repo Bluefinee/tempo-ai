@@ -69,41 +69,115 @@ struct PlaceholderView: View {
 struct SettingsView: View {
     @ObservedObject private var userProfileManager = UserProfileManager.shared
     @ObservedObject private var focusTagManager = FocusTagManager.shared
+    @State private var showingProfileSettings = false
+    @State private var showingAISettings = false
+    @State private var showingDataPermissions = false
+    @State private var showingPrivacySettings = false
 
     var body: some View {
         NavigationStack {
-            List {
-                Section("ユーザー設定") {
-                    UserModeRow(userMode: userProfileManager.currentMode) {
-                        // TODO: Present mode selection sheet/view
-                        // For now, just update to next mode for testing
-                        let nextMode: UserMode = userProfileManager.currentMode == .standard ? .athlete : .standard
-                        userProfileManager.updateMode(nextMode)
+            ScrollView {
+                VStack(spacing: Spacing.lg) {
+                    // Header
+                    VStack(spacing: Spacing.sm) {
+                        Text("設定")
+                            .font(.system(size: 32, weight: .light))
+                            .foregroundColor(ColorPalette.richBlack)
+                        
+                        Text("あなたの体験をカスタマイズ")
+                            .font(.system(size: 16, weight: .regular))
+                            .foregroundColor(ColorPalette.gray600)
                     }
-                }
-
-                Section("関心タグ") {
-                    ForEach(FocusTag.allCases, id: \.self) { tag in
-                        FocusTagRow(
-                            tag: tag,
-                            isSelected: focusTagManager.activeTags.contains(tag)
+                    .padding(.top, Spacing.lg)
+                    
+                    // Settings Cards
+                    VStack(spacing: Spacing.md) {
+                        // Profile Settings
+                        SettingsCardRow(
+                            icon: "person.circle.fill",
+                            title: "あなたのプロフィール",
+                            subtitle: "AIがあなたに合わせて最適化",
+                            status: userProfileManager.currentMode.displayName,
+                            color: Color(.systemBlue)
                         ) {
-                            focusTagManager.toggleTag(tag)
+                            showingProfileSettings = true
+                        }
+                        
+                        // AI Analysis Settings
+                        SettingsCardRow(
+                            icon: "brain.head.profile",
+                            title: "AI分析とカスタマイズ",
+                            subtitle: aiSettingsSubtitle,
+                            status: "\(focusTagManager.activeTags.count)つの関心領域",
+                            color: Color(.systemPurple)
+                        ) {
+                            showingAISettings = true
+                        }
+                        
+                        // Data Permissions
+                        SettingsCardRow(
+                            icon: "heart.text.square.fill",
+                            title: "データ連携",
+                            subtitle: "さらに詳しい分析で精度向上",
+                            status: "6項目許可済み", // TODO: Make this dynamic
+                            color: Color(.systemRed)
+                        ) {
+                            showingDataPermissions = true
+                        }
+                        
+                        // Privacy and Notifications
+                        SettingsCardRow(
+                            icon: "lock.shield.fill",
+                            title: "プライバシーと通知",
+                            subtitle: "あなたのデータはデバイス内で処理",
+                            status: "安全に保護",
+                            color: Color(.systemGreen)
+                        ) {
+                            showingPrivacySettings = true
                         }
                     }
-                }
+                    .padding(.horizontal, Spacing.lg)
 
-                #if DEBUG
-                    Section("開発者ツール") {
+                    #if DEBUG
+                    // Developer Tools (Debug only)
+                    VStack {
                         Button("オンボーディングリセット") {
                             resetOnboarding()
                         }
+                        .font(.system(size: 14, weight: .medium))
                         .foregroundColor(ColorPalette.error)
+                        .padding()
+                        .background(
+                            RoundedRectangle(cornerRadius: CornerRadius.md)
+                                .fill(ColorPalette.error.opacity(0.1))
+                        )
                     }
-                #endif
+                    .padding(.top, Spacing.xl)
+                    #endif
+                    
+                    Spacer()
+                }
             }
-            .navigationTitle("Settings")
+            .background(ColorPalette.gray50)
+            .navigationBarHidden(true)
         }
+        .sheet(isPresented: $showingProfileSettings) {
+            ProfileSettingsView()
+        }
+        .sheet(isPresented: $showingAISettings) {
+            AIAnalysisSettingsView()
+        }
+        .sheet(isPresented: $showingDataPermissions) {
+            DataPermissionsView()
+        }
+        .sheet(isPresented: $showingPrivacySettings) {
+            PrivacySettingsView()
+        }
+    }
+    
+    private var aiSettingsSubtitle: String {
+        let tags = Array(focusTagManager.activeTags.prefix(3))
+        return tags.map { $0.displayName }.joined(separator: "、")
     }
 
     #if DEBUG
@@ -116,66 +190,6 @@ struct SettingsView: View {
     #endif
 }
 
-struct UserModeRow: View {
-    let userMode: UserMode
-    let onTap: () -> Void
-
-    var body: some View {
-        HStack {
-            Text("ライフスタイル設定")
-                .typography(.body)
-
-            Spacer()
-
-            Text(userMode.displayName)
-                .typography(.body)
-                .foregroundColor(ColorPalette.gray600)
-
-            Image(systemName: "chevron.right")
-                .font(.caption)
-                .foregroundColor(ColorPalette.gray400)
-        }
-        .contentShape(Rectangle())
-        .onTapGesture {
-            onTap()
-        }
-    }
-}
-
-struct FocusTagRow: View {
-    let tag: FocusTag
-    let isSelected: Bool
-    let onToggle: () -> Void
-
-    var body: some View {
-        HStack {
-            Text(tag.emoji)
-                .font(.title2)
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text(tag.displayName)
-                    .typography(.body)
-
-                Text(tag.description)
-                    .typography(.caption)
-                    .foregroundColor(ColorPalette.gray500)
-            }
-
-            Spacer()
-
-            Toggle(
-                "",
-                isOn: .init(
-                    get: { isSelected },
-                    set: { _ in onToggle() }
-                ))
-        }
-        .contentShape(Rectangle())
-        .onTapGesture {
-            onToggle()
-        }
-    }
-}
 
 #Preview {
     ContentView()

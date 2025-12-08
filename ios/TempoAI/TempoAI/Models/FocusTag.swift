@@ -2,10 +2,12 @@ import Combine
 import Foundation
 
 enum FocusTag: String, Codable, CaseIterable {
-    case chill    // Moved to first position
+    case chill
     case work
     case beauty
     case diet
+    case sleep     // New: Sleep optimization
+    case fitness   // New: Fitness & training
 
     var systemIcon: String {
         switch self {
@@ -13,11 +15,13 @@ enum FocusTag: String, Codable, CaseIterable {
         case .work: return "square.stack.3d.up"
         case .beauty: return "sparkles"
         case .diet: return "fork.knife.circle"
+        case .sleep: return "bed.double.circle"
+        case .fitness: return "figure.run.circle"
         }
     }
 
     var emoji: String {
-        // Keeping for backward compatibility, but using systemIcon instead
+        // Keeping for backward compatibility
         return systemIcon
     }
 
@@ -27,6 +31,8 @@ enum FocusTag: String, Codable, CaseIterable {
         case .work: return "深い集中（仕事）"
         case .beauty: return "美容・肌"
         case .diet: return "食事・代謝"
+        case .sleep: return "睡眠最適化"
+        case .fitness: return "フィットネス"
         }
     }
 
@@ -36,6 +42,19 @@ enum FocusTag: String, Codable, CaseIterable {
         case .work: return "脳のパフォーマンスと集中力ウィンドウを最適化"
         case .beauty: return "水分補給、睡眠ホルモン、肌の健康に焦点"
         case .diet: return "食事タイミング、代謝、カロリー収支を管理"
+        case .sleep: return "睡眠の質向上とリカバリー効率の最大化"
+        case .fitness: return "運動習慣の最適化と身体能力の向上"
+        }
+    }
+
+    var themeColor: Color {
+        switch self {
+        case .chill: return ColorPalette.secondaryAccent
+        case .work: return ColorPalette.primaryAccent
+        case .beauty: return Color(.systemPink)
+        case .diet: return ColorPalette.warmAccent
+        case .sleep: return Color(.systemIndigo)
+        case .fitness: return Color(.systemOrange)
         }
     }
 
@@ -64,6 +83,18 @@ enum FocusTag: String, Codable, CaseIterable {
                 focusAreas: ["代謝タイミング", "消化効率", "血糖値安定"],
                 keyMetrics: ["活動カロリー", "食事タイミング", "心拍数変動"],
                 environmentFactors: ["気温", "湿度"]
+            )
+        case .sleep:
+            return AnalysisLens(
+                focusAreas: ["睡眠効率", "深い睡眠", "概日リズム"],
+                keyMetrics: ["睡眠時間", "REM睡眠", "睡眠質スコア"],
+                environmentFactors: ["気圧", "気温", "日照時間"]
+            )
+        case .fitness:
+            return AnalysisLens(
+                focusAreas: ["トレーニング効果", "運動強度", "回復時間"],
+                keyMetrics: ["心拍ゾーン", "活動量", "HRV変動"],
+                environmentFactors: ["気温", "湿度", "大気質"]
             )
         }
     }

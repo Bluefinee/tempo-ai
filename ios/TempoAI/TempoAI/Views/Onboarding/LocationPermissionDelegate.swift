@@ -1,14 +1,14 @@
-import Foundation
 import CoreLocation
+import Foundation
 
 class LocationPermissionDelegate: NSObject, CLLocationManagerDelegate {
     private let completion: (Bool) -> Void
-    
+
     init(completion: @escaping (Bool) -> Void) {
         self.completion = completion
         super.init()
     }
-    
+
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         switch status {
         case .authorizedWhenInUse, .authorizedAlways:

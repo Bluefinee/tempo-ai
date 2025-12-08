@@ -7,7 +7,7 @@ struct SettingsCardRow: View {
     let status: String
     let color: Color
     let onTap: () -> Void
-    
+
     var body: some View {
         Button(action: onTap) {
             HStack(spacing: Spacing.lg) {
@@ -16,32 +16,32 @@ struct SettingsCardRow: View {
                     Circle()
                         .fill(color.opacity(0.15))
                         .frame(width: 44, height: 44)
-                    
+
                     Image(systemName: icon)
                         .font(.system(size: 20, weight: .medium))
                         .foregroundColor(color)
                 }
-                
+
                 VStack(alignment: .leading, spacing: Spacing.xs) {
                     Text(title)
                         .font(.system(size: 16, weight: .medium))
                         .foregroundColor(ColorPalette.richBlack)
                         .multilineTextAlignment(.leading)
-                    
+
                     Text(subtitle)
                         .font(.system(size: 13, weight: .regular))
                         .foregroundColor(ColorPalette.gray600)
                         .multilineTextAlignment(.leading)
                 }
-                
+
                 Spacer()
-                
+
                 VStack(alignment: .trailing, spacing: 2) {
                     Text(status)
                         .font(.system(size: 13, weight: .medium))
                         .foregroundColor(ColorPalette.gray700)
                         .multilineTextAlignment(.trailing)
-                    
+
                     Image(systemName: "chevron.right")
                         .font(.system(size: 12, weight: .medium))
                         .foregroundColor(ColorPalette.gray400)
@@ -75,7 +75,7 @@ struct SettingsCardRow: View {
         ) {
             print("Profile tapped")
         }
-        
+
         SettingsCardRow(
             icon: "heart.text.square.fill",
             title: "データ連携",
@@ -85,7 +85,7 @@ struct SettingsCardRow: View {
         ) {
             print("Data permissions tapped")
         }
-        
+
         SettingsCardRow(
             icon: "brain.head.profile",
             title: "AI分析とカスタマイズ",

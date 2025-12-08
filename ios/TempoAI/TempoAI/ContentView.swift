@@ -83,13 +83,13 @@ struct SettingsView: View {
                         Text("設定")
                             .font(.system(size: 32, weight: .light))
                             .foregroundColor(ColorPalette.richBlack)
-                        
+
                         Text("あなたの体験をカスタマイズ")
                             .font(.system(size: 16, weight: .regular))
                             .foregroundColor(ColorPalette.gray600)
                     }
                     .padding(.top, Spacing.lg)
-                    
+
                     // Settings Cards
                     VStack(spacing: Spacing.md) {
                         // Profile Settings
@@ -102,7 +102,7 @@ struct SettingsView: View {
                         ) {
                             showingProfileSettings = true
                         }
-                        
+
                         // AI Analysis Settings
                         SettingsCardRow(
                             icon: "brain.head.profile",
@@ -113,18 +113,18 @@ struct SettingsView: View {
                         ) {
                             showingAISettings = true
                         }
-                        
+
                         // Data Permissions
                         SettingsCardRow(
                             icon: "heart.text.square.fill",
                             title: "データ連携",
                             subtitle: "さらに詳しい分析で精度向上",
-                            status: "6項目許可済み", // TODO: Make this dynamic
+                            status: "6項目許可済み",  // TODO: Make this dynamic
                             color: Color(.systemRed)
                         ) {
                             showingDataPermissions = true
                         }
-                        
+
                         // Privacy and Notifications
                         SettingsCardRow(
                             icon: "lock.shield.fill",
@@ -139,22 +139,22 @@ struct SettingsView: View {
                     .padding(.horizontal, Spacing.lg)
 
                     #if DEBUG
-                    // Developer Tools (Debug only)
-                    VStack {
-                        Button("オンボーディングリセット") {
-                            resetOnboarding()
+                        // Developer Tools (Debug only)
+                        VStack {
+                            Button("オンボーディングリセット") {
+                                resetOnboarding()
+                            }
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(ColorPalette.error)
+                            .padding()
+                            .background(
+                                RoundedRectangle(cornerRadius: CornerRadius.md)
+                                    .fill(ColorPalette.error.opacity(0.1))
+                            )
                         }
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(ColorPalette.error)
-                        .padding()
-                        .background(
-                            RoundedRectangle(cornerRadius: CornerRadius.md)
-                                .fill(ColorPalette.error.opacity(0.1))
-                        )
-                    }
-                    .padding(.top, Spacing.xl)
+                        .padding(.top, Spacing.xl)
                     #endif
-                    
+
                     Spacer()
                 }
             }
@@ -174,9 +174,12 @@ struct SettingsView: View {
             PrivacySettingsView()
         }
     }
-    
+
     private var aiSettingsSubtitle: String {
         let tags = Array(focusTagManager.activeTags.prefix(3))
+        if tags.isEmpty {
+            return "タップして関心領域を設定"
+        }
         return tags.map { $0.displayName }.joined(separator: "、")
     }
 
@@ -189,7 +192,6 @@ struct SettingsView: View {
         }
     #endif
 }
-
 
 #Preview {
     ContentView()

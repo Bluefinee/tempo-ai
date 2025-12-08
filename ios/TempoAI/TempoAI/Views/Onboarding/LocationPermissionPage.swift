@@ -1,13 +1,13 @@
-import SwiftUI
 import CoreLocation
+import SwiftUI
 
 struct LocationPermissionPage: View {
     @Binding var isGranted: Bool
     let onNext: () -> Void
     let onBack: (() -> Void)?
-    
+
     var body: some View {
-        GeometryReader { geometry in
+        GeometryReader { _ in
             VStack(spacing: 0) {
                 // Header section (Serial Position Effect)
                 VStack(spacing: Spacing.lg) {
@@ -15,18 +15,18 @@ struct LocationPermissionPage: View {
                         .font(.system(size: 28, weight: .light))
                         .foregroundColor(ColorPalette.richBlack)
                         .padding(.top, Spacing.lg)
-                    
+
                     Image(systemName: "location.fill")
                         .font(.system(size: 48, weight: .light))
                         .foregroundColor(Color(.systemBlue))
-                    
+
                     Text("気象・大気質情報で\nより正確なアドバイス")
                         .font(.system(size: 18, weight: .regular))
                         .foregroundColor(ColorPalette.richBlack)
                         .multilineTextAlignment(.center)
                         .lineSpacing(2)
                 }
-                
+
                 // Premium environmental showcase
                 VStack(spacing: Spacing.md) {
                     DataTypeRow(icon: "thermometer", title: "", color: Color(.systemOrange))
@@ -36,7 +36,7 @@ struct LocationPermissionPage: View {
                 }
                 .padding(.horizontal, Spacing.lg)
                 .padding(.vertical, Spacing.xl)
-                
+
                 // Bottom action area (Fitts's Law)
                 VStack(spacing: Spacing.md) {
                     HStack(spacing: Spacing.md) {
@@ -57,7 +57,7 @@ struct LocationPermissionPage: View {
                             .cornerRadius(CornerRadius.lg)
                         }
                         .contentShape(Rectangle())
-                        
+
                         Button("位置情報を許可") {
                             print("📱 Location permission button tapped")
                             Task {
@@ -74,7 +74,7 @@ struct LocationPermissionPage: View {
                         .cornerRadius(CornerRadius.lg)
                         .contentShape(Rectangle())
                     }
-                    
+
                     Button("後で設定") {
                         print("📱 Skip location permission tapped")
                         onNext()
@@ -85,22 +85,22 @@ struct LocationPermissionPage: View {
                 }
                 .padding(.horizontal, Spacing.lg)
                 .padding(.bottom, Spacing.lg)
-                .frame(height: 120) // Fixed height for bottom area
+                .frame(height: 120)  // Fixed height for bottom area
             }
         }
         .background(ColorPalette.pureWhite)
     }
-    
+
     private func requestLocationPermissions() async -> Bool {
         let locationManager = CLLocationManager()
-        
+
         return await withCheckedContinuation { continuation in
             let delegate = LocationPermissionDelegate { granted in
                 continuation.resume(returning: granted)
             }
-            
+
             locationManager.delegate = delegate
-            
+
             switch locationManager.authorizationStatus {
             case .notDetermined:
                 locationManager.requestWhenInUseAuthorization()
@@ -113,8 +113,8 @@ struct LocationPermissionPage: View {
             @unknown default:
                 continuation.resume(returning: false)
             }
-            
-            withExtendedLifetime(delegate) { }
+
+            withExtendedLifetime(delegate) {}
         }
     }
 }

@@ -1,6 +1,6 @@
-import SwiftUI
-import HealthKit
 import CoreLocation
+import HealthKit
+import SwiftUI
 
 struct PermissionItem: Identifiable {
     let id: UUID = UUID()
@@ -22,10 +22,12 @@ struct OnboardingFlowView: View {
                     // Simple progress indicator
                     if coordinator.currentPage != .welcome && coordinator.currentPage != .completion {
                         HStack {
-                            ForEach(0..<OnboardingPage.allCases.count, id: \.self) { index in
+                            ForEach(0 ..< OnboardingPage.allCases.count, id: \.self) { index in
                                 Circle()
-                                    .fill(index <= coordinator.currentPage.rawValue ? 
-                                          ColorPalette.richBlack : ColorPalette.gray300)
+                                    .fill(
+                                        index <= coordinator.currentPage.rawValue
+                                            ? ColorPalette.richBlack : ColorPalette.gray300
+                                    )
                                     .frame(width: 8, height: 8)
                             }
                         }

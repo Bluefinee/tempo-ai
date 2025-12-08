@@ -11,7 +11,7 @@ enum UserMode: String, Codable, CaseIterable {
         case .athlete: return "アスリート"
         }
     }
-    
+
     var appealingTitle: String {
         switch self {
         case .standard: return "バランスの取れた毎日を"

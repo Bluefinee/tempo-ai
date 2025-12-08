@@ -37,6 +37,9 @@ enum ColorPalette {
     /// Gray 100 for light backgrounds
     static let gray100: Color = Color(red: 0.78, green: 0.78, blue: 0.8)
 
+    /// Gray 50 for very light backgrounds
+    static let gray50: Color = Color(red: 0.98, green: 0.98, blue: 0.98)
+
     // MARK: - Whites
 
     /// Pure white for primary backgrounds
@@ -75,15 +78,15 @@ enum ColorPalette {
     static let infoBackground: Color = info.opacity(0.1)
 
     // MARK: - Accent Colors (Google-inspired subtle pops)
-    
+
     /// Primary accent for interactive elements
-    static let primaryAccent: Color = Color(red: 0.259, green: 0.522, blue: 0.957) // #4285F4
-    
+    static let primaryAccent: Color = Color(red: 0.259, green: 0.522, blue: 0.957)  // #4285F4
+
     /// Secondary accent for highlights
-    static let secondaryAccent: Color = Color(red: 0.219, green: 0.663, blue: 0.457) // #34A853
-    
+    static let secondaryAccent: Color = Color(red: 0.219, green: 0.663, blue: 0.457)  // #34A853
+
     /// Warm accent for positive actions
-    static let warmAccent: Color = Color(red: 0.984, green: 0.737, blue: 0.020) // #FBBC05
+    static let warmAccent: Color = Color(red: 0.984, green: 0.737, blue: 0.020)  // #FBBC05
 
     // MARK: - Dynamic Colors
 

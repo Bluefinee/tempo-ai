@@ -4,7 +4,7 @@ struct DataTypeRow: View {
     let icon: String
     let title: String
     let color: Color
-    
+
     var body: some View {
         HStack(spacing: Spacing.lg) {
             // Premium icon with subtle background
@@ -12,24 +12,24 @@ struct DataTypeRow: View {
                 Circle()
                     .fill(color.opacity(0.15))
                     .frame(width: 40, height: 40)
-                
+
                 Image(systemName: icon)
                     .font(.system(size: 18, weight: .medium))
                     .foregroundColor(color)
             }
-            
+
             VStack(alignment: .leading, spacing: Spacing.xs) {
                 Text(friendlyTitle)
                     .font(.system(size: 16, weight: .medium))
                     .foregroundColor(ColorPalette.richBlack)
-                
+
                 Text(subtitle)
                     .font(.system(size: 13, weight: .regular))
                     .foregroundColor(ColorPalette.gray600)
             }
-            
+
             Spacer()
-            
+
             // Subtle indicator
             Image(systemName: "chevron.right")
                 .font(.system(size: 12, weight: .medium))
@@ -48,7 +48,7 @@ struct DataTypeRow: View {
                 )
         )
     }
-    
+
     private var friendlyTitle: String {
         switch icon {
         case "heart.fill": return "心拍の状態"
@@ -62,7 +62,7 @@ struct DataTypeRow: View {
         default: return title
         }
     }
-    
+
     private var subtitle: String {
         switch icon {
         case "heart.fill": return "ストレスや体調の把握"

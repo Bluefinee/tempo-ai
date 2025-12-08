@@ -15,7 +15,7 @@ struct UserModePage: View {
                         .foregroundColor(ColorPalette.richBlack)
                         .padding(.top, Spacing.lg)
                 }
-                
+
                 // Main content area (balanced distribution)
                 VStack(spacing: Spacing.lg) {
                     ForEach(UserMode.allCases, id: \.self) { mode in
@@ -30,7 +30,7 @@ struct UserModePage: View {
                 }
                 .padding(.horizontal, Spacing.lg)
                 .padding(.vertical, Spacing.xl)
-                
+
                 // Bottom action area (Fitts's Law)
                 VStack(spacing: Spacing.md) {
                     if selectedMode != nil {
@@ -52,7 +52,7 @@ struct UserModePage: View {
                                 .cornerRadius(CornerRadius.lg)
                             }
                             .contentShape(Rectangle())
-                            
+
                             Button("次へ") {
                                 print("📱 UserModePage next button tapped")
                                 onNext()
@@ -69,7 +69,7 @@ struct UserModePage: View {
                 }
                 .padding(.horizontal, Spacing.lg)
                 .padding(.bottom, Spacing.lg)
-                .frame(height: 80) // Fixed height for bottom area
+                .frame(height: 80)  // Fixed height for bottom area
             }
         }
         .background(ColorPalette.pureWhite)
@@ -94,21 +94,21 @@ struct UserModeCard: View {
                         Image(systemName: mode == .standard ? "leaf" : "bolt")
                             .font(.system(size: 28, weight: .light))
                             .foregroundColor(ColorPalette.pureWhite)
-                        
+
                         Spacer()
-                        
+
                         if isSelected {
                             Image(systemName: "checkmark.circle.fill")
                                 .foregroundColor(ColorPalette.pureWhite)
                                 .font(.title2)
                         }
                     }
-                    
+
                     VStack(alignment: .leading, spacing: Spacing.xs) {
                         Text(mode.displayName)
                             .font(.system(size: 14, weight: .medium))
                             .foregroundColor(ColorPalette.pureWhite.opacity(0.8))
-                        
+
                         Text(mode.appealingTitle)
                             .font(.system(size: 20, weight: .semibold))
                             .foregroundColor(ColorPalette.pureWhite)
@@ -121,13 +121,13 @@ struct UserModeCard: View {
                     LinearGradient(
                         colors: [
                             cardColor,
-                            cardColor.opacity(0.8)
+                            cardColor.opacity(0.8),
                         ],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     )
                 )
-                
+
                 // Content area with clean white background
                 VStack(alignment: .leading, spacing: Spacing.sm) {
                     Text(mode == .standard ? "日常の体調管理と無理のないペース配分を重視" : "パフォーマンスの最大化と効率的なリカバリーを重視")

@@ -1,13 +1,13 @@
-import SwiftUI
 import HealthKit
+import SwiftUI
 
 struct HealthPermissionPage: View {
     @Binding var isGranted: Bool
     let onNext: () -> Void
     let onBack: (() -> Void)?
-    
+
     var body: some View {
-        GeometryReader { geometry in
+        GeometryReader { _ in
             VStack(spacing: 0) {
                 // Header section (Serial Position Effect)
                 VStack(spacing: Spacing.lg) {
@@ -15,18 +15,18 @@ struct HealthPermissionPage: View {
                         .font(.system(size: 28, weight: .light))
                         .foregroundColor(ColorPalette.richBlack)
                         .padding(.top, Spacing.lg)
-                    
+
                     Image(systemName: "heart.text.square.fill")
                         .font(.system(size: 48, weight: .light))
                         .foregroundColor(Color(.systemRed))
-                    
+
                     Text("より正確な分析のため\nヘルスケアデータを使用")
                         .font(.system(size: 18, weight: .regular))
                         .foregroundColor(ColorPalette.richBlack)
                         .multilineTextAlignment(.center)
                         .lineSpacing(2)
                 }
-                
+
                 // Premium data showcase
                 VStack(spacing: Spacing.md) {
                     DataTypeRow(icon: "heart.fill", title: "", color: Color(.systemRed))
@@ -36,7 +36,7 @@ struct HealthPermissionPage: View {
                 }
                 .padding(.horizontal, Spacing.lg)
                 .padding(.vertical, Spacing.xl)
-                
+
                 // Bottom action area (Fitts's Law)
                 VStack(spacing: Spacing.md) {
                     HStack(spacing: Spacing.md) {
@@ -57,7 +57,7 @@ struct HealthPermissionPage: View {
                             .cornerRadius(CornerRadius.lg)
                         }
                         .contentShape(Rectangle())
-                        
+
                         Button("ヘルスケアで許可") {
                             print("📱 Health permission button tapped")
                             Task {
@@ -74,7 +74,7 @@ struct HealthPermissionPage: View {
                         .cornerRadius(CornerRadius.lg)
                         .contentShape(Rectangle())
                     }
-                    
+
                     Button("後で設定") {
                         print("📱 Skip health permission tapped")
                         onNext()
@@ -85,18 +85,18 @@ struct HealthPermissionPage: View {
                 }
                 .padding(.horizontal, Spacing.lg)
                 .padding(.bottom, Spacing.lg)
-                .frame(height: 120) // Fixed height for bottom area
+                .frame(height: 120)  // Fixed height for bottom area
             }
         }
         .background(ColorPalette.pureWhite)
     }
-    
+
     private func requestHealthPermissions() async -> Bool {
         guard HKHealthStore.isHealthDataAvailable() else {
             print("❌ HealthKit not available on this device")
             return false
         }
-        
+
         let healthStore = HKHealthStore()
         let readTypes: Set<HKObjectType> = [
             HKObjectType.quantityType(forIdentifier: .heartRate)!,
@@ -104,9 +104,9 @@ struct HealthPermissionPage: View {
             HKObjectType.quantityType(forIdentifier: .restingHeartRate)!,
             HKObjectType.categoryType(forIdentifier: .sleepAnalysis)!,
             HKObjectType.quantityType(forIdentifier: .stepCount)!,
-            HKObjectType.quantityType(forIdentifier: .activeEnergyBurned)!
+            HKObjectType.quantityType(forIdentifier: .activeEnergyBurned)!,
         ]
-        
+
         do {
             try await healthStore.requestAuthorization(toShare: [], read: readTypes)
             print("✅ HealthKit permission requested")

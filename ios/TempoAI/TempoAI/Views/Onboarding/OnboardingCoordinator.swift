@@ -42,11 +42,11 @@ class OnboardingCoordinator: ObservableObject {
 
     func nextPage() {
         print("nextPage called - currentPage: \(currentPage), canProceed: \(canProceed)")
-        
+
         // Check current page requirements directly
         switch currentPage {
         case .welcome:
-            break // Always can proceed
+            break  // Always can proceed
         case .focusTags:
             guard !selectedTags.isEmpty else {
                 print("nextPage blocked - no FocusTags selected")
@@ -93,7 +93,8 @@ class OnboardingCoordinator: ObservableObject {
         case .completion:
             canProceed = true
         }
-        print("🔍 updateCanProceed - page: \(currentPage), oldCanProceed: \(oldCanProceed), newCanProceed: \(canProceed)")
+        print(
+            "🔍 updateCanProceed - page: \(currentPage), oldCanProceed: \(oldCanProceed), newCanProceed: \(canProceed)")
         if currentPage == .focusTags {
             print("🔍 FocusTags state - selectedTags: \(selectedTags)")
         }

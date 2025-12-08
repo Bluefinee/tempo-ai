@@ -6,7 +6,7 @@ struct FocusTagsPage: View {
     let onBack: (() -> Void)?
 
     var body: some View {
-        GeometryReader { geometry in
+        GeometryReader { _ in
             VStack(spacing: 0) {
                 // Header section (Serial Position Effect)
                 VStack(spacing: Spacing.sm) {
@@ -14,12 +14,12 @@ struct FocusTagsPage: View {
                         .font(.system(size: 28, weight: .light))
                         .foregroundColor(ColorPalette.richBlack)
                         .padding(.top, Spacing.lg)
-                    
+
                     Text("重視したい分野（複数選択可）")
                         .font(.system(size: 16, weight: .regular))
                         .foregroundColor(ColorPalette.gray600)
                 }
-                
+
                 // Main content area (optimal spacing)
                 VStack(spacing: Spacing.md) {
                     LazyVGrid(columns: columns, spacing: Spacing.md) {
@@ -27,13 +27,13 @@ struct FocusTagsPage: View {
                             FocusTagCard(
                                 tag: tag,
                                 isSelected: selectedTags.contains(tag)
-                            ) { 
+                            ) {
                                 print("📱 FocusTag toggled: \(tag)")
-                                toggleTag(tag) 
+                                toggleTag(tag)
                             }
                         }
                     }
-                    
+
                     // Selection feedback (Immediate Feedback principle)
                     if !selectedTags.isEmpty {
                         Text("\(selectedTags.count)個選択済み")
@@ -44,7 +44,7 @@ struct FocusTagsPage: View {
                 }
                 .padding(.horizontal, Spacing.lg)
                 .padding(.vertical, Spacing.xl)
-                
+
                 // Bottom action area (Fitts's Law)
                 VStack(spacing: Spacing.md) {
                     if !selectedTags.isEmpty {
@@ -66,7 +66,7 @@ struct FocusTagsPage: View {
                                 .cornerRadius(CornerRadius.lg)
                             }
                             .contentShape(Rectangle())
-                            
+
                             Button("次へ") {
                                 print("📱 FocusTagsPage next button tapped")
                                 onNext()
@@ -83,7 +83,7 @@ struct FocusTagsPage: View {
                 }
                 .padding(.horizontal, Spacing.lg)
                 .padding(.bottom, Spacing.lg)
-                .frame(height: 80) // Fixed height for bottom area
+                .frame(height: 80)  // Fixed height for bottom area
             }
         }
         .background(ColorPalette.pureWhite)
@@ -118,14 +118,14 @@ struct FocusTagCard: View {
                         .font(.system(size: 32, weight: .light))
                         .foregroundColor(isSelected ? ColorPalette.pureWhite : tagColor)
                         .frame(height: 40)
-                    
+
                     VStack(spacing: Spacing.xs) {
                         Text(tag.displayName)
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(isSelected ? ColorPalette.pureWhite : ColorPalette.richBlack)
                             .lineLimit(2)
                             .multilineTextAlignment(.center)
-                        
+
                         Text(shortDescription)
                             .font(.system(size: 10, weight: .regular))
                             .foregroundColor(isSelected ? ColorPalette.pureWhite.opacity(0.8) : ColorPalette.gray600)
@@ -137,17 +137,17 @@ struct FocusTagCard: View {
                 .frame(maxWidth: .infinity)
                 .frame(height: 120)
                 .background(
-                    isSelected ? 
-                    LinearGradient(
-                        colors: [tagColor, tagColor.opacity(0.8)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ).opacity(1) :
-                    LinearGradient(
-                        colors: [ColorPalette.pureWhite, ColorPalette.pearl.opacity(0.3)],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    ).opacity(1)
+                    isSelected
+                        ? LinearGradient(
+                            colors: [tagColor, tagColor.opacity(0.8)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ).opacity(1)
+                        : LinearGradient(
+                            colors: [ColorPalette.pureWhite, ColorPalette.pearl.opacity(0.3)],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        ).opacity(1)
                 )
             }
             .clipShape(RoundedRectangle(cornerRadius: CornerRadius.lg))
@@ -170,7 +170,7 @@ struct FocusTagCard: View {
         .buttonStyle(PlainButtonStyle())
         .contentShape(Rectangle())
     }
-    
+
     private var shortDescription: String {
         switch tag {
         case .chill: return "ストレス管理"
@@ -182,7 +182,6 @@ struct FocusTagCard: View {
         }
     }
 }
-
 
 #Preview {
     FocusTagsPage(

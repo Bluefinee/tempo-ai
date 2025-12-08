@@ -6,8 +6,8 @@ enum FocusTag: String, Codable, CaseIterable {
     case work
     case beauty
     case diet
-    case sleep     // New: Sleep optimization
-    case fitness   // New: Fitness & training
+    case sleep  // New: Sleep optimization
+    case fitness  // New: Fitness & training
 
     var systemIcon: String {
         switch self {

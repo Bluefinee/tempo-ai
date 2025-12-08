@@ -4,11 +4,11 @@ struct ProfileSettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @ObservedObject private var userProfileManager = UserProfileManager.shared
     @State private var selectedMode: UserMode
-    
+
     init() {
         _selectedMode = State(initialValue: UserProfileManager.shared.currentMode)
     }
-    
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -19,16 +19,16 @@ struct ProfileSettingsView: View {
                             Circle()
                                 .fill(Color(.systemBlue).opacity(0.15))
                                 .frame(width: 80, height: 80)
-                            
+
                             Image(systemName: "person.circle.fill")
                                 .font(.system(size: 48, weight: .light))
                                 .foregroundColor(Color(.systemBlue))
                         }
-                        
+
                         Text("あなたのプロフィール")
                             .font(.system(size: 28, weight: .light))
                             .foregroundColor(ColorPalette.richBlack)
-                        
+
                         Text("AIがあなたに最適な\nアドバイスを提供するために")
                             .font(.system(size: 16, weight: .regular))
                             .foregroundColor(ColorPalette.gray600)
@@ -36,7 +36,7 @@ struct ProfileSettingsView: View {
                             .lineSpacing(2)
                     }
                     .padding(.top, Spacing.lg)
-                    
+
                     // Lifestyle Mode Selection
                     VStack(spacing: Spacing.lg) {
                         HStack {
@@ -46,10 +46,10 @@ struct ProfileSettingsView: View {
                             Spacer()
                         }
                         .padding(.horizontal, Spacing.lg)
-                        
+
                         VStack(spacing: Spacing.sm) {
                             ForEach(UserMode.allCases, id: \.self) { mode in
-                                UserModeCard(
+                                ProfileUserModeCard(
                                     mode: mode,
                                     isSelected: selectedMode == mode
                                 ) {
@@ -61,7 +61,7 @@ struct ProfileSettingsView: View {
                         }
                         .padding(.horizontal, Spacing.lg)
                     }
-                    
+
                     // Benefits Section
                     VStack(spacing: Spacing.md) {
                         HStack {
@@ -71,18 +71,18 @@ struct ProfileSettingsView: View {
                             Spacer()
                         }
                         .padding(.horizontal, Spacing.lg)
-                        
+
                         VStack(spacing: Spacing.sm) {
                             ForEach(selectedMode.benefits, id: \.self) { benefit in
                                 HStack(spacing: Spacing.md) {
                                     Image(systemName: "checkmark.circle.fill")
                                         .font(.system(size: 16, weight: .medium))
                                         .foregroundColor(Color(.systemGreen))
-                                    
+
                                     Text(benefit)
                                         .font(.system(size: 14, weight: .regular))
                                         .foregroundColor(ColorPalette.gray700)
-                                    
+
                                     Spacer()
                                 }
                                 .padding(.horizontal, Spacing.lg)
@@ -96,12 +96,11 @@ struct ProfileSettingsView: View {
                         )
                         .padding(.horizontal, Spacing.lg)
                     }
-                    
+
                     // Action Buttons
                     VStack(spacing: Spacing.md) {
                         Button("設定を保存") {
-                            userProfileManager.updateMode(selectedMode)
-                            dismiss()
+                            saveAndDismiss()
                         }
                         .font(.system(size: 17, weight: .medium))
                         .foregroundColor(ColorPalette.pureWhite)
@@ -110,7 +109,7 @@ struct ProfileSettingsView: View {
                         .background(Color(.systemBlue))
                         .cornerRadius(CornerRadius.lg)
                         .padding(.horizontal, Spacing.lg)
-                        
+
                         Button("キャンセル") {
                             dismiss()
                         }
@@ -118,7 +117,7 @@ struct ProfileSettingsView: View {
                         .foregroundColor(ColorPalette.gray600)
                     }
                     .padding(.top, Spacing.lg)
-                    
+
                     Spacer()
                 }
             }
@@ -127,8 +126,7 @@ struct ProfileSettingsView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("完了") {
-                        userProfileManager.updateMode(selectedMode)
-                        dismiss()
+                        saveAndDismiss()
                     }
                     .font(.system(size: 16, weight: .medium))
                     .foregroundColor(Color(.systemBlue))
@@ -136,13 +134,18 @@ struct ProfileSettingsView: View {
             }
         }
     }
+
+    private func saveAndDismiss() {
+        userProfileManager.updateMode(selectedMode)
+        dismiss()
+    }
 }
 
-struct UserModeCard: View {
+struct ProfileUserModeCard: View {
     let mode: UserMode
     let isSelected: Bool
     let onTap: () -> Void
-    
+
     var body: some View {
         Button(action: onTap) {
             HStack(spacing: Spacing.md) {
@@ -151,32 +154,32 @@ struct UserModeCard: View {
                     Circle()
                         .fill(mode.color.opacity(0.15))
                         .frame(width: 44, height: 44)
-                    
+
                     Image(systemName: mode.icon)
                         .font(.system(size: 20, weight: .medium))
                         .foregroundColor(mode.color)
                 }
-                
+
                 // Mode Info
                 VStack(alignment: .leading, spacing: Spacing.xs) {
                     Text(mode.displayName)
                         .font(.system(size: 16, weight: .medium))
                         .foregroundColor(ColorPalette.richBlack)
-                    
+
                     Text(mode.description)
                         .font(.system(size: 13, weight: .regular))
                         .foregroundColor(ColorPalette.gray600)
                         .multilineTextAlignment(.leading)
                 }
-                
+
                 Spacer()
-                
+
                 // Selection Indicator
                 ZStack {
                     Circle()
                         .fill(isSelected ? Color(.systemBlue) : ColorPalette.gray300)
                         .frame(width: 24, height: 24)
-                    
+
                     if isSelected {
                         Image(systemName: "checkmark")
                             .font(.system(size: 12, weight: .bold))
@@ -211,7 +214,7 @@ extension UserMode {
             return "figure.run"
         }
     }
-    
+
     var color: Color {
         switch self {
         case .standard:
@@ -220,7 +223,7 @@ extension UserMode {
             return Color(.systemOrange)
         }
     }
-    
+
     var description: String {
         switch self {
         case .standard:
@@ -229,7 +232,7 @@ extension UserMode {
             return "運動パフォーマンス向上と高強度トレーニングに特化"
         }
     }
-    
+
     var benefits: [String] {
         switch self {
         case .standard:
@@ -237,14 +240,14 @@ extension UserMode {
                 "日常生活に無理のない健康アドバイス",
                 "ストレス管理と睡眠改善に重点",
                 "仕事とプライベートのバランス考慮",
-                "段階的な健康習慣の構築をサポート"
+                "段階的な健康習慣の構築をサポート",
             ]
         case .athlete:
             return [
                 "トレーニング効果を最大化するアドバイス",
                 "回復とパフォーマンスの最適化",
                 "競技特性を考慮したデータ分析",
-                "高強度トレーニングの疲労管理"
+                "高強度トレーニングの疲労管理",
             ]
         }
     }

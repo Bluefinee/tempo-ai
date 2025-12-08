@@ -22,24 +22,48 @@ The goal is to create a production-ready system that delivers intelligent insigh
 
 ### 2. AI System Optimization (Priority Focus)
 
-#### A. Lifestyle Mode-Aware Optimization
+#### A. AI分析タイミング最適化 (Analysis Timing Optimization)
 
-**Mode-Specific Cost Management:**
+**3段階分析システムの最適化:**
 
 ```typescript
-interface ModeOptimizationStrategy {
-  standard_mode: {
-    target_tokens: 1500,  // Simpler, more conversational responses
-    cache_duration: 4800, // 80 minutes (longer due to stable lifestyle patterns)
-    complexity_level: "simplified",
-    personalization_depth: "moderate"
+interface TimingOptimizationStrategy {
+  // 朝の詳細分析（最もコストが高いが価値も最高）
+  morning_analysis: {
+    frequency: "daily_once",
+    target_tokens: 2000,  // 包括的分析
+    cache_duration: 21600, // 6時間（朝の分析は夕方まで有効）
+    cost_per_analysis: "$0.04",
+    value_score: "highest"
   },
   
-  athlete_mode: {
-    target_tokens: 2500,  // Detailed, data-rich responses
-    cache_duration: 3600, // 60 minutes (shorter due to dynamic training needs)
-    complexity_level: "comprehensive", 
-    personalization_depth: "deep"
+  // 月曜週次分析（中コスト・高価値）
+  monday_weekly: {
+    frequency: "weekly_once",
+    target_tokens: 3000,  // 長文・温かい提案
+    cache_duration: 604800, // 1週間
+    cost_per_analysis: "$0.06",
+    daily_cost_impact: "$0.0086", // 週1回を日割り
+    value_score: "high"
+  },
+  
+  // リアルタイム軽量（ゼロコスト・中価値）
+  realtime_light: {
+    frequency: "on_demand",
+    processing: "local_rule_engine",
+    cache_duration: 0, // リアルタイム
+    cost_per_check: "$0.00",
+    value_score: "medium"
+  },
+  
+  // 総合コスト目標
+  total_daily_cost: {
+    target: "$0.0486/user/day", // 元目標の半分以下
+    breakdown: {
+      morning: "$0.04",
+      weekly_prorated: "$0.0086", 
+      realtime: "$0.00"
+    }
   }
 }
 ```

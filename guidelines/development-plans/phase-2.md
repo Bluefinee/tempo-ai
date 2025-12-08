@@ -240,6 +240,55 @@ interface MultiTagPersona {
 }
 ```
 
+### 4. 月曜週次分析システム (Monday Weekly Try System)
+
+**Phase 2の核心機能**: 深い習慣改善のための温かい週次提案システム
+
+```typescript
+interface MondayWeeklyAnalysis {
+  // 月曜朝の特別なAI分析
+  monday_morning_system: {
+    trigger: "every_monday_08:00_jst",
+    data_scope: "past_7_days_trend_analysis",
+    processing: "claude_api_deep_reflection",
+    
+    analysis_components: {
+      health_patterns: "週間の睡眠・活動・ストレスパターン分析",
+      environmental_correlation: "天候・気圧変化との相関性",
+      focus_area_progress: "選択した関心分野での成長度合い",
+      trial_feedback: "前週のトライ体験の効果分析"
+    },
+    
+    output_requirements: {
+      tone: "温かく個人的、励ましベース",
+      length: "300-500文字（詳細で心のこもった文章）",
+      personalization: "ユーザー名を含む親密な語りかけ",
+      cultural_wisdom: "アーユルヴェーダ等の伝統的知恵の統合",
+      actionable_content: "1週間継続可能な具体的習慣提案"
+    }
+  }
+}
+
+// 実装例：Chill + Beauty 選択ユーザーへの月曜提案
+const weeklyTryExample = `
+おはようございます、[ユーザー名]様。
+
+先週は仕事でお忙しい中、しっかりと睡眠時間を確保されていましたね。
+特に木曜日以降の睡眠の質が向上していたのが印象的でした。
+
+今週は「夜のオイルマッサージ」を取り入れてみませんか。
+温めたセサミオイルで足裏を優しくマッサージすることは、
+ヴァータの乱れによる思考の巡りすぎや不安を鎮め、深い眠りへと誘います。
+
+また、仕事でストレスを感じたり、イライラしそうになった時には、
+数回ゆっくりと深呼吸をする習慣をつけましょう。
+これは過剰になったピッタの火を鎮め、冷静さを取り戻すための簡単な瞑想法です。
+
+これまでの実践で得た知識と、ご自身の体質への理解を両輪に、
+これからも[ユーザー名]様らしい、エネルギッシュで穏やかな毎日を創造していってください。
+`;
+```
+
 ### 5. UI Updates: Smart Suggestions & Detail Personalization
 
 #### A. Smart Suggestion Cards

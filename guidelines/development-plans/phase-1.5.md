@@ -228,7 +228,83 @@ const synthesizeFocusAreas = (selectedTags: FocusTag[], energyLevel: number): Tr
 
 ---
 
-## 4. Output Schema (AIからの返答構造)
+## 4. AI分析タイミング戦略 (Smart Analysis Scheduling)
+
+### A. 3段階AI分析システム
+
+**設計原則**: コスト効率と体験価値の最適バランスを実現
+
+```typescript
+interface AIAnalysisTimingStrategy {
+  // 1. 朝の詳細AI分析 (高価値・高コスト)
+  morning_deep_analysis: {
+    frequency: "daily_once", // 1日1回
+    timing: "07:00-09:00",   // 朝の時間帯
+    trigger: "app_first_open_of_day",
+    processing: "claude_api_full_analysis",
+    output: {
+      main_advice: "包括的な健康アドバイス",
+      todays_try: "即実行可能な新体験提案（2-15分）",
+      energy_forecast: "1日のエネルギー予測",
+      environmental_alerts: "気圧・天候への対策"
+    },
+    cost_impact: "high", // ~$0.04/request
+    value_impact: "highest"
+  },
+
+  // 2. リアルタイム軽量分析 (親しみやすさ・ゼロコスト)
+  realtime_light_analysis: {
+    frequency: "on_app_open", // アプリ開く度
+    timing: "immediate",
+    trigger: "healthkit_data_change_detected",
+    processing: "local_rule_engine", // AIリクエストなし
+    output: {
+      quick_status: "「少し疲れ気味ですね」「調子良さそうです」",
+      micro_suggestions: "簡単なアクション（休憩、水分補給等）",
+      energy_update: "現在のエネルギー状態"
+    },
+    cost_impact: "zero", // ローカル処理
+    value_impact: "medium" // 親しみやすさとリアルタイム性
+  }
+}
+```
+
+### B. ローカル軽量分析エンジン
+
+```swift
+class LocalAnalysisEngine {
+    func generateQuickResponse(
+        previousEnergy: Double,
+        currentEnergy: Double,
+        selectedFocusAreas: Set<FocusTag>
+    ) -> QuickAdvice? {
+        
+        let energyChange = currentEnergy - previousEnergy
+        
+        // 疲労増加検出 (関心分野別アドバイス)
+        if energyChange < -15 {
+            if selectedFocusAreas.contains(.chill) {
+                return QuickAdvice(message: "少し疲れが溜まってきましたね。深呼吸で心をリセットしませんか？")
+            } else if selectedFocusAreas.contains(.work) {
+                return QuickAdvice(message: "集中力が下がってきたようです。5分の休憩で効率を回復させましょう。")
+            }
+        }
+        
+        // エネルギー回復検出
+        if energyChange > 10 && currentEnergy > 70 {
+            if selectedFocusAreas.contains(.fitness) {
+                return QuickAdvice(message: "調子が良さそうです！軽い運動で更なる活性化はいかがですか？")
+            }
+        }
+        
+        return nil // 大きな変化なし
+    }
+}
+```
+
+---
+
+## 5. Output Schema (AIからの返答構造)
 
 ```typescript
 interface AIAnalysisResponse {

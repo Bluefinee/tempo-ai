@@ -7,7 +7,6 @@
  */
 
 import Foundation
-import HealthKit
 import os.log
 
 /**
@@ -32,8 +31,7 @@ class StaticAnalysisEngine {
      */
     func analyze(
         healthData: HealthData,
-        weatherData: WeatherData?,
-        previousEnergyLevel: Double? = nil
+        weatherData: WeatherData?
     ) -> StaticAnalysis {
         let startTime = Date()
         

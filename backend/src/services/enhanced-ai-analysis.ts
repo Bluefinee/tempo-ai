@@ -35,12 +35,12 @@ export class EnhancedAIAnalysisService {
       const optimizedPrompt = this.optimizePromptForCost(focusPrompt, request)
       
       // 4. Claude API呼び出し
-      const claudeParams: any = {
+      const claudeParams = {
         prompt: optimizedPrompt,
         apiKey,
         localizationContext: {
           language: request.userContext.language,
-          region: request.userContext.language === 'ja' ? 'JP' : 'US',
+          region: request.userContext.language === 'ja' ? ('JP' as const) : ('US' as const),
           timeZone: request.userContext.language === 'ja' ? 'Asia/Tokyo' : 'America/New_York',
           culturalContext: {
             formalityLevel: 'casual' as const,
@@ -51,10 +51,7 @@ export class EnhancedAIAnalysisService {
             },
           },
         },
-      }
-      
-      if (customFetch) {
-        claudeParams.customFetch = customFetch
+        ...(customFetch && { customFetch }),
       }
       
       const rawResponse = await generateAdviceWithRetry(claudeParams)

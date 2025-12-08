@@ -13,8 +13,6 @@ class AnalysisCacheManager: AnalysisCacheManagerProtocol {
     private let layer1Cache = NSCache<NSString, CachedAnalysisEntry>()
     /// Layer 2: UserDefaults永続キャッシュ（4時間）
     private let layer2Cache = UserDefaults.standard
-    /// Layer 3: 静的フォールバック（永続）
-    private let staticFallback = StaticAnalysisEngine()
     
     private let cacheQueue = DispatchQueue(label: "cache.queue", attributes: .concurrent)
     
@@ -24,7 +22,6 @@ class AnalysisCacheManager: AnalysisCacheManagerProtocol {
         static let layer1TTL: TimeInterval = 3600    // 1時間
         static let layer2TTL: TimeInterval = 14400   // 4時間
         static let maxCacheSize: Int = 100           // 最大キャッシュエントリ数
-        static let similarityThreshold: Double = 0.75 // 類似性閾値
     }
     
     // MARK: - Initialization

@@ -71,18 +71,12 @@ class HybridAnalysisEngine: ObservableObject {
         
         await setAnalysisState(analyzing: true, enhancing: false, error: nil)
         
-        do {
-            // Stage 1: 静的分析（即座に表示）
-            let staticResult = await generateStaticAnalysis()
-            await updateAnalysisResult(staticResult)
-            
-            // Stage 2: AI拡張分析（段階的に追加）
-            await enhanceWithAI()
-            
-        } catch {
-            os_log("Analysis failed: %{public}@", log: .default, type: .error, error.localizedDescription)
-            await setAnalysisError(AnalysisError.analysisGenerationFailed(error))
-        }
+        // Stage 1: 静的分析（即座に表示）
+        let staticResult = await generateStaticAnalysis()
+        await updateAnalysisResult(staticResult)
+        
+        // Stage 2: AI拡張分析（段階的に追加）
+        await enhanceWithAI()
         
         await setAnalysisState(analyzing: false, enhancing: false, error: nil)
     }
@@ -161,8 +155,7 @@ class HybridAnalysisEngine: ObservableObject {
             // 静的分析実行
             let staticAnalysis = staticAnalysisEngine.analyze(
                 healthData: healthData,
-                weatherData: weatherData,
-                previousEnergyLevel: lastEnergyLevel
+                weatherData: weatherData
             )
             
             lastEnergyLevel = staticAnalysis.energyLevel

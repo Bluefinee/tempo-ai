@@ -165,7 +165,20 @@ class HybridAnalysisEngine: ObservableObject {
             
         } catch {
             os_log("AI enhancement failed: %{public}@", log: .default, type: .error, error.localizedDescription)
-            // AI失敗時は静的分析のみで継続
+            
+            // AI失敗をエラー状態として記録
+            await setAnalysisError(AnalysisError.aiServiceUnavailable)
+            
+            // 現在の結果をエラーソースとして更新
+            if let currentResult = currentAnalysis {
+                let errorResult = AnalysisResult(
+                    staticAnalysis: currentResult.staticAnalysis,
+                    aiAnalysis: nil,
+                    source: .aiError,
+                    lastUpdated: Date()
+                )
+                await updateAnalysisResult(errorResult)
+            }
         }
     }
     

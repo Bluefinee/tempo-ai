@@ -8,7 +8,13 @@ import os.log
 class RealAIAnalysisService: AIAnalysisServiceProtocol {
     
     private enum APIConstants {
-        static let baseURL = "https://tempo-ai-backend.your-domain.workers.dev" // 実際のWorkers URL
+        static let baseURL: String = {
+            #if DEBUG
+            return "http://localhost:8787"  // ローカル開発サーバー
+            #else
+            return "https://api.tempo-ai.com"  // 本番Cloudflare Workers
+            #endif
+        }()
         static let focusAnalysisEndpoint = "/api/health/ai/focus-analysis"
         static let timeoutInterval: TimeInterval = 30.0
     }
@@ -49,10 +55,10 @@ class RealAIAnalysisService: AIAnalysisServiceProtocol {
             return response
             
         } catch {
-            os_log("Real AI analysis failed, using fallback: %{public}@", log: .default, type: .error, error.localizedDescription)
+            os_log("Real AI analysis failed: %{public}@", log: .default, type: .error, error.localizedDescription)
             
-            // AI失敗時は高品質なフォールバックを提供
-            return generateIntelligentFallback(from: staticAnalysis)
+            // AI接続エラーをそのまま再スロー（HybridAnalysisEngineで処理）
+            throw error
         }
     }
     

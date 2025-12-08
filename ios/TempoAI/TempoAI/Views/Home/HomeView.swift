@@ -39,9 +39,44 @@ struct HomeView: View {
             ScrollView {
                 LazyVStack(spacing: Spacing.xl) {
                     VStack(spacing: Spacing.lg) {
-                        // AI分析結果がある場合はAIヘッドラインを表示、なければ従来のアドバイス
-                        if let aiAnalysis = hybridAnalysisEngine.currentAnalysis?.aiAnalysis {
-                            AIHeadlineCard(headline: aiAnalysis.headline)
+                        // AI分析結果の状態に応じた表示
+                        if let analysisResult = hybridAnalysisEngine.currentAnalysis {
+                            switch analysisResult.source {
+                            case .hybrid, .cached:
+                                // 真のAI分析結果
+                                if let aiAnalysis = analysisResult.aiAnalysis {
+                                    VStack(spacing: Spacing.sm) {
+                                        AIHeadlineCard(headline: aiAnalysis.headline)
+                                        DataSourceBadge(source: analysisResult.source)
+                                        AnalysisValidityIndicator(
+                                            generatedAt: aiAnalysis.generatedAt,
+                                            validUntil: Calendar.current.date(byAdding: .hour, value: 8, to: aiAnalysis.generatedAt)
+                                        )
+                                    }
+                                } else {
+                                    AdviceHeaderView(headline: currentAdvice) {
+                                        showAdviceDetail()
+                                    }
+                                }
+                            case .aiError:
+                                // AI接続エラー表示
+                                AIErrorView(
+                                    error: hybridAnalysisEngine.analysisError,
+                                    fallbackAvailable: true
+                                ) {
+                                    Task {
+                                        await hybridAnalysisEngine.generateAnalysis()
+                                    }
+                                }
+                            case .fallback, .staticOnly:
+                                // 基本分析のみ表示
+                                VStack(spacing: Spacing.sm) {
+                                    AdviceHeaderView(headline: currentAdvice) {
+                                        showAdviceDetail()
+                                    }
+                                    DataSourceBadge(source: analysisResult.source)
+                                }
+                            }
                         } else {
                             AdviceHeaderView(headline: currentAdvice) {
                                 showAdviceDetail()

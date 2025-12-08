@@ -275,9 +275,10 @@ struct BasicMetrics: Codable {
  */
 enum AnalysisSource: String, Codable, CaseIterable {
     case staticOnly = "static_only"     // 静的のみ
-    case hybrid = "hybrid"              // ハイブリッド
-    case cached = "cached"              // キャッシュ
-    case fallback = "fallback"          // フォールバック
+    case hybrid = "hybrid"              // ハイブリッド（真のAI）
+    case cached = "cached"              // キャッシュ済みAI
+    case fallback = "fallback"          // フォールバック（AI接続失敗）
+    case aiError = "ai_error"           // AI接続エラー
 }
 
 // MARK: - Extensions for Existing Types

@@ -17,7 +17,7 @@ import {
   type ComprehensiveAnalysisRequest,
   claudeAnalysisService,
 } from '../services/claude-analysis'
-import { EnhancedAIAnalysisService } from '../services/enhanced-ai-analysis'
+import { AIAnalysisService } from '../services/ai-analysis'
 import { validateAIAnalysisRequest } from '../types/ai-analysis'
 import { performHealthAnalysis } from '../services/health-analysis'
 import type { Bindings } from '../types/bindings'
@@ -277,15 +277,15 @@ healthRoutes.post('/ai/focus-analysis', async (c): Promise<Response> => {
     const request = validateAIAnalysisRequest(body)
 
     // API key取得
-    const apiKey = c.env.ANTHROPIC_API_KEY
+    const apiKey = c.env.GEMINI_API_KEY
     if (!apiKey) {
-      console.error('ANTHROPIC_API_KEY not found in environment')
+      console.error('GEMINI_API_KEY not found in environment')
       return CommonErrors.internalError(c, 'API configuration error')
     }
 
-    // 拡張AI分析実行
-    const enhancedService = new EnhancedAIAnalysisService()
-    const analysis = await enhancedService.generateFocusAreaAnalysis(request, apiKey)
+    // AI分析実行
+    const aiService = new AIAnalysisService()
+    const analysis = await aiService.generateFocusAreaAnalysis(request, apiKey)
 
     return sendSuccessResponse(c, analysis)
   } catch (error) {

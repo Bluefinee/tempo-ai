@@ -11,4 +11,4 @@ enabled = true
 # 公開環境変数はここに
 
 # シークレット環境変数は以下のコマンドで設定:
-# wrangler secret put ANTHROPIC_API_KEY
+# wrangler secret put GEMINI_API_KEY

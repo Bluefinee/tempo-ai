@@ -8,21 +8,20 @@
 
 import type { AIAnalysisRequest, AIAnalysisResponse } from '../types/ai-analysis'
 import { FocusAreaPromptBuilder, TodaysTryContextAnalyzer } from './focus-area-prompts'
-import { generateAdviceWithRetry } from './claude'
+import { GeminiAIAnalysisService } from './gemini-ai-analysis'
 import { APIError } from '../utils/errors'
 
 /**
- * 拡張AI分析サービス
+ * AI分析サービス
  * 関心分野専門化とコスト最適化を実現
  */
-export class EnhancedAIAnalysisService {
+export class AIAnalysisService {
   /**
    * 関心分野に特化したAI分析を実行
    */
   async generateFocusAreaAnalysis(
     request: AIAnalysisRequest,
     apiKey: string,
-    customFetch?: typeof fetch,
   ): Promise<AIAnalysisResponse> {
     try {
       // 1. 最適な「トライ」機会を分析
@@ -34,27 +33,12 @@ export class EnhancedAIAnalysisService {
       // 3. コスト最適化されたプロンプト生成
       const optimizedPrompt = this.optimizePromptForCost(focusPrompt, request)
       
-      // 4. Claude API呼び出し
-      const claudeParams = {
+      // 4. Gemini AI呼び出し
+      const rawResponse = await GeminiAIAnalysisService.generateHealthAnalysis({
         prompt: optimizedPrompt,
         apiKey,
-        localizationContext: {
-          language: request.userContext.language,
-          region: request.userContext.language === 'ja' ? ('JP' as const) : ('US' as const),
-          timeZone: request.userContext.language === 'ja' ? 'Asia/Tokyo' : 'America/New_York',
-          culturalContext: {
-            formalityLevel: 'casual' as const,
-            mealTimes: {
-              breakfast: '07:00',
-              lunch: '12:00',
-              dinner: '19:00',
-            },
-          },
-        },
-        ...(customFetch && { customFetch }),
-      }
-      
-      const rawResponse = await generateAdviceWithRetry(claudeParams)
+        language: request.userContext.language,
+      })
       
       // 5. レスポンス構造化と検証
       const structuredResponse = await this.structureAIResponse(rawResponse, request)

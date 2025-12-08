@@ -50,7 +50,7 @@ struct AIErrorView: View {
                             .foregroundColor(ColorPalette.success)
                     }
                     
-                    Text("エネルギー計算や健康データ表示は正常に動作しています。AI分析は後で再試行できます。")
+                    Text("エネルギー計算やヘルスケアデータ表示は正常に動作しています。AI分析は後で再試行できます。")
                         .typography(.caption)
                         .foregroundColor(ColorPalette.gray600)
                         .multilineTextAlignment(.center)

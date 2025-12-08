@@ -29,6 +29,7 @@ class HybridAnalysisEngine: ObservableObject {
     /// エラー状態
     @Published var analysisError: AnalysisError?
     
+    
     // MARK: - Dependencies
     
     private let batteryEngine: BatteryEngine
@@ -55,6 +56,7 @@ class HybridAnalysisEngine: ObservableObject {
         self.aiAnalysisService = aiAnalysisService
         self.cacheManager = cacheManager
         self.staticAnalysisEngine = StaticAnalysisEngine()
+        
     }
     
     // MARK: - Public Methods
@@ -166,7 +168,7 @@ class HybridAnalysisEngine: ObservableObject {
         } catch {
             os_log("AI enhancement failed: %{public}@", log: .default, type: .error, error.localizedDescription)
             
-            // AI失敗をエラー状態として記録
+            // エラー状態を記録
             await setAnalysisError(AnalysisError.aiServiceUnavailable)
             
             // 現在の結果をエラーソースとして更新
@@ -229,6 +231,11 @@ class HybridAnalysisEngine: ObservableObject {
      * 分析結果を更新
      */
     private func updateAnalysisResult(_ result: AnalysisResult) async {
+        os_log("🔍 Analysis result updated - source: %{public}@, hasAI: %{public}@", 
+               log: .default, type: .info, 
+               result.source.rawValue, 
+               String(result.aiAnalysis != nil))
+        
         withAnimation(.easeInOut(duration: 0.3)) {
             currentAnalysis = result
         }
@@ -240,6 +247,7 @@ class HybridAnalysisEngine: ObservableObject {
     private func setAnalysisError(_ error: AnalysisError) async {
         analysisError = error
     }
+    
 }
 
 // MARK: - Supporting Types

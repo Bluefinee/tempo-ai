@@ -25,11 +25,7 @@ import { HealthDataSchema, UserProfileSchema } from '../types/health'
 import { AnalyzeRequestSchema } from '../types/requests'
 import { WeatherDataSchema } from '../types/weather'
 import { handleError } from '../utils/errors'
-import {
-  CommonErrors,
-  createValidationErrorResponse,
-  sendSuccessResponse,
-} from '../utils/response'
+import { CommonErrors, createValidationErrorResponse, sendSuccessResponse } from '../utils/response'
 import { isValidationSuccess, validateRequestBody } from '../utils/validation'
 
 /**
@@ -136,10 +132,10 @@ const QuickAnalysisRequestSchema = z.object({
  * POST /ai/analyze-comprehensive
  *
  * 包括的なAI健康分析を実行します。
- * 健康データ、環境データ、ユーザーコンテキストを統合して
+ * ヘルスケアデータ、環境データ、ユーザーコンテキストを統合して
  * 詳細なパーソナライズされた健康分析を提供します。
  *
- * @param healthData - 包括的な健康データ
+ * @param healthData - 包括的なヘルスケアデータ
  * @param userProfile - ユーザープロファイル
  * @param weatherData - 環境データ（オプション）
  * @param analysisType - 分析タイプ
@@ -155,10 +151,7 @@ healthRoutes.post('/ai/analyze-comprehensive', async (c): Promise<Response> => {
     console.log('Received comprehensive AI analysis request')
 
     // 型安全なリクエストボディ検証
-    const validationResult = await validateRequestBody(
-      c,
-      ComprehensiveAnalysisRequestSchema,
-    )
+    const validationResult = await validateRequestBody(c, ComprehensiveAnalysisRequestSchema)
 
     if (!isValidationSuccess(validationResult)) {
       return createValidationErrorResponse(c, validationResult.error)
@@ -174,10 +167,7 @@ healthRoutes.post('/ai/analyze-comprehensive', async (c): Promise<Response> => {
     }
 
     // 包括的AI分析実行
-    const insights = await claudeAnalysisService.analyzeComprehensiveHealth(
-      request,
-      apiKey,
-    )
+    const insights = await claudeAnalysisService.analyzeComprehensiveHealth(request, apiKey)
 
     return sendSuccessResponse(c, insights)
   } catch (error) {
@@ -192,7 +182,7 @@ healthRoutes.post('/ai/analyze-comprehensive', async (c): Promise<Response> => {
           error: 'Rate limit exceeded. Please try again later.',
           retryAfter: 3600,
         },
-        429,
+        429
       )
     }
 
@@ -207,9 +197,9 @@ healthRoutes.post('/ai/analyze-comprehensive', async (c): Promise<Response> => {
  * POST /ai/quick-analyze
  *
  * クイックAI健康分析を実行します。
- * 基本的な健康データから迅速な洞察を提供します。
+ * 基本的なヘルスケアデータから迅速な洞察を提供します。
  *
- * @param healthData - 基本的な健康データ
+ * @param healthData - 基本的なヘルスケアデータ
  * @param userProfile - ユーザープロファイル
  * @param language - 言語設定
  * @returns クイックAI健康分析結果
@@ -222,10 +212,7 @@ healthRoutes.post('/ai/quick-analyze', async (c): Promise<Response> => {
     console.log('Received quick AI analysis request')
 
     // 型安全なリクエストボディ検証
-    const validationResult = await validateRequestBody(
-      c,
-      QuickAnalysisRequestSchema,
-    )
+    const validationResult = await validateRequestBody(c, QuickAnalysisRequestSchema)
 
     if (!isValidationSuccess(validationResult)) {
       return createValidationErrorResponse(c, validationResult.error)
@@ -243,7 +230,7 @@ healthRoutes.post('/ai/quick-analyze', async (c): Promise<Response> => {
     // クイックAI分析実行
     const insights = await claudeAnalysisService.analyzeQuick(
       { healthData, userProfile, language },
-      apiKey,
+      apiKey
     )
 
     return sendSuccessResponse(c, insights)
@@ -259,7 +246,7 @@ healthRoutes.post('/ai/quick-analyze', async (c): Promise<Response> => {
           error: 'Rate limit exceeded. Please try again later.',
           retryAfter: 1800,
         },
-        429,
+        429
       )
     }
 
@@ -305,7 +292,7 @@ healthRoutes.post('/ai/focus-analysis', async (c): Promise<Response> => {
     console.error('Focus area AI analysis error:', error)
 
     const { message, statusCode } = handleError(error)
-    
+
     if (statusCode >= 500) {
       return c.json({ success: false, error: message }, 500)
     }
@@ -353,7 +340,7 @@ healthRoutes.get('/ai/health-check', async (c): Promise<Response> => {
         error: 'Health check failed',
         timestamp: new Date().toISOString(),
       },
-      500,
+      500
     )
   }
 })

@@ -1,7 +1,7 @@
 /**
  * @fileoverview Health Data Type Definitions
  *
- * HealthKitから取得される健康データの型定義。
+ * HealthKitから取得されるヘルスケアデータの型定義。
  * 睡眠、心拍変動、心拍数、アクティビティなどの
  * 包括的なヘルスメトリクスとユーザープロファイル情報を定義します。
  *

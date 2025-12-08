@@ -12,7 +12,7 @@ import { z } from 'zod'
 
 /**
  * AI分析リクエストのスキーマ
- * 健康データとユーザーコンテキストを統合
+ * ヘルスケアデータとユーザーコンテキストを統合
  */
 export const AIAnalysisRequestSchema = z.object({
   /** 現在のエネルギーレベル (0-100) */
@@ -95,7 +95,7 @@ export const AIAnalysisResponseSchema = z.object({
       message: z.string().min(1),
       /** 緊急度 */
       urgency: z.enum(['info', 'warning', 'critical']),
-    }),
+    })
   ),
   /** AI生成アクション提案 */
   aiActionSuggestions: z.array(
@@ -110,7 +110,7 @@ export const AIAnalysisResponseSchema = z.object({
       estimatedTime: z.string(),
       /** 難易度 */
       difficulty: z.enum(['easy', 'medium', 'hard']),
-    }),
+    })
   ),
   /** 詳細分析 */
   detailAnalysis: z.string().min(1),

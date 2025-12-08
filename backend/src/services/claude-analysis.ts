@@ -2,7 +2,7 @@
  * @fileoverview Comprehensive Claude AI Analysis Service
  *
  * ヘルスケアデータの包括的なAI分析を提供するサービス。
- * 健康データ、環境データ、ユーザープロファイルを組み合わせて
+ * ヘルスケアデータ、環境データ、ユーザープロファイルを組み合わせて
  * パーソナライズされた詳細な健康分析とアドバイスを生成します。
  *
  * @author Tempo AI Team
@@ -21,7 +21,7 @@ import { generateAdviceWithRetry } from './claude'
  * 包括的健康分析リクエスト
  */
 export interface ComprehensiveAnalysisRequest {
-  /** 健康データ */
+  /** ヘルスケアデータ */
   healthData: HealthData
   /** ユーザープロファイル */
   userProfile: UserProfile
@@ -82,7 +82,7 @@ export const AIHealthInsightsSchema = z.object({
       level: z.enum(['low', 'moderate', 'high', 'critical']),
       description: z.string(),
       recommendations: z.array(z.string()),
-    }),
+    })
   ),
   /** パーソナライズされた推奨事項 */
   recommendations: z.object({
@@ -112,7 +112,7 @@ export const AIHealthInsightsSchema = z.object({
   /** 分析の制限事項 */
   limitations: z.array(z.string()).optional(),
   /** 生成日時 */
-  generatedAt: z.string().transform((str) => new Date(str)),
+  generatedAt: z.string().transform(str => new Date(str)),
   /** 使用言語 */
   language: z.string(),
 })
@@ -131,7 +131,7 @@ export class ClaudeAnalysisService {
   async analyzeComprehensiveHealth(
     request: ComprehensiveAnalysisRequest,
     apiKey: string,
-    customFetch?: typeof fetch,
+    customFetch?: typeof fetch
   ): Promise<AIHealthInsights> {
     // コスト追跡
     this.trackRequest(request)
@@ -162,7 +162,7 @@ export class ClaudeAnalysisService {
       // レスポンスを包括的な分析に変換
       const comprehensiveInsights = await this.transformToComprehensiveInsights(
         rawResponse,
-        request,
+        request
       )
 
       // レスポンス品質検証
@@ -177,9 +177,11 @@ export class ClaudeAnalysisService {
         throw error
       }
       throw new APIError(
-        `Comprehensive health analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        `Comprehensive health analysis failed: ${
+          error instanceof Error ? error.message : 'Unknown error'
+        }`,
         502,
-        'COMPREHENSIVE_ANALYSIS_ERROR',
+        'COMPREHENSIVE_ANALYSIS_ERROR'
       )
     }
   }
@@ -188,12 +190,9 @@ export class ClaudeAnalysisService {
    * クイック分析を実行
    */
   async analyzeQuick(
-    request: Pick<
-      ComprehensiveAnalysisRequest,
-      'healthData' | 'userProfile' | 'language'
-    >,
+    request: Pick<ComprehensiveAnalysisRequest, 'healthData' | 'userProfile' | 'language'>,
     apiKey: string,
-    customFetch?: typeof fetch,
+    customFetch?: typeof fetch
   ): Promise<AIHealthInsights> {
     const quickRequest: ComprehensiveAnalysisRequest = {
       ...request,
@@ -210,9 +209,7 @@ export class ClaudeAnalysisService {
   /**
    * 包括的プロンプトを生成
    */
-  private generateComprehensivePrompt(
-    request: ComprehensiveAnalysisRequest,
-  ): string {
+  private generateComprehensivePrompt(request: ComprehensiveAnalysisRequest): string {
     const promptBuilder = new HealthPromptBuilder(request.language)
 
     return promptBuilder
@@ -236,11 +233,7 @@ export class ClaudeAnalysisService {
     }
 
     if (!request.userProfile) {
-      throw new APIError(
-        'User profile is required',
-        400,
-        'MISSING_USER_PROFILE',
-      )
+      throw new APIError('User profile is required', 400, 'MISSING_USER_PROFILE')
     }
 
     // データの完全性チェック
@@ -250,7 +243,7 @@ export class ClaudeAnalysisService {
       throw new APIError(
         'Insufficient health data for comprehensive analysis',
         400,
-        'INSUFFICIENT_DATA',
+        'INSUFFICIENT_DATA'
       )
     }
   }
@@ -266,9 +259,7 @@ export class ClaudeAnalysisService {
       healthData.hrv.average,
     ]
 
-    const validFields = fields.filter(
-      (field) => field !== undefined && field > 0,
-    )
+    const validFields = fields.filter(field => field !== undefined && field > 0)
     return validFields.length / fields.length
   }
 
@@ -277,7 +268,7 @@ export class ClaudeAnalysisService {
    */
   private async transformToComprehensiveInsights(
     rawResponse: unknown,
-    request: ComprehensiveAnalysisRequest,
+    request: ComprehensiveAnalysisRequest
   ): Promise<AIHealthInsights> {
     // レスポンスが既に包括的な形式かチェック
     if (this.isComprehensiveFormat(rawResponse)) {
@@ -286,11 +277,7 @@ export class ClaudeAnalysisService {
 
     // Type guard for DailyAdvice-like format
     const isDailyAdvice = (obj: unknown): obj is Partial<DailyAdvice> => {
-      return (
-        typeof obj === 'object' &&
-        obj !== null &&
-        ('theme' in obj || 'summary' in obj)
-      )
+      return typeof obj === 'object' && obj !== null && ('theme' in obj || 'summary' in obj)
     }
 
     const dailyAdvice = isDailyAdvice(rawResponse) ? rawResponse : {}
@@ -298,26 +285,16 @@ export class ClaudeAnalysisService {
     // 基本形式から包括形式に変換
     return {
       overallScore: this.calculateOverallScore(request.healthData),
-      keyInsights: [dailyAdvice.theme || '', dailyAdvice.summary || ''].filter(
-        Boolean,
-      ),
+      keyInsights: [dailyAdvice.theme || '', dailyAdvice.summary || ''].filter(Boolean),
       riskFactors: this.extractRiskFactors(rawResponse, request.healthData),
       recommendations: {
         immediate: [
-          typeof dailyAdvice.breakfast === 'object'
-            ? JSON.stringify(dailyAdvice.breakfast)
-            : '',
-          typeof dailyAdvice.lunch === 'object'
-            ? JSON.stringify(dailyAdvice.lunch)
-            : '',
-          typeof dailyAdvice.dinner === 'object'
-            ? JSON.stringify(dailyAdvice.dinner)
-            : '',
+          typeof dailyAdvice.breakfast === 'object' ? JSON.stringify(dailyAdvice.breakfast) : '',
+          typeof dailyAdvice.lunch === 'object' ? JSON.stringify(dailyAdvice.lunch) : '',
+          typeof dailyAdvice.dinner === 'object' ? JSON.stringify(dailyAdvice.dinner) : '',
         ].filter(Boolean),
         shortTerm: [
-          typeof dailyAdvice.exercise === 'object'
-            ? JSON.stringify(dailyAdvice.exercise)
-            : '',
+          typeof dailyAdvice.exercise === 'object' ? JSON.stringify(dailyAdvice.exercise) : '',
           typeof dailyAdvice.sleep_preparation === 'object'
             ? JSON.stringify(dailyAdvice.sleep_preparation)
             : '',
@@ -326,17 +303,9 @@ export class ClaudeAnalysisService {
       },
       todaysOptimalPlan: {
         morning:
-          typeof dailyAdvice.breakfast === 'object'
-            ? JSON.stringify(dailyAdvice.breakfast)
-            : '',
-        afternoon:
-          typeof dailyAdvice.lunch === 'object'
-            ? JSON.stringify(dailyAdvice.lunch)
-            : '',
-        evening:
-          typeof dailyAdvice.dinner === 'object'
-            ? JSON.stringify(dailyAdvice.dinner)
-            : '',
+          typeof dailyAdvice.breakfast === 'object' ? JSON.stringify(dailyAdvice.breakfast) : '',
+        afternoon: typeof dailyAdvice.lunch === 'object' ? JSON.stringify(dailyAdvice.lunch) : '',
+        evening: typeof dailyAdvice.dinner === 'object' ? JSON.stringify(dailyAdvice.dinner) : '',
         sleepOptimization:
           typeof dailyAdvice.sleep_preparation === 'object'
             ? JSON.stringify(dailyAdvice.sleep_preparation)
@@ -345,9 +314,7 @@ export class ClaudeAnalysisService {
       environmentalFactors: request.weatherData
         ? {
             weatherImpact: this.generateWeatherImpact(request.weatherData),
-            exerciseRecommendations: this.generateExerciseRecommendations(
-              request.weatherData,
-            ),
+            exerciseRecommendations: this.generateExerciseRecommendations(request.weatherData),
           }
         : undefined,
       culturalNotes: [],
@@ -361,32 +328,21 @@ export class ClaudeAnalysisService {
   /**
    * インサイト品質検証
    */
-  private validateInsightsQuality(
-    insights: AIHealthInsights,
-    language: string,
-  ): void {
+  private validateInsightsQuality(insights: AIHealthInsights, language: string): void {
     // 汎用的なレスポンスパターンをチェック
     const genericPatterns = this.getGenericPatterns(language)
 
     for (const insight of insights.keyInsights) {
       for (const pattern of genericPatterns) {
         if (pattern.test(insight)) {
-          throw new APIError(
-            `Generic response detected: ${insight}`,
-            502,
-            'GENERIC_RESPONSE_ERROR',
-          )
+          throw new APIError(`Generic response detected: ${insight}`, 502, 'GENERIC_RESPONSE_ERROR')
         }
       }
     }
 
     // 最小詳細レベルチェック
-    if (insights.keyInsights.every((insight) => insight.length < 30)) {
-      throw new APIError(
-        'Insights lack sufficient detail',
-        502,
-        'INSUFFICIENT_DETAIL_ERROR',
-      )
+    if (insights.keyInsights.every(insight => insight.length < 30)) {
+      throw new APIError('Insights lack sufficient detail', 502, 'INSUFFICIENT_DETAIL_ERROR')
     }
   }
 
@@ -395,12 +351,7 @@ export class ClaudeAnalysisService {
    */
   private getGenericPatterns(language: string): RegExp[] {
     if (language === 'japanese') {
-      return [
-        /健康状態は良好です/,
-        /バランスの取れた食事を/,
-        /適度な運動を/,
-        /十分な睡眠を/,
-      ]
+      return [/健康状態は良好です/, /バランスの取れた食事を/, /適度な運動を/, /十分な睡眠を/]
     } else {
       return [
         /your health is good/i,
@@ -417,18 +368,11 @@ export class ClaudeAnalysisService {
   private calculateOverallScore(healthData: HealthData): number {
     // 複数の健康指標から総合スコアを算出
     const sleepScore = Math.min((healthData.sleep.efficiency / 100) * 100, 100)
-    const activityScore = Math.min(
-      (healthData.activity.steps / 10000) * 100,
-      100,
-    )
-    const heartRateScore = this.calculateHeartRateScore(
-      healthData.heartRate.resting,
-    )
+    const activityScore = Math.min((healthData.activity.steps / 10000) * 100, 100)
+    const heartRateScore = this.calculateHeartRateScore(healthData.heartRate.resting)
     const hrvScore = Math.min((healthData.hrv.average / 50) * 100, 100)
 
-    return Math.round(
-      (sleepScore + activityScore + heartRateScore + hrvScore) / 4,
-    )
+    return Math.round((sleepScore + activityScore + heartRateScore + hrvScore) / 4)
   }
 
   /**
@@ -452,11 +396,7 @@ export class ClaudeAnalysisService {
 
     // 日次制限チェック（例: 10リクエスト/日）
     if (currentCount >= 10) {
-      throw new APIError(
-        'Daily request limit exceeded',
-        429,
-        'RATE_LIMIT_EXCEEDED',
-      )
+      throw new APIError('Daily request limit exceeded', 429, 'RATE_LIMIT_EXCEEDED')
     }
 
     this.requestCount.set(userId, currentCount + 1)
@@ -467,7 +407,7 @@ export class ClaudeAnalysisService {
    */
   private logAnalysisMetrics(
     request: ComprehensiveAnalysisRequest,
-    insights: AIHealthInsights,
+    insights: AIHealthInsights
   ): void {
     console.log(`Analysis completed: ${request.analysisType}`, {
       language: request.language,
@@ -481,14 +421,11 @@ export class ClaudeAnalysisService {
   /**
    * ローカライゼーションコンテキストを作成
    */
-  private createLocalizationContext(
-    request: ComprehensiveAnalysisRequest,
-  ): LocalizationContext {
+  private createLocalizationContext(request: ComprehensiveAnalysisRequest): LocalizationContext {
     return {
       language: request.language === 'japanese' ? 'ja' : 'en',
       region: request.language === 'japanese' ? 'JP' : 'US',
-      timeZone:
-        request.language === 'japanese' ? 'Asia/Tokyo' : 'America/New_York',
+      timeZone: request.language === 'japanese' ? 'Asia/Tokyo' : 'America/New_York',
       culturalContext: {
         formalityLevel: 'casual',
         mealTimes: {
@@ -511,9 +448,7 @@ export class ClaudeAnalysisService {
     return 'night'
   }
 
-  private isComprehensiveFormat(
-    response: unknown,
-  ): response is AIHealthInsights {
+  private isComprehensiveFormat(response: unknown): response is AIHealthInsights {
     if (typeof response !== 'object' || response === null) {
       return false
     }
@@ -533,7 +468,7 @@ export class ClaudeAnalysisService {
 
   private extractRiskFactors(
     _response: unknown,
-    healthData: HealthData,
+    healthData: HealthData
   ): AIHealthInsights['riskFactors'] {
     const riskFactors: AIHealthInsights['riskFactors'] = []
 
@@ -541,15 +476,9 @@ export class ClaudeAnalysisService {
     if (healthData.sleep.efficiency < 85) {
       riskFactors.push({
         category: 'sleep',
-        level:
-          healthData.sleep.efficiency < 70
-            ? ('high' as const)
-            : ('moderate' as const),
+        level: healthData.sleep.efficiency < 70 ? ('high' as const) : ('moderate' as const),
         description: `Sleep efficiency is ${healthData.sleep.efficiency}%`,
-        recommendations: [
-          'Improve sleep hygiene',
-          'Maintain consistent bedtime',
-        ],
+        recommendations: ['Improve sleep hygiene', 'Maintain consistent bedtime'],
       })
     }
 
@@ -576,15 +505,11 @@ export class ClaudeAnalysisService {
     return 'Good conditions for outdoor exercise'
   }
 
-  private identifyAnalysisLimitations(
-    request: ComprehensiveAnalysisRequest,
-  ): string[] {
+  private identifyAnalysisLimitations(request: ComprehensiveAnalysisRequest): string[] {
     const limitations = []
 
     if (!request.weatherData) {
-      limitations.push(
-        'Environmental factors not considered due to missing weather data',
-      )
+      limitations.push('Environmental factors not considered due to missing weather data')
     }
 
     if (this.assessDataCompleteness(request.healthData) < 0.8) {
@@ -605,7 +530,8 @@ class HealthPromptBuilder {
 
   addSystemRole(): this {
     if (this.language === 'japanese') {
-      this.prompt.push(`あなたは経験豊富な健康アドバイザーです。包括的な健康データを分析し、個人に合わせた詳細で実行可能なアドバイスを提供してください。
+      this.prompt
+        .push(`あなたは経験豊富な健康アドバイザーです。包括的なヘルスケアデータを分析し、個人に合わせた詳細で実行可能なアドバイスを提供してください。
 
 重要な指示：
 - データに基づいた客観的で科学的な評価を行う
@@ -614,7 +540,8 @@ class HealthPromptBuilder {
 - 健康リスクの適切な評価と優先順位付けを行う
 - 前向きで励ましとなる専門的なトーンを使用する`)
     } else {
-      this.prompt.push(`You are an experienced health advisor analyzing comprehensive user health data. Provide personalized, detailed, and actionable insights based on the following principles:
+      this.prompt
+        .push(`You are an experienced health advisor analyzing comprehensive user health data. Provide personalized, detailed, and actionable insights based on the following principles:
 
 Critical instructions:
 - Conduct evidence-based objective and scientific assessments
@@ -796,39 +723,19 @@ Please respond in the following JSON format:
   private getAnalysisGoals(analysisType: AnalysisType): string[] {
     switch (analysisType) {
       case AnalysisType.DAILY_COMPREHENSIVE:
-        return [
-          'daily health optimization',
-          'risk identification',
-          'actionable recommendations',
-        ]
+        return ['daily health optimization', 'risk identification', 'actionable recommendations']
       case AnalysisType.WEEKLY_REVIEW:
         return ['trend analysis', 'progress assessment', 'long-term planning']
       case AnalysisType.CRITICAL_ALERT:
-        return [
-          'immediate risk assessment',
-          'urgent recommendations',
-          'safety guidance',
-        ]
+        return ['immediate risk assessment', 'urgent recommendations', 'safety guidance']
       case AnalysisType.USER_REQUESTED:
-        return [
-          'detailed analysis',
-          'specific insights',
-          'personalized guidance',
-        ]
+        return ['detailed analysis', 'specific insights', 'personalized guidance']
       case AnalysisType.PATTERN_CHANGE:
-        return [
-          'pattern analysis',
-          'change explanation',
-          'intervention recommendations',
-        ]
+        return ['pattern analysis', 'change explanation', 'intervention recommendations']
       case AnalysisType.QUICK_ANALYSIS:
         return ['rapid assessment', 'key priorities', 'immediate actions']
       default:
-        return [
-          'comprehensive analysis',
-          'actionable insights',
-          'personalized recommendations',
-        ]
+        return ['comprehensive analysis', 'actionable insights', 'personalized recommendations']
     }
   }
 }

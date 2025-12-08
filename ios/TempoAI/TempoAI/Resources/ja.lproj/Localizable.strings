@@ -94,7 +94,7 @@
 "health_status_rest_actions" = "十分な睡眠を取る | 激しい運動を避ける | リラクゼーション | 回復活動を検討";
 
 "health_status_unknown_title" = "分析中";
-"health_status_unknown_description" = "健康データを収集中";
+"health_status_unknown_description" = "ヘルスケアデータを収集中";
 "health_status_unknown_explanation" = "正確な健康評価を提供するため、より多くのデータが必要です。";
 "health_status_unknown_actions" = "ヘルスデータアクセスを許可 | Apple Watchを着用 | 初期設定を完了";
 
@@ -128,8 +128,8 @@
 "home_greeting_afternoon" = "こんにちは";
 "home_greeting_evening" = "こんばんは";
 "home_greeting_night" = "お疲れ様です";
-"home_subtitle" = "あなたの健康データを基にした今日のアドバイスです";
-"home_loading" = "健康データを分析中...";
+"home_subtitle" = "あなたのヘルスケアデータを基にした今日のアドバイスです";
+"home_loading" = "ヘルスケアデータを分析中...";
 "home_no_data" = "データがありません";
 "home_mock_data_banner" = "デモ用データを使用中";
 

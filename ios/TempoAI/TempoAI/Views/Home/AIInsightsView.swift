@@ -328,7 +328,7 @@ struct AILoadingView: View {
     @State private var animationPhase: Int = 0
     
     private let loadingMessages = [
-        "健康データを分析中...",
+        "ヘルスケアデータを分析中...",
         "環境要因を考慮中...",
         "パーソナライズ提案を生成中...",
         "最適なアドバイスを準備中..."

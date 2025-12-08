@@ -12,6 +12,8 @@ struct ContentView: View {
                     .environmentObject(onboardingCoordinator)
             }
         }
+        .background(ColorPalette.pureWhite)
+        .preferredColorScheme(.light)
     }
 }
 
@@ -40,6 +42,7 @@ struct MainAppView: View {
                     Text("Settings")
                 }
         }
+        .background(ColorPalette.pureWhite)
     }
 }
 
@@ -61,6 +64,7 @@ struct PlaceholderView: View {
                     .multilineTextAlignment(.center)
             }
             .padding()
+            .background(ColorPalette.pureWhite)
             .navigationTitle(title)
         }
     }

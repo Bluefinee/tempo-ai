@@ -67,7 +67,8 @@ struct HomeView: View {
                 }
             }
         }
-        .background(Color(.systemBackground))
+        .background(ColorPalette.pureWhite)
+        .preferredColorScheme(.light)
         .task {
             await refreshData()
         }

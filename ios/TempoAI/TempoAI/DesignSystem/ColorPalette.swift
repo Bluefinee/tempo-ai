@@ -74,6 +74,17 @@ enum ColorPalette {
     /// Info background with 10% opacity
     static let infoBackground: Color = info.opacity(0.1)
 
+    // MARK: - Accent Colors (Google-inspired subtle pops)
+    
+    /// Primary accent for interactive elements
+    static let primaryAccent: Color = Color(red: 0.259, green: 0.522, blue: 0.957) // #4285F4
+    
+    /// Secondary accent for highlights
+    static let secondaryAccent: Color = Color(red: 0.219, green: 0.663, blue: 0.457) // #34A853
+    
+    /// Warm accent for positive actions
+    static let warmAccent: Color = Color(red: 0.984, green: 0.737, blue: 0.020) // #FBBC05
+
     // MARK: - Dynamic Colors
 
     /// Primary text color that adapts to color scheme

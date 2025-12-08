@@ -41,7 +41,7 @@ class AIAnalysisService: ObservableObject {
     init(apiClient: APIClient) {
         self.apiClient = apiClient
     }
-    
+
     convenience init() {
         self.init(apiClient: APIClient())
     }
@@ -76,7 +76,7 @@ class AIAnalysisService: ObservableObject {
 
     private func createFallbackAdvice(for battery: HumanBattery) -> AnalysisResponse {
         let headline = AdviceHeadlineResponse(
-            title: battery.state == .high ? "エネルギー充分" : "バッテリー低下",
+            title: battery.state == .high ? "エネルギー充分" : "エネルギー不足",
             subtitle: battery.state == .high ? "今日は積極的に活動できます" : "休息を取ることをお勧めします",
             impactLevel: battery.state == .critical ? "high" : "medium"
         )

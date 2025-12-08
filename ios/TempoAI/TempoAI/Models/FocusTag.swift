@@ -2,40 +2,51 @@ import Combine
 import Foundation
 
 enum FocusTag: String, Codable, CaseIterable {
+    case chill    // Moved to first position
     case work
     case beauty
     case diet
-    case chill
+
+    var systemIcon: String {
+        switch self {
+        case .chill: return "leaf"
+        case .work: return "square.stack.3d.up"
+        case .beauty: return "sparkles"
+        case .diet: return "fork.knife.circle"
+        }
+    }
 
     var emoji: String {
-        switch self {
-        case .work: return "🧠"
-        case .beauty: return "✨"
-        case .diet: return "🥗"
-        case .chill: return "🍃"
-        }
+        // Keeping for backward compatibility, but using systemIcon instead
+        return systemIcon
     }
 
     var displayName: String {
         switch self {
+        case .chill: return "リラックス"
         case .work: return "深い集中（仕事）"
         case .beauty: return "美容・肌"
         case .diet: return "食事・代謝"
-        case .chill: return "リラックス"
         }
     }
 
     var description: String {
         switch self {
+        case .chill: return "自律神経バランス、入浴、サウナ、リセット"
         case .work: return "脳のパフォーマンスと集中力ウィンドウを最適化"
         case .beauty: return "水分補給、睡眠ホルモン、肌の健康に焦点"
         case .diet: return "食事タイミング、代謝、カロリー収支を管理"
-        case .chill: return "自律神経バランス、入浴、サウナ、リセット"
         }
     }
 
     var analysisLens: AnalysisLens {
         switch self {
+        case .chill:
+            return AnalysisLens(
+                focusAreas: ["自律神経バランス", "ストレス管理", "回復プロセス"],
+                keyMetrics: ["HRV", "心拍数変動", "睡眠効率"],
+                environmentFactors: ["気圧", "湿度", "温度"]
+            )
         case .work:
             return AnalysisLens(
                 focusAreas: ["脳のパフォーマンス", "集中力ウィンドウ", "認知負荷"],
@@ -53,12 +64,6 @@ enum FocusTag: String, Codable, CaseIterable {
                 focusAreas: ["代謝タイミング", "消化効率", "血糖値安定"],
                 keyMetrics: ["活動カロリー", "食事タイミング", "心拍数変動"],
                 environmentFactors: ["気温", "湿度"]
-            )
-        case .chill:
-            return AnalysisLens(
-                focusAreas: ["自律神経バランス", "回復促進", "メンタルリセット"],
-                keyMetrics: ["HRV", "深い睡眠", "ストレス回復"],
-                environmentFactors: ["気圧", "湿度", "気温"]
             )
         }
     }

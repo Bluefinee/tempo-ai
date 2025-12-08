@@ -13,9 +13,9 @@ enum OnboardingPage: Int, CaseIterable {
     var title: String {
         switch self {
         case .welcome: return "ようこそ"
-        case .userMode: return "バッテリーモード"
+        case .userMode: return "ライフスタイル設定"
         case .focusTags: return "関心タグ"
-        case .healthPermission: return "健康データ"
+        case .healthPermission: return "ヘルスケアデータ"
         case .locationPermission: return "位置情報"
         case .completion: return "完了"
         }
@@ -38,33 +38,57 @@ class OnboardingCoordinator: ObservableObject {
 
     init() {
         isCompleted = userDefaults.bool(forKey: onboardingCompletedKey)
+        print("🔍 OnboardingCoordinator init - currentPage: \(currentPage), isCompleted: \(isCompleted)")
         updateCanProceed()
+        print("🔍 After init updateCanProceed - canProceed: \(canProceed)")
     }
 
     func nextPage() {
-        guard canProceed else { return }
-
-        if let nextPageIndex = OnboardingPage(rawValue: currentPage.rawValue + 1) {
-            withAnimation(.easeInOut) {
-                currentPage = nextPageIndex
+        print("nextPage called - currentPage: \(currentPage), canProceed: \(canProceed)")
+        
+        // Check current page requirements directly instead of relying on canProceed
+        switch currentPage {
+        case .welcome:
+            break // Always can proceed
+        case .userMode:
+            guard selectedUserMode != nil else {
+                print("nextPage blocked - no UserMode selected")
+                return
             }
-        } else {
-            completeOnboarding()
+        case .focusTags:
+            guard !selectedTags.isEmpty else {
+                print("nextPage blocked - no FocusTags selected")
+                return
+            }
+        case .healthPermission:
+            // Can always proceed (permission optional)
+            break
+        case .locationPermission:
+            // Can always proceed (permission optional)
+            break
+        case .completion:
+            break
         }
 
-        updateCanProceed()
+        if let nextPageIndex = OnboardingPage(rawValue: currentPage.rawValue + 1) {
+            print("Moving to next page: \(nextPageIndex)")
+            currentPage = nextPageIndex
+            updateCanProceed()
+        } else {
+            print("Completing onboarding")
+            completeOnboarding()
+        }
     }
 
     func previousPage() {
         if let prevPageIndex = OnboardingPage(rawValue: currentPage.rawValue - 1) {
-            withAnimation(.easeInOut) {
-                currentPage = prevPageIndex
-            }
+            currentPage = prevPageIndex
+            updateCanProceed()
         }
-        updateCanProceed()
     }
 
     private func updateCanProceed() {
+        let oldCanProceed = canProceed
         switch currentPage {
         case .welcome:
             canProceed = true
@@ -78,6 +102,13 @@ class OnboardingCoordinator: ObservableObject {
             canProceed = locationPermissionGranted
         case .completion:
             canProceed = true
+        }
+        print("🔍 updateCanProceed - page: \(currentPage), oldCanProceed: \(oldCanProceed), newCanProceed: \(canProceed)")
+        if currentPage == .userMode {
+            print("🔍 UserMode state - selectedUserMode: \(String(describing: selectedUserMode))")
+        }
+        if currentPage == .focusTags {
+            print("🔍 FocusTags state - selectedTags: \(selectedTags)")
         }
     }
 

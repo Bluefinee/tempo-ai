@@ -78,7 +78,8 @@
       "Bash(git log:*)",
       "Bash(timeout:*)",
       "mcp__serena__check_onboarding_performed",
-      "mcp__serena__find_referencing_symbols"
+      "mcp__serena__find_referencing_symbols",
+      "Bash(git checkout:*)"
     ],
     "deny": [],
     "ask": [],

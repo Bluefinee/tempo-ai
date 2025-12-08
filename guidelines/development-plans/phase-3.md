@@ -22,15 +22,36 @@ The goal is to create a production-ready system that delivers intelligent insigh
 
 ### 2. AI System Optimization (Priority Focus)
 
-#### A. Prompt Engineering Optimization
+#### A. Lifestyle Mode-Aware Optimization
+
+**Mode-Specific Cost Management:**
+
+```typescript
+interface ModeOptimizationStrategy {
+  standard_mode: {
+    target_tokens: 1500,  // Simpler, more conversational responses
+    cache_duration: 4800, // 80 minutes (longer due to stable lifestyle patterns)
+    complexity_level: "simplified",
+    personalization_depth: "moderate"
+  },
+  
+  athlete_mode: {
+    target_tokens: 2500,  // Detailed, data-rich responses
+    cache_duration: 3600, // 60 minutes (shorter due to dynamic training needs)
+    complexity_level: "comprehensive", 
+    personalization_depth: "deep"
+  }
+}
+```
 
 **Token Efficiency Strategy:**
 
 ```typescript
-interface PromptOptimization {
-  // Target: 2000 tokens per analysis (cost: ~$0.10 per user per day)
-  current_average: 3500; // tokens
-  target_average: 2000;  // tokens
+interface ModeAwarePromptOptimization {
+  // Dynamic targets based on user lifestyle mode
+  standard_mode_target: 1500; // tokens (simpler responses)
+  athlete_mode_target: 2500;   // tokens (detailed analysis)
+  blended_average: 2000;       // overall target
   optimization_strategies: [
     "Remove redundant context repetition",
     "Use structured data format instead of verbose descriptions", 
@@ -64,7 +85,7 @@ interface CacheLayerStrategy {
   // Layer 1: Instant Response Cache (1 hour)
   layer1: {
     duration: 3600; // seconds
-    triggers: ['app_open', 'battery_calculation'];
+    triggers: ['app_open', 'energy_calculation'];
     purpose: "Eliminate loading delays for frequent app usage";
   };
   
@@ -160,7 +181,7 @@ interface AIResponseValidation {
     "Partial response reconstruction",
     "Static rule engine activation", 
     "Cached response adaptation",
-    "Minimal battery-only display"
+    "Minimal energy-only display"
   ];
   
   error_monitoring: {
@@ -211,7 +232,7 @@ class RobustAIHandler {
 
 #### A. Remove Legacy Logic
 
-- **Score System:** Completely remove any code related to the old "0-100 Health Score" if it contradicts the "Battery" logic.
+- **Score System:** Completely remove any code related to the old "0-100 Health Score" if it contradicts the "Energy State" logic.
 - **Unused Views:** Delete old Dashboard views, cards, or assets that do not fit the "Digital Cockpit" (Black/Neon) design system.
 - **Hardcoded Text:** Move any hardcoded strings to `Localizable.strings` (English/Japanese).
 
@@ -229,7 +250,7 @@ class RobustAIHandler {
 ### 4. UI Polish & Performance
 
 - **View Hierarchy:** Reduce the depth of `VStack`/`HStack` embedding to improve rendering performance.
-- **Animation:** Ensure the Liquid Battery animation does not cause high CPU usage (optimize frames or use efficient libraries).
+- **Animation:** Ensure the Liquid Energy animation does not cause high CPU usage (optimize frames or use efficient libraries).
 - **Error States:** Implement user-friendly error views (e.g., "Offline Mode", "Weather Unavailable") instead of generic alerts.
 
 ### 5. Backend Optimization (Enhanced for AI Architecture)
@@ -245,7 +266,7 @@ class RobustAIHandler {
 - **Dead Code Removal:**
   - Remove unused API routes or helper functions in Cloudflare Workers
   - Eliminate redundant data processing pipelines
-  - Clean up old health scoring logic that conflicts with Battery system
+  - Clean up old health scoring logic that conflicts with Energy State system
 
 - **API Route Optimization:**
   - Implement batch processing for multiple health data points
@@ -344,11 +365,13 @@ class AIPerformanceMonitor {
 - Comprehensive API documentation for AI service endpoints
 - Performance monitoring dashboards and alerting setup
 
-#### E. Quality Assurance
-- A/B testing framework for AI advice variations
-- User satisfaction tracking integration
-- AI response quality monitoring with fallback triggers
-- Cost alerting and budget protection mechanisms
+#### E. Mode-Specific Quality Assurance
+- **A/B testing framework** with mode-specific variations (gentle vs analytical messaging)
+- **User satisfaction tracking** separated by lifestyle mode for targeted improvements  
+- **Mode-appropriate response quality** monitoring (empathy scores for Standard, accuracy scores for Athlete)
+- **Differential cost management** with mode-aware budget allocation
+- **Persona consistency validation** - ensuring Standard users never receive "harsh" feedback
+- **Performance relevance scoring** - ensuring Athlete users receive actionable data insights
 
 ### 7. Success Metrics
 
@@ -358,11 +381,15 @@ class AIPerformanceMonitor {
 - **Cost Control:** <$0.10 per daily active user
 - **Reliability:** <5% fallback usage rate during normal operations
 
-#### User Experience  
-- **Zero Loading States:** Static components render <0.5 seconds
-- **Seamless Degradation:** No user-visible errors during AI service issues
-- **Consistent Quality:** AI advice relevance score >4.0/5.0
-- **Improved Engagement:** Increased session duration with meaningful insights
+#### Mode-Specific User Experience
+- **Zero Loading States:** Static components render <0.5 seconds (both modes)
+- **Seamless Degradation:** Graceful fallback to mode-appropriate static advice
+- **Mode-Consistent Quality:** 
+  - Standard Mode: Empathy & Support score >4.2/5.0
+  - Athlete Mode: Data Relevance & Actionability score >4.0/5.0
+- **Engagement by Mode:**
+  - Standard: Increased daily check-ins (stress validation)
+  - Athlete: Increased session depth (detailed analysis consumption)
 
 #### Operational Excellence
 - **Zero Critical Bugs:** No crashes from AI response processing

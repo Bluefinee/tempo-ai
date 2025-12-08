@@ -122,7 +122,7 @@ struct UserModeRow: View {
 
     var body: some View {
         HStack {
-            Text("バッテリーモード")
+            Text("ライフスタイル設定")
                 .typography(.body)
 
             Spacer()

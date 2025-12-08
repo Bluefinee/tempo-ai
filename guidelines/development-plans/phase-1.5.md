@@ -14,7 +14,7 @@
 
 ## 1. Overview
 
-Phase 1.5 introduces the sophisticated AI analysis architecture that transforms raw health and environmental data into meaningful, contextual insights. This phase builds on Phase 1's Human Battery foundation and implements the **"Empathetic Partner"** AI model that provides **"Happy Insights"** - advice that empowers rather than scolds, validates rather than criticizes.
+Phase 1.5 introduces the sophisticated AI analysis architecture that transforms raw health and environmental data into meaningful, contextual insights. This phase builds on Phase 1's energy state visualization foundation and implements the **"Health Partner"** AI model that provides **"Empowering Insights"** - advice that empowers rather than scolds, validates rather than criticizes.
 
 ---
 
@@ -24,9 +24,9 @@ Phase 1.5 introduces the sophisticated AI analysis architecture that transforms 
 
 ```typescript
 interface AIAnalysisRequest {
-  // Core Human Battery Data
-  batteryLevel: number;          // 0-100%, calculated battery remaining
-  batteryTrend: 'charging' | 'draining' | 'stable';
+  // Core Energy State Data
+  energyLevel: number;          // 0-100%, calculated energy remaining
+  energyTrend: 'recovering' | 'declining' | 'stable';
   
   // Biological Context (HealthKit processed)
   biologicalContext: {
@@ -63,11 +63,11 @@ interface AIAnalysisRequest {
 **Static calculations performed on-device before AI analysis:**
 
 ```typescript
-// Battery Engine (Local Processing)
-const calculateBattery = (sleepScore: number, hrvScore: number, environmentalLoad: number): number => {
-  const baseCharge = (sleepScore * 0.6) + (hrvScore * 0.4);
-  const environmentalDrain = environmentalLoad * 0.1; // Pressure drops, extreme temp
-  return Math.max(0, Math.min(100, baseCharge - environmentalDrain));
+// Energy Engine (Local Processing)
+const calculateEnergyLevel = (sleepScore: number, hrvScore: number, environmentalLoad: number): number => {
+  const baseRecovery = (sleepScore * 0.6) + (hrvScore * 0.4);
+  const environmentalImpact = environmentalLoad * 0.1; // Pressure drops, extreme temp
+  return Math.max(0, Math.min(100, baseRecovery - environmentalImpact));
 };
 
 // Environmental Load Calculation
@@ -84,36 +84,87 @@ const calculateEnvironmentalLoad = (weather: EnvironmentalContext): number => {
 
 ## 3. Prompt Engineering Framework (AIへの指示書)
 
-### A. System Persona Definition
+### A. Lifestyle-Adaptive Persona System (モード別AIペルソナ)
 
 ```typescript
-const SYSTEM_PERSONA = `
-You are Tempo, a sophisticated health partner with deep empathy and scientific knowledge. 
-Your primary goal is to make the user feel **understood**, **validated**, and **empowered**.
+const MODE_SPECIFIC_PERSONAS = {
+  standard: {
+    persona_name: "ヘルスケアパートナー",
+    core_identity: `
+You are a gentle, empathetic healthcare partner who prioritizes daily wellness and sustainable habits.
+Your goal is to make the user feel **supported**, **understood**, and **empowered** without pressure.
 
-Core Principles:
-1. NEVER scold or criticize the user for "bad" data
-2. Always offer a "recovery strategy" instead of dwelling on problems  
-3. Start responses with THE CONCLUSION first (The Headline)
-4. Connect invisible environmental forces to how the user feels
-5. Provide permission to rest OR encouragement to push - never guilt
+Tone & Approach:
+- Use gentle, suggestion-based language ("〜してみませんか？")
+- Focus on small, achievable improvements
+- Validate feelings and acknowledge external factors (weather, stress)
+- Prioritize mental health and work-life balance
+- Avoid overwhelming technical details
+    `,
+    
+    response_style: {
+      complexity: "simple",
+      data_presentation: "human-friendly explanations",
+      action_suggestions: "micro-actions (2-5 minutes)",
+      technical_depth: "minimal",
+      encouragement_level: "high"
+    }
+  },
+  
+  athlete: {
+    persona_name: "パフォーマンスメンター", 
+    core_identity: `
+You are a data-driven performance mentor who helps optimize training and recovery.
+Your goal is to provide **strategic**, **objective**, and **actionable** insights for peak performance.
 
-You are not a doctor. You are a wise friend who sees patterns the user cannot see.
-`;
+Tone & Approach:
+- Use clear, analytical language with specific metrics
+- Focus on performance optimization and efficient recovery
+- Provide strategic recommendations based on data trends
+- Respect the user's commitment to excellence
+- Include relevant technical details when beneficial
+    `,
+    
+    response_style: {
+      complexity: "detailed",
+      data_presentation: "metrics and trends",
+      action_suggestions: "strategic interventions (10-30 minutes)",
+      technical_depth: "comprehensive",
+      encouragement_level: "motivational"
+    }
+  }
+};
 ```
 
-### B. Dynamic Prompt Injection (Tag-Specific Logic)
+### B. Mode + Tag Combined Logic (複合ペルソナシステム)
+
+各ライフスタイルモードとFocus Tagの組み合わせで、AIの分析視点と出力スタイルを動的に調整：
 
 ```typescript
-interface TagAnalysisLogic {
-  Work: {
-    dataFocus: ['sleepRem', 'pressureTrend', 'batteryLevel'];
-    logic: `
-      - If REM sleep < 60min OR pressure drops > 5hPa: Warn "Brain Fog Risk" 
-      - Suggest high-focus tasks be done NOW before cognitive decline
-      - If battery < 30%: "Permission to delegate or postpone non-critical tasks"
-    `;
-  };
+interface ModeTagCombinedLogic {
+  // Standard Mode + Work Tag
+  standard_work: {
+    persona: "優しい仕事効率アドバイザー",
+    approach: `
+      - Focus on sustainable productivity, not maximum output
+      - Suggest gentle breaks and stress management
+      - If REM < 60min: "今日は重要な判断を午前中に。午後は軽いタスクがおすすめです"
+      - If energy < 30%: "無理せず、できる範囲で進めましょう。明日のために今日は早めに切り上げませんか？"
+    `,
+    output_style: "共感的、労わり重視、小さな改善提案"
+  },
+  
+  // Athlete Mode + Work Tag  
+  athlete_work: {
+    persona: "パフォーマンス最適化コーチ",
+    approach: `
+      - Focus on cognitive performance optimization
+      - Provide strategic timing for peak mental performance
+      - If REM < 60min: "Memory consolidation incomplete. Front-load critical decisions to morning hours."
+      - If energy < 30%: "Strategic rest needed. Delegate non-essential tasks to preserve cognitive resources."
+    `,
+    output_style: "客観的、戦略的、データ駆動"
+  },
   
   Beauty: {
     dataFocus: ['sleepDeep', 'humidity', 'uvIndex'];
@@ -138,14 +189,14 @@ interface TagAnalysisLogic {
 ### C. Conflict Resolution Logic
 
 ```typescript
-const resolveTagConflicts = (tags: FocusTag[], batteryLevel: number): string => {
+const resolveTagConflicts = (tags: FocusTag[], energyLevel: number): string => {
   // BIOLOGICAL SAFETY ALWAYS WINS
-  if (batteryLevel < 20) {
-    return "Battery critically low. All activities should prioritize recovery.";
+  if (energyLevel < 20) {
+    return "Energy critically low. All activities should prioritize recovery.";
   }
   
   // Example: Work + Beauty conflict
-  if (tags.includes('Work') && tags.includes('Beauty') && batteryLevel < 50) {
+  if (tags.includes('Work') && tags.includes('Beauty') && energyLevel < 50) {
     return "Your skin needs the recovery more than work needs the extra hour. Early rest wins tonight.";
   }
   
@@ -166,7 +217,7 @@ interface AIAnalysisResponse {
     confidence: number;         // 0-100% AI confidence in analysis
   };
   
-  batteryComment: string;       // "予想より消耗が早いです。ペースを落としましょう"
+  energyComment: string;       // "予想より疲労が早いです。ペースを落としましょう"
   
   tagInsights: Array<{
     tag: FocusTag;
@@ -204,9 +255,9 @@ interface AIAnalysisResponse {
 interface HappyAdviceFramework {
   // 1. Permission-Granting (許可を与える)
   permissive: {
-    high_battery: "You are unstoppable today. **Permission granted** to push your limits!";
-    low_battery: "**Permission granted** to rest without guilt. Tomorrow needs you at 100%.";
-    medium_battery: "**Permission granted** to choose your battles today.";
+    high_energy: "You are unstoppable today. **Permission granted** to push your limits!";
+    low_energy: "**Permission granted** to rest without guilt. Tomorrow needs you at 100%.";
+    medium_energy: "**Permission granted** to choose your battles today.";
   };
   
   // 2. Contextual Connection (意外なつながり)  
@@ -252,7 +303,7 @@ const generateHappyAdvice = (context: AIAnalysisRequest): string => {
 
 | Feature | Processing Type | Implementation | Rationale |
 |---------|----------------|----------------|-----------|
-| **Battery Calculation** | **Static (Local)** | `BatteryEngine.swift` | Real-time necessity, no API delay |
+| **Energy Calculation** | **Static (Local)** | `EnergyEngine.swift` | Real-time necessity, no API delay |
 | **Color Coding** | **Static (Local)** | `ColorScheme.swift` | Immediate UI response |
 | **Weather Icon Mapping** | **Static (Local)** | `WeatherCode → SFSymbol` | No AI needed for simple mapping |
 | **Headline Generation** | **AI (Cloud)** | Claude API | Complex correlation analysis needed |
@@ -266,11 +317,11 @@ const generateHappyAdvice = (context: AIAnalysisRequest): string => {
 class HybridAnalysisEngine {
     func generateInsight() async -> AnalysisResult {
         // 1. Calculate static components immediately
-        let battery = BatteryEngine.calculate(from: healthData)
-        let colors = ColorScheme.from(battery: battery)
+        let energy = EnergyEngine.calculate(from: healthData)
+        let colors = ColorScheme.from(energy: energy)
         
         // 2. Show immediate feedback
-        UI.update(battery: battery, colors: colors)
+        UI.update(energy: energy, colors: colors)
         
         // 3. Fetch AI enhancement asynchronously
         let aiInsight = await AIService.analyze(context: fullContext)
@@ -278,7 +329,7 @@ class HybridAnalysisEngine {
         // 4. Enhance UI with AI content
         UI.enhance(with: aiInsight)
         
-        return AnalysisResult(static: battery, ai: aiInsight)
+        return AnalysisResult(static: energy, ai: aiInsight)
     }
 }
 ```
@@ -296,7 +347,7 @@ interface CacheStrategy {
   
   // Cache invalidation triggers
   invalidate_on: [
-    'battery_change_>20%',     // Significant battery shift
+    'energy_change_>20%',     // Significant energy shift
     'weather_pressure_change_>3hPa',  // Meaningful weather change
     'new_health_data',         // Fresh HealthKit sync
     'tag_preference_change'    // User updates focus tags
@@ -306,7 +357,7 @@ interface CacheStrategy {
   fallback_order: [
     'cached_ai_response',      // Show last AI response if < 3 hours old
     'static_rule_engine',      // Generate basic advice locally  
-    'minimal_battery_view'     // Show battery only if all else fails
+    'minimal_energy_view'     // Show energy only if all else fails
   ];
 }
 ```
@@ -318,20 +369,20 @@ enum AnalysisState {
     case fresh(AIAnalysisResponse)      // New AI analysis
     case cached(AIAnalysisResponse)     // Cached AI response
     case fallback(StaticAnalysis)       // Local rule engine
-    case minimal(BatteryData)           // Battery only
+    case minimal(EnergyData)           // Energy only
     case offline                        // No data available
 }
 
 class OfflineAnalysisEngine {
-    func generateFallbackAdvice(battery: Double, weather: WeatherData?) -> StaticAnalysis {
-        var advice = "Battery at \(Int(battery))%. "
+    func generateFallbackAdvice(energy: Double, weather: WeatherData?) -> StaticAnalysis {
+        var advice = "エネルギーレベルは \(Int(energy))%です。"
         
-        if battery > 70 {
-            advice += "Energy is high - good time for challenging tasks."
-        } else if battery < 30 {
-            advice += "Energy is low - prioritize rest and recovery."
+        if energy > 70 {
+            advice += "調子が良いですね。チャレンジングなタスクに取り組めそうです。"
+        } else if energy < 30 {
+            advice += "少しお疲れのようです。休息と回復を優先しましょう。"
         } else {
-            advice += "Energy is moderate - pace yourself through the day."
+            advice += "バランスの取れた状態です。無理のないペースで進みましょう。"
         }
         
         if let weather = weather, weather.pressureTrend < -3 {

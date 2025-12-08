@@ -14,7 +14,10 @@
 
 ## 1. Overview
 
-Phase 1.5 introduces the sophisticated AI analysis architecture that transforms raw health and environmental data into meaningful, contextual insights. This phase builds on Phase 1's energy state visualization foundation and implements the **"Health Partner"** AI model that provides **"Empowering Insights"** - advice that empowers rather than scolds, validates rather than criticizes.
+Phase 1.5 introduces the sophisticated AI analysis architecture that transforms raw health and environmental data into meaningful, contextual insights. This phase builds on Phase 1's energy state visualization foundation and implements the **"Focus-Driven AI Specialists"** that provide **"Empowering Insights + Today's Try"** - advice that empowers rather than scolds, validates rather than criticizes, and suggests new personalized experiences.
+
+### 🆕 **"Today's Try" Innovation**
+Each focus area acts as a specialized AI advisor that not only analyzes current state but also suggests **personalized new experiences** based on real-time conditions and user history.
 
 ---
 
@@ -50,10 +53,17 @@ interface AIAnalysisRequest {
   
   // User Context & Preferences
   userContext: {
-    mode: 'Standard' | 'Athlete';
-    activeTags: FocusTag[];      // Selected focus tags
+    activeTags: FocusTag[];      // 6 specialized focus areas (removed lifestyle modes)
     timeOfDay: 'morning' | 'afternoon' | 'evening' | 'night';
     language: 'ja' | 'en';
+    trialHistory: TrialExperience[]; // Track what user has tried
+  };
+  
+  // New: Today's Try feature
+  trialSuggestionRequest?: {
+    focusArea: FocusTag;
+    noveltyLevel: 'gentle' | 'moderate' | 'adventurous';
+    timeConstraint: number; // minutes available
   };
 }
 ```
@@ -136,71 +146,83 @@ Tone & Approach:
 };
 ```
 
-### B. Mode + Tag Combined Logic (複合ペルソナシステム)
+### B. 6つの関心分野専門AI + Try機能 (Focus-Driven Specialists)
 
-各ライフスタイルモードとFocus Tagの組み合わせで、AIの分析視点と出力スタイルを動的に調整：
+**設計変更**: ライフスタイルモード削除により、6つの関心分野がそれぞれ独立した専門AIアドバイザーとして機能。「今日のトライ」「今週のトライ」で温かく個人的な新体験を提案：
 
 ```typescript
-interface ModeTagCombinedLogic {
-  // Standard Mode + Work Tag
-  standard_work: {
-    persona: "優しい仕事効率アドバイザー",
-    approach: `
-      - Focus on sustainable productivity, not maximum output
-      - Suggest gentle breaks and stress management
-      - If REM < 60min: "今日は重要な判断を午前中に。午後は軽いタスクがおすすめです"
-      - If energy < 30%: "無理せず、できる範囲で進めましょう。明日のために今日は早めに切り上げませんか？"
-    `,
-    output_style: "共感的、労わり重視、小さな改善提案"
+interface SixFocusAreaSpecialists {
+  // 🧠 Work: 認知パフォーマンス最適化
+  work: {
+    persona: "集中力コーチ",
+    todays_try: "今日の集中力が高めですね。新しいポモドーロテクニック（25分集中+5分休憩）を試してみませんか？いつもより深い集中を体験できるかもしれません。",
+    weekly_try: "今週は「マインドフルワーク」を取り入れてみませんか。作業の前に2分間、呼吸を意識して心を落ち着かせる時間を作ることで、集中力が高まり、作業効率が向上します。この習慣は、ストレスを軽減し、より創造的な仕事へと導いてくれるでしょう。"
   },
   
-  // Athlete Mode + Work Tag  
-  athlete_work: {
-    persona: "パフォーマンス最適化コーチ",
-    approach: `
-      - Focus on cognitive performance optimization
-      - Provide strategic timing for peak mental performance
-      - If REM < 60min: "Memory consolidation incomplete. Front-load critical decisions to morning hours."
-      - If energy < 30%: "Strategic rest needed. Delegate non-essential tasks to preserve cognitive resources."
-    `,
-    output_style: "客観的、戦略的、データ駆動"
+  // ✨ Beauty: 美容・スキンケア専門
+  beauty: {
+    persona: "美容コンシェルジュ",
+    todays_try: "今日の湿度は30%と低めです。お肌のために、温かいカモミールティーで内側からの水分補給を試してみませんか？リラックス効果もあり、一石二鳥です。",
+    weekly_try: "今週は「夜のスペシャルケア」を取り入れてみませんか。温めたセサミオイルで顔を優しくマッサージすることで、血行を促進し、翌朝の肌の輝きが違ってくるでしょう。この習慣は、日中のストレスをリセットし、美しさと心の安らぎを同時に育んでくれます。"
   },
   
-  Beauty: {
-    dataFocus: ['sleepDeep', 'humidity', 'uvIndex'];
-    logic: `
-      - If Deep sleep < 40min OR humidity < 40%: "Skin Barrier Disruption Risk"
-      - Suggest hydration strategy and earlier bedtime (growth hormone 10PM-2AM)
-      - UV protection advice based on index and skin exposure time
-    `;
-  };
+  // 🥗 Diet: 食事・栄養専門
+  diet: {
+    persona: "栄養タイミングアドバイザー",
+    todays_try: "今日の活動量から、ランチにナッツを小皿一杯追加してみませんか？良質な脂質が脳の機能をサポートし、午後の集中力が向上します。",
+    weekly_try: "今週は「色彩豊かな朝食」を始めてみませんか。赤（トマト）、緑（ホウレン草）、黄（パプリカ）の野菜を組み合わせることで、様々な栄養素をバランスよく摂取できます。色鮮やかな朝食は、一日をポジティブな気持ちでスタートさせてくれるでしょう。"
+  },
   
-  Athlete: {
-    dataFocus: ['hrvStatus', 'feelsLike', 'batteryLevel'];
-    logic: `
-      - If HRV high (+10ms) AND temp moderate: "Go for Personal Best"
-      - If HRV low (-10ms): "Active Recovery Only - trust your body"
-      - Heat index > 32°C: "Adjust intensity, prioritize hydration"
-    `;
-  };
+  // 💤 Sleep: 睡眠質・リカバリー専門
+  sleep: {
+    persona: "睡眠ウェルネスアドバイザー",
+    todays_try: "昨夜の睡眠が浅めでしたね。今夜は入眠1時間前にカモミールティーを飲んでみませんか？自然な眠気を誘い、深い眠りにつながります。",
+    weekly_try: "今週は「睡眠前リチュアル」を作ってみませんか。入浴後に、ラベンダーオイルで手首を優しくマッサージし、好きな本を数ページ読む時間を作りましょう。この習慣は副交感神経を優位にし、深いリラックスと質の高い睡眠へと導いてくれます。"
+  },
+  
+  // 🏃‍♂️ Fitness: 運動・トレーニング専門
+  fitness: {
+    persona: "フィットネスコーチ",
+    todays_try: "HRV+12ms、気温22℃でコンディション理想ですね。今日は普段より5分長いウォーキングにチャレンジしませんか？体が求めている新しい刺激を与えてあげましょう。",
+    weekly_try: "今週は「モーニングストレッチ」を日課にしてみませんか。起床後5分間、太陽の光を浴びながら全身をゆっくりと伸ばすことで、一日のエネルギーが活性化されます。この習慣は、日中の運動パフォーマンスを向上させ、よりアクティブな生活へと導いてくれるでしょう。"
+  },
+  
+  // 🍃 Chill: ストレス管理・リラックス専門
+  chill: {
+    persona: "リラクゼーションスペシャリスト",
+    todays_try: "今日は気圧が下がっていて、体が重く感じるかもしれません。温かいジンジャーティーで体を内側から温めて、気圧変化に負けない体作りをしませんか？",
+    weekly_try: "今週は「夜のオイルマッサージ」を取り入れてみませんか。温めたセサミオイルで足裏を優しくマッサージすることは、ヴァータの乱れによる思考の巡りすぎや不安を鎮め、深い眠りへと誘います。これまでの実践で得た知識と、ご自身の体質への理解を両輪に、これからもエネルギッシュで穏やかな毎日を創造していってください。"
+  }
 }
 ```
 
-### C. Conflict Resolution Logic
+### C. 関心分野シンセシス・ロジック (Multi-Focus Synthesis)
+
+6つの関心分野から複数選択された場合のシナジー提案システム：
 
 ```typescript
-const resolveTagConflicts = (tags: FocusTag[], energyLevel: number): string => {
-  // BIOLOGICAL SAFETY ALWAYS WINS
-  if (energyLevel < 20) {
-    return "Energy critically low. All activities should prioritize recovery.";
+const synthesizeFocusAreas = (selectedTags: FocusTag[], energyLevel: number): TryAdvice => {
+  // エネルギー状態による優先度調整
+  if (energyLevel < 30) {
+    return prioritizeRecoveryFocusAreas(selectedTags); // Sleep, Chill優先
   }
   
-  // Example: Work + Beauty conflict
-  if (tags.includes('Work') && tags.includes('Beauty') && energyLevel < 50) {
-    return "Your skin needs the recovery more than work needs the extra hour. Early rest wins tonight.";
+  // 複数分野のシナジー例
+  if (selectedTags.includes('sleep') && selectedTags.includes('beauty')) {
+    return {
+      todays_try: "睡眠×美容のゴールデンタイム。22時からのナイトルーチンで、美肌と深い睡眠を同時に手に入れませんか？",
+      weekly_try: "今週は「美容睡眠週間」として、成長ホルモン分泌ピーク（22-02時）を最大活用する生活リズムを試してみましょう。"
+    };
   }
   
-  return "Multiple focuses detected. Prioritizing based on your current energy state.";
+  if (selectedTags.includes('work') && selectedTags.includes('fitness')) {
+    return {
+      todays_try: "脳と体の両方が活性化中。15分の散歩ミーティング（電話会議）で、運動と仕事を同時に効率化しませんか？",
+      weekly_try: "今週は「アクティブワーク」として、スタンディングデスクや歩きながらの思考時間を取り入れて、座りっぱなしを解消しましょう。"
+    };
+  }
+  
+  return generateBalancedAdvice(selectedTags, energyLevel);
 };
 ```
 

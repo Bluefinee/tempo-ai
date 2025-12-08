@@ -15,15 +15,16 @@
 
 ### 1. Overview
 
-Phase 2 introduces "Focus Tags," allowing users to customize the AI's advice engine.
-Crucially, **users can select MULTIPLE tags**. The system must handle conflicting or overlapping advice intelligently.
-We also introduce a "Chill / Relax" concept (formerly Sauna) as a subtle, omnipresent support feature rather than a dominant mode.
+Phase 2 introduces advanced **"6 Focus Areas Hyper-Personalization"** system, building on Phase 1.5's specialist AI foundation.
+**Users select MULTIPLE areas** from 6 specialized domains. The system intelligently synthesizes advice and introduces **"Today's Try + Weekly Try"** features for continuous discovery and growth.
 
-### 2. Focus Tags Architecture (Enhanced Psychology)
+**Major Design Change**: Eliminated lifestyle modes (Standard/Athlete) - focus areas now drive all personalization.
 
-#### A. Tag Definitions with Psychological Profiles
+### 2. 6 Focus Areas Hyper-Specialization (拡張された関心分野システム)
 
-Users can toggle these On/Off in Settings/Onboarding. Each tag functions as a "lens" that reinterprets the same data through different psychological and physiological priorities.
+#### A. 専門分野定義とTry機能統合
+
+ユーザーは6つの専門分野から複数選択可能。各分野は独立したAIスペシャリストとして機能し、「今日のトライ」「今週のトライ」で継続的な成長体験を提供：
 
 1.  **🧠 Deep Focus (Work):**
 

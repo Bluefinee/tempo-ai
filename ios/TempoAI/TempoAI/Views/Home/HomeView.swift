@@ -67,6 +67,7 @@ struct HomeView: View {
                 }
             }
         }
+        .background(Color(.systemBackground))
         .task {
             await refreshData()
         }

@@ -34,6 +34,9 @@ enum ColorPalette {
     /// Gray 300 for placeholders
     static let gray300: Color = Color(red: 0.557, green: 0.557, blue: 0.576)
 
+    /// Gray 200 for light borders
+    static let gray200: Color = Color(red: 0.68, green: 0.68, blue: 0.698)
+
     /// Gray 100 for light backgrounds
     static let gray100: Color = Color(red: 0.78, green: 0.78, blue: 0.8)
 

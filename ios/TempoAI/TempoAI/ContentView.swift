@@ -161,18 +161,19 @@ struct SettingsView: View {
             .background(ColorPalette.gray50)
             .navigationBarHidden(true)
         }
-        .sheet(isPresented: $showingProfileSettings) {
-            ProfileSettingsView()
-        }
-        .sheet(isPresented: $showingAISettings) {
-            AIAnalysisSettingsView()
-        }
-        .sheet(isPresented: $showingDataPermissions) {
-            DataPermissionsView()
-        }
-        .sheet(isPresented: $showingPrivacySettings) {
-            PrivacySettingsView()
-        }
+        // TODO: Settings views will be implemented in future phases
+        // .sheet(isPresented: $showingProfileSettings) {
+        //     ProfileSettingsView()
+        // }
+        // .sheet(isPresented: $showingAISettings) {
+        //     AIAnalysisSettingsView()
+        // }
+        // .sheet(isPresented: $showingDataPermissions) {
+        //     DataPermissionsView()
+        // }
+        // .sheet(isPresented: $showingPrivacySettings) {
+        //     PrivacySettingsView()
+        // }
     }
 
     private var aiSettingsSubtitle: String {

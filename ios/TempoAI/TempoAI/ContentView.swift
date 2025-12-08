@@ -67,42 +67,77 @@ struct PlaceholderView: View {
 }
 
 struct SettingsView: View {
-    @ObservedObject private var userProfileManager = UserProfileManager.shared
     @ObservedObject private var focusTagManager = FocusTagManager.shared
 
     var body: some View {
         NavigationStack {
-            List {
-                Section("ユーザー設定") {
-                    UserModeRow(userMode: userProfileManager.currentMode) {
-                        // TODO: Present mode selection sheet/view
-                        // For now, just update to next mode for testing
-                        let nextMode: UserMode = userProfileManager.currentMode == .standard ? .athlete : .standard
-                        userProfileManager.updateMode(nextMode)
+            VStack(spacing: Spacing.xl) {
+                Spacer()
+                
+                // Coming Soon Message
+                VStack(spacing: Spacing.lg) {
+                    Image(systemName: "gearshape.fill")
+                        .font(.system(size: 64, weight: .light))
+                        .foregroundColor(ColorPalette.primaryAccent)
+                    
+                    VStack(spacing: Spacing.md) {
+                        Text("設定機能準備中")
+                            .font(.system(size: 28, weight: .light))
+                            .foregroundColor(ColorPalette.richBlack)
+                        
+                        Text("Phase 1.5以降で実装予定\n\n現在は6つの関心分野選択で\nパーソナライズをお楽しみください")
+                            .font(.system(size: 16, weight: .regular))
+                            .foregroundColor(ColorPalette.gray600)
+                            .multilineTextAlignment(.center)
+                            .lineSpacing(2)
                     }
-                }
-
-                Section("関心タグ") {
-                    ForEach(FocusTag.allCases, id: \.self) { tag in
-                        FocusTagRow(
-                            tag: tag,
-                            isSelected: focusTagManager.activeTags.contains(tag)
-                        ) {
-                            focusTagManager.toggleTag(tag)
+                    
+                    // Show current focus areas
+                    if !focusTagManager.activeTags.isEmpty {
+                        VStack(spacing: Spacing.sm) {
+                            Text("選択済み関心分野")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(ColorPalette.gray500)
+                            
+                            HStack(spacing: Spacing.sm) {
+                                ForEach(Array(focusTagManager.activeTags), id: \.self) { tag in
+                                    Text(tag.displayName)
+                                        .font(.system(size: 12, weight: .medium))
+                                        .foregroundColor(tag.themeColor)
+                                        .padding(.horizontal, Spacing.sm)
+                                        .padding(.vertical, Spacing.xs)
+                                        .background(
+                                            RoundedRectangle(cornerRadius: CornerRadius.sm)
+                                                .fill(tag.themeColor.opacity(0.1))
+                                        )
+                                }
+                            }
                         }
+                        .padding(.top, Spacing.lg)
                     }
                 }
-
+                
+                Spacer()
+                
                 #if DEBUG
-                    Section("開発者ツール") {
+                    // Developer Tools (Debug only)
+                    VStack {
                         Button("オンボーディングリセット") {
                             resetOnboarding()
                         }
+                        .font(.system(size: 14, weight: .medium))
                         .foregroundColor(ColorPalette.error)
+                        .padding()
+                        .background(
+                            RoundedRectangle(cornerRadius: CornerRadius.md)
+                                .fill(ColorPalette.error.opacity(0.1))
+                        )
                     }
                 #endif
             }
-            .navigationTitle("Settings")
+            .padding(Spacing.lg)
+            .background(ColorPalette.pureWhite)
+            .navigationBarHidden(true)
         }
     }
 
@@ -114,67 +149,6 @@ struct SettingsView: View {
             exit(0)
         }
     #endif
-}
-
-struct UserModeRow: View {
-    let userMode: UserMode
-    let onTap: () -> Void
-
-    var body: some View {
-        HStack {
-            Text("バッテリーモード")
-                .typography(.body)
-
-            Spacer()
-
-            Text(userMode.displayName)
-                .typography(.body)
-                .foregroundColor(ColorPalette.gray600)
-
-            Image(systemName: "chevron.right")
-                .font(.caption)
-                .foregroundColor(ColorPalette.gray400)
-        }
-        .contentShape(Rectangle())
-        .onTapGesture {
-            onTap()
-        }
-    }
-}
-
-struct FocusTagRow: View {
-    let tag: FocusTag
-    let isSelected: Bool
-    let onToggle: () -> Void
-
-    var body: some View {
-        HStack {
-            Text(tag.emoji)
-                .font(.title2)
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text(tag.displayName)
-                    .typography(.body)
-
-                Text(tag.description)
-                    .typography(.caption)
-                    .foregroundColor(ColorPalette.gray500)
-            }
-
-            Spacer()
-
-            Toggle(
-                "",
-                isOn: .init(
-                    get: { isSelected },
-                    set: { _ in onToggle() }
-                ))
-        }
-        .contentShape(Rectangle())
-        .onTapGesture {
-            onToggle()
-        }
-    }
 }
 
 #Preview {

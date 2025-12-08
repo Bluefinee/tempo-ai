@@ -133,10 +133,11 @@ struct CompletionPage: View {
                         .typography(.hero)
                         .foregroundColor(ColorPalette.richBlack)
 
-                    Text("あなた専用のHuman Batteryが準備できました。\nさっそく今日のエネルギー状態をチェックしてみましょう。")
+                    Text("あなたのコンディション分析の\n準備が整いました。\n\nさっそく今日のヘルスケア状態を\nチェックしてみましょう。")
                         .typography(.body)
                         .foregroundColor(ColorPalette.gray600)
                         .multilineTextAlignment(.center)
+                        .lineSpacing(2)
                         .padding(.horizontal, Spacing.md)
                 }
             }
@@ -160,13 +161,13 @@ struct CompletionPage: View {
 
 #Preview {
     PermissionPage(
-        title: "健康データへのアクセス",
-        subtitle: "バッテリー計算に必要なデータの取得を許可してください",
+        title: "ヘルスケアデータへのアクセス",
+        subtitle: "ヘルスケア状態分析に必要なデータの取得を許可してください",
         icon: "heart.text.square",
         iconColor: ColorPalette.error,
         items: [
             PermissionItem(icon: "heart", title: "心拍数", description: "ストレスレベル計算のため"),
-            PermissionItem(icon: "bed.double", title: "睡眠データ", description: "朝のバッテリー充電量計算のため"),
+            PermissionItem(icon: "bed.double", title: "睡眠データ", description: "回復状態や睡眠の質を分析するため"),
         ],
         isGranted: Binding.constant(false),
         onNext: { print("Next") },

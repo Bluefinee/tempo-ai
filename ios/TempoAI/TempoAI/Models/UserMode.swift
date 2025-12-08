@@ -12,12 +12,19 @@ enum UserMode: String, Codable, CaseIterable {
         }
     }
 
-    var description: String {
+    var appealingTitle: String {
+        switch self {
+        case .standard: return "バランスの取れた毎日を"
+        case .athlete: return "日々のパフォーマンスを最大化"
+        }
+    }
+
+    var detailedDescription: String {
         switch self {
         case .standard:
-            return "効率的な日常、メンタルヘルス、疲労回避を重視。バッテリーは「生活するための残り体力」として解釈します。"
+            return "無理なく続けられる健康習慣で、心身のコンディションを整えます。日常生活の質を高めたいあなたへ"
         case .athlete:
-            return "パフォーマンス向上、トレーニング、肉体改造を重視。バッテリーは「トレーニングの燃料」として解釈します。"
+            return "仕事、トレーニング、あらゆる場面で最高のコンディションを。戦略的なリカバリーで、持続的な高パフォーマンスを実現したいあなたへ"
         }
     }
 }

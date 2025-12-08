@@ -41,7 +41,7 @@ class AIAnalysisService: ObservableObject {
     init(apiClient: APIClient) {
         self.apiClient = apiClient
     }
-    
+
     convenience init() {
         self.init(apiClient: APIClient())
     }
@@ -70,13 +70,14 @@ class AIAnalysisService: ObservableObject {
             currentAdvice = response
             return response
         } catch {
+            print("⚠️ AI分析リクエストエラー: \(error.localizedDescription)")
             return createFallbackAdvice(for: battery)
         }
     }
 
     private func createFallbackAdvice(for battery: HumanBattery) -> AnalysisResponse {
         let headline = AdviceHeadlineResponse(
-            title: battery.state == .high ? "エネルギー充分" : "バッテリー低下",
+            title: battery.state == .high ? "エネルギー充分" : "エネルギー不足",
             subtitle: battery.state == .high ? "今日は積極的に活動できます" : "休息を取ることをお勧めします",
             impactLevel: battery.state == .critical ? "high" : "medium"
         )
@@ -92,6 +93,7 @@ class AIAnalysisService: ObservableObject {
 
 @MainActor
 class APIClient {
+    // TODO: 実API統合時に使用予定
     private let baseURL = URL(string: "https://your-backend-url.com")!
 
     func requestAnalysis(_ request: AnalysisRequest) async throws -> AnalysisResponse {

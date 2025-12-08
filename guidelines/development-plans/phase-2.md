@@ -15,32 +15,37 @@
 
 ### 1. Overview
 
-Phase 2 introduces "Focus Tags," allowing users to customize the AI's advice engine.
-Crucially, **users can select MULTIPLE tags**. The system must handle conflicting or overlapping advice intelligently.
-We also introduce a "Chill / Relax" concept (formerly Sauna) as a subtle, omnipresent support feature rather than a dominant mode.
+Phase 2 introduces advanced **"6 Focus Areas Hyper-Personalization"** system, building on Phase 1.5's specialist AI foundation.
+**Users select MULTIPLE areas** from 6 specialized domains. The system intelligently synthesizes advice and introduces **"Today's Try + Weekly Try"** features for continuous discovery and growth.
 
-### 2. Focus Tags Architecture (Enhanced Psychology)
+**Major Design Change**: Eliminated lifestyle modes (Standard/Athlete) - focus areas now drive all personalization.
 
-#### A. Tag Definitions with Psychological Profiles
+### 2. 6 Focus Areas Hyper-Specialization (拡張された関心分野システム)
 
-Users can toggle these On/Off in Settings/Onboarding. Each tag functions as a "lens" that reinterprets the same data through different psychological and physiological priorities.
+#### A. 専門分野定義とTry機能統合
 
-1.  **🧠 Deep Focus (Work):** 
+ユーザーは6つの専門分野から複数選択可能。各分野は独立したAIスペシャリストとして機能し、「今日のトライ」「今週のトライ」で継続的な成長体験を提供：
+
+1.  **🧠 Deep Focus (Work):**
+
     - **Psychological Profile:** High-performing professional seeking cognitive optimization
     - **Data Priority:** REM sleep (memory consolidation), pressure trends (brain fog prediction), HRV (stress-focus correlation)
     - **Analysis Logic:** "Analyze `sleepRem` and `pressureTrend`. If REM < 60min OR pressure drops > 5hPa: warn about brain fog risk. Suggest completing critical tasks before cognitive decline."
 
 2.  **✨ Beauty & Skin:**
-    - **Psychological Profile:** Health-conscious individual prioritizing appearance and longevity  
+
+    - **Psychological Profile:** Health-conscious individual prioritizing appearance and longevity
     - **Data Priority:** Deep sleep (growth hormone), humidity (skin barrier), UV index (photoaging protection)
     - **Analysis Logic:** "Analyze `sleepDeep` and `humidity`. If deep sleep < 40min OR humidity < 40%: warn about skin barrier disruption. Emphasize growth hormone window (10PM-2AM)."
 
 3.  **🥗 Diet & Metabolism:**
+
     - **Psychological Profile:** Nutrition-focused individual optimizing metabolic health
     - **Data Priority:** Active calories (energy balance), meal timing (circadian rhythm), blood sugar proxies
     - **Analysis Logic:** "Focus on energy expenditure vs intake balance. Suggest meal timing based on activity patterns and metabolic windows."
 
 4.  **🍃 Chill / Relax:**
+
     - **Psychological Profile:** Stress-management focused, values mental peace and autonomic balance
     - **Data Priority:** HRV (autonomic nervous system), stress spikes, recovery metrics
     - **Analysis Logic:** "Monitor sympathetic nervous system activation. Suggest specific relaxation techniques (cold shower, warm bath, breathing) based on stress patterns."
@@ -54,16 +59,16 @@ Users can toggle these On/Off in Settings/Onboarding. Each tag functions as a "l
 
 The AI must intelligently synthesize multiple tag perspectives into coherent, non-conflicting advice.
 
-```typescript
+````typescript
 interface TagSynthesisStrategy {
   // Priority Matrix (Biological Safety First)
   conflictResolution: {
-    batteryLevel_0_20: "Override all tags - rest is mandatory";
-    batteryLevel_21_40: "Gentle activities only, focus on recovery tags (Chill, Beauty)";  
-    batteryLevel_41_70: "Balanced approach, respect all active tags equally";
-    batteryLevel_71_100: "High energy allows pursuit of demanding tags (Work, Athlete)";
+    energyLevel_0_20: "Override all tags - rest is mandatory";
+    energyLevel_21_40: "Gentle activities only, focus on recovery tags (Chill, Beauty)";
+    energyLevel_41_70: "Balanced approach, respect all active tags equally";
+    energyLevel_71_100: "High energy allows pursuit of demanding tags (Work, Athlete)";
   };
-  
+
   // Synthesis Examples
   common_combinations: {
     "Work + Beauty": "Optimize for both cognitive performance AND skin health. Early sleep benefits both brain recovery and growth hormone release.";
@@ -84,24 +89,24 @@ interface ChillTriggerLogic {
   stress_patterns: {
     "HRV drop > 15ms suddenly": "Acute stress detected. 30-second breathing exercise available.";
     "RHR elevated > 10bpm for 2+ hours": "Sympathetic overdrive. Consider 5-minute reset break.";
-    "Battery drain rate > 20%/hour": "Energy hemorrhaging detected. Micro-recovery suggested.";
+    "Energy drain rate > 20%/hour": "Energy hemorrhaging detected. Micro-recovery suggested.";
   };
-  
+
   environmental_triggers: {
     "Pressure drop + Work tag active": "Double stress factor. Brain needs extra support today.";
     "High humidity + Beauty tag": "Skin stress + heat stress. Cooling break recommended.";
     "Low pressure + any tag": "Weather sensitivity detected. Extra gentleness today.";
   };
-  
-  // Contextual Timing  
+
+  // Contextual Timing
   timing_awareness: {
     "Morning (6-10 AM)": "Gentle activation suggestions (warm shower, light stretch)";
-    "Midday (10 AM-3 PM)": "Stress prevention (breathing breaks, hydration reminders)";  
+    "Midday (10 AM-3 PM)": "Stress prevention (breathing breaks, hydration reminders)";
     "Evening (3-8 PM)": "Transition support (decompression, preparation for rest)";
     "Night (8 PM+)": "Nervous system downshift (cool shower, meditation, warmth)";
   };
 }
-```
+````
 
 #### B. Integration Strategy (Not a Mode, But a Lens)
 
@@ -113,59 +118,95 @@ interface ChillTriggerLogic {
 
 ```javascript
 // Chill Tag + Work Tag Synthesis
-if (tags.includes('Chill') && tags.includes('Work') && hrvDrop > 10) {
+if (tags.includes("Chill") && tags.includes("Work") && hrvDrop > 10) {
   return {
     headline: "Stress Before Focus",
-    message: "Your nervous system needs 2 minutes of reset before peak cognitive performance is possible.",
-    suggestion: "Try the 4-7-8 breathing technique, then tackle your priority task."
+    message:
+      "Your nervous system needs 2 minutes of reset before peak cognitive performance is possible.",
+    suggestion:
+      "Try the 4-7-8 breathing technique, then tackle your priority task.",
   };
 }
 
-// Chill Tag + Athlete Tag Synthesis  
-if (tags.includes('Chill') && tags.includes('Athlete') && batteryLevel < 40) {
+// Chill Tag + Athlete Tag Synthesis
+if (tags.includes("Chill") && tags.includes("Athlete") && energyLevel < 40) {
   return {
-    headline: "Recovery IS Training", 
-    message: "Elite athletes know: adaptation happens during rest, not just work.",
-    suggestion: "Today's training: perfect your recovery routine."
+    headline: "Recovery IS Training",
+    message:
+      "Elite athletes know: adaptation happens during rest, not just work.",
+    suggestion: "Today's training: perfect your recovery routine.",
   };
 }
 ```
 
-### 4. Tag Experience Framework (Psychological Persona Implementation)
+### 4. Lifestyle Mode + Tag Matrix Experience Framework
 
-Each tag transforms the app's "personality" and interpretation focus, creating distinct user experiences from the same underlying data.
+**CRITICAL INSIGHT**: ユーザーが指摘した通り、ライフスタイルモードと Focus Tag の組み合わせで、AI のプロンプト、出力情報、体験全体を根本的に変える必要があります。
+
+Each combination creates a unique AI personality that fundamentally changes how data is interpreted and advice is delivered.
 
 #### A. Tag-Specific Experience Design
 
 ```typescript
-interface TagExperienceProfile {
-  Work: {
-    persona: "Elite Executive Assistant";
-    battery_interpretation: "Remaining focus hours before cognitive decline";
-    primary_warnings: ["Brain fog risk", "Attention fragmentation", "Decision fatigue"];
-    success_metrics: ["Sustained attention", "Mental clarity", "Cognitive reserves"];
-    messaging_tone: "Professional, predictive, strategic";
-  };
-  
-  Beauty: {
-    persona: "Expert Aesthetician & Wellness Coach";  
-    battery_interpretation: "Skin vitality and cellular repair capacity";
-    primary_warnings: ["Skin barrier compromise", "Hydration deficit", "Stress aging"];
-    success_metrics: ["Glowing skin", "Cellular renewal", "Stress-free radiance"];
-    messaging_tone: "Nurturing, sophisticated, science-backed";
-  };
-  
-  Athlete: {
-    persona: "Elite Sports Science Coach";
-    battery_interpretation: "Training capacity and recovery readiness"; 
-    primary_warnings: ["Overtraining risk", "Performance plateau", "Injury vulnerability"];
-    success_metrics: ["Peak performance", "Optimal recovery", "Adaptation gains"];
-    messaging_tone: "Disciplined, motivating, performance-focused";
-  };
-  
+interface LifestyleModeMatrix {
+  // STANDARD MODE COMBINATIONS
+  standard_work: {
+    persona: "優しい生産性パートナー";
+    energy_interpretation: "今日の集中力と持続可能なペース";
+    data_focus: ["stress_management", "sustainable_productivity", "work_life_balance"];
+    warning_style: "労わり型・提案型";
+    example_message: "お疲れ気味ですね。今日は重要なタスクを午前中に終わらせて、午後はリラックスしませんか？";
+    success_metrics: ["持続可能な集中", "ストレス管理", "ワークライフバランス"];
+  },
+
+  // ATHLETE MODE COMBINATIONS
+  athlete_work: {
+    persona: "コグニティブパフォーマンスコーチ";
+    energy_interpretation: "認知リソースとピークパフォーマンスの残り時間";
+    data_focus: ["cognitive_optimization", "peak_performance_windows", "mental_recovery_efficiency"];
+    warning_style: "戦略的・データ駆動";
+    example_message: "HRVがベースライン+12ms。認知パフォーマンスが最適化されています。重要なプロジェクトは今日の10-12時がベストです。";
+    success_metrics: ["ピークパフォーマンス", "認知効率", "メンタルリカバリー"];
+  },
+
+  standard_beauty: {
+    persona: "優しい美容・ウェルネスサポーター";
+    energy_interpretation: "お肌の健康と自然な美しさ";
+    data_focus: ["gentle_skincare", "natural_beauty_habits", "stress_free_glow"];
+    warning_style: "労わり型・提案型";
+    example_message: "今日は少し乾燥していますね。お肌のために、いつもより水分を多めに取ってみませんか？";
+    success_metrics: ["自然な輝き", "ストレスフリーな美しさ", "持続可能なケア習慣"];
+  },
+
+  athlete_beauty: {
+    persona: "パフォーマンス美容スペシャリスト";
+    energy_interpretation: "リカバリー駆動美容最適化";
+    data_focus: ["recovery_driven_beauty", "cellular_repair_optimization", "performance_beauty_synergy"];
+    warning_style: "科学的根拠・効率重視";
+    example_message: "成長ホルモンのピーク(22-02時)を最大化するため、今夜は21:30にベッドルーチンを開始しましょう。細胞修復効率が20%向上します。";
+    success_metrics: ["最適美容リカバリー", "パフォーマンス連動美容", "データドリブンケア"];
+  },
+
+  standard_diet: {
+    persona: "日常食事サポーター";
+    energy_interpretation: "食事でのエネルギー管理と体調維持";
+    data_focus: ["meal_timing_optimization", "gentle_metabolism_support", "sustainable_nutrition"];
+    warning_style: "優しい指導・無理のない改善";
+    example_message: "今日は活動量が多めでしたね。疑労回復のために、夕食にタンパク質を少し多めに取ってみませんか？";
+    success_metrics: ["バランスの取れた食事", "持続可能な習慣", "体調管理"];
+  },
+
+  athlete_performance_integrated: {
+    persona: "エリートパフォーマンスコーチ";
+    energy_interpretation: "トレーニングキャパシティとリカバリー準備状態";
+    data_focus: ["training_readiness", "recovery_optimization", "performance_periodization"];
+    warning_style: "戦略的・データベース";
+    example_message: "HRVトレンド: +15ms(頇調な適応反応)、心拍変動性: 最適。今日は高強度トレーニングに最適なコンディションです。";
+    success_metrics: ["ピークパフォーマンス", "最適リカバリー", "適応利得"];
+
   Chill: {
     persona: "Mindfulness & Nervous System Expert";
-    battery_interpretation: "Autonomic balance and stress resilience";
+    energy_interpretation: "Autonomic balance and stress resilience";
     primary_warnings: ["Sympathetic overdrive", "Burnout trajectory", "Nervous system fatigue"];
     success_metrics: ["Calm alertness", "Stress resilience", "Inner peace"];
     messaging_tone: "Gentle, wise, deeply understanding";
@@ -184,19 +225,68 @@ interface MultiTagPersona {
     synthesis_message: "Peak performance and radiant health are symbiotic - one enhances the other.";
     conflict_resolution: "When energy is limited, choose the option that serves both goals (quality sleep, stress management).";
   };
-  
+
   "Work + Athlete": {
     unified_identity: "Elite Performance Optimizer";
     synthesis_message: "Mental and physical performance follow the same principles: strategic stress and strategic recovery.";
     conflict_resolution: "Prioritize recovery quality over recovery quantity - both brain and body need similar rest patterns.";
   };
-  
-  "Beauty + Chill": { 
+
+  "Beauty + Chill": {
     unified_identity: "Holistic Wellness Sage";
     synthesis_message: "True beauty emerges from nervous system balance - stress disrupts both appearance and inner peace.";
     conflict_resolution: "Stress management techniques that also benefit skin (hydration, sleep, gentle movement).";
   };
 }
+```
+
+### 4. 月曜週次分析システム (Monday Weekly Try System)
+
+**Phase 2の核心機能**: 深い習慣改善のための温かい週次提案システム
+
+```typescript
+interface MondayWeeklyAnalysis {
+  // 月曜朝の特別なAI分析
+  monday_morning_system: {
+    trigger: "every_monday_08:00_jst",
+    data_scope: "past_7_days_trend_analysis",
+    processing: "claude_api_deep_reflection",
+    
+    analysis_components: {
+      health_patterns: "週間の睡眠・活動・ストレスパターン分析",
+      environmental_correlation: "天候・気圧変化との相関性",
+      focus_area_progress: "選択した関心分野での成長度合い",
+      trial_feedback: "前週のトライ体験の効果分析"
+    },
+    
+    output_requirements: {
+      tone: "温かく個人的、励ましベース",
+      length: "300-500文字（詳細で心のこもった文章）",
+      personalization: "ユーザー名を含む親密な語りかけ",
+      cultural_wisdom: "アーユルヴェーダ等の伝統的知恵の統合",
+      actionable_content: "1週間継続可能な具体的習慣提案"
+    }
+  }
+}
+
+// 実装例：Chill + Beauty 選択ユーザーへの月曜提案
+const weeklyTryExample = `
+おはようございます、[ユーザー名]様。
+
+先週は仕事でお忙しい中、しっかりと睡眠時間を確保されていましたね。
+特に木曜日以降の睡眠の質が向上していたのが印象的でした。
+
+今週は「夜のオイルマッサージ」を取り入れてみませんか。
+温めたセサミオイルで足裏を優しくマッサージすることは、
+ヴァータの乱れによる思考の巡りすぎや不安を鎮め、深い眠りへと誘います。
+
+また、仕事でストレスを感じたり、イライラしそうになった時には、
+数回ゆっくりと深呼吸をする習慣をつけましょう。
+これは過剰になったピッタの火を鎮め、冷静さを取り戻すための簡単な瞑想法です。
+
+これまでの実践で得た知識と、ご自身の体質への理解を両輪に、
+これからも[ユーザー名]様らしい、エネルギッシュで穏やかな毎日を創造していってください。
+`;
 ```
 
 ### 5. UI Updates: Smart Suggestions & Detail Personalization
@@ -225,29 +315,41 @@ Customize the `DetailView` content based on active tags.
 
 ```typescript
 class EnhancedPromptBuilder {
-  
   buildAnalysisPrompt(context: AIAnalysisRequest): string {
     const basePersona = this.getBasePersona(context.userContext.mode);
     const tagPersonas = this.getTagPersonas(context.userContext.activeTags);
-    const conflictResolution = this.getConflictResolution(context.userContext.activeTags, context.batteryLevel);
-    const dataFocus = this.getDataFocusInstructions(context.userContext.activeTags);
-    
+    const conflictResolution = this.getConflictResolution(
+      context.userContext.activeTags,
+      context.energyLevel
+    );
+    const dataFocus = this.getDataFocusInstructions(
+      context.userContext.activeTags
+    );
+
     return `
 ${basePersona}
 
 ACTIVE TAG LENSES:
-${tagPersonas.map(persona => `- ${persona.name}: ${persona.instructions}`).join('\n')}
+${tagPersonas
+  .map((persona) => `- ${persona.name}: ${persona.instructions}`)
+  .join("\n")}
 
 CONFLICT RESOLUTION STRATEGY:
 ${conflictResolution}
 
 DATA ANALYSIS PRIORITIES:
-${dataFocus.map(focus => `- ${focus.tag}: Focus on ${focus.metrics.join(', ')}`).join('\n')}
+${dataFocus
+  .map((focus) => `- ${focus.tag}: Focus on ${focus.metrics.join(", ")}`)
+  .join("\n")}
 
 CURRENT CONTEXT:
-- Battery Level: ${context.batteryLevel}% (${this.getBatteryState(context.batteryLevel)})
+- Energy Level: ${context.energyLevel}% (${this.getEnergyState(
+      context.energyLevel
+    )})
 - Time of Day: ${context.userContext.timeOfDay}
-- Environmental Factors: ${this.formatEnvironmentalContext(context.environmentalContext)}
+- Environmental Factors: ${this.formatEnvironmentalContext(
+      context.environmentalContext
+    )}
 - Biological State: ${this.formatBiologicalContext(context.biologicalContext)}
 
 RESPONSE REQUIREMENTS:
@@ -259,34 +361,41 @@ RESPONSE REQUIREMENTS:
 6. Use the unified persona voice for multi-tag scenarios
     `;
   }
-  
+
   private getTagPersonas(tags: FocusTag[]): TagPersona[] {
     const personaMap = {
-      'Work': {
+      Work: {
         name: "Executive Assistant",
-        instructions: "Analyze cognitive capacity, predict brain fog, optimize mental performance windows"
+        instructions:
+          "Analyze cognitive capacity, predict brain fog, optimize mental performance windows",
       },
-      'Beauty': {
-        name: "Aesthetician Coach", 
-        instructions: "Monitor skin health factors, growth hormone optimization, stress-aging prevention"
+      Beauty: {
+        name: "Aesthetician Coach",
+        instructions:
+          "Monitor skin health factors, growth hormone optimization, stress-aging prevention",
       },
-      'Athlete': {
+      Athlete: {
         name: "Sports Science Coach",
-        instructions: "Assess training readiness, monitor recovery metrics, prevent overtraining"
+        instructions:
+          "Assess training readiness, monitor recovery metrics, prevent overtraining",
       },
-      'Chill': {
+      Chill: {
         name: "Nervous System Expert",
-        instructions: "Monitor autonomic balance, suggest stress interventions, promote nervous system recovery"
-      }
+        instructions:
+          "Monitor autonomic balance, suggest stress interventions, promote nervous system recovery",
+      },
     };
-    
-    return tags.map(tag => personaMap[tag]).filter(Boolean);
+
+    return tags.map((tag) => personaMap[tag]).filter(Boolean);
   }
-  
+
   private getConflictResolution(tags: FocusTag[], battery: number): string {
-    if (battery < 20) return "OVERRIDE ALL TAGS: Rest is mandatory for biological safety.";
-    if (battery < 40) return "GENTLE APPROACH: Favor recovery-oriented tags (Beauty, Chill) over demanding ones (Work, Athlete).";
-    if (tags.length > 2) return "HOLISTIC SYNTHESIS: Find recommendations that serve multiple goals simultaneously.";
+    if (battery < 20)
+      return "OVERRIDE ALL TAGS: Rest is mandatory for biological safety.";
+    if (battery < 40)
+      return "GENTLE APPROACH: Favor recovery-oriented tags (Beauty, Chill) over demanding ones (Work, Athlete).";
+    if (tags.length > 2)
+      return "HOLISTIC SYNTHESIS: Find recommendations that serve multiple goals simultaneously.";
     return "BALANCED APPROACH: Respect all active tag perspectives equally.";
   }
 }
@@ -299,32 +408,32 @@ interface EnhancedAIResponse extends AIAnalysisResponse {
   // Enhanced tag insights with persona-specific messaging
   tagInsights: Array<{
     tag: FocusTag;
-    persona: string;              // "Executive Assistant", "Aesthetician Coach", etc.
-    icon: string;                 // SF Symbol name
-    message: string;              // Tag-specific insight
-    urgency: 'info' | 'warning' | 'critical';
-    confidence: number;           // 0-1, AI confidence in this insight
+    persona: string; // "Executive Assistant", "Aesthetician Coach", etc.
+    icon: string; // SF Symbol name
+    message: string; // Tag-specific insight
+    urgency: "info" | "warning" | "critical";
+    confidence: number; // 0-1, AI confidence in this insight
     actionItems: Array<{
       title: string;
       description: string;
-      estimatedTime: string;     // "2 minutes", "Tonight before bed"
-      difficulty: 'trivial' | 'easy' | 'moderate';
+      estimatedTime: string; // "2 minutes", "Tonight before bed"
+      difficulty: "trivial" | "easy" | "moderate";
     }>;
   }>;
-  
+
   // Multi-tag synthesis when applicable
   synthesis?: {
-    unifiedPersona: string;       // "High-Performance Wellness Expert"
-    integrationMessage: string;   // How tags work together
+    unifiedPersona: string; // "High-Performance Wellness Expert"
+    integrationMessage: string; // How tags work together
     priorityRecommendation: string; // Single most important action
   };
-  
+
   // Enhanced environmental correlations
   environmentalInsights: Array<{
-    factor: 'pressure' | 'humidity' | 'temperature' | 'uv';
-    impact: string;               // How this affects the user today
-    recommendation: string;       // Specific mitigation strategy
-    confidence: number;           // How certain AI is about this correlation
+    factor: "pressure" | "humidity" | "temperature" | "uv";
+    impact: string; // How this affects the user today
+    recommendation: string; // Specific mitigation strategy
+    confidence: number; // How certain AI is about this correlation
   }>;
 }
 ```
@@ -333,44 +442,55 @@ interface EnhancedAIResponse extends AIAnalysisResponse {
 
 ```typescript
 class TagAnalysisEngine {
-  
-  analyzeWorkTag(biologicalData: BiologicalContext, environmentalData: EnvironmentalContext): TagInsight {
+  analyzeWorkTag(
+    biologicalData: BiologicalContext,
+    environmentalData: EnvironmentalContext
+  ): TagInsight {
     let insights = [];
-    
+
     // REM Sleep Analysis
     if (biologicalData.sleepRem < 60) {
       insights.push({
-        type: 'warning',
-        message: 'Memory consolidation was incomplete last night. Expect reduced learning capacity after 2 PM.',
-        actionItem: 'Schedule important decisions for this morning while REM recovery is still active.'
+        type: "warning",
+        message:
+          "Memory consolidation was incomplete last night. Expect reduced learning capacity after 2 PM.",
+        actionItem:
+          "Schedule important decisions for this morning while REM recovery is still active.",
       });
     }
-    
-    // Pressure Drop Analysis  
+
+    // Pressure Drop Analysis
     if (environmentalData.pressureTrend < -5) {
       insights.push({
-        type: 'warning', 
-        message: 'Barometric pressure dropped significantly. Brain fog and headaches likely by evening.',
-        actionItem: 'Front-load cognitively demanding tasks. Prepare pain management strategy for later.'
+        type: "warning",
+        message:
+          "Barometric pressure dropped significantly. Brain fog and headaches likely by evening.",
+        actionItem:
+          "Front-load cognitively demanding tasks. Prepare pain management strategy for later.",
       });
     }
-    
+
     // HRV-Focus Correlation
     if (biologicalData.hrvStatus < -10) {
       insights.push({
-        type: 'critical',
-        message: 'Stress levels are impacting cognitive resources. Focus will be fragmented today.',
-        actionItem: 'Use time-boxing (25min focus blocks) instead of expecting sustained attention.'
+        type: "critical",
+        message:
+          "Stress levels are impacting cognitive resources. Focus will be fragmented today.",
+        actionItem:
+          "Use time-boxing (25min focus blocks) instead of expecting sustained attention.",
       });
     }
-    
+
     return this.synthesizeWorkInsights(insights);
   }
-  
-  analyzeBeautyTag(biologicalData: BiologicalContext, environmentalData: EnvironmentalContext): TagInsight {
+
+  analyzeBeautyTag(
+    biologicalData: BiologicalContext,
+    environmentalData: EnvironmentalContext
+  ): TagInsight {
     // Similar detailed analysis for Beauty factors...
   }
-  
+
   // Additional tag analysis methods...
 }
 ```

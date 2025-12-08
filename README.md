@@ -1,211 +1,355 @@
-# 📱 Tempo AI
+# 🎵 Tempo AI
 
-> あなた専用のヘルスケアアドバイザーが、毎朝最適なアドバイスをお届けします
+> **あなたの「テンポ」に合わせたヘルスケアパートナー**  
+> AIがヘルスケアデータを分析し、体調や生活リズムに最適化されたアドバイスを提供
 
 [![CI](https://github.com/Bluefinee/tempo-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/Bluefinee/tempo-ai/actions/workflows/ci.yml)
 [![Backend CI](https://github.com/Bluefinee/tempo-ai/actions/workflows/backend.yml/badge.svg)](https://github.com/Bluefinee/tempo-ai/actions/workflows/backend.yml)
 [![iOS CI](https://github.com/Bluefinee/tempo-ai/actions/workflows/ios.yml/badge.svg)](https://github.com/Bluefinee/tempo-ai/actions/workflows/ios.yml)
-[![Security](https://github.com/Bluefinee/tempo-ai/actions/workflows/security.yml/badge.svg)](https://github.com/Bluefinee/tempo-ai/actions/workflows/security.yml)
-[![Coverage](https://github.com/Bluefinee/tempo-ai/actions/workflows/coverage.yml/badge.svg)](https://github.com/Bluefinee/tempo-ai/actions/workflows/coverage.yml)
 
-## 🎯 What is Tempo AI?
+---
 
-Tempo AI は HealthKit データ、天気情報、位置情報を統合し、AI があなたの体調と環境に最適化された健康アドバイスを毎日提供するパーソナルヘルスケアアシスタントです。
+## 🎯 **Tempo AIとは**
 
-### 🌟 主な特徴
+Tempo AIは、**あなたの生活リズム（テンポ）**に完全に同期する次世代ヘルスケアアシスタントです。
 
-- **完全パーソナライズ**: 睡眠、心拍変動（HRV）、活動量、天気を総合分析
-- **実行可能なアドバイス**: 食事、運動、水分補給、呼吸法の具体的な提案
-- **天気連動**: 気象条件を考慮した最適化されたアドバイス
-- **多言語対応**: 英語・日本語でのネイティブサポート
-- **プライバシー重視**: HealthKit データはローカル処理、分析時のみサーバー送信
+従来のヘルスケアアプリとは違い、単なる「データ表示」ではなく：
+- **状況を理解**: 睡眠不足？気圧低下？ストレス？複合的要因をAIが分析
+- **専門的アドバイス**: 6つの関心分野それぞれの専門AIが最適化された提案
+- **実行可能な提案**: 「何をすべきか」を明確に、今すぐできることから習慣改善まで
 
-## 🏗️ アーキテクチャ
+---
 
+## 🌟 **主な特徴**
+
+### 🧠 **6つの専門AI分野**
+選択した関心分野に応じて、専門AIアドバイザーが個別最適化されたアドバイスを提供：
+
+- **🧠 Work**: 認知パフォーマンス・集中力最適化コーチ
+- **✨ Beauty**: 美容・スキンケア専門コンシェルジュ  
+- **🥗 Diet**: 食事タイミング・栄養最適化アドバイザー
+- **🍃 Chill**: ストレス管理・リラクゼーション専門家
+- **💤 Sleep**: 睡眠質向上・リカバリー専門アドバイザー
+- **🏃‍♂️ Fitness**: 運動習慣・フィットネス最適化コーチ
+
+### 📊 **包括的データ統合**
+- **ヘルスケアデータ**: 心拍・HRV・睡眠・活動量の詳細分析
+- **環境データ**: 気温・湿度・気圧・大気質・UV指数
+- **生活コンテキスト**: 時間帯・天候・個人設定の総合判断
+
+### 🎨 **プレミアムユーザー体験**
+- **UX心理学原則**: Fitts's Law、Miller's Law等の科学的設計
+- **直感的エネルギー表示**: 一目でわかる体調可視化
+- **美しいインターフェース**: ミニマリストデザインと効果的なカラーアクセント
+
+---
+
+## 🏗️ **技術アーキテクチャ**
+
+### 📱 **iOS アプリケーション**
 ```
-┌─────────────────┐    HTTPS     ┌──────────────────┐    ┌─────────────┐
-│   iOS App       │─────────────▶│ Cloudflare       │───▶│ Claude API  │
-│   (SwiftUI)     │               │ Workers + Hono   │    │ (Anthropic) │
-│                 │               │                  │    └─────────────┘
-│ • HealthKit     │               │ • TypeScript     │           │
-│ • CoreLocation  │               │ • Zod validation │           ▼
-│ • Notifications │               │ • Vitest testing │    ┌─────────────┐
-└─────────────────┘               └──────────────────┘    │ Open-Meteo  │
-                                                          │ Weather API │
-                                                          └─────────────┘
+┌─────────────────────────────┐
+│        Digital Cockpit      │
+│  ┌─────────────────────────┐ │
+│  │   エネルギー可視化        │ │ ← リアルタイム状態表示
+│  └─────────────────────────┘ │
+│  ┌─────────────────────────┐ │
+│  │   AI分析アドバイス        │ │ ← 関心分野別専門提案
+│  └─────────────────────────┘ │
+│  ┌─────────────────────────┐ │
+│  │   今日・今週のトライ      │ │ ← 新体験・習慣改善提案
+│  └─────────────────────────┘ │
+└─────────────────────────────┘
 ```
 
-## 🚀 クイックスタート
+### 🔄 **バックエンド処理**
+```
+┌────────────────┐    HTTPS     ┌─────────────────┐    ┌──────────────┐
+│   iOS クライアント │─────────────▶│ Cloudflare      │───▶│ Claude API   │
+│   (SwiftUI)    │               │ Workers + Hono  │    │ (Anthropic)  │
+│                │               │                 │    └──────────────┘
+│ • HealthKit    │               │ • TypeScript    │           │
+│ • CoreLocation │               │ • スマートキャッシュ │           ▼
+│ • 高品質UX      │               │ • 高速処理       │    ┌──────────────┐
+└────────────────┘               └─────────────────┘    │ Open-Meteo   │
+                                                         │ 気象API      │
+                                                         └──────────────┘
+```
 
-### 必要な環境
+### 🤖 **AI処理パイプライン**
+```
+ヘルスケアデータ + 環境コンテキスト + 関心分野設定
+                        ↓
+              関心分野別専門AI分析 (朝・週次)
+                        ↓
+                Claude API 高度解析
+                        ↓
+        温かく個人的なアドバイス + 今日・今週のトライ
+                        ↓
+              ローカル軽量分析 (リアルタイム反応)
+```
 
-- **iOS 開発**: Xcode 15+, macOS Sonoma 14+, iPhone 実機
-- **Backend 開発**: Node.js 20+, pnpm 9+
-- **API キー**: Claude API キー (Anthropic)
+---
 
-### 1. リポジトリのクローン
+## 🔬 **技術革新**
 
+### 🎯 **3段階AI分析システム**
+**コスト効率と体験価値の最適バランス**
+
+- **🌅 朝の詳細分析** (1日1回): 包括的AI解析 + 今日のトライ提案
+- **⚡ リアルタイム軽量** (アプリ起動時): ローカル処理での即座反応
+- **📅 月曜週次分析** (週1回): 深い習慣改善の温かい提案
+
+### 🧠 **関心分野特化システム**
+6つの専門分野から複数選択し、それぞれ独立したAIスペシャリストが作動：
+- 単一分野: 深い専門性でのアドバイス
+- 複数分野: シナジー効果を考慮した統合提案
+
+### 📊 **ハイブリッド処理方式**
+- **ローカル処理**: エネルギー計算、即座のUI更新、軽量分析
+- **クラウド処理**: 複雑な相関分析、AI生成アドバイス、環境データ統合
+- **スマートキャッシュ**: 効率的なデータ再利用と高速レスポンス
+
+### 🎨 **UX心理学設計**
+- **Aesthetic-Usability Effect**: 美しいデザインによる使いやすさ向上
+- **Fitts's Law**: 最適なボタン配置とタップエリア設計
+- **Miller's Law**: 情報量の最適化（7±2原則）
+- **Progressive Disclosure**: 段階的な複雑性の開示
+
+---
+
+## 🚀 **開発環境セットアップ**
+
+### 📋 **必要な環境**
+- **iOS開発**: Xcode 15+、macOS Sonoma 14+、iPhone実機推奨
+- **バックエンド開発**: Node.js 20+、pnpm 9+
+- **API**: Claude API キー (Anthropic)
+
+### ⚡ **クイックスタート**
 ```bash
-git clone https://github.com/your-username/tempo-ai.git
+# 1. リポジトリクローン
+git clone https://github.com/Bluefinee/tempo-ai.git
 cd tempo-ai
+
+# 2. 環境セットアップ
+./scripts/dev-commands.sh help
+
+# 3. バックエンド設定
+cd backend && cp .dev.vars.example .dev.vars
+# .dev.varsにClaude APIキーを設定
+
+# 4. 開発開始
+./scripts/dev-commands.sh dev-backend    # バックエンド起動
+./scripts/dev-commands.sh build-ios      # iOS ビルド
 ```
 
-### 2. 開発環境セットアップ
-
+### 🔧 **開発コマンド**
 ```bash
-# 全プロジェクトの自動セットアップ
-make setup
+# 全プロジェクト品質チェック
+./scripts/dev-commands.sh test-all
 
-# または個別セットアップ
-cd backend
-pnpm install
-cd ../ios/TempoAI
-open TempoAI.xcodeproj
+# 問題自動修正
+./scripts/dev-commands.sh lint-fix
+
+# iOS個別開発
+cd ios && ./scripts/quality-check.sh
+
+# バックエンド個別開発  
+cd backend && pnpm run dev
 ```
 
-### 3. 環境変数の設定
+---
 
-```bash
-# backend/.dev.vars を作成
-cd backend
-cp .dev.vars.example .dev.vars
-# Claude API キーを設定
-```
-
-### 4. 開発開始
-
-```bash
-# バックエンドAPI開発
-cd backend
-pnpm run dev  # localhost:8787
-
-# iOSアプリ開発
-# Xcode でプロジェクトを開いて実機でビルド
-```
-
-## 📁 プロジェクト構造
+## 📁 **プロジェクト構造**
 
 ```
 tempo-ai/
-├── backend/          # Cloudflare Workers API (TypeScript + Hono)
+├── 📱 ios/TempoAI/              # iOS アプリケーション
+│   ├── TempoAI/
+│   │   ├── Views/               # UI コンポーネント
+│   │   ├── Models/              # データモデル
+│   │   ├── Services/            # HealthKit、AI、天気サービス
+│   │   └── DesignSystem/        # カラー、タイポグラフィ、コンポーネント
+│   └── Tests/                   # iOS テスト
+│
+├── 🚀 backend/                  # Cloudflare Workers API
 │   ├── src/
-│   │   ├── routes/   # API エンドポイント
-│   │   ├── services/ # ビジネスロジック
-│   │   ├── types/    # 型定義
-│   │   └── utils/    # ユーティリティ
-│   └── tests/        # API テスト
-├── ios/              # iOS アプリ (Swift + SwiftUI)
-│   └── TempoAI/
-│       ├── TempoAI/  # アプリソースコード
-│       └── Tests/    # iOS テスト
-├── guidelines/       # 開発ドキュメント
-└── scripts/          # 開発スクリプト
+│   │   ├── routes/              # API エンドポイント
+│   │   ├── services/            # ビジネスロジック
+│   │   ├── ai/                  # Claude統合
+│   │   └── types/               # TypeScript型定義
+│   └── tests/                   # バックエンドテスト
+│
+├── 📚 guidelines/               # 開発ドキュメント
+│   ├── development-plans/       # フェーズ別詳細計画
+│   ├── messaging-guidelines.md  # AIメッセージング指針
+│   └── mode-specific-ai-requirements.md
+│
+└── 🛠️ scripts/                 # 開発自動化スクリプト
 ```
 
-## 🔧 開発コマンド
+---
 
-### 基本コマンド
+## 🔐 **セキュリティ・プライバシー**
 
+### 🛡️ **データ保護**
+- **ヘルスケアデータ**: 端末内処理、分析時のみ暗号化送信
+- **位置情報**: 市町村レベルのみ、個人特定不可
+- **AI処理**: データ保持なし、処理後即座削除
+- **GDPR準拠**: ユーザーによる完全なデータ制御
+
+### 🔒 **技術セキュリティ**
+- HTTPS/TLS 1.3 全通信暗号化
+- 環境変数によるAPIキー管理
+- 依存関係自動脆弱性スキャン
+- 定期セキュリティ監査
+
+---
+
+## 📊 **現在の実装状況**
+
+### ✅ **完了済み機能**
+- プレミアムオンボーディング（Apple純正権限ダイアログ）
+- 6つの関心分野選択システム
+- エネルギー状態可視化（直感的バッテリー風UI）
+- モックAI分析機能
+- 包括的デザインシステム
+
+### 🔄 **開発中機能**
+- 実HealthKitデータ統合
+- Open-Meteo天気API接続
+- Claude AI分析（関心分野別）
+- スマートキャッシュシステム
+
+### 📋 **今後予定**
+- 今日のトライ・今週のトライ機能
+- 複数関心分野のシナジー分析
+- パフォーマンス最適化
+
+---
+
+## 🛠️ **技術スタック**
+
+### 📱 **フロントエンド**
+- **フレームワーク**: SwiftUI (iOS 16.0+)
+- **言語**: Swift 5.9+ (厳密型付け)
+- **アーキテクチャ**: MVVM + Combine
+- **デザイン**: カスタムデザインシステム (8pxグリッド)
+
+### 🚀 **バックエンド**  
+- **ランタイム**: Cloudflare Workers (エッジコンピューティング)
+- **フレームワーク**: Hono.js (TypeScript)
+- **言語**: TypeScript 5.9+ (strict mode)
+- **AI**: Claude API (カスタムプロンプトエンジニアリング)
+
+### 🔗 **外部API統合**
+- **ヘルスデータ**: HealthKit (iOS ネイティブ統合)
+- **環境データ**: Open-Meteo (気象・大気質・UV)
+- **AI分析**: Claude API (関心分野別ペルソナ)
+- **位置情報**: CoreLocation (プライバシー配慮)
+
+---
+
+## 🧪 **テスト・品質管理**
+
+### 🔍 **テスト戦略**
 ```bash
-make setup           # 開発環境の自動セットアップ
-make check           # 全プロジェクトの品質チェック
-make fix             # 全問題の自動修正
-make test            # 全テスト実行
-make ci-full         # CI環境の完全模擬
+# 包括的品質チェック
+./scripts/dev-commands.sh test-all
+
+# iOS 固有テスト
+cd ios && ./scripts/quality-check.sh
+
+# バックエンド固有テスト
+cd backend && pnpm run test
 ```
 
-### バックエンド開発
+### 📊 **品質指標**
+- **バックエンドカバレッジ**: 80%以上維持
+- **iOS テスト**: XCTest + UIテスト
+- **コード品質**: SwiftLint + Biome 厳格ルール
+- **パフォーマンス**: 実機テスト必須
 
-```bash
-cd backend
-pnpm run dev         # 開発サーバー起動
-pnpm run test        # テスト実行
-pnpm run check       # Lint + Format チェック
-pnpm run build       # プロダクションビルド
-pnpm run deploy      # Cloudflare Workers へデプロイ
-```
+---
 
-### iOS 開発
+## 🤝 **開発参加**
 
-```bash
-cd ios
-./scripts/quality-check.sh  # SwiftLint + Format チェック
-# Xcode でテスト実行とビルド
-```
+### 📋 **開発ワークフロー**
+1. **セットアップ**: 上記クイックスタートに従う
+2. **基準確認**: [CLAUDE.md](./CLAUDE.md) と [Swift基準](.claude/swift-coding-standards.md) を熟読
+3. **UX適用**: [UX原則](.claude/ux_concepts.md) に基づく設計
+4. **メッセージング**: [メッセージング指針](guidelines/messaging-guidelines.md) に準拠
 
-## 📊 テストとカバレッジ
+### 🔄 **プルリクエスト手順**
+1. フィーチャーブランチ作成: `git checkout -b feature/改善内容`
+2. プロジェクト基準に従って実装
+3. 包括的テスト実行: `./scripts/dev-commands.sh test-all`
+4. 詳細なPR説明付きで作成
+5. CodeRabbit自動レビューへの対応
 
-- **バックエンドカバレッジ**: 80%以上を維持
-- **テストフレームワーク**: Vitest (Backend), XCTest (iOS)
-- **リアルタイム監視**: GitHub Actions でのカバレッジ報告
+---
 
-## 🔐 セキュリティ
+## 📚 **重要ドキュメント**
 
-- **全通信**: HTTPS (TLS 1.3)
-- **データ保護**: HealthKit データはローカル保存
-- **API キー管理**: 環境変数での適切な管理
-- **依存関係監査**: 自動セキュリティスキャン
+### 📖 **必読資料**
+- **[🏗️ 開発ガイドライン](./CLAUDE.md)** - アーキテクチャ、コーディング基準、プロセス
+- **[🎨 UX設計原則](./.claude/ux_concepts.md)** - 心理学に基づくデザイン原則
+- **[💬 メッセージング指針](./guidelines/messaging-guidelines.md)** - AIペルソナ・コミュニケーション基準
 
-## 📋 API エンドポイント
+### 🗺️ **フェーズ別詳細計画**
+- **[Phase 1.5: AI分析基盤](./guidelines/development-plans/phase-1.5.md)** - 関心分野別AI・タイミング戦略
+- **[Phase 2: 高度個人化](./guidelines/development-plans/phase-2.md)** - 複数分野統合・週次分析
+- **[Phase 3: 最適化](./guidelines/development-plans/phase-3.md)** - パフォーマンス・スケーリング
 
-### 主要 API
+---
 
-- `POST /api/health/analyze` - ヘルスデータ分析とアドバイス生成
-- `GET /api/health/status` - API サービス状態確認
+## 🎉 **最新の成果**
 
-詳細は [技術仕様書](./guidelines/tempo-ai-technical-spec.md) を参照
+### 🔄 **v2.0 オンボーディング改善**
+- UX心理学原則に基づく最適なユーザーフロー設計
+- Googleスタイルのカラーアクセントとプレミアム感
+- Apple純正権限ダイアログの実装
 
-## 🤝 コントリビューション
+### 🧠 **6分野専門化システム**
+- ライフスタイル選択を削除し、関心分野中心の直感的設計
+- 各分野で独立したAIスペシャリストが作動
+- 複数選択でのシナジー効果も考慮
 
-1. Issue を作成して機能追加・バグ修正を提案
-2. フィーチャーブランチを作成 (`git checkout -b feature/amazing-feature`)
-3. [CLAUDE.md](./CLAUDE.md) の開発標準に従って実装
-4. テストを追加・実行 (`make test`)
-5. Pull Request を作成
+### 📋 **開発品質向上**
+- Swift Coding Standards 100%準拠
+- CodeRabbit AI レビュー完全対応
+- ファイル構造最適化（大型ファイル分割）
 
-## 📚 関連ドキュメント
+---
 
-- [📋 技術仕様書](./guidelines/tempo-ai-technical-spec.md) - 実装詳細とアーキテクチャ
-- [📱 プロダクト仕様書](./guidelines/tempo-ai-product-spec.md) - 機能仕様と要件
-- [⚙️ 開発ガイドライン](./CLAUDE.md) - コーディング標準と品質要件
+## 🎯 **将来ビジョン**
 
-## 🌟 主要技術
+Tempo AIは、単なるヘルスケアアプリを超えて、**あなた専用のウェルネス・コンパニオン**となることを目指しています。
 
-- **Frontend**: SwiftUI (iOS 16.0+)
-- **Backend**: Cloudflare Workers + Hono Framework
-- **Language**: TypeScript 5.9+, Swift 5.9+
-- **AI**: Claude API (Anthropic)
-- **Testing**: Vitest, XCTest
-- **Tools**: Biome (Lint/Format), pnpm, Xcode
+6つの専門分野からの精密な分析と、温かく個人的な「今日のトライ」「今週のトライ」提案により、毎日新鮮な発見と継続的な成長を支援します。
 
-## 🐇 Code Rabbit レビュー依頼 From Claude Code
+データを見るだけでなく、**次に何をすべきかが明確にわかる**、真に実用的なヘルスケア体験を実現します。
 
-```md
-下記の流れで code rabbit によるレビューを受け、適切に修正してください。
+---
 
-### 1. レビューの実行
+## 📞 **サポート・コミュニティ**
 
-- CodeRabbit CLI のレビューコマンドを実行してコードレビューを受けること。レビュー指摘内容はそのまま YYYYMMDD-HHMM-code-rabbit-review-results.txt として
-  guidelines/code-rabbit-reviews にアウトプットする。
-  コマンド例：`coderabbit review --plain > guidelines/code-rabbit-reviews/YYYYMMDD-$(date +%H%M)-code-rabbit-review-results.txt 2>&1`
-- **重要**: レビュー処理には 5-10 分程度かかるため、コマンドの完了まで待機すること
+### 🐛 **問題報告**
+- GitHub Issues でバグ報告・機能要求
+- デバイスモデル、iOS バージョン、再現手順を含めてください
 
-### 2. レビュー結果の処理
+### 💡 **機能提案**
+- 既存フェーズ計画を確認してから提案
+- ユーザー価値と技術実現性を重視
 
-レビュー結果が返却されたら、以下の手順で対応すること:
+---
 
-- 結果を分析し、詳細な修正計画を策定
-- 修正計画は、先ほどアウトプットした YYYYMMDD-HHMM-code-rabbit-review-results.txt をもとに、チェックリスト形式で guidelines/code-rabbit-reviews
-  ディレクトリ に Markdown ファイルで詳細にまとめる
-- 計画的かつ適切な順序で修正を実施
+## 📄 **ライセンス**
 
-### 3. 修正方針
+このプロジェクトは MIT ライセンスの下でライセンスされています。詳細は [LICENSE](LICENSE) ファイルをご覧ください。
 
-- **基本原則**: 指摘事項は全て修正対象とする
-- **例外**: 明らかに修正不要、または指摘が誤っていると判断できる場合のみ無視可
+---
 
-### 4. レビュー対象の確認
+**❤️ [Claude Code](https://claude.ai/code) で構築**
 
-- `.coderabbit.yaml`の設定を確認し、レビュー対象から除外されているファイルを把握すること
-- 除外設定を理解した上で、適切なファイルのみレビューを依頼すること
-```
+*最終更新: 2025年12月 | バージョン: 2.0 (6分野専門化・オンボーディング改善)*

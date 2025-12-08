@@ -44,13 +44,10 @@ export const createBiologicalContext = (healthData: HealthData): AIAnalysisReque
  */
 export const createEnvironmentalContext = (
   currentWeather: WeatherData,
-  previousWeather?: WeatherData,
 ): AIAnalysisRequest['environmentalContext'] => {
   // 気圧変化の計算（前回データがある場合）
   let pressureTrend = 0
-  if (previousWeather && currentWeather.current.surface_pressure && previousWeather.current.surface_pressure) {
-    pressureTrend = currentWeather.current.surface_pressure - previousWeather.current.surface_pressure
-  }
+  // TODO: Open-Meteo APIから気圧データを取得して計算
 
   return {
     pressureTrend,
@@ -124,11 +121,10 @@ export const createAIAnalysisRequest = (
   activeTags: FocusTagType[],
   userMode: 'standard' | 'athlete' = 'standard',
   language: 'ja' | 'en' = 'ja',
-  previousWeather?: WeatherData,
   previousEnergy?: number,
 ): AIAnalysisRequest => {
   const biologicalContext = createBiologicalContext(healthData)
-  const environmentalContext = createEnvironmentalContext(weatherData, previousWeather)
+  const environmentalContext = createEnvironmentalContext(weatherData)
   const batteryLevel = calculateEnergyLevel(healthData, environmentalContext)
   const batteryTrend = calculateBatteryTrend(batteryLevel, previousEnergy)
 

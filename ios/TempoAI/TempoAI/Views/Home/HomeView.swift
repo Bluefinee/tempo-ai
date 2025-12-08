@@ -2,6 +2,7 @@ import SwiftUI
 
 struct HomeView: View {
     @StateObject private var batteryEngine: BatteryEngine
+    @StateObject private var hybridAnalysisEngine: HybridAnalysisEngine
     @ObservedObject private var userProfileManager = UserProfileManager.shared
     @ObservedObject private var focusTagManager = FocusTagManager.shared
 
@@ -12,11 +13,25 @@ struct HomeView: View {
     init() {
         let healthService = HealthService()
         let weatherService = WeatherService()
-        _batteryEngine = StateObject(
-            wrappedValue: BatteryEngine(
-                healthService: healthService,
-                weatherService: weatherService
-            ))
+        let batteryEngine = BatteryEngine(
+            healthService: healthService,
+            weatherService: weatherService
+        )
+        
+        _batteryEngine = StateObject(wrappedValue: batteryEngine)
+        
+        // HybridAnalysisEngine初期化
+        let aiService = MockAIAnalysisService()
+        let cacheManager = AnalysisCacheManager()
+        
+        _hybridAnalysisEngine = StateObject(
+            wrappedValue: HybridAnalysisEngine(
+                batteryEngine: batteryEngine,
+                weatherService: weatherService,
+                aiAnalysisService: aiService,
+                cacheManager: cacheManager
+            )
+        )
     }
 
     var body: some View {
@@ -43,6 +58,15 @@ struct HomeView: View {
                                 healthData: healthData,
                                 batteryLevel: batteryEngine.currentBattery.currentLevel
                             )
+                        }
+
+                        // AI分析結果表示（プログレッシブエンハンスメント）
+                        if let aiAnalysis = hybridAnalysisEngine.currentAnalysis?.aiAnalysis {
+                            AIInsightsView(analysis: aiAnalysis)
+                                .padding(.horizontal, Spacing.lg)
+                        } else if hybridAnalysisEngine.isEnhancingWithAI {
+                            AILoadingView()
+                                .padding(.horizontal, Spacing.lg)
                         }
                     }
                     .padding(.vertical, Spacing.lg)
@@ -81,9 +105,13 @@ struct HomeView: View {
         do {
             healthData = try await batteryEngine.getLatestHealthData()
 
+            // 従来のアドバイス生成
             await generateAdvice()
+            
+            // 新しいハイブリッド分析実行
+            await hybridAnalysisEngine.generateAnalysis()
+            
         } catch {
-            // TODO: Replace with proper logging framework
             print("Failed to refresh data: \(error)")
         }
     }

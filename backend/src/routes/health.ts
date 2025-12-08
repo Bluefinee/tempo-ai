@@ -17,6 +17,8 @@ import {
   type ComprehensiveAnalysisRequest,
   claudeAnalysisService,
 } from '../services/claude-analysis'
+import { EnhancedAIAnalysisService } from '../services/enhanced-ai-analysis'
+import { validateAIAnalysisRequest } from '../types/ai-analysis'
 import { performHealthAnalysis } from '../services/health-analysis'
 import type { Bindings } from '../types/bindings'
 import { HealthDataSchema, UserProfileSchema } from '../types/health'
@@ -261,6 +263,49 @@ healthRoutes.post('/ai/quick-analyze', async (c): Promise<Response> => {
       )
     }
 
+    if (statusCode >= 500) {
+      return c.json({ success: false, error: message }, 500)
+    }
+    return c.json({ success: false, error: message }, 400)
+  }
+})
+
+/**
+ * POST /ai/focus-analysis
+ *
+ * 関心分野に特化したAI分析を実行します。
+ * フォーカスタグに基づく専門的な分析と「今日のトライ」提案を生成します。
+ *
+ * @param request - AI分析リクエスト（フォーカスタグ含む）
+ * @returns 関心分野別AI分析結果
+ * @throws {400} リクエストが無効な場合
+ * @throws {500} AI分析エラー
+ */
+healthRoutes.post('/ai/focus-analysis', async (c): Promise<Response> => {
+  try {
+    console.log('Received focus area AI analysis request')
+
+    // リクエストボディ取得と検証
+    const body = await c.req.json()
+    const request = validateAIAnalysisRequest(body)
+
+    // API key取得
+    const apiKey = c.env.ANTHROPIC_API_KEY
+    if (!apiKey) {
+      console.error('ANTHROPIC_API_KEY not found in environment')
+      return CommonErrors.internalError(c, 'API configuration error')
+    }
+
+    // 拡張AI分析実行
+    const enhancedService = new EnhancedAIAnalysisService()
+    const analysis = await enhancedService.generateFocusAreaAnalysis(request, apiKey)
+
+    return sendSuccessResponse(c, analysis)
+  } catch (error) {
+    console.error('Focus area AI analysis error:', error)
+
+    const { message, statusCode } = handleError(error)
+    
     if (statusCode >= 500) {
       return c.json({ success: false, error: message }, 500)
     }

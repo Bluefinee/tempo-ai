@@ -93,14 +93,11 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             | xcpretty --color
 
-      # ビルド成果物をアーティファクトとして保存（テストジョブで使用）
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-artifacts
-          path: |
-            $HOME/Library/Developer/Xcode/DerivedData/TempoAI-*/Build/Products
-          retention-days: 1
+      # ビルド成果確認（デバッグ用）
+      - name: Verify build output
+        run: |
+          echo "Build completed successfully for testing"
+          ls -la ~/Library/Developer/Xcode/DerivedData/TempoAI-*/Build/Products/ || echo "No build products found"
 
   # ===========================================================================
   # Job 3: Unit Tests（Build 成功後に実行）
@@ -108,7 +105,7 @@ jobs:
   test:
     name: 🧪 Unit Tests
     runs-on: macos-14
-    needs: build
+    needs: lint # buildジョブ依存を削除
 
     steps:
       - name: Checkout
@@ -125,14 +122,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-spm-
 
-      # ビルド成果物をダウンロード
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: build-artifacts
-          path: ~/Library/Developer/Xcode/DerivedData
-
-      # テスト実行
+      # テスト実行（独立したビルド・テスト）
       - name: Run unit tests
         run: |
           set -o pipefail
@@ -141,26 +131,6 @@ jobs:
             -scheme ${{ env.SCHEME }} \
             -destination "${{ env.DESTINATION }}" \
             -configuration Debug \
-            -resultBundlePath TestResults.xcresult \
             CODE_SIGNING_ALLOWED=NO \
-            | xcpretty --color --report junit --output test-results.xml
+            | xcpretty --color
 
-      # テスト結果をアーティファクトとして保存
-      - name: Upload test results
-        uses: actions/upload-artifact@v4
-        if: always() # テスト失敗時も実行
-        with:
-          name: test-results
-          path: |
-            test-results.xml
-            TestResults.xcresult
-          retention-days: 7
-
-      # テスト結果サマリーをPRにコメント（オプション）
-      - name: Publish test results
-        uses: EnricoMi/publish-unit-test-result-action/macos@v2
-        if: always()
-        with:
-          files: test-results.xml
-          check_name: "Unit Test Results"
-          comment_mode: "off" # PRへのコメントを無効化（必要に応じてonに）

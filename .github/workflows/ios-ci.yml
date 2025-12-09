@@ -1,0 +1,135 @@
+name: iOS CI
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - "ios/**/*.swift"
+      - "ios/**/*.xc*"
+      - ".github/workflows/ios-ci.yml"
+      - ".swiftlint.yml"
+      - "ios/TempoAI/**"
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - "ios/**/*.swift"
+      - "ios/**/*.xc*"
+      - ".github/workflows/ios-ci.yml"
+      - ".swiftlint.yml"
+      - "ios/TempoAI/**"
+  workflow_dispatch: # 手動実行ボタン
+
+# 同じPRの古いワークフローを自動キャンセル（コスト削減）
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+env:
+  DEVELOPER_DIR: /Applications/Xcode.app/Contents/Developer
+  SCHEME: TempoAI
+  DESTINATION: "platform=iOS Simulator,OS=latest,name=iPhone 15 Pro"
+
+jobs:
+  # ===========================================================================
+  # Job 1: SwiftLint（Ubuntu で実行 - macOS の 1/10 のコスト）
+  # ===========================================================================
+  swiftlint:
+    name: 🧹 SwiftLint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run SwiftLint
+        uses: norio-nomura/action-swiftlint@3.2.1
+        with:
+          args: --strict
+        env:
+          DIFF_BASE: ${{ github.base_ref }}
+
+  # ===========================================================================
+  # Job 2: Build（SwiftLint 成功後に実行）
+  # ===========================================================================
+  build:
+    name: 🔨 Build
+    runs-on: macos-14
+    needs: swiftlint
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show Xcode version
+        run: xcodebuild -version
+
+      - name: List available simulators
+        run: xcrun simctl list devices available
+
+      # Swift Package Manager のキャッシュ
+      - name: Cache SPM
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/Library/Caches/org.swift.swiftpm
+            ~/Library/Developer/Xcode/DerivedData/**/SourcePackages
+          key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-
+
+      # プロジェクトのスキーム一覧を確認
+      - name: List schemes
+        run: xcodebuild -list -project ios/TempoAI/TempoAI.xcodeproj
+
+      # ビルド実行
+      - name: Build for testing
+        run: |
+          set -o pipefail
+          xcodebuild build-for-testing \
+            -project ios/TempoAI/TempoAI.xcodeproj \
+            -scheme ${{ env.SCHEME }} \
+            -destination "${{ env.DESTINATION }}" \
+            -configuration Debug \
+            CODE_SIGNING_ALLOWED=NO \
+            | xcpretty --color
+
+      # ビルド成果確認（デバッグ用）
+      - name: Verify build output
+        run: |
+          echo "Build completed successfully for testing"
+          ls -la ~/Library/Developer/Xcode/DerivedData/TempoAI-*/Build/Products/ || echo "No build products found"
+
+  # ===========================================================================
+  # Job 3: Unit Tests（Build 成功後に実行）
+  # ===========================================================================
+  test:
+    name: 🧪 Unit Tests
+    runs-on: macos-14
+    needs: swiftlint # SwiftLint成功後に実行
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # SPM キャッシュを復元
+      - name: Cache SPM
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/Library/Caches/org.swift.swiftpm
+            ~/Library/Developer/Xcode/DerivedData/**/SourcePackages
+          key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-
+
+      # テスト実行（独立したビルド・テスト）
+      - name: Run unit tests
+        run: |
+          set -o pipefail
+          xcodebuild test \
+            -project ios/TempoAI/TempoAI.xcodeproj \
+            -scheme ${{ env.SCHEME }} \
+            -destination "${{ env.DESTINATION }}" \
+            -configuration Debug \
+            CODE_SIGNING_ALLOWED=NO \
+            | xcpretty --color

@@ -1,0 +1,24 @@
+# =============================================================================
+# Tempo AI - Cloudflare Workers Configuration
+# =============================================================================
+
+name = "tempo-ai-api"
+main = "src/index.ts"
+compatibility_date = "2025-12-09"
+compatibility_flags = ["nodejs_compat"]
+
+# 開発環境
+[vars]
+ENVIRONMENT = "development"
+
+# 本番環境
+[env.production]
+vars = { ENVIRONMENT = "production" }
+
+# ステージング環境
+[env.staging]
+name = "tempo-ai-api-staging"
+vars = { ENVIRONMENT = "staging" }
+
+# Secrets（wrangler secret put で設定）
+# (No secrets currently configured)

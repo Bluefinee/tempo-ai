@@ -48,7 +48,7 @@ class APIClient: ObservableObject {
     static let shared: APIClient = APIClient()
     private let baseURL: String
     private let session: URLSession = URLSession.shared
-    
+
     @Published var isLoading: Bool = false
     @Published var errorMessage: String? = nil
 }
@@ -103,7 +103,7 @@ TempoAI/
 // ✅ Break down large views
 struct HomeView: View {
     @StateObject private var healthManager: HealthKitManager = HealthKitManager()
-    
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -118,7 +118,7 @@ struct HomeView: View {
 // ✅ Extract components to separate files
 struct HeaderSection: View {
     let manager: HealthKitManager
-    
+
     var body: some View { /* ... */ }
 }
 ```
@@ -140,18 +140,18 @@ func analyzeHealth(
 // ✅ Consistent spacing and organization
 class HealthKitManager: ObservableObject {
     // MARK: - Properties
-    
+
     @Published var isAuthorized: Bool = false
     private let healthStore: HKHealthStore = HKHealthStore()
-    
+
     // MARK: - Public Methods
-    
+
     func requestAuthorization() async throws {
         // Implementation
     }
-    
+
     // MARK: - Private Methods
-    
+
     private func setupHealthStore() {
         // Implementation
     }
@@ -159,6 +159,7 @@ class HealthKitManager: ObservableObject {
 ```
 
 ### Import Organization
+
 ```swift
 // ✅ System frameworks first, alphabetical order
 import Combine
@@ -171,13 +172,14 @@ import SwiftUI
 ## 🔒 Error Handling
 
 ### Health-Specific Errors
+
 ```swift
 // ✅ Domain-specific error types
 enum HealthKitError: Error, LocalizedError {
     case notAvailable
     case notAuthorized
     case dataUnavailable
-    
+
     var errorDescription: String? {
         switch self {
         case .notAvailable:
@@ -194,18 +196,19 @@ enum HealthKitError: Error, LocalizedError {
 ## 🧪 Async/Await Patterns
 
 ### Modern Concurrency
+
 ```swift
 // ✅ Use async/await for health data fetching
 func fetchTodayHealthData() async throws -> HealthData {
     guard isAuthorized else {
         throw HealthKitError.notAuthorized
     }
-    
+
     async let sleepData = fetchSleepData()
     async let hrvData = fetchHRVData()
     async let heartRateData = fetchHeartRateData()
     async let activityData = fetchActivityData()
-    
+
     return try await HealthData(
         sleep: sleepData,
         hrv: hrvData,
@@ -218,7 +221,7 @@ func fetchTodayHealthData() async throws -> HealthData {
 @MainActor
 class HealthKitManager: ObservableObject {
     @Published var isLoading: Bool = false
-    
+
     func updateLoadingState(_ loading: Bool) {
         // Guaranteed to run on main thread
         isLoading = loading
@@ -229,6 +232,7 @@ class HealthKitManager: ObservableObject {
 ## 🎨 SwiftUI Best Practices
 
 ### State Management Patterns
+
 ```swift
 // ✅ Choose appropriate property wrappers
 struct HomeView: View {
@@ -240,11 +244,12 @@ struct HomeView: View {
 ```
 
 ### View Composition
+
 ```swift
 // ✅ Compose views with clear data flow
 struct AdviceView: View {
     let advice: DailyAdvice
-    
+
     var body: some View {
         VStack(spacing: 16) {
             ThemeSection(theme: advice.theme, summary: advice.summary)
@@ -259,7 +264,7 @@ struct AdviceCard: View {
     let title: String
     let content: String
     let color: Color
-    
+
     var body: some View {
         // Implementation
     }
@@ -269,6 +274,7 @@ struct AdviceCard: View {
 ## 📊 Performance Optimization
 
 ### Lazy Properties
+
 ```swift
 // ✅ Expensive computations
 private lazy var dateFormatter: DateFormatter = {
@@ -280,6 +286,7 @@ private lazy var dateFormatter: DateFormatter = {
 ```
 
 ### Efficient Data Handling
+
 ```swift
 // ✅ Choose appropriate collection types
 private var healthDataCache: [String: HealthData] = [:]    // Fast lookups
@@ -290,12 +297,13 @@ private var permissionStatus: Set<HKObjectType> = []       // Unique items
 ## 📚 Documentation
 
 ### Function Documentation
+
 ```swift
 /// Fetches comprehensive health data for the current day
-/// 
+///
 /// Retrieves sleep, heart rate variability, heart rate, and activity data
 /// from HealthKit, combining them into a unified HealthData structure.
-/// 
+///
 /// - Returns: Complete health data for today
 /// - Throws: `HealthKitError.notAuthorized` if HealthKit access is denied
 /// - Note: Requires HealthKit authorization before calling
@@ -309,7 +317,7 @@ func fetchTodayHealthData() async throws -> HealthData {
 Before committing Swift code:
 
 - [ ] All properties have explicit types declared
-- [ ] Lines are ≤ 120 characters  
+- [ ] Lines are ≤ 120 characters
 - [ ] Files are ≤ 400 lines (extract components if longer)
 - [ ] Imports are sorted alphabetically
 - [ ] No force unwrapping without clear justification
@@ -322,6 +330,7 @@ Before committing Swift code:
 ## 🚫 Anti-Patterns
 
 ### Avoid These Patterns
+
 ```swift
 // ❌ Type inference for properties
 let manager = HealthKitManager()

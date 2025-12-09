@@ -101,7 +101,7 @@ reviews:
     # ===========================================
     # TypeScript テスト
     # ===========================================
-    - path: "backend/tests/**/*.ts"
+    - path: "backend/**/*.test.ts"
       instructions: |
         ## テストレビュー基準
         - Hono testClientの使用確認
@@ -148,10 +148,20 @@ reviews:
     # ===========================================
     # 設定ファイル
     # ===========================================
-    - path: "{package.json,tsconfig.json,wrangler.toml}"
+    - path: "backend/package.json"
       instructions: |
         設定ファイルのベストプラクティス準拠を確認
         - 不要な依存関係がないか
+        - 設定の一貫性
+    - path: "backend/tsconfig.json"
+      instructions: |
+        設定ファイルのベストプラクティス準拠を確認
+        - TypeScript設定の適切性
+        - 設定の一貫性
+    - path: "backend/wrangler.toml"
+      instructions: |
+        設定ファイルのベストプラクティス準拠を確認
+        - Cloudflare Workers設定の適切性
         - 設定の一貫性
 
   # ===========================================

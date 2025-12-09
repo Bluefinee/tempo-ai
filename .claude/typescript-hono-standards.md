@@ -2,27 +2,6 @@
 
 > **Prerequisite**: Read [CLAUDE.md](../CLAUDE.md) TypeScript standards first. This document covers Hono-specific patterns.
 
-## 🏗️ Hono Architecture
-
-### Project Structure
-
-```
-src/
-├── routes/              # API route handlers
-│   ├── health.ts
-│   └── test.ts
-├── services/           # Business logic (external API calls)
-│   ├── ai.ts          # Claude AI integration
-│   └── weather.ts     # Weather API
-├── types/             # Domain-specific types
-│   ├── health.ts
-│   └── advice.ts
-├── utils/             # Pure utility functions
-│   ├── errors.ts
-│   └── prompts.ts
-└── middleware/        # Hono middleware
-```
-
 ### App Initialization
 
 ```typescript

@@ -1,30 +1,29 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
 language: "en-US"
 early_access: false
 enable_free_tier: true
 
-# 知識ベース設定 - プロジェクトから学習
 knowledge_base:
   learnings:
     scope: auto
   issues:
     scope: auto
 
-# チャット設定
 chat:
   auto_reply: true
 
-# レビュー設定
 reviews:
-  profile: "assertive" # 詳細なレビューのため
-  request_changes_workflow: true # 品質基準を満たさない場合は変更要求
+  profile: "assertive"
+  request_changes_workflow: true
   high_level_summary: true
-  poem: false # プロフェッショナル環境のため
+  poem: false
   review_status: true
-  collapse_walkthrough: false # 詳細な説明を展開表示
+  collapse_walkthrough: false
+  assess_linked_issues: true
 
   auto_review:
     enabled: true
-    drafts: false # ドラフトPRはレビューしない
+    drafts: false
     ignore_title_keywords:
       - WIP
       - DRAFT
@@ -33,9 +32,8 @@ reviews:
       - main
       - develop
 
-  # パスフィルター - レビュー対象外
   path_filters:
-    # ビルド・依存関係ファイル
+    # ビルド成果物・依存関係
     - "!node_modules/**"
     - "!.wrangler/**"
     - "!dist/**"
@@ -51,25 +49,13 @@ reviews:
     - "!*.xcodeproj/xcuserdata/**"
     - "!DerivedData/**"
 
-    # ドキュメント・設定ファイル（レビュー不要）
-    - "!**/*.md"
-    - "!**/*.txt"
-    - "!**/*.rst"
+    # ライセンス・変更履歴
     - "!LICENSE*"
     - "!CHANGELOG*"
     - "!AUTHORS*"
     - "!CONTRIBUTORS*"
 
-    # 設定・メタファイル
-    - "!.gitignore"
-    - "!.gitattributes"
-    - "!.editorconfig"
-    - "!.prettierrc*"
-    - "!.eslintrc*"
-    - "!*.log"
-    - "!*.env*"
-
-    # アセット・メディアファイル
+    # 画像・メディア
     - "!**/*.png"
     - "!**/*.jpg"
     - "!**/*.jpeg"
@@ -78,118 +64,134 @@ reviews:
     - "!**/*.ico"
     - "!**/*.pdf"
 
-    # データファイル
-    - "!**/*.json"
-    - "!**/*.xml"
-    - "!**/*.plist"
-    - "!**/*.csv"
-    - "!**/*.yaml"
-    - "!**/*.yml"
+    # テストフィクスチャ・スナップショット
+    - "!**/fixtures/**"
+    - "!**/mocks/**"
+    - "!**/__snapshots__/**"
 
-  # パス別レビュー指示 - 既存指示ファイルを参照
   path_instructions:
-    # TypeScript/Hono API レビュー
+    # ===========================================
+    # TypeScript/Hono バックエンド
+    # ===========================================
     - path: "backend/src/**/*.ts"
       instructions: |
-        ## 参照基準文書
-        レビュー時は以下のプロジェクト基準文書を厳密に適用してください：
+        ## レビュー基準
 
-        **必読文書:**
-        - **CLAUDE.md** - プロジェクト全体の開発ガイドライン、アーキテクチャ原則（SOLID）、品質基準
-        - **.claude/typescript-hono-standards.md** - TypeScript + Hono固有のパターン、ベストプラクティス
+        ### 1. 型安全性
+        - **any型は絶対禁止** → unknown型を使用
+        - 全関数で明示的なreturn型を宣言
+        - const優先、letは再代入が必要な場合のみ
 
-        ## 重要チェックポイント
+        ### 2. クリーンアップ（重要）
+        - **未使用import**: 使われていないimport文を指摘し削除を要求
+        - **未使用変数・関数**: 定義されているが参照されていないものを特定
+        - **未使用type/interface**: 定義されているが使用されていない型を検出
+        - **到達不可能コード**: return後のコード等を特定
+        - **デッドコード**: コメントアウトされたコードは削除を要求
 
-        ### 型安全性（CLAUDE.md準拠）
-        - **NEVER use `any` type** - any型を発見したら厳しく指摘、unknown型を推奨
-        - **明示的return型** - 全関数でreturn型宣言を確認
-        - **const over let** - 不要なlet宣言を指摘
+        ### 3. Honoパターン
+        - 型付きコンテキスト: `new Hono<{ Bindings: Bindings }>()`
+        - routes/にビジネスロジックを書かない（Service層へ分離）
+        - レスポンス形式: `{ success: boolean, data?: T, error?: string }`
 
-        ### 未使用コード・デッドファイル検出
-        - **未使用import**: 使われていないimport文を厳しく指摘
-        - **未使用変数・関数**: 定義されているが参照されていない変数・関数を特定
-        - **デッドファイル**: プロジェクト内で参照されていないファイルを報告
-        - **未使用型定義**: 定義されているが使用されていないtype/interfaceを検出
-        - **到達不可能コード**: 実行されることのないコードブロックを特定
+        ### 4. エラーハンドリング
+        - try-catchで適切にエラーを捕捉
+        - エラーメッセージは具体的に
 
-        ### Hono固有パターン（typescript-hono-standards.md準拠）
-        - **型付きコンテキスト**: `new Hono<{ Bindings: Bindings }>()` の使用確認
-        - **環境変数型付け**: `c.env`の型安全なアクセス確認
-        - **Service層分離**: routes/でビジネスロジックを書いていないか確認
-        - **レスポンス形式**: `{ success: boolean, data?: T, error?: string }` 形式確認
-
-        ### プロジェクト構造（typescript-hono-standards.md）
-        ```
-        src/
-        ├── routes/    # Route handlers ONLY
-        ├── services/  # Business logic
-        ├── types/     # Type definitions
-        └── utils/     # Utility functions
-        ```
-
-        **違反を発見した場合、該当文書のセクションを引用して指摘してください。**
-
-    # TypeScript テストファイル
+    # ===========================================
+    # TypeScript テスト
+    # ===========================================
     - path: "backend/tests/**/*.ts"
       instructions: |
-        typescript-hono-standards.mdのテストセクションに基づき、Hono testClientの使用、適切なモック設計を確認してください。
+        ## テストレビュー基準
+        - Hono testClientの使用確認
+        - 適切なモック設計
+        - テストケースの網羅性
+        - 未使用のテストヘルパー・モックを指摘
 
+    # ===========================================
     # Swift/iOS アプリケーション
+    # ===========================================
     - path: "ios/**/*.swift"
       instructions: |
-        ## 参照基準文書
-        レビュー時は以下のプロジェクト基準文書を厳密に適用してください：
+        ## レビュー基準
 
-        **必読文書:**
-        - **CLAUDE.md** - プロジェクト全体の開発ガイドライン、アーキテクチャ原則
-        - **.claude/swift-coding-standards.md** - Swift固有の詳細な開発基準
+        ### 1. 基本要件
+        - 明示的型宣言: `var isLoading: Bool = false`
+        - camelCase定数: `let maxRetryCount: Int = 3`
+        - ファイル400行以下（超過時はコンポーネント分割を要求）
 
-        ## 重要チェックポイント（swift-coding-standards.md準拠）
-
-        ### 必須要件
-        - **明示的型宣言**: 全プロパティで型明示（`var isLoading: Bool = false`）
-        - **camelCase定数**: `maxRetryCount: Int = 3`（SCREAMING_SNAKE_CASE禁止）
-        - **ファイル長制限**: 400行以下、超過時はコンポーネント抽出要求
-        - **import組織**: アルファベット順整理確認
-
-        ### 未使用コード・デッドファイル検出
-        - **未使用import**: 使われていないimport文を厳しく指摘
-        - **未使用変数・関数**: 定義されているが参照されていない変数・関数・プロパティを特定
-        - **デッドファイル**: プロジェクト内で参照されていないSwiftファイルを報告
-        - **未使用プロトコル・構造体・クラス**: 定義されているが使用されていない型を検出
-        - **到達不可能コード**: 実行されることのないコードブロック（unreachable after return等）を特定
+        ### 2. クリーンアップ（重要）
+        - **未使用import**: 使われていないimport文を指摘し削除を要求
+        - **未使用変数・関数・プロパティ**: 定義されているが参照されていないものを特定
+        - **未使用protocol/struct/class**: 定義されているが使用されていない型を検出
         - **未使用extension**: プロジェクト内で使用されていないextensionメソッドを検出
+        - **到達不可能コード**: return/throw後のコード等を特定
+        - **デッドコード**: コメントアウトされたコードは削除を要求
 
-        ### SwiftUI（swift-coding-standards.md基準）
-        - **プロパティラッパー選択**: @StateObject（作成・所有）、@ObservedObject（親から受け取り）、@State（ローカルUI状態）の正しい使い分け
-        - **View分解**: 50行超のbodyはコンポーネント抽出
-        - **NavigationStack**: NavigationViewではなくNavigationStackを使用
+        ### 3. SwiftUI
+        - @StateObject: 作成・所有する場合
+        - @ObservedObject: 親から受け取る場合
+        - @State: ローカルUI状態のみ
+        - View body 50行以下（超過時はコンポーネント抽出）
+        - NavigationStack使用（NavigationView非推奨）
 
-        ### 非同期・メモリ管理
-        - **async/await強制**: completion handlerの使用を禁止
-        - **MainActor**: UI更新の@MainActor適用確認
-        - **[weak self]**: [unowned self]ではなく[weak self]を推奨
+        ### 4. 非同期・メモリ管理
+        - async/await必須（completion handler禁止）
+        - UI更新には@MainActor適用
+        - クロージャでは[weak self]使用
 
-        ### HealthKit固有
-        - **可用性チェック**: `HKHealthStore.isHealthDataAvailable()`事前確認
-        - **非同期API**: 全HealthKit操作でasync/await使用
-        - **プライバシー**: ヘルスケアデータの適切な取り扱い確認
+        ### 5. HealthKit
+        - `HKHealthStore.isHealthDataAvailable()`の事前確認
+        - 全HealthKit操作でasync/await使用
 
-        **違反を発見した場合、swift-coding-standards.mdの該当セクションを引用して指摘してください。**
-
-    # 設定・ドキュメントファイル
-    - path: "**/*.md"
+    # ===========================================
+    # 設定ファイル
+    # ===========================================
+    - path: "{package.json,tsconfig.json,wrangler.toml}"
       instructions: |
-        ドキュメントの正確性、CLAUDE.mdとの整合性を確認してください。
+        設定ファイルのベストプラクティス準拠を確認
+        - 不要な依存関係がないか
+        - 設定の一貫性
 
-    - path: "{package.json,tsconfig.json,eslint.config.js,wrangler.toml,.github/**/*.yml}"
-      instructions: |
-        設定ファイルのベストプラクティス準拠、CLAUDE.mdの品質基準との整合性を確認してください。
+  # ===========================================
+  # ツール設定
+  # ===========================================
+  tools:
+    # TypeScript/JavaScript
+    biome:
+      enabled: true
 
-# トーン指示
+    # Swift
+    swiftlint:
+      enabled: true
+
+    # セキュリティ（APIキー漏洩検出）
+    gitleaks:
+      enabled: true
+
+    # シェルスクリプト
+    shellcheck:
+      enabled: true
+
+    # GitHub統合
+    github-checks:
+      enabled: true
+      timeout_ms: 90000
+
+    # AST解析（セキュリティルール）
+    ast-grep:
+      essential_rules: true
+
+# ===========================================
+# トーン設定
+# ===========================================
 tone_instructions: |
   - プロフェッショナルで建設的なレビューを行う
-  - 問題発見時は、CLAUDE.mdや.claude/配下の該当文書セクションを引用
-  - セキュリティ・品質問題は明確に指摘し、具体的改善案を提示
-  - ベストプラクティス違反は理由と共に説明
-  - 未使用コード・デッドファイルはプロダクトクリーン性の観点から積極的に指摘し、削除を推奨
+  - 問題発見時は具体的な改善案を提示
+  - セキュリティ・品質問題は明確に指摘
+
+  ## クリーンアップ重視
+  - 未使用コード（import, 変数, 関数, 型）は必ず指摘し、削除を強く推奨
+  - コメントアウトされたコードは削除を要求
+  - デッドファイル（どこからも参照されていないファイル）を発見した場合は報告

@@ -239,7 +239,9 @@ final class APIClient {
 
     static let shared: APIClient = APIClient()
 
-    private let baseURL: String = "https://tempo-ai.your-worker.workers.dev"
+    private let baseURL: String =
+        ProcessInfo.processInfo.environment["API_BASE_URL"]
+        ?? "https://tempo-ai.YOUR_SUBDOMAIN.workers.dev"
     private let session: URLSession = URLSession.shared
 
     // MARK: - Public Methods
@@ -1001,7 +1003,12 @@ MVP 段階ではシンプルな保護のみ実装：
 // middleware/auth.ts
 
 const API_KEY_HEADER = "X-API-Key";
-const VALID_API_KEY = "tempo-ai-mobile-app-key-v1"; // アプリに埋め込み
+const VALID_API_KEY = "tempo-ai-mobile-app-key-v1"; // MVP開発用デモキー例
+
+// ⚠️ セキュリティ警告: この実装はMVP用です
+// - モバイルアプリに埋め込んだキーはリバースエンジニアリングで必ず漏洩します
+// - 本番運用ではOAuth/OIDC等のユーザー認証や署名付きリクエストに移行が必要です
+// - 現在のキーは識別子・レート制限・ロギング用途のみに使用してください
 
 export const validateApiKey = async (
   c: Context,

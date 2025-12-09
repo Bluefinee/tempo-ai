@@ -42,4 +42,8 @@ export const ApiResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
 export type HealthCheckResponse = z.infer<typeof HealthCheckResponseSchema>;
 export type ApiInfoResponse = z.infer<typeof ApiInfoResponseSchema>;
 export type PlaceholderAdviceResponse = z.infer<typeof PlaceholderAdviceResponseSchema>;
-export type ApiResponse<T> = z.infer<ReturnType<typeof ApiResponseSchema<z.ZodType<T>>>>;
+export type ApiResponse<T> = {
+  success: boolean;
+  data?: T;
+  error?: string;
+};

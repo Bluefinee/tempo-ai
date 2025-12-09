@@ -4,7 +4,7 @@
 
 name = "tempo-ai-api"
 main = "src/index.ts"
-compatibility_date = "2024-12-30"
+compatibility_date = "2025-12-09"
 compatibility_flags = ["nodejs_compat"]
 
 # 開発環境
@@ -13,7 +13,6 @@ ENVIRONMENT = "development"
 
 # 本番環境
 [env.production]
-name = "tempo-ai-api"
 vars = { ENVIRONMENT = "production" }
 
 # ステージング環境
@@ -22,4 +21,4 @@ name = "tempo-ai-api-staging"
 vars = { ENVIRONMENT = "staging" }
 
 # Secrets（wrangler secret put で設定）
-# - ANTHROPIC_API_KEY
+# (No secrets currently configured)

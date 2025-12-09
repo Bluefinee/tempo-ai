@@ -5,8 +5,6 @@ import { cors } from 'hono/cors';
  * Cloudflare Workers environment bindings for Tempo AI backend
  */
 interface Bindings {
-  /** Claude API key for AI-powered health advice generation - reserved for future AI features */
-  ANTHROPIC_API_KEY?: string;
   /** Deployment environment */
   ENVIRONMENT: 'development' | 'production' | 'staging';
 }

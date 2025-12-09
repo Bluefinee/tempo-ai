@@ -124,7 +124,7 @@ export class ClaudeAIAnalysisService {
 
       // JSON Prefill対応：先頭に'{' を追加してJSONを完成
       if (responseText && !responseText.trim().startsWith('{')) {
-        responseText = '{' + responseText
+        responseText = `{${responseText}`
         console.log('🔧 JSON Prefill applied - added opening brace')
       }
 

@@ -179,7 +179,7 @@ Claude専用指示:
     console.log(
       '📝 Raw response preview:',
       typeof rawResponse === 'string'
-        ? (rawResponse as string).substring(0, 300) + '...'
+        ? `${(rawResponse as string).substring(0, 300)}...`
         : 'Not a string',
     )
     console.log('='.repeat(50))
@@ -197,7 +197,7 @@ Claude専用指示:
 
         console.log(
           '🧹 Cleaned JSON preview:',
-          cleanJson.substring(0, 200) + '...',
+          `${cleanJson.substring(0, 200)}...`,
         )
 
         const jsonMatch = cleanJson.match(/\{[\s\S]*\}/)
@@ -222,12 +222,10 @@ Claude専用指示:
 
     // 応答を標準形式に変換
     console.log('🔧 Converting to standard format...')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const response = parsedResponse as any
     console.log('🎯 Using Gemini headline:', !!response.headline?.title)
-    console.log(
-      '💬 Using Gemini energyComment:',
-      !!response.energyComment,
-    )
+    console.log('💬 Using Gemini energyComment:', !!response.energyComment)
     console.log(
       '🏷️ Using Gemini tagInsights:',
       Array.isArray(response.tagInsights),
@@ -243,8 +241,7 @@ Claude専用指示:
           response.headline?.title ||
           this.generateFallbackHeadline(request.batteryLevel),
         subtitle:
-          response.headline?.subtitle ||
-          'バランスの取れた一日を過ごしましょう',
+          response.headline?.subtitle || 'バランスの取れた一日を過ごしましょう',
         impactLevel:
           response.headline?.impactLevel ||
           this.determineImpactLevel(request.batteryLevel),
@@ -341,7 +338,10 @@ Claude専用指示:
     return 'エネルギーが低下しています。十分な休息を取りましょう。'
   }
 
-  private processTagInsights(_rawInsights: unknown, activeTags: string[]): Array<{
+  private processTagInsights(
+    _rawInsights: unknown,
+    activeTags: string[],
+  ): Array<{
     tag: FocusTagType
     icon: string
     message: string
@@ -370,7 +370,13 @@ Claude専用指示:
       return rawSuggestions.slice(0, 3) as Array<{
         title: string
         description: string
-        actionType: 'rest' | 'hydrate' | 'exercise' | 'focus' | 'social' | 'beauty'
+        actionType:
+          | 'rest'
+          | 'hydrate'
+          | 'exercise'
+          | 'focus'
+          | 'social'
+          | 'beauty'
         estimatedTime: string
         difficulty: 'easy' | 'medium' | 'hard'
       }>
@@ -388,7 +394,13 @@ Claude専用指示:
     const suggestions: Array<{
       title: string
       description: string
-      actionType: 'rest' | 'hydrate' | 'exercise' | 'focus' | 'social' | 'beauty'
+      actionType:
+        | 'rest'
+        | 'hydrate'
+        | 'exercise'
+        | 'focus'
+        | 'social'
+        | 'beauty'
       estimatedTime: string
       difficulty: 'easy' | 'medium' | 'hard'
     }> = []

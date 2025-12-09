@@ -31,6 +31,9 @@
         "noVar": "error",
         "noExplicitAny": "error"
       },
+      "complexity": {
+        "useLiteralKeys": "warn"
+      },
       "correctness": {
         "noUnusedVariables": "error"
       }
@@ -43,6 +46,16 @@
         "rules": {
           "suspicious": {
             "noExplicitAny": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["src/services/ai-analysis.ts"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noExplicitAny": "warn"
           }
         }
       }

@@ -105,7 +105,7 @@ jobs:
   test:
     name: 🧪 Unit Tests
     runs-on: macos-14
-    needs: lint # buildジョブ依存を削除
+    needs: swiftlint # SwiftLint成功後に実行
 
     steps:
       - name: Checkout
@@ -133,4 +133,3 @@ jobs:
             -configuration Debug \
             CODE_SIGNING_ALLOWED=NO \
             | xcpretty --color
-

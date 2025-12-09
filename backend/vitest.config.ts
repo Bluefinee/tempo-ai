@@ -11,8 +11,8 @@ export default defineWorkersConfig({
 
     // カバレッジ設定
     coverage: {
-      enabled: true,
-      provider: 'v8',
+      enabled: false, // CI環境で問題が解決するまで一時的に無効化
+      provider: 'c8',
       reporter: ['text', 'json', 'html', 'lcov'],
       reportsDirectory: './coverage',
       include: ['src/**/*.ts'],

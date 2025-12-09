@@ -47,10 +47,6 @@ export class GeminiAIAnalysisService {
         temperature: 0.3,
         topP: 0.8,
         topK: 32,
-        // 思考トークンを制限してレスポンストークンを確保
-        thinkingConfig: {
-          thinkingBudget: 200, // 思考を200トークンに制限してコスト最適化
-        },
       },
     })
 
@@ -96,10 +92,6 @@ export class GeminiAIAnalysisService {
           console.log(
             '  - Prompt tokens:',
             response.usageMetadata?.promptTokenCount || 0,
-          )
-          console.log(
-            '  - Thinking tokens:',
-            response.usageMetadata?.thoughtsTokenCount || 0,
           )
           console.log(
             '  - Total tokens:',

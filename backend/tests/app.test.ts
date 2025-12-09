@@ -71,10 +71,13 @@ describe('Main Application Integration', () => {
         service: 'Tempo AI API',
         version: '1.0.0',
         status: 'healthy',
+        environment: 'test',
         timestamp: expect.any(String),
         endpoints: {
           'POST /api/health/analyze': 'Analyze health data and generate advice',
           'GET /api/health/status': 'Health service status check',
+          'POST /api/health/ai/focus-analysis': 'AI focus area analysis',
+          'GET /api/health/ai/health-check': 'AI service health check',
         },
       })
 

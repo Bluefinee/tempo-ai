@@ -176,6 +176,10 @@ describe('Health Routes', () => {
   beforeEach(() => {
     vi.clearAllMocks()
 
+    // Set up environment variables for tests
+    process.env['CLAUDE_API_KEY'] = 'test-claude-api-key'
+    process.env['GEMINI_API_KEY'] = 'test-gemini-api-key'
+
     // Default successful mocks
     mockGetWeather.mockResolvedValue(mockWeatherData)
     mockGenerateHealthAdvice.mockResolvedValue(mockAdviceResult)
@@ -193,6 +197,7 @@ describe('Health Routes', () => {
           body: JSON.stringify(validRequestBody),
         },
         {
+          CLAUDE_API_KEY: 'test-claude-api-key',
           GEMINI_API_KEY: 'test-api-key',
         },
       )
@@ -213,6 +218,7 @@ describe('Health Routes', () => {
           body: 'invalid json',
         },
         {
+          CLAUDE_API_KEY: 'test-claude-api-key',
           GEMINI_API_KEY: 'test-api-key',
         },
       )
@@ -238,6 +244,7 @@ describe('Health Routes', () => {
           body: JSON.stringify(invalidBody),
         },
         {
+          CLAUDE_API_KEY: 'test-claude-api-key',
           GEMINI_API_KEY: 'test-api-key',
         },
       )
@@ -263,6 +270,7 @@ describe('Health Routes', () => {
           body: JSON.stringify(invalidBody),
         },
         {
+          CLAUDE_API_KEY: 'test-claude-api-key',
           GEMINI_API_KEY: 'test-api-key',
         },
       )
@@ -288,6 +296,7 @@ describe('Health Routes', () => {
           body: JSON.stringify(invalidBody),
         },
         {
+          CLAUDE_API_KEY: 'test-claude-api-key',
           GEMINI_API_KEY: 'test-api-key',
         },
       )
@@ -316,6 +325,7 @@ describe('Health Routes', () => {
           body: JSON.stringify(invalidBody),
         },
         {
+          CLAUDE_API_KEY: 'test-claude-api-key',
           GEMINI_API_KEY: 'test-api-key',
         },
       )
@@ -344,6 +354,7 @@ describe('Health Routes', () => {
           body: JSON.stringify(invalidBody),
         },
         {
+          CLAUDE_API_KEY: 'test-claude-api-key',
           GEMINI_API_KEY: 'test-api-key',
         },
       )
@@ -354,7 +365,7 @@ describe('Health Routes', () => {
       expect(result.error).toContain('Validation failed:')
     })
 
-    it('should return 500 when GEMINI_API_KEY is missing', async () => {
+    it('should return 500 when CLAUDE_API_KEY is missing', async () => {
       const app = healthRoutes
       const response = await app.request(
         '/analyze',
@@ -364,7 +375,8 @@ describe('Health Routes', () => {
           body: JSON.stringify(validRequestBody),
         },
         {
-          // No GEMINI_API_KEY in env
+          // No CLAUDE_API_KEY in env
+          GEMINI_API_KEY: 'test-gemini-api-key',
         },
       )
 
@@ -386,6 +398,7 @@ describe('Health Routes', () => {
           body: JSON.stringify(validRequestBody),
         },
         {
+          CLAUDE_API_KEY: 'test-claude-api-key',
           GEMINI_API_KEY: 'test-api-key',
         },
       )
@@ -412,6 +425,7 @@ describe('Health Routes', () => {
           body: JSON.stringify(validRequestBody),
         },
         {
+          CLAUDE_API_KEY: 'test-claude-api-key',
           GEMINI_API_KEY: 'test-api-key',
         },
       )
@@ -436,6 +450,7 @@ describe('Health Routes', () => {
           body: JSON.stringify(validRequestBody),
         },
         {
+          CLAUDE_API_KEY: 'test-claude-api-key',
           GEMINI_API_KEY: 'test-api-key',
         },
       )
@@ -448,7 +463,7 @@ describe('Health Routes', () => {
         healthData: validRequestBody.healthData,
         weather: mockWeatherData,
         userProfile: validRequestBody.userProfile,
-        apiKey: 'test-api-key',
+        apiKey: 'test-claude-api-key',
       })
     })
 
@@ -470,6 +485,7 @@ describe('Health Routes', () => {
           body: JSON.stringify(edgeCaseBody),
         },
         {
+          CLAUDE_API_KEY: 'test-claude-api-key',
           GEMINI_API_KEY: 'test-api-key',
         },
       )
@@ -495,6 +511,7 @@ describe('Health Routes', () => {
           body: JSON.stringify(extremeBody),
         },
         {
+          CLAUDE_API_KEY: 'test-claude-api-key',
           GEMINI_API_KEY: 'test-api-key',
         },
       )

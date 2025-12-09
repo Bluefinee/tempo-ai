@@ -9,6 +9,7 @@
 import type {
   AIAnalysisRequest,
   AIAnalysisResponse,
+  FocusTagType,
 } from '../types/ai-analysis'
 import { APIError } from '../utils/errors'
 import { ClaudeAIAnalysisService } from './claude-ai-analysis'
@@ -76,7 +77,7 @@ export class AIAnalysisService {
       console.log('🏗️ Response structured and validated')
 
       // 6. 品質検証 (一時的に無効化)
-      // this.validateResponseQuality(structuredResponse)
+      this.validateResponseQuality(structuredResponse)
       console.log('✅ Response quality validation skipped for debugging')
 
       return structuredResponse
@@ -156,8 +157,11 @@ Claude専用指示:
       // 単体分野選択
       const randomIndex = Math.floor(Math.random() * activeTags.length)
       const singleFocus = activeTags[randomIndex]
+      if (!singleFocus) {
+        return ['general'] // フォールバック
+      }
       console.log('🎯 Single focus selected:', singleFocus)
-      return singleFocus
+      return [singleFocus]
     }
   }
 
@@ -218,46 +222,47 @@ Claude専用指示:
 
     // 応答を標準形式に変換
     console.log('🔧 Converting to standard format...')
-    console.log('🎯 Using Gemini headline:', !!parsedResponse.headline?.title)
+    const response = parsedResponse as any
+    console.log('🎯 Using Gemini headline:', !!response.headline?.title)
     console.log(
       '💬 Using Gemini energyComment:',
-      !!parsedResponse.energyComment,
+      !!response.energyComment,
     )
     console.log(
       '🏷️ Using Gemini tagInsights:',
-      Array.isArray(parsedResponse.tagInsights),
+      Array.isArray(response.tagInsights),
     )
     console.log(
       '💡 Using Gemini suggestions:',
-      Array.isArray(parsedResponse.aiActionSuggestions),
+      Array.isArray(response.aiActionSuggestions),
     )
 
     const structuredResponse = {
       headline: {
         title:
-          parsedResponse.headline?.title ||
+          response.headline?.title ||
           this.generateFallbackHeadline(request.batteryLevel),
         subtitle:
-          parsedResponse.headline?.subtitle ||
+          response.headline?.subtitle ||
           'バランスの取れた一日を過ごしましょう',
         impactLevel:
-          parsedResponse.headline?.impactLevel ||
+          response.headline?.impactLevel ||
           this.determineImpactLevel(request.batteryLevel),
-        confidence: parsedResponse.headline?.confidence || 85,
+        confidence: response.headline?.confidence || 85,
       },
       energyComment:
-        parsedResponse.energyComment ||
+        response.energyComment ||
         this.generateEnergyComment(request.batteryLevel),
       tagInsights: this.processTagInsights(
-        parsedResponse.tagInsights,
+        response.tagInsights,
         request.userContext.activeTags,
       ),
       aiActionSuggestions: this.processActionSuggestions(
-        parsedResponse.aiActionSuggestions,
+        response.aiActionSuggestions,
         request,
       ),
       detailAnalysis:
-        parsedResponse.detailAnalysis || this.generateDetailAnalysis(request),
+        response.detailAnalysis || this.generateDetailAnalysis(request),
       dataQuality: {
         healthDataCompleteness: this.calculateDataCompleteness(request),
         weatherDataAge: 15, // デフォルト値
@@ -336,28 +341,57 @@ Claude専用指示:
     return 'エネルギーが低下しています。十分な休息を取りましょう。'
   }
 
-  private processTagInsights(_rawInsights: unknown, activeTags: string[]): unknown[] {
+  private processTagInsights(_rawInsights: unknown, activeTags: string[]): Array<{
+    tag: FocusTagType
+    icon: string
+    message: string
+    urgency: 'info' | 'warning' | 'critical'
+  }> {
     // TODO: タグ別インサイトの処理
     return activeTags.map((tag) => ({
-      tag,
+      tag: tag as FocusTagType,
       icon: this.getTagIcon(tag),
       message: '関心分野に基づく分析結果です',
-      urgency: 'info',
+      urgency: 'info' as const,
     }))
   }
 
   private processActionSuggestions(
     rawSuggestions: unknown[],
     request: AIAnalysisRequest,
-  ): unknown[] {
+  ): Array<{
+    title: string
+    description: string
+    actionType: 'rest' | 'hydrate' | 'exercise' | 'focus' | 'social' | 'beauty'
+    estimatedTime: string
+    difficulty: 'easy' | 'medium' | 'hard'
+  }> {
     if (rawSuggestions && Array.isArray(rawSuggestions)) {
-      return rawSuggestions.slice(0, 3) // 最大3つまで
+      return rawSuggestions.slice(0, 3) as Array<{
+        title: string
+        description: string
+        actionType: 'rest' | 'hydrate' | 'exercise' | 'focus' | 'social' | 'beauty'
+        estimatedTime: string
+        difficulty: 'easy' | 'medium' | 'hard'
+      }>
     }
     return this.generateBasicActionSuggestions(request)
   }
 
-  private generateBasicActionSuggestions(request: AIAnalysisRequest): unknown[] {
-    const suggestions = []
+  private generateBasicActionSuggestions(request: AIAnalysisRequest): Array<{
+    title: string
+    description: string
+    actionType: 'rest' | 'hydrate' | 'exercise' | 'focus' | 'social' | 'beauty'
+    estimatedTime: string
+    difficulty: 'easy' | 'medium' | 'hard'
+  }> {
+    const suggestions: Array<{
+      title: string
+      description: string
+      actionType: 'rest' | 'hydrate' | 'exercise' | 'focus' | 'social' | 'beauty'
+      estimatedTime: string
+      difficulty: 'easy' | 'medium' | 'hard'
+    }> = []
 
     if (request.batteryLevel < 50) {
       suggestions.push({

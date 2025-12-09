@@ -1,0 +1,33 @@
+//
+//  Production.xcconfig
+//  TempoAI
+//
+//  Created for Production Environment Configuration
+//
+
+// App Configuration
+PRODUCT_NAME = TempoAI
+PRODUCT_BUNDLE_IDENTIFIER = com.tempoai.app
+
+// Server Configuration
+API_BASE_URL = api.tempo-ai.com
+API_PORT = 443
+API_SCHEME = https
+
+// Info.plist Configuration
+INFOPLIST_FILE = TempoAI/Config/Info-Production.plist
+
+// Code Signing
+CODE_SIGN_IDENTITY = Apple Distribution
+DEVELOPMENT_TEAM = $(DEVELOPMENT_TEAM)
+
+// Build Settings
+SWIFT_ACTIVE_COMPILATION_CONDITIONS = $(inherited) PRODUCTION
+GCC_PREPROCESSOR_DEFINITIONS = $(inherited) PRODUCTION=1
+
+// Deployment
+IPHONEOS_DEPLOYMENT_TARGET = 15.0
+
+// Release Optimizations
+SWIFT_OPTIMIZATION_LEVEL = -O
+GCC_OPTIMIZATION_LEVEL = s

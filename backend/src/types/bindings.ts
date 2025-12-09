@@ -13,5 +13,5 @@
  */
 export type Bindings = {
   /** Anthropic Claude API キー */
-  ANTHROPIC_API_KEY: string
+  CLAUDE_API_KEY: string
 }

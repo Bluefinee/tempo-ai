@@ -89,7 +89,7 @@ struct FocusTagsPage: View {
         .background(ColorPalette.pureWhite)
     }
 
-    private let columns: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: Spacing.md), count: 3)
+    private let columns: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: Spacing.md), count: 2)
 
     private func toggleTag(_ tag: FocusTag) {
         if selectedTags.contains(tag) {
@@ -135,7 +135,7 @@ struct FocusTagCard: View {
                 }
                 .padding(Spacing.lg)
                 .frame(maxWidth: .infinity)
-                .frame(height: 120)
+                .frame(height: 140)
                 .background(
                     isSelected
                         ? LinearGradient(

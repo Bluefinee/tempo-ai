@@ -44,17 +44,23 @@ if (nodeEnv !== 'production') {
 
 // Root endpoint
 app.get('/', (c): Response => {
+  const nodeEnv = process.env['NODE_ENV'] || 'development'
+  const endpoints: Record<string, string> = {
+    'POST /api/health/analyze': 'Analyze health data and generate advice',
+    'GET /api/health/status': 'Health service status check',
+    'POST /api/health/ai/focus-analysis': 'AI focus area analysis',
+    'GET /api/health/ai/health-check': 'AI service health check',
+  }
+
   return c.json({
     success: true,
     data: {
       service: 'Tempo AI API',
       version: '1.0.0',
       status: 'healthy',
+      environment: nodeEnv,
       timestamp: new Date().toISOString(),
-      endpoints: {
-        'POST /api/health/analyze': 'Analyze health data and generate advice',
-        'GET /api/health/status': 'Health service status check',
-      },
+      endpoints,
     },
   })
 })

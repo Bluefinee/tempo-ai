@@ -169,18 +169,32 @@ const generateLocalizedSystemPrompt = (
 - 常に有効なJSON形式で応答してください
 - 要求された構造に正確に一致させてください
 - 全ての推奨事項は具体的で実行可能にしてください
-- ${culturalContext?.formalityLevel === 'casual' ? 'フレンドリーで親しみやすい' : '丁寧で専門的な'}トーンを使用してください
+- ${
+      culturalContext?.formalityLevel === 'casual'
+        ? 'フレンドリーで親しみやすい'
+        : '丁寧で専門的な'
+    }トーンを使用してください
 - 日本の文化と生活様式を考慮してください
-- 食事時間: 朝食${culturalContext?.mealTimes.breakfast || '07:00'}、昼食${culturalContext?.mealTimes.lunch || '12:00'}、夕食${culturalContext?.mealTimes.dinner || '19:00'}を基準にしてください`
+- 食事時間: 朝食${culturalContext?.mealTimes.breakfast || '07:00'}、昼食${
+      culturalContext?.mealTimes.lunch || '12:00'
+    }、夕食${culturalContext?.mealTimes.dinner || '19:00'}を基準にしてください`
   } else {
     return `You are a health advisor that provides personalized daily health advice based on health metrics and weather conditions.
 
 Important instructions:
 - Always respond in valid JSON format exactly matching the requested structure
 - Be specific and actionable in all recommendations
-- Use a ${culturalContext?.formalityLevel === 'formal' ? 'professional and formal' : 'friendly and approachable'} tone
+- Use a ${
+      culturalContext?.formalityLevel === 'formal'
+        ? 'professional and formal'
+        : 'friendly and approachable'
+    } tone
 - Consider Western lifestyle and cultural preferences
-- Base meal recommendations around: breakfast ${culturalContext?.mealTimes.breakfast || '08:00'}, lunch ${culturalContext?.mealTimes.lunch || '12:30'}, dinner ${culturalContext?.mealTimes.dinner || '18:30'}`
+- Base meal recommendations around: breakfast ${
+      culturalContext?.mealTimes.breakfast || '08:00'
+    }, lunch ${culturalContext?.mealTimes.lunch || '12:30'}, dinner ${
+      culturalContext?.mealTimes.dinner || '18:30'
+    }`
   }
 }
 

@@ -1,0 +1,1332 @@
+Starting CodeRabbit review in plain text mode...
+
+Connecting to review service
+Setting up
+Analyzing
+Reviewing
+
+============================================================================
+File: ios/TempoAI/TempoAI/Services/AnalysisCacheManager.swift
+Line: 38 to 63
+Type: nitpick
+
+Comment:
+async/awaitパターンの検討
+
+現在のwithCheckedContinuation + DispatchQueueパターンは動作しますが、Swift Concurrencyのactorを使用することでより簡潔かつ安全な実装が可能です。
+
+NSCacheは既にスレッドセーフであるため、Layer 1アクセスに対する追加の同期は冗長です。
+
+
+Actorパターンへのリファクタリング例:
+actor AnalysisCacheManager: AnalysisCacheManagerProtocol {
+    private let layer1Cache = NSCache()
+    private let layer2Cache = UserDefaults.standard
+    
+    func getCachedAIAnalysis(for staticResult: AnalysisResult) -> AIAnalysisResponse? {
+        return performCacheLookup(for: staticResult)
+    }
+    
+    func cacheAIAnalysis(_ analysis: AIAnalysisResponse, for staticResult: AnalysisResult) {
+        performCacheStorage(analysis, for: staticResult)
+    }
+    // ...
+}
+
+
+
+
+============================================================================
+File: ios/TempoAI/TempoAI/Services/StaticAnalysisEngine.swift
+Line: 33 to 37
+Type: potential_issue
+
+Comment:
+未使用パラメータの検出: previousEnergyLevel
+
+previousEnergyLevelパラメータが宣言されていますが、メソッド内で使用されていません。将来のトレンド分析用であれば、現時点では削除するか、_プレフィックスで未使用を明示してください。
+
+     func analyze(
+         healthData: HealthData,
+-        weatherData: WeatherData?,
+-        previousEnergyLevel: Double? = nil
++        weatherData: WeatherData?
+     ) -> StaticAnalysis {
+
+
+または将来実装予定の場合:
+-        previousEnergyLevel: Double? = nil
++        previousEnergyLevel _: Double? = nil  // TODO: トレンド分析で使用予定
+
+Prompt for AI Agent:
+In ios/TempoAI/TempoAI/Services/StaticAnalysisEngine.swift around lines 33 to 37, the parameter previousEnergyLevel is declared but not used; either remove it if not needed, or mark it as intentionally unused by renaming to _previousEnergyLevel (or reference it with _ = previousEnergyLevel) so the compiler warning is silenced; if you intend to implement trend analysis later, add a TODO comment explaining planned use and keep the underscore form to avoid unused-parameter warnings.
+
+
+
+============================================================================
+File: ios/TempoAI/TempoAI/Services/AnalysisCacheManager.swift
+Line: 17
+Type: potential_issue
+
+Comment:
+未使用変数の検出: staticFallback
+
+staticFallbackが宣言されていますが、どこからも参照されていません。Layer 3のフォールバック機能が未実装であれば、この変数を削除するか、TODOコメントで意図を明示してください。
+
+swift-coding-standards.mdの「未使用変数・関数: 定義されているが参照されていない変数・関数・プロパティを特定」に基づく指摘です。
+
+-    /// Layer 3: 静的フォールバック（永続）
+-    private let staticFallback = StaticAnalysisEngine()
+
+Prompt for AI Agent:
+ios/TempoAI/TempoAI/Services/AnalysisCacheManager.swift around line 17: 宣言されている private let staticFallback = StaticAnalysisEngine() が未使用ですので、未実装のLayer 3フォールバック機能が本当に必要でなければこの行を削除してください。将来的に実装予定で残す場合は、その意図を明確にするTODOコメントを追加して変数を参照する箇所（または使用予定のメソッド）をコメントで指示し、ビルド時の未使用ワーニングを避けたいなら変数を一時的に使うダミー参照を追加せずに削除を優先してください。ビルドとテストを実行して未使用警告が解消されたことを確認してください。
+
+
+
+============================================================================
+File: ios/TempoAI/TempoAI/Services/AnalysisCacheManager.swift
+Line: 27
+Type: potential_issue
+
+Comment:
+未使用定数の検出: similarityThreshold
+
+similarityThresholdが定義されていますが、使用されていません。将来の類似性チェック機能用であれば、TODOコメントを追加するか、実装時まで削除を検討してください。
+
+         static let maxCacheSize: Int = 100           // 最大キャッシュエントリ数
+-        static let similarityThreshold: Double = 0.75 // 類似性閾値
+
+Prompt for AI Agent:
+In ios/TempoAI/TempoAI/Services/AnalysisCacheManager.swift around line 27, the constant similarityThreshold is declared but never used; either remove the unused constant to avoid dead code or retain it with a clear TODO comment explaining its intended future use (e.g., "TODO: used for future similarity checks") and ideally add a unit test or a small usage placeholder if you intend to implement similarity-check logic soon.
+
+
+
+============================================================================
+File: ios/TempoAI/TempoAI/Views/Home/AIInsightsView.swift
+Line: 243 to 246
+Type: nitpick
+
+Comment:
+TODO コメントが残っています。
+
+アクション実行ロジックが未実装です。今後の実装予定がある場合は、Issue/タスクとして追跡することを推奨します。
+
+
+
+実行ロジックの基本実装を生成しましょうか？
+
+
+
+
+============================================================================
+File: ios/TempoAI/TempoAI/Views/Home/AIInsightsView.swift
+Line: 369 to 380
+Type: potential_issue
+
+Comment:
+Timer のメモリリークとロジックエラーがあります。
+
+startLoadingAnimation() の実装に2つの問題があります：
+
+1. ロジックエラー: DispatchQueue.main.asyncAfter が各タイマー tick で呼ばれるため、10秒後に複数回 invalidate() が実行されます
+2. メモリリーク: View が破棄されても Timer が実行し続ける可能性があります
+
+
+
+以下の修正を適用してください：
+
+ struct AILoadingView: View {
+     @State private var animationPhase: Int = 0
++    @State private var loadingTimer: Timer?
+     
+     // ... 省略 ...
+     
+-    private func startLoadingAnimation() {
+-        Timer.scheduledTimer(withTimeInterval: 0.8, repeats: true) { timer in
+-            withAnimation(.easeInOut(duration: 0.5)) {
+-                animationPhase = (animationPhase + 1) % loadingMessages.count
+-            }
+-            
+-            // 10秒後にタイマー停止（タイムアウト対策）
+-            DispatchQueue.main.asyncAfter(deadline: .now() + 10) {
+-                timer.invalidate()
+-            }
+-        }
+-    }
++    private func startLoadingAnimation() {
++        loadingTimer = Timer.scheduledTimer(withTimeInterval: 0.8, repeats: true) { _ in
++            withAnimation(.easeInOut(duration: 0.5)) {
++                animationPhase = (animationPhase + 1) % loadingMessages.count
++            }
++        }
++        
++        // 10秒後にタイマー停止（タイムアウト対策）
++        DispatchQueue.main.asyncAfter(deadline: .now() + 10) { [weak loadingTimer] in
++            loadingTimer?.invalidate()
++        }
++    }
+ }
+
+
+さらに、View の onDisappear で Timer を停止することを推奨します：
+
+.onDisappear {
+    loadingTimer?.invalidate()
+}
+
+Prompt for AI Agent:
+In ios/TempoAI/TempoAI/Views/Home/AIInsightsView.swift around lines 369–380, the timer logic calls DispatchQueue.main.asyncAfter on every tick and creates a potential retain-cycle/memory leak because the Timer closure captures self; fix by storing the Timer in a view property (e.g. loadingTimer), create the repeating Timer once and assign it to that property, schedule a single DispatchQueue.main.asyncAfter that invalidates loadingTimer exactly once (not on every tick), capture self weakly in the timer closure to avoid retain cycles, and ensure you also invalidate loadingTimer in the view's onDisappear to guarantee the timer stops when the view is destroyed.
+
+
+
+============================================================================
+File: backend/src/services/enhanced-ai-analysis.ts
+Line: 38 to 54
+Type: potential_issue
+
+Comment:
+any 型の使用は禁止されています。
+
+コーディングガイドラインに従い、any 型を適切な型に置き換えてください。
+
+
+
+-      const claudeParams: any = {
++      interface ClaudeParams {
++        prompt: string
++        apiKey: string
++        localizationContext: {
++          language: 'ja' | 'en'
++          region: string
++          timeZone: string
++          culturalContext: {
++            formalityLevel: 'casual' | 'formal'
++            mealTimes: {
++              breakfast: string
++              lunch: string
++              dinner: string
++            }
++          }
++        }
++        customFetch?: typeof fetch
++      }
++      
++      const claudeParams: ClaudeParams = {
+         prompt: optimizedPrompt,
+         apiKey,
+         localizationContext: {
+
+
+Based on coding guidelines: "Never use any type in TypeScript - use unknown if type is truly unknown"
+
+
+
+
+============================================================================
+File: backend/src/utils/ai-analysis-adapter.ts
+Line: 155 to 160
+Type: nitpick
+
+Comment:
+let を const に変更し、即時代入パターンを使用してください。
+
+
+
+-  let batteryState: 'low' | 'medium' | 'high' | 'critical'
+-  if (energyLevel < 20) batteryState = 'critical'
+-  else if (energyLevel < 40) batteryState = 'low'
+-  else if (energyLevel < 70) batteryState = 'medium'
+-  else batteryState = 'high'
++  const batteryState: 'low' | 'medium' | 'high' | 'critical' =
++    energyLevel < 20 ? 'critical' :
++    energyLevel < 40 ? 'low' :
++    energyLevel < 70 ? 'medium' : 'high'
+
+
+Based on coding guidelines: "Prefer const over let for immutability by default"
+
+Prompt for AI Agent:
+In backend/src/utils/ai-analysis-adapter.ts around lines 155 to 160, the variable batteryState is declared with let and assigned conditionally; change this to an immutable const and perform immediate assignment using a conditional expression (e.g., a chained ternary or a small helper map/IIFE) so batteryState is set at declaration (const batteryState = energyLevel < 20 ? 'critical' : energyLevel < 40 ? 'low' : energyLevel < 70 ? 'medium' : 'high').
+
+
+
+============================================================================
+File: backend/src/services/enhanced-ai-analysis.ts
+Line: 123
+Type: potential_issue
+
+Comment:
+any 型を適切な型に置き換えてください。
+
+
+
+-    let parsedResponse: any
++    let parsedResponse: Record
+
+
+パース後のレスポンス構造が不明な場合は unknown を使用し、型ガードで安全にアクセスしてください。
+
+Prompt for AI Agent:
+In backend/src/services/enhanced-ai-analysis.ts around line 123, replace the loose "let parsedResponse: any" with a proper type: either declare a specific interface that matches the parsed response shape and use that type, or if the shape is unknown declare "let parsedResponse: unknown" and add a type-guard/validation function before accessing properties; update subsequent code to narrow the type via the guard (e.g., isParsedResponse(obj): obj is ParsedResponse) or runtime checks to safely access fields and handle invalid shapes gracefully.
+
+
+
+============================================================================
+File: backend/src/utils/ai-analysis-adapter.ts
+Line: 149 to 176
+Type: potential_issue
+
+Comment:
+createStaticAnalysis に明示的な戻り値型を追加してください。
+
+コーディングガイドラインに従い、関数には明示的な戻り値型が必要です。
+
+
+
+ export const createStaticAnalysis = (
+   healthData: HealthData,
+   environmentalContext: AIAnalysisRequest['environmentalContext'],
+-) => {
++): {
++  energyLevel: number
++  batteryState: 'low' | 'medium' | 'high' | 'critical'
++  basicMetrics: {
++    sleepScore: number
++    activityScore: number
++    stressScore: number
++  }
++  generatedAt: string
++} => {
+
+
+または、この戻り値型を types/ai-analysis.ts に定義して再利用することを推奨します。
+
+Based on coding guidelines: "Always declare explicit return types for functions in TypeScript"
+
+Prompt for AI Agent:
+In backend/src/utils/ai-analysis-adapter.ts around lines 149 to 176, the createStaticAnalysis function is missing an explicit TypeScript return type; add a concrete return type (either define and export an appropriate interface/type in types/ai-analysis.ts and import it here, or declare the return shape inline) and annotate the function signature with that type, update any necessary imports/exports, and ensure the returned object conforms to the declared type (adjust property names/rounding if needed) so the compiler validates the implementation.
+
+
+
+============================================================================
+File: ios/TempoAI/TempoAI/Views/Home/AIInsightsView.swift
+Line: 82 to 89
+Type: potential_issue
+
+Comment:
+impactLevel の .high と .critical で同じ色が使用されています。
+
+.high と .critical の両方が ColorPalette.error を返しており、ユーザーが重要度の違いを視覚的に区別できません。
+
+
+
+     private var impactLevelColor: Color {
+         switch headline.impactLevel {
+         case .low: return ColorPalette.success
+         case .medium: return ColorPalette.warning
+         case .high: return ColorPalette.error
+-        case .critical: return ColorPalette.error
++        case .critical: return ColorPalette.error.opacity(1.0) // または別の視覚的区別を追加
+         }
+     }
+
+
+もしくは、.critical にはより目立つ色（例：濃い赤や点滅アニメーション）の使用を検討してください。
+
+Prompt for AI Agent:
+In ios/TempoAI/TempoAI/Views/Home/AIInsightsView.swift around lines 82–89, the switch maps both .high and .critical to ColorPalette.error so users can't visually distinguish severity; update the mapping so .critical returns a distinct, more prominent color (e.g., ColorPalette.critical or a darker/contrast red) instead of ColorPalette.error, and if your design system supports it consider adding a stronger accent (bolder color variant or reserved animation hook) for .critical so the UI clearly differentiates highest-severity headlines.
+
+
+
+============================================================================
+File: ios/TempoAI/TempoAI/Models/AIAnalysisModels.swift
+Line: 289 to 319
+Type: nitpick
+
+Comment:
+FocusTag拡張のハードコード値を検討してください
+
+analysisWeightとenvironmentalFactorsの値がハードコードされています。これらの値が将来変更される可能性がある場合、設定ファイルやリモート設定からの読み込みを検討してください。
+
+
+
+現時点では問題ありませんが、A/Bテストや動的調整が必要になった場合に備えて、構造化されたメタデータとして管理することも一案です。
+
+Prompt for AI Agent:
+In ios/TempoAI/TempoAI/Models/AIAnalysisModels.swift around lines 289–319, the FocusTag extension currently hardcodes analysisWeight and environmentalFactors; refactor to load these values from a configurable source (e.g., app bundled JSON/plist or remote config) by replacing the switch-return constants with a lookup that reads a structured metadata mapping for each FocusTag key; implement a lightweight loader that parses the config into a dictionary keyed by FocusTag (with defaults/fallbacks), update the computed properties to return values from that dictionary, and ensure thread-safe caching and graceful fallback to the current hardcoded values if config is missing or malformed.
+
+
+
+============================================================================
+File: ios/TempoAI/TempoAI/Services/HybridAnalysisEngine.swift
+Line: 316 to 327
+Type: nitpick
+
+Comment:
+プロトコル定義を別ファイルに分離することを検討してください
+
+AIAnalysisServiceProtocolとAnalysisCacheManagerProtocolは他のサービス実装（RealAIAnalysisService、MockAIAnalysisService）からも参照されます。Protocols/ディレクトリに分離することで、依存関係が明確になります。
+
+
+
+// ios/TempoAI/TempoAI/Protocols/AIAnalysisProtocols.swift
+protocol AIAnalysisServiceProtocol {
+    func generateAnalysis(from staticResult: AnalysisResult) async throws -> AIAnalysisResponse
+}
+
+protocol AnalysisCacheManagerProtocol {
+    func getCachedAIAnalysis(for staticResult: AnalysisResult) async -> AIAnalysisResponse?
+    func cacheAIAnalysis(_ analysis: AIAnalysisResponse, for staticResult: AnalysisResult) async
+    func clearCache() async
+}
+
+Prompt for AI Agent:
+In ios/TempoAI/TempoAI/Services/HybridAnalysisEngine.swift around lines 316–327, the two protocol definitions (AIAnalysisServiceProtocol and AnalysisCacheManagerProtocol) are declared here but are also referenced by other implementations; move them into a new file ios/TempoAI/TempoAI/Protocols/AIAnalysisProtocols.swift and remove the duplicate declarations from HybridAnalysisEngine.swift. In the new file declare the same protocol signatures (preserve any access modifiers), add required imports (e.g., Foundation) and ensure the new file is added to the target in the Xcode project; finally update any files that referenced the old local declarations to import/use the protocols from the new file (no behavioral changes).
+
+
+
+============================================================================
+File: backend/src/services/enhanced-ai-analysis.ts
+Line: 28 to 29
+Type: potential_issue
+
+Comment:
+analyzeBestTryOpportunity の戻り値が使用されていません。
+
+関数を呼び出していますが、結果を破棄しています。これが意図的な場合は、副作用のみを目的としていることをコメントで明示してください。
+
+
+
+       // 1. 最適な「トライ」機会を分析
+-      TodaysTryContextAnalyzer.analyzeBestTryOpportunity(request)
++      const _bestTryOpportunity = TodaysTryContextAnalyzer.analyzeBestTryOpportunity(request)
++      // Note: 現在は分析のトリガーのみ、結果は将来の拡張で使用予定
+
+
+または、結果を使用するように実装を更新してください。
+
+
+
+
+============================================================================
+File: backend/src/services/enhanced-ai-analysis.ts
+Line: 207 to 215
+Type: potential_issue
+
+Comment:
+any 型と TODO コメントを対処してください。
+
+1. _rawInsights パラメータが any 型です
+2. TODO コメントが残っています
+
+
+
+
+-  private processTagInsights(_rawInsights: any, activeTags: string[]): any[] {
+-    // TODO: タグ別インサイトの処理
++  private processTagInsights(
++    _rawInsights: unknown,
++    activeTags: string[],
++  ): AIAnalysisResponse['tagInsights'] {
+     return activeTags.map((tag) => ({
+-      tag,
++      tag: tag as AIAnalysisResponse['tagInsights'][number]['tag'],
+       icon: this.getTagIcon(tag),
+       message: '関心分野に基づく分析結果です',
+-      urgency: 'info',
++      urgency: 'info' as const,
+     }))
+   }
+
+
+タグ別インサイトの完全な処理実装を生成しましょうか？
+
+Prompt for AI Agent:
+In backend/src/services/enhanced-ai-analysis.ts around lines 207–215, remove the TODO and eliminate the use of any by introducing concrete types (e.g., define interfaces RawInsight and TagInsight), change the method signature from processTagInsights(_rawInsights: any, activeTags: string[]) to use the new RawInsight[] (or appropriate shape) and return TagInsight[], iterate over activeTags and map each tag to a TagInsight by finding/aggregating matching entries from rawInsights, derive message and urgency from raw data with sensible defaults, call this.getTagIcon(tag) for the icon, validate inputs (handle null/undefined rawInsights and empty activeTags), and add a brief JSDoc comment describing inputs/outputs so no TODOs or any types remain.
+
+
+
+============================================================================
+File: ios/TempoAI/TempoAI/Services/MockAIAnalysisService.swift
+Line: 24
+Type: nitpick
+
+Comment:
+マジックナンバーを定数として抽出してください。
+
+confidence: 85.0 がハードコードされています。swift-coding-standards.md に従い、定数として抽出することを推奨します。
+
+
+
+ class MockAIAnalysisService: AIAnalysisServiceProtocol {
++    private let defaultConfidence: Double = 85.0
+     
+     func generateAnalysis(from staticResult: AnalysisResult) async throws -> AIAnalysisResponse {
+         // ...
+         return AIAnalysisResponse(
+             headline: HeadlineInsight(
+                 title: title,
+                 subtitle: subtitle,
+                 impactLevel: impactLevel,
+-                confidence: 85.0
++                confidence: defaultConfidence
+             ),
+
+Prompt for AI Agent:
+In ios/TempoAI/TempoAI/Services/MockAIAnalysisService.swift around line 24, the literal confidence: 85.0 is a magic number; extract it to a named constant (e.g., private static let mockConfidence: Double = 85.0) placed at the top of the file or inside the MockAIAnalysisService type per swift-coding-standards, replace the hardcoded 85.0 with that constant, and ensure the constant’s access level and type are appropriate for tests/mocks.
+
+
+
+============================================================================
+File: backend/src/services/enhanced-ai-analysis.ts
+Line: 224 to 248
+Type: potential_issue
+
+Comment:
+戻り値の型を明示し、let を const に変更してください。
+
+
+
+-  private generateBasicActionSuggestions(request: AIAnalysisRequest): any[] {
+-    const suggestions = []
++  private generateBasicActionSuggestions(
++    request: AIAnalysisRequest,
++  ): AIAnalysisResponse['aiActionSuggestions'] {
++    const suggestions: AIAnalysisResponse['aiActionSuggestions'] = []
+
+
+Based on coding guidelines: "Prefer const over let for immutability" および "Always declare explicit return types for functions"
+
+Prompt for AI Agent:
+In backend/src/services/enhanced-ai-analysis.ts around lines 224–248, the function currently uses a mutable variable and lacks an explicit return type; change the function signature to include an explicit return type (e.g., Suggestion[] or a concrete array type such as Array) and replace the mutable declaration with const for the suggestions array (const suggestions: Suggestion[] = [] or matching the chosen type). Ensure the Suggestion type is imported or defined in this file or use a precise inline type, and keep the rest of the logic unchanged so the function returns the correctly typed const suggestions.
+
+
+
+============================================================================
+File: backend/src/types/ai-analysis.ts
+Line: 187 to 218
+Type: nitpick
+
+Comment:
+environmentalFactors の日本語文字列を検討してください。
+
+FocusTagMetadata の environmentalFactors が日本語でハードコードされています。バックエンドはi18n対応が必要な場合、キー方式への変更を検討してください。
+
+
+
+ export const FocusTagMetadata: Record = {
+   [FocusTag.WORK]: {
+     analysisWeight: 1.2,
+-    environmentalFactors: ['気圧', '湿度', '気温'],
++    environmentalFactors: ['pressure', 'humidity', 'temperature'],
+   },
+   // ...
+ }
+
+
+これにより、フロントエンドで言語に応じた表示が可能になります。
+
+Prompt for AI Agent:
+In backend/src/types/ai-analysis.ts around lines 187 to 218, the environmentalFactors array contains hardcoded Japanese strings which prevents localization; replace those literal Japanese strings with i18n keys (e.g. 'env.pressure', 'env.humidity', 'env.temperature', 'env.uvIndex') or another agreed key naming convention, update FocusTagMetadata to store those keys, and ensure consumers (frontend or localization layer) call the i18n translation function to render the localized text; if there are existing i18n constants/types in the codebase, reuse them and add tests or comments documenting the new key names.
+
+
+
+============================================================================
+File: ios/TempoAI/TempoAI/Services/RealAIAnalysisService.swift
+Line: 8
+Type: nitpick
+
+Comment:
+final修飾子の追加を検討してください
+
+swift-coding-standards.mdに基づき、継承を意図しないクラスにはfinalを付けることでコンパイラ最適化が有効になります。
+
+
+
+-class RealAIAnalysisService: AIAnalysisServiceProtocol {
++final class RealAIAnalysisService: AIAnalysisServiceProtocol {
+
+Prompt for AI Agent:
+ios/TempoAI/TempoAI/Services/RealAIAnalysisService.swift around line 8: the class is declared without the final modifier even though it is not intended to be subclassed; add the final keyword to the class declaration (i.e., change to final class RealAIAnalysisService: AIAnalysisServiceProtocol) to enable compiler optimizations and follow the project's Swift coding standards, and run a quick search to ensure no code relies on subclassing this class before committing.
+
+
+
+============================================================================
+File: backend/src/services/enhanced-ai-analysis.ts
+Line: 217 to 222
+Type: potential_issue
+
+Comment:
+any[] 型を具体的な型に置き換えてください。
+
+
+
+-  private processActionSuggestions(rawSuggestions: any[], request: AIAnalysisRequest): any[] {
++  private processActionSuggestions(
++    rawSuggestions: unknown,
++    request: AIAnalysisRequest,
++  ): AIAnalysisResponse['aiActionSuggestions'] {
+-    if (rawSuggestions && Array.isArray(rawSuggestions)) {
+-      return rawSuggestions.slice(0, 3) // 最大3つまで
++    if (Array.isArray(rawSuggestions)) {
++      return rawSuggestions.slice(0, 3) as AIAnalysisResponse['aiActionSuggestions']
+     }
+     return this.generateBasicActionSuggestions(request)
+   }
+
+Prompt for AI Agent:
+In backend/src/services/enhanced-ai-analysis.ts around lines 217 to 222, replace the use of the broad any[] with a concrete type: define an interface (e.g. ActionSuggestion) that captures the actual properties of an action suggestion (title, description, score/priority, metadata, etc.), change the method signature to processActionSuggestions(rawSuggestions: unknown[] | ActionSuggestion[], request: AIAnalysisRequest): ActionSuggestion[] (or rawSuggestions: any[] → ActionSuggestion[] if callers already pass the shaped objects), ensure the implementation casts/validates raw input to ActionSuggestion and returns ActionSuggestion[] (and update generateBasicActionSuggestions to return ActionSuggestion[]), and update any callers to use the new type so the surface area is type-safe.
+
+
+
+============================================================================
+File: backend/src/services/focus-area-prompts.ts
+Line: 454 to 465
+Type: nitpick
+
+Comment:
+getPriorityWeightの型安全性を改善してください
+
+priorityパラメータがstring型ですが、TryOpportunity['priority']を使用することで型安全性が向上します。
+
+
+
+-  private static getPriorityWeight(priority: string): number {
++  private static getPriorityWeight(priority: TryOpportunity['priority']): number {
+     switch (priority) {
+       case 'high':
+         return 3
+       case 'medium':
+         return 2
+       case 'low':
+         return 1
+-      default:
+-        return 0
+     }
+   }
+
+
+型が厳密になればdefaultケースは不要になります（exhaustive check）。
+
+Prompt for AI Agent:
+In backend/src/services/focus-area-prompts.ts around lines 454-465, the getPriorityWeight function accepts a generic string which weakens type safety; change the parameter type from string to TryOpportunity['priority'] (or the exact union type it represents), update the switch to handle all possible enum/union cases explicitly (high/medium/low) and remove the default branch — if you want compile-time exhaustiveness, add a final never-branch check (e.g. a throw or assignment to never) to ensure the switch is exhaustive for the TryOpportunity['priority'] union.
+
+
+
+============================================================================
+File: ios/TempoAI/TempoAI/Services/RealAIAnalysisService.swift
+Line: 10 to 14
+Type: potential_issue
+
+Comment:
+プレースホルダーURLが本番デプロイのリスクとなります
+
+APIConstants.baseURLがプレースホルダー値（your-domain）のままです。本番環境にデプロイされた場合、APIリクエストが失敗します。
+
+
+
+環境変数または設定ファイルから読み込む方式を検討してください：
+
+ private enum APIConstants {
+-    static let baseURL = "https://tempo-ai-backend.your-domain.workers.dev" // 実際のWorkers URL
++    static let baseURL: String = {
++        #if DEBUG
++        return "https://tempo-ai-backend-dev.workers.dev"
++        #else
++        return Bundle.main.infoDictionary?["API_BASE_URL"] as? String ?? ""
++        #endif
++    }()
+     static let focusAnalysisEndpoint = "/api/health/ai/focus-analysis"
+     static let timeoutInterval: TimeInterval = 30.0
+ }
+
+Prompt for AI Agent:
+In ios/TempoAI/TempoAI/Services/RealAIAnalysisService.swift around lines 10 to 14, APIConstants.baseURL is hardcoded to a placeholder ("your-domain") which will break production; change it to read the base URL from configuration (e.g., Info.plist, a build-config .xcconfig, or environment variable injected at build time) and provide a sensible fallback or assert so missing configuration fails early; validate the URL string before use and update any callers to use the configured value so the placeholder is never shipped in production builds.
+
+
+
+============================================================================
+File: ios/TempoAI/TempoAI/Services/MockAIAnalysisService.swift
+Line: 39 to 50
+Type: potential_issue
+
+Comment:
+Switch 文で負の値のケースが明示されていません。
+
+energyLevel が負の値の場合、default ケースに落ちて「調子良好」と表示されます。これは意図しない動作の可能性があります。
+
+
+
+     private func generateHeadline(energyLevel: Double) -> (String, String, ImpactLevel) {
+         switch energyLevel {
++        case ..<0:
++            return ("データエラー", "エネルギーレベルの計算に問題があります", .critical)
+         case 0..<30:
+             return ("エネルギー不足", "今日は無理せず、回復に専念しましょう", .high)
+         case 30..<50:
+             return ("疲れ気味", "ペースを落として、自分を労ってください", .medium)
+         case 50..<75:
+             return ("安定したコンディション", "今日はバランス良く過ごせそうです", .low)
+-        default:
++        case 75...:
+             return ("調子良好", "今日は積極的に活動できる日です", .low)
++        default:
++            return ("データエラー", "エネルギーレベルの計算に問題があります", .critical)
+         }
+     }
+
+Prompt for AI Agent:
+In ios/TempoAI/TempoAI/Services/MockAIAnalysisService.swift around lines 39–50, the switch on energyLevel doesn't handle negative values so negatives fall into default and show "調子良好"; add an explicit case for negative values (e.g. case ..<0) that returns an appropriate headline/message/impact (or clamp negatives to 0 before switching), update the switch ordering so the negative case is matched first, and ensure unit tests (or callers) reflect the new behavior.
+
+
+
+============================================================================
+File: ios/TempoAI/TempoAI/Services/FocusAreaSpecialists.swift
+Line: 93 to 123
+Type: nitpick
+
+Comment:
+マジックナンバーを定数として抽出
+
+エネルギーレベル閾値（70, 40, 30）、気圧トレンド閾値（-3, -5）、湿度閾値（40, 30）、温度閾値（15, 25, 28）などがハードコードされています。可読性と保守性のため、名前付き定数として抽出することを推奨します。
+
+
+
+// MARK: - Thresholds
+private enum Thresholds {
+    static let highEnergyLevel: Double = 70
+    static let mediumEnergyLevel: Double = 40
+    static let lowEnergyLevel: Double = 30
+    static let pressureDropThreshold: Double = -3
+    static let severePressureDropThreshold: Double = -5
+    static let lowHumidityThreshold: Double = 40
+    static let optimalTempMin: Double = 15
+    static let optimalTempMax: Double = 25
+}
+
+Prompt for AI Agent:
+In ios/TempoAI/TempoAI/Services/FocusAreaSpecialists.swift around lines 93 to 123, several magic numbers (energy thresholds 70, 40, 30; pressure thresholds -3, -5; humidity 40, 30; temperature 15, 25, 28) are hard-coded—extract them into a single private Thresholds enum (or struct) with clearly named static constants (e.g., highEnergyLevel, mediumEnergyLevel, lowEnergyLevel, pressureDropThreshold, severePressureDropThreshold, lowHumidityThreshold, optimalTempMin, optimalTempMax, etc.) and replace all literal occurrences in this file with the corresponding named constants to improve readability and maintainability.
+
+
+
+============================================================================
+File: ios/TempoAI/TempoAI/Services/RealAIAnalysisService.swift
+Line: 79
+Type: nitpick
+
+Comment:
+マジックナンバー65.0を定数として抽出してください
+
+安静時心拍数の基準値65.0がハードコードされています。swift-coding-standards.mdに従い、意味のある定数名を付けて抽出してください。
+
+
+
++private enum HealthConstants {
++    static let baselineRestingHeartRate: Double = 65.0
++}
++
+ // 実データから生物学的コンテキスト構築
+ let biologicalContext = BiologicalContext(
+     hrvStatus: healthData.hrvData.current - healthData.hrvData.baseline,
+-    rhrStatus: healthData.heartRate.resting - 65.0, // 基準値65bpm
++    rhrStatus: healthData.heartRate.resting - HealthConstants.baselineRestingHeartRate,
+
+Prompt for AI Agent:
+In ios/TempoAI/TempoAI/Services/RealAIAnalysisService.swift around line 79, the hardcoded baseline value 65.0 for resting heart rate should be extracted to a well-named constant; define a private constant (e.g., RestingHeartRateBaseline or restingHeartRateBaseline) in the file or a private Constants enum/struct near the top of the type, replace the literal 65.0 with that constant, and ensure the constant is documented with a brief comment and uses appropriate access control (private/fileprivate) following the project Swift style guidelines.
+
+
+
+============================================================================
+File: ios/TempoAI/TempoAI/Services/RealAIAnalysisService.swift
+Line: 62 to 70
+Type: refactor_suggestion
+
+Comment:
+依存サービスのインスタンス化を最適化してください
+
+buildRealAIAnalysisRequestが呼び出されるたびにBatteryEngine、HealthService、WeatherServiceの新しいインスタンスを生成しています。これはリソースの無駄遣いであり、メモリ効率が悪化します。
+
+
+
+依存性注入パターンを使用して、初期化時にサービスを受け取る設計を推奨します：
+
+ class RealAIAnalysisService: AIAnalysisServiceProtocol {
++    private let batteryEngine: BatteryEngine
++    private let weatherService: WeatherService
+     
+-    init() {
++    init(batteryEngine: BatteryEngine, weatherService: WeatherService) {
++        self.batteryEngine = batteryEngine
++        self.weatherService = weatherService
+         // ... existing config
+     }
+     
+     private func buildRealAIAnalysisRequest(...) async throws -> AIAnalysisRequest {
+-        let healthData = try await BatteryEngine(
+-            healthService: HealthService(),
+-            weatherService: WeatherService()
+-        ).getLatestHealthData()
+-        
+-        let weatherService = WeatherService()
++        let healthData = try await batteryEngine.getLatestHealthData()
+
+Prompt for AI Agent:
+In ios/TempoAI/TempoAI/Services/RealAIAnalysisService.swift around lines 62–70, the method currently instantiates BatteryEngine, HealthService, and WeatherService on every call; change this to dependency injection by adding properties (or initializer parameters) for BatteryEngine or for HealthService and WeatherService to the RealAIAnalysisService and use those stored instances inside buildRealAIAnalysisRequest instead of creating new ones; update the service initializer to accept and assign the dependencies (providing sensible defaults where necessary) so buildRealAIAnalysisRequest calls the injected instances and no longer allocates new services each invocation.
+
+
+
+============================================================================
+File: ios/TempoAI/TempoAI/Services/RealAIAnalysisService.swift
+Line: 115 to 139
+Type: potential_issue
+
+Comment:
+エラーハンドリングの粒度を改善してください
+
+performRealAPIRequest内で異なる失敗シナリオ（URL構築失敗、HTTP応答異常、ステータスコードエラー）すべてにAIAnalysisServiceError.invalidStaticAnalysisを使用しています。これではデバッグやエラー追跡が困難です。
+
+
+
+各シナリオに適切なエラーケースを使用してください：
+
+ private func performRealAPIRequest(_ request: AIAnalysisRequest) async throws -> AIAnalysisResponse {
+     guard let url = URL(string: APIConstants.baseURL + APIConstants.focusAnalysisEndpoint) else {
+-        throw AIAnalysisServiceError.invalidStaticAnalysis
++        throw AIAnalysisServiceError.invalidURL
+     }
+     // ...
+     guard let httpResponse = response as? HTTPURLResponse else {
+-        throw AIAnalysisServiceError.invalidStaticAnalysis
++        throw AIAnalysisServiceError.invalidResponse
+     }
+     
+     guard httpResponse.statusCode == 200 else {
+-        throw AIAnalysisServiceError.invalidStaticAnalysis
++        throw AIAnalysisServiceError.httpError(statusCode: httpResponse.statusCode)
+     }
+
+
+AIAnalysisServiceErrorに対応するケースを追加する必要があります。
+
+Prompt for AI Agent:
+In ios/TempoAI/TempoAI/Services/RealAIAnalysisService.swift around lines 115-139, the method currently throws AIAnalysisServiceError.invalidStaticAnalysis for all failure modes; add specific error cases to AIAnalysisServiceError (e.g., invalidURL, encodingFailed(Error), invalidHTTPResponse, badStatusCode(Int), decodingFailed(Error)) and update this method to throw the appropriate case at each guard/try site (throw invalidURL when URL creation fails, throw encodingFailed with the caught encoding error when encoding the request, throw invalidHTTPResponse when response is not HTTPURLResponse, throw badStatusCode(httpResponse.statusCode) for non-200 responses, and throw decodingFailed with the caught decoding error when decoding fails) so callers can distinguish failure reasons.
+
+
+
+============================================================================
+File: backend/src/services/intelligent-cache-manager.ts
+Line: 54
+Type: potential_issue
+
+Comment:
+ハードコードされたユーザーID
+
+'default_user'がハードコードされているため、全ユーザーのコストが同一のトラッカーに集約されます。ユーザー別のコスト追跡を実現するには、リクエストからユーザーIDを取得する必要があります。
+
+
+
+getAnalysisメソッドにuserIdパラメータを追加するか、リクエストオブジェクトからユーザー識別子を抽出することを検討してください。
+
+Prompt for AI Agent:
+In backend/src/services/intelligent-cache-manager.ts around line 54, the code calls trackAnalysisCost with a hardcoded 'default_user', causing all costs to be aggregated to one user; change the API to accept the calling user ID (either by adding a userId parameter to getAnalysis or by passing the request/session user into this service), replace the hardcoded string with that userId when calling trackAnalysisCost, update all callers to supply the userId, and include a safe fallback/validation (e.g., throw or use a well-documented fallback) and unit-test or update existing tests to cover the new parameter flow.
+
+
+
+============================================================================
+File: backend/src/services/focus-area-prompts.ts
+Line: 468 to 474
+Type: nitpick
+
+Comment:
+TryOpportunityインターフェースをtypes/ディレクトリに移動することを検討してください
+
+typescript-hono-standards.mdに基づき、型定義はsrc/types/に配置することが推奨されています。TryOpportunityは他のモジュールからも使用される可能性があるため、専用の型ファイルに移動することで再利用性が向上します。
+
+
+
+// src/types/ai-analysis.ts に追加
+export interface TryOpportunity {
+  type: string
+  priority: 'high' | 'medium' | 'low'
+  reasoning: string
+}
+
+Prompt for AI Agent:
+In backend/src/services/focus-area-prompts.ts around lines 468-474, the local TryOpportunity interface should be moved to src/types/ai-analysis.ts and exported for reuse; remove the inline interface from this file, add an exported interface TryOpportunity { type: string; priority: 'high' | 'medium' | 'low'; reasoning: string } in src/types/ai-analysis.ts, update this file to import { TryOpportunity } from 'src/types/ai-analysis', and run the TypeScript build/IDE to fix any import paths or type errors across the codebase.
+
+
+
+============================================================================
+File: backend/src/services/intelligent-cache-manager.ts
+Line: 250 to 256
+Type: nitpick
+
+Comment:
+予算制限の実装が不完全（TODO）
+
+日次予算超過時のキャッシュ専用モード切り替えがTODOのままです。この機能が重要な場合は実装を完了するか、現時点で不要であればTODOコメントを削除してください。また、dailyBudgetは環境変数または設定から取得することを推奨します。
+
+
+
+キャッシュ専用モードへの切り替え実装をお手伝いしましょうか？
+
+Prompt for AI Agent:
+In backend/src/services/intelligent-cache-manager.ts around lines 250 to 256, the daily budget handling is incomplete: dailyBudget is hardcoded and the "switch to cache-only mode" is left as a TODO. Replace the hardcoded dailyBudget with a value loaded from configuration/env (e.g., process.env.DAILY_BUDGET or a config service) and implement the cache-only transition by calling or adding a method to set the user's mode to cache-only (e.g., update the user's settings/state in memory or DB and persist it, or call an existing userService.setCacheOnly(userId)). Ensure you log the mode change, emit a metric or event, and handle idempotence (no-op if already cache-only); if the feature is intentionally unnecessary, remove the TODO and the hardcoded budget and document the decision.
+
+
+
+============================================================================
+File: ios/TempoAI/TempoAI/Views/Home/HomeView.swift
+Line: 129
+Type: nitpick
+
+Comment:
+エラーログをOSLogに置き換えを検討
+
+本番環境ではprint文よりもos.Loggerを使用することで、ログレベル管理とシステム統合が改善されます。
+
+Prompt for AI Agent:
+In ios/TempoAI/TempoAI/Views/Home/HomeView.swift around line 129, replace the runtime print("Failed to refresh data: \(error)") with os.Logger-based logging: import the OSLog module if missing, create a Logger instance scoped to the view or file (e.g., a static logger on the view type), and call logger.error (or logger.debug/info depending on desired level) including the error details and appropriate privacy labels rather than using print so logs integrate with system logging and support log levels.
+
+
+
+============================================================================
+File: backend/src/services/focus-area-prompts.ts
+Line: 87 to 112
+Type: potential_issue
+
+Comment:
+formatContextualDataが日本語のみで多言語対応されていません
+
+コーディングガイドラインに従い、Claude APIプロンプトは日本語/英語両方に対応する必要があります。現在の実装ではformatContextualDataのラベルがすべて日本語でハードコードされています。
+
+Based on learnings, Implement localized Claude API prompts and error messages in the backend for Japanese/English support
+
+
+
+languageパラメータを受け取り、ラベルをローカライズしてください：
+
+-  private static formatContextualData(request: AIAnalysisRequest): string {
++  private static formatContextualData(request: AIAnalysisRequest, language: 'ja' | 'en'): string {
++    const labels = language === 'ja' ? {
++      currentSituation: '## 現在の状況',
++      energyState: '### エネルギー状態',
++      level: 'レベル',
++      // ... other labels
++    } : {
++      currentSituation: '## Current Situation',
++      energyState: '### Energy State',
++      level: 'Level',
++      // ... other labels
++    }
+     return ${labels.currentSituation}
+ 
+-### エネルギー状態
+-- レベル: ${request.batteryLevel.toFixed(1)}%
++${labels.energyState}
++- ${labels.level}: ${request.batteryLevel.toFixed(1)}%
+
+
+また、buildFocusSpecificPromptからlanguage`を渡す必要があります。
+
+Prompt for AI Agent:
+In backend/src/services/focus-area-prompts.ts around lines 87 to 112, formatContextualData currently hardcodes Japanese labels; change it to accept a language parameter (e.g., "ja" | "en") and use a small localization map for each label/phrase used in the template, then build the string with localized labels and the same numeric formatting; update the function signature and all call sites (notably buildFocusSpecificPrompt) to pass through the language argument from the request, ensuring activeTags are joined the same way and fallback to Japanese if language is missing or unsupported.
+
+
+
+============================================================================
+File: ios/TempoAI/TempoAI/Models/AIAnalysisModels.swift
+Line: 250 to 259
+Type: potential_issue
+
+Comment:
+StaticAnalysisにfallback()メソッドが必要です
+
+HybridAnalysisEngine.swift（line 187）でStaticAnalysis.fallback()が呼び出されていますが、このファイルではfallback()メソッドが定義されていません。
+
+
+
+StaticAnalysisにフォールバックファクトリメソッドを追加してください：
+
+ struct StaticAnalysis: Codable {
+     let energyLevel: Double
+     let batteryState: BatteryState
+     let basicMetrics: BasicMetrics
+     let generatedAt: Date
++    
++    /// フォールバック用の静的分析を生成
++    static func fallback() -> StaticAnalysis {
++        return StaticAnalysis(
++            energyLevel: 50.0,
++            batteryState: .medium,
++            basicMetrics: BasicMetrics(
++                sleepScore: 50.0,
++                activityScore: 50.0,
++                stressScore: 50.0
++            ),
++            generatedAt: Date()
++        )
++    }
+ }
+
+Prompt for AI Agent:
+In ios/TempoAI/TempoAI/Models/AIAnalysisModels.swift around lines 250–259, add a static factory method static func fallback() -> StaticAnalysis that returns a safe default StaticAnalysis (e.g. energyLevel: 0.0, batteryState: .unknown, basicMetrics: BasicMetrics.fallback() or a default-initialized BasicMetrics if fallback() is not available, and generatedAt: Date()), so calls to StaticAnalysis.fallback() from HybridAnalysisEngine.swift compile and provide a sensible fallback instance.
+
+
+
+============================================================================
+File: backend/src/services/intelligent-cache-manager.ts
+Line: 269 to 276
+Type: potential_issue
+
+Comment:
+ゼロ除算の可能性
+
+budgetUtilizationの計算でactiveUsersが0の場合、ゼロ除算またはInfinityが発生する可能性があります。
+
+
+
+     return {
+       date: today,
+       totalCost,
+       averageCostPerUser: activeUsers > 0 ? totalCost / activeUsers : 0,
+       totalRequests,
+       activeUsers,
+-      budgetUtilization: totalCost / (activeUsers * 0.1),
++      budgetUtilization: activeUsers > 0 ? totalCost / (activeUsers * 0.1) : 0,
+     }
+
+Prompt for AI Agent:
+In backend/src/services/intelligent-cache-manager.ts around lines 269 to 276, the budgetUtilization calculation can divide by zero when activeUsers is 0; change the return to compute budgetUtilization only when the denominator is > 0 (e.g., const budgetPerUser = 0.1; const denom = activeUsers * budgetPerUser; budgetUtilization = denom > 0 ? totalCost / denom : 0) and ensure the value is finite (fallback to 0) before returning.
+
+
+
+============================================================================
+File: ios/TempoAI/TempoAI/Services/HybridAnalysisEngine.swift
+Line: 69 to 88
+Type: potential_issue
+
+Comment:
+エラー状態が即座に上書きされるバグがあります
+
+generateAnalysis()のcatchブロック（line 84）でエラーを設定した後、line 87でsetAnalysisState(analyzing: false, enhancing: false, error: nil)が呼ばれ、エラーが即座にnilで上書きされます。これにより、UIにエラーが表示されません。
+
+
+
+catchブロック後の状態更新を修正してください：
+
+     } catch {
+         os_log("Analysis failed: %{public}@", log: .default, type: .error, error.localizedDescription)
+         await setAnalysisError(AnalysisError.analysisGenerationFailed(error))
++        await setAnalysisState(analyzing: false, enhancing: false, error: nil)
++        return
+     }
+     
+     await setAnalysisState(analyzing: false, enhancing: false, error: nil)
+
+
+または、エラーを保持するようにロジックを変更：
+
+-    await setAnalysisState(analyzing: false, enhancing: false, error: nil)
++    await setAnalysisState(analyzing: false, enhancing: false, error: analysisError)
+
+Prompt for AI Agent:
+In ios/TempoAI/TempoAI/Services/HybridAnalysisEngine.swift around lines 69 to 88, the catch block sets an error but the subsequent call at line 87 clears it by calling setAnalysisState(..., error: nil); change the flow so the error is not overwritten: either return immediately after handling the error in the catch (preventing the final state reset), or store the caught error in a local variable and pass it into the final setAnalysisState call (e.g., setAnalysisState(analyzing:false, enhancing:false, error: savedError)) so the UI retains and displays the error. Ensure only one of these approaches is applied and remove the unconditional error:nil in the final state update.
+
+
+
+============================================================================
+File: ios/TempoAI/TempoAI/Services/FocusAreaSpecialists.swift
+Line: 416 to 422
+Type: nitpick
+
+Comment:
+ローカライズ対応を検討
+
+badgeTextの日本語文字列がハードコードされています。Phase 0でLocalorizationManagerによる日英切り替えがサポートされているため、将来的にはローカライズ対応を検討してください。
+
+Prompt for AI Agent:
+In ios/TempoAI/TempoAI/Services/FocusAreaSpecialists.swift around lines 416–422, the badgeText property returns hardcoded Japanese strings; replace these with calls to the app's LocalizationManager (or NSLocalizedString wrapper) using descriptive localization keys (e.g. "badge_now", "badge_recommended", "badge_reference"), return a localized string fallback if lookup fails, and ensure keys are added to the en/ja .strings files; keep the switch logic but fetch strings via LocalizationManager.localize(key:) (or the project’s standard API) instead of embedding literal Japanese text.
+
+
+
+============================================================================
+File: backend/src/routes/health.ts
+Line: 304 to 313
+Type: nitpick
+
+Comment:
+レート制限ハンドリングの追加を推奨
+
+他のAIエンドポイントと一貫性を保つため、429レート制限エラーの処理を追加することを推奨します。
+
+
+
+   } catch (error) {
+     console.error('Focus area AI analysis error:', error)
+
+     const { message, statusCode } = handleError(error)
+     
++    if (statusCode === 429) {
++      return c.json(
++        {
++          success: false,
++          error: 'Rate limit exceeded. Please try again later.',
++          retryAfter: 1800,
++        },
++        429,
++      )
++    }
++
+     if (statusCode >= 500) {
+       return c.json({ success: false, error: message }, 500)
+     }
+     return c.json({ success: false, error: message }, 400)
+   }
+
+Prompt for AI Agent:
+In backend/src/routes/health.ts around lines 304 to 313, the catch block currently maps errors to either 500 or 400 but does not special-case rate limit responses; update the error handling so that if handleError(error) returns statusCode === 429 you return c.json({ success: false, error: message }, 429) (optionally set a Retry-After header if available from the error) to match other AI endpoints, otherwise keep the existing 500/400 branching.
+
+
+
+============================================================================
+File: backend/src/utils/ai-analysis-adapter.ts
+Line: 16 to 22
+Type: nitpick
+
+Comment:
+マジックナンバーを定数として抽出してください。
+
+baselineHRV = 50 と baselineRHR = 65 が複数箇所で使用されています（Line 17, 21, 73）。
+
+
+
++// 基準値定数
++const BASELINE_HRV_MS = 50  // 30歳健康成人の平均HRV
++const BASELINE_RHR_BPM = 65 // 成人平均安静時心拍数
++const BASELINE_RESPIRATORY_RATE = 16 // 基準呼吸数
++
+ export const createBiologicalContext = (healthData: HealthData): AIAnalysisRequest['biologicalContext'] => {
+-  // HRVの基準値（30歳健康成人の平均値: 50ms）
+-  const baselineHRV = 50
+-  const hrvStatus = healthData.hrv.average - baselineHRV
++  const hrvStatus = healthData.hrv.average - BASELINE_HRV_MS
+
+-  // 安静時心拍数の基準値（成人平均: 65bpm）
+-  const baselineRHR = 65
+-  const rhrStatus = healthData.heartRate.resting - baselineRHR
++  const rhrStatus = healthData.heartRate.resting - BASELINE_RHR_BPM
+
+
+Based on coding guidelines: "Extract common logic into reusable utilities following DRY principle"
+
+
+
+
+============================================================================
+File: ios/TempoAI/TempoAI/Services/FocusAreaSpecialists.swift
+Line: 428
+Type: nitpick
+
+Comment:
+静的メソッドのみのクラスはenumに変更
+
+EnvironmentalWisdomGeneratorも静的メソッドのみなので、enumとして定義することを推奨します。
+
+
+
+-class EnvironmentalWisdomGenerator {
++enum EnvironmentalWisdomGenerator {
+
+Prompt for AI Agent:
+In ios/TempoAI/TempoAI/Services/FocusAreaSpecialists.swift around line 428, the type EnvironmentalWisdomGenerator is declared as a class but only contains static methods; change its declaration from a class to an enum to prevent instantiation and express intent. Update the declaration to enum EnvironmentalWisdomGenerator { ... }, remove any initializers or stored properties that would be invalid for an enum, and search for and adjust any code that attempts to instantiate it (replace instances with direct static method calls). Ensure access control and static method signatures remain unchanged.
+
+
+
+============================================================================
+File: ios/TempoAI/TempoAI/Services/FocusAreaSpecialists.swift
+Line: 17
+Type: nitpick
+
+Comment:
+静的メソッドのみのクラスはenumをnamespaceとして使用
+
+FocusAreaSpecialistsはインスタンス状態を持たず静的メソッドのみです。Swiftではenumをnamespaceとして使用することで、不要なインスタンス化を防げます。
+
+
+
+-class FocusAreaSpecialists {
++enum FocusAreaSpecialists {
+
+Prompt for AI Agent:
+In ios/TempoAI/TempoAI/Services/FocusAreaSpecialists.swift around line 17, the class is used only for static methods and therefore should be converted to an enum to act as a namespace and prevent instantiation: change the declaration from class FocusAreaSpecialists to enum FocusAreaSpecialists, remove any init or instance-related code, keep all static methods and properties unchanged (mark them as static/fileprivate/private as appropriate), and update any external usages if they relied on instantiation to reference methods directly on the enum.
+
+
+
+============================================================================
+File: ios/TempoAI/TempoAI/Services/FocusAreaSpecialists.swift
+Line: 1 to 11
+Type: refactor_suggestion
+
+Comment:
+ファイル長が400行を超過しています
+
+現在454行でswift-coding-standards.mdの400行制限を超えています。各フォーカスエリア（Work, Beauty, Diet, Sleep, Fitness, Chill）の専門分析を別ファイルに分割することを推奨します。
+
+また、SwiftUIはColorのみで使用されています。TryPriorityのcolorプロパティを別の場所（View層）に移動すれば、このファイルではFoundationのみで済みます。
+
+
+-import SwiftUI
++import Foundation
+
+Prompt for AI Agent:
+In ios/TempoAI/TempoAI/Services/FocusAreaSpecialists.swift around lines 1 to 11, this file exceeds the 400-line project limit (currently 454 lines) and unnecessarily imports SwiftUI only for a Color property; refactor by extracting each focus-area specialist (WorkSpecialist, BeautySpecialist, DietSpecialist, SleepSpecialist, FitnessSpecialist, ChillSpecialist) into their own files under Services/FocusArea (or Services/FocusArea/{Area}Specialist.swift), move any shared types into a common file (e.g., Services/FocusArea/Common or FocusAreaModels.swift), and remove the SwiftUI import by relocating the TryPriority.color property out of the model layer into the View layer (e.g., map priority -> Color in Views or a UI helper); update imports/visibility and references across the codebase accordingly and run tests/compile to ensure no unresolved symbols remain.
+
+
+
+============================================================================
+File: backend/src/routes/health.ts
+Line: 289 to 301
+Type: potential_issue
+
+Comment:
+バリデーションエラーハンドリングとサービスインスタンス化の改善
+
+いくつかの改善点があります：
+
+1. validateAIAnalysisRequest(body)がエラーをスローした場合、catchブロックで処理されますが、バリデーションエラーは400として明示的に返すべきです
+2. new EnhancedAIAnalysisService()がリクエストごとに作成されています。シングルトンまたはモジュールレベルのインスタンスを使用することを推奨
+3. 他のAIエンドポイント（/ai/analyze-comprehensive、/ai/quick-analyze）には429レート制限処理がありますが、このエンドポイントにはありません
+
+
+
++// モジュールレベルでサービスインスタンスを作成
++const enhancedAIService = new EnhancedAIAnalysisService()
+
+ healthRoutes.post('/ai/focus-analysis', async (c): Promise => {
+   try {
+     console.log('Received focus area AI analysis request')
+
+     // リクエストボディ取得と検証
+-    const body = await c.req.json()
+-    const request = validateAIAnalysisRequest(body)
++    let body: unknown
++    try {
++      body = await c.req.json()
++    } catch {
++      return c.json({ success: false, error: 'Invalid JSON body' }, 400)
++    }
++    
++    const request = validateAIAnalysisRequest(body)
+
+     // API key取得
+     const apiKey = c.env.GEMINI_API_KEY
+     if (!apiKey) {
+       console.error('GEMINI_API_KEY not found in environment')
+       return CommonErrors.internalError(c, 'API configuration error')
+     }
+
+     // 拡張AI分析実行
+-    const enhancedService = new EnhancedAIAnalysisService()
+-    const analysis = await enhancedService.generateFocusAreaAnalysis(request, apiKey)
++    const analysis = await enhancedAIService.generateFocusAreaAnalysis(request, apiKey)
+
+Prompt for AI Agent:
+In backend/src/routes/health.ts around lines 289 to 301: the current code directly calls validateAIAnalysisRequest, constructs a new EnhancedAIAnalysisService per request, and lacks rate-limit handling; update as follows — wrap the validation call in a try/catch that maps validation errors to an explicit 400 response (returning the validation message), instantiate EnhancedAIAnalysisService at module-level (singleton) and use that instance instead of new for each request, and apply the same 429 rate-limit check/logic used by /ai/analyze-comprehensive and /ai/quick-analyze (or call the shared rate-limit middleware) before invoking generateFocusAreaAnalysis. Ensure error paths still return appropriate internal errors for other exceptions.
+
+
+
+============================================================================
+File: backend/src/services/intelligent-cache-manager.ts
+Line: 214 to 224
+Type: nitpick
+
+Comment:
+コスト計算のマジックナンバーを定数化
+
+トークン数とコスト計算に使用されているマジックナンバーを名前付き定数として抽出することを推奨します。特にcostPerTokenはAPI価格変更時に更新が必要になるため、設定可能にすることを検討してください。
+
+
+
++// コスト計算定数
++const COST_CONSTANTS = {
++  BASE_TOKENS: 1500,
++  TOKENS_PER_TAG: 200,
++  EXPECTED_RESPONSE_TOKENS: 800,
++  COST_PER_TOKEN: 0.000015, // Claude Sonnet概算価格
++} as const
+
+   private estimateAnalysisCost(request: AIAnalysisRequest): number {
+-    const baseTokens = 1500
+-    const contextTokens = request.userContext.activeTags.length * 200
+-    const responseTokens = 800
+-
+-    const totalTokens = baseTokens + contextTokens + responseTokens
+-    const costPerToken = 0.000015
+-
+-    return totalTokens * costPerToken
++    const totalTokens = 
++      COST_CONSTANTS.BASE_TOKENS + 
++      request.userContext.activeTags.length * COST_CONSTANTS.TOKENS_PER_TAG + 
++      COST_CONSTANTS.EXPECTED_RESPONSE_TOKENS
++    return totalTokens * COST_CONSTANTS.COST_PER_TOKEN
+   }
+
+Prompt for AI Agent:
+In backend/src/services/intelligent-cache-manager.ts around lines 214 to 224, the token counts and cost-per-token are hardcoded as magic numbers; extract them into named constants (e.g., BASE_PROMPT_TOKENS, TOKENS_PER_TAG, RESPONSE_TOKENS_ESTIMATE, DEFAULT_COST_PER_TOKEN) declared at the top of the module and replace inline literals with those constants, and make costPerToken configurable via a config/env setting (falling back to the constant) so price changes can be applied without code edits.
+
+
+
+============================================================================
+File: backend/src/services/intelligent-cache-manager.ts
+Line: 205 to 209
+Type: potential_issue
+
+Comment:
+setTimeoutによるメモリリークの可能性
+
+setTimeoutの参照が保持されていないため、キャッシュマネージャーが破棄された後もタイムアウトが実行され続ける可能性があります。長時間稼働するサーバーでは、これがメモリリークにつながる可能性があります。
+
+
+
++  private readonly timeoutIds: Map> = new Map()
++
++  /
++   * クリーンアップメソッド
++   */
++  cleanup(): void {
++    for (const timeoutId of this.timeoutIds.values()) {
++      clearTimeout(timeoutId)
++    }
++    this.timeoutIds.clear()
++    this.memoryCache.clear()
++    this.costTracker.clear()
++  }
+
+   private async cacheWithTTL(
+     // ...
+   ): Promise {
+     // ...
+     this.memoryCache.set(cacheKey, cached)
+
++    // 既存のタイムアウトをクリア
++    const existingTimeout = this.timeoutIds.get(cacheKey)
++    if (existingTimeout) {
++      clearTimeout(existingTimeout)
++    }
++
+     // TTL後の自動削除
+-    setTimeout(() => {
++    const timeoutId = setTimeout(() => {
+       this.memoryCache.delete(cacheKey)
++      this.timeoutIds.delete(cacheKey)
+     }, ttlSeconds * 1000)
++    this.timeoutIds.set(cacheKey, timeoutId)
+   }
+
+Prompt for AI Agent:
+In backend/src/services/intelligent-cache-manager.ts around lines 205-209, the current setTimeout call for TTL removal creates an untracked timer that can outlive the cache manager and cause memory leaks; fix by storing the timer handle returned by setTimeout in a map keyed by cacheKey (typed appropriately, e.g. NodeJS.Timeout in Node), clear and remove that timer whenever the entry is deleted or overwritten, and add a dispose/clearAll method on the cache manager that iterates stored timers and calls clearTimeout to ensure no timers remain after the manager is destroyed.
+
+
+
+Review completed ✔

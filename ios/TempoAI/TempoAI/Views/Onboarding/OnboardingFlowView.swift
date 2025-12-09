@@ -67,6 +67,7 @@ struct OnboardingFlowView: View {
                 }
             }
         }
+        .preferredColorScheme(.light)
     }
 }
 

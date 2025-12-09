@@ -12,12 +12,14 @@
 
 import { Hono } from 'hono'
 import { z } from 'zod'
+import { AIAnalysisService } from '../services/ai-analysis'
 import {
   AnalysisType,
   type ComprehensiveAnalysisRequest,
   claudeAnalysisService,
 } from '../services/claude-analysis'
 import { performHealthAnalysis } from '../services/health-analysis'
+import { validateAIAnalysisRequest } from '../types/ai-analysis'
 import type { Bindings } from '../types/bindings'
 import { HealthDataSchema, UserProfileSchema } from '../types/health'
 import { AnalyzeRequestSchema } from '../types/requests'
@@ -63,9 +65,9 @@ healthRoutes.post('/analyze', async (c): Promise<Response> => {
     const { healthData, location, userProfile } = validationResult.data
 
     // API key取得
-    const apiKey = c.env.ANTHROPIC_API_KEY
+    const apiKey = c.env.CLAUDE_API_KEY
     if (!apiKey) {
-      console.error('ANTHROPIC_API_KEY not found in environment')
+      console.error('CLAUDE_API_KEY not found in environment')
       return CommonErrors.internalError(c, 'API configuration error')
     }
 
@@ -134,10 +136,10 @@ const QuickAnalysisRequestSchema = z.object({
  * POST /ai/analyze-comprehensive
  *
  * 包括的なAI健康分析を実行します。
- * 健康データ、環境データ、ユーザーコンテキストを統合して
+ * ヘルスケアデータ、環境データ、ユーザーコンテキストを統合して
  * 詳細なパーソナライズされた健康分析を提供します。
  *
- * @param healthData - 包括的な健康データ
+ * @param healthData - 包括的なヘルスケアデータ
  * @param userProfile - ユーザープロファイル
  * @param weatherData - 環境データ（オプション）
  * @param analysisType - 分析タイプ
@@ -165,9 +167,9 @@ healthRoutes.post('/ai/analyze-comprehensive', async (c): Promise<Response> => {
     const request = validationResult.data as ComprehensiveAnalysisRequest
 
     // API key取得
-    const apiKey = c.env.ANTHROPIC_API_KEY
+    const apiKey = c.env.CLAUDE_API_KEY
     if (!apiKey) {
-      console.error('ANTHROPIC_API_KEY not found in environment')
+      console.error('CLAUDE_API_KEY not found in environment')
       return CommonErrors.internalError(c, 'API configuration error')
     }
 
@@ -205,9 +207,9 @@ healthRoutes.post('/ai/analyze-comprehensive', async (c): Promise<Response> => {
  * POST /ai/quick-analyze
  *
  * クイックAI健康分析を実行します。
- * 基本的な健康データから迅速な洞察を提供します。
+ * 基本的なヘルスケアデータから迅速な洞察を提供します。
  *
- * @param healthData - 基本的な健康データ
+ * @param healthData - 基本的なヘルスケアデータ
  * @param userProfile - ユーザープロファイル
  * @param language - 言語設定
  * @returns クイックAI健康分析結果
@@ -232,9 +234,9 @@ healthRoutes.post('/ai/quick-analyze', async (c): Promise<Response> => {
     const { healthData, userProfile, language } = validationResult.data
 
     // API key取得
-    const apiKey = c.env.ANTHROPIC_API_KEY
+    const apiKey = c.env.CLAUDE_API_KEY
     if (!apiKey) {
-      console.error('ANTHROPIC_API_KEY not found in environment')
+      console.error('CLAUDE_API_KEY not found in environment')
       return CommonErrors.internalError(c, 'API configuration error')
     }
 
@@ -269,6 +271,74 @@ healthRoutes.post('/ai/quick-analyze', async (c): Promise<Response> => {
 })
 
 /**
+ * POST /ai/focus-analysis
+ *
+ * 関心分野に特化したAI分析を実行します。
+ * フォーカスタグに基づく専門的な分析と「今日のトライ」提案を生成します。
+ *
+ * @param request - AI分析リクエスト（フォーカスタグ含む）
+ * @returns 関心分野別AI分析結果
+ * @throws {400} リクエストが無効な場合
+ * @throws {500} AI分析エラー
+ */
+healthRoutes.post('/ai/focus-analysis', async (c): Promise<Response> => {
+  try {
+    console.log('🔍 Received focus area AI analysis request')
+    console.log(
+      '📊 Request headers:',
+      JSON.stringify(Object.fromEntries(c.req.raw.headers.entries()), null, 2),
+    )
+
+    // リクエストボディ取得と検証
+    const body = await c.req.json()
+    console.log('📥 Request body:', JSON.stringify(body, null, 2))
+    console.log('📋 Request body keys:', Object.keys(body || {}))
+
+    try {
+      validateAIAnalysisRequest(body)
+      console.log('✅ Request validated successfully')
+    } catch (validationError) {
+      console.error('❌ Validation failed:', validationError)
+      console.error(
+        '📝 Expected schema fields: batteryLevel, batteryTrend, biologicalContext, environmentalContext, userContext',
+      )
+      throw validationError
+    }
+
+    const request = validateAIAnalysisRequest(body)
+
+    // API key取得
+    const apiKey = c.env.CLAUDE_API_KEY
+    if (!apiKey) {
+      console.error('CLAUDE_API_KEY not found in environment')
+      return CommonErrors.internalError(c, 'API configuration error')
+    }
+
+    // AI分析実行
+    const aiService = new AIAnalysisService()
+    const analysis = await aiService.generateFocusAreaAnalysis(request, apiKey)
+
+    // AIレスポンスをログ出力
+    console.log('🤖 AI Analysis Response:', JSON.stringify(analysis, null, 2))
+    console.log(
+      '📊 Request processed successfully at:',
+      new Date().toISOString(),
+    )
+
+    return sendSuccessResponse(c, analysis)
+  } catch (error) {
+    console.error('Focus area AI analysis error:', error)
+
+    const { message, statusCode } = handleError(error)
+
+    if (statusCode >= 500) {
+      return c.json({ success: false, error: message }, 500)
+    }
+    return c.json({ success: false, error: message }, 400)
+  }
+})
+
+/**
  * GET /ai/health-check
  *
  * AI分析サービスの可用性をチェックします。
@@ -279,7 +349,7 @@ healthRoutes.post('/ai/quick-analyze', async (c): Promise<Response> => {
 healthRoutes.get('/ai/health-check', async (c): Promise<Response> => {
   try {
     // API key確認
-    const apiKey = c.env.ANTHROPIC_API_KEY
+    const apiKey = c.env.CLAUDE_API_KEY
     const hasValidApiKey =
       !!apiKey && apiKey !== 'sk-ant-api03-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
 

@@ -22,7 +22,7 @@ Tempo AI iOS アプリは、ユーザーの HealthKit データ（睡眠、心�
 
 ### 🤖 AI 分析
 
-- Claude AI による高度な健康データ分析
+- Claude AI による高度なヘルスケアデータ分析
 - 個人の状態に最適化された具体的アドバイス
 
 ### 📱 ユーザー体験
@@ -119,7 +119,7 @@ self.baseURL = "https://tempo-ai-backend.workers.dev/api"  // 本番環境
 
 以下の権限が自動的にリクエストされます：
 
-- **HealthKit**: 健康データ読み取り
+- **HealthKit**: ヘルスケアデータ読み取り
 - **Location**: 天気情報取得用
 - **Notifications**: 毎朝の通知用
 
@@ -261,7 +261,7 @@ struct HomeView: View {
 ### データレイヤー
 
 - **UserDefaults**: プロフィール、キャッシュ
-- **HealthKit**: リアルタイム健康データ
+- **HealthKit**: リアルタイムヘルスケアデータ
 - **API**: AI アドバイス生成
 
 ## 📝 注意事項

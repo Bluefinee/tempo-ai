@@ -1,0 +1,29 @@
+//
+//  Development.xcconfig
+//  TempoAI
+//
+//  Created for Development Environment Configuration
+//
+
+// App Configuration
+PRODUCT_NAME = TempoAI Dev
+PRODUCT_BUNDLE_IDENTIFIER = com.tempoai.app.dev
+
+// Server Configuration
+API_BASE_URL = localhost
+API_PORT = 8787
+API_SCHEME = http
+
+// Info.plist Configuration
+INFOPLIST_FILE = TempoAI/Config/Info-Development.plist
+
+// Code Signing
+CODE_SIGN_IDENTITY = Apple Development
+DEVELOPMENT_TEAM = $(DEVELOPMENT_TEAM)
+
+// Build Settings
+SWIFT_ACTIVE_COMPILATION_CONDITIONS = $(inherited) DEBUG DEVELOPMENT
+GCC_PREPROCESSOR_DEFINITIONS = $(inherited) DEBUG=1 DEVELOPMENT=1
+
+// Deployment
+IPHONEOS_DEPLOYMENT_TARGET = 15.0

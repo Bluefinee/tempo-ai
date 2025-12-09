@@ -6,9 +6,15 @@ compatibility_flags = ["nodejs_compat"]
 [observability]
 enabled = true
 
+# Development server configuration for universal access
+[dev]
+ip = "0.0.0.0"
+port = 8787
+local_protocol = "http"
+
 # 環境変数（公開）
 [vars]
 # 公開環境変数はここに
 
 # シークレット環境変数は以下のコマンドで設定:
-# wrangler secret put ANTHROPIC_API_KEY
+# wrangler secret put CLAUDE_API_KEY

@@ -35,6 +35,12 @@ class OnboardingCoordinator: ObservableObject {
 
     init() {
         isCompleted = userDefaults.bool(forKey: onboardingCompletedKey)
+
+        // 完了済みの場合はcurrentPageをcompletionに設定
+        if isCompleted {
+            currentPage = .completion
+        }
+
         print("🔍 OnboardingCoordinator init - currentPage: \(currentPage), isCompleted: \(isCompleted)")
         updateCanProceed()
         print("🔍 After init updateCanProceed - canProceed: \(canProceed)")

@@ -1,0 +1,29 @@
+//
+//  Staging.xcconfig
+//  TempoAI
+//
+//  Created for Staging Environment Configuration
+//
+
+// App Configuration
+PRODUCT_NAME = TempoAI Staging
+PRODUCT_BUNDLE_IDENTIFIER = com.tempoai.app.staging
+
+// Server Configuration
+API_BASE_URL = staging.tempo-ai.com
+API_PORT = 443
+API_SCHEME = https
+
+// Info.plist Configuration
+INFOPLIST_FILE = TempoAI/Config/Info-Staging.plist
+
+// Code Signing
+CODE_SIGN_IDENTITY = Apple Development
+DEVELOPMENT_TEAM = $(DEVELOPMENT_TEAM)
+
+// Build Settings
+SWIFT_ACTIVE_COMPILATION_CONDITIONS = $(inherited) STAGING
+GCC_PREPROCESSOR_DEFINITIONS = $(inherited) STAGING=1
+
+// Deployment
+IPHONEOS_DEPLOYMENT_TARGET = 15.0

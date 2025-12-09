@@ -2,7 +2,7 @@
  * @fileoverview Comprehensive Claude AI Analysis Service
  *
  * ヘルスケアデータの包括的なAI分析を提供するサービス。
- * 健康データ、環境データ、ユーザープロファイルを組み合わせて
+ * ヘルスケアデータ、環境データ、ユーザープロファイルを組み合わせて
  * パーソナライズされた詳細な健康分析とアドバイスを生成します。
  *
  * @author Tempo AI Team
@@ -21,7 +21,7 @@ import { generateAdviceWithRetry } from './claude'
  * 包括的健康分析リクエスト
  */
 export interface ComprehensiveAnalysisRequest {
-  /** 健康データ */
+  /** ヘルスケアデータ */
   healthData: HealthData
   /** ユーザープロファイル */
   userProfile: UserProfile
@@ -177,7 +177,9 @@ export class ClaudeAnalysisService {
         throw error
       }
       throw new APIError(
-        `Comprehensive health analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        `Comprehensive health analysis failed: ${
+          error instanceof Error ? error.message : 'Unknown error'
+        }`,
         502,
         'COMPREHENSIVE_ANALYSIS_ERROR',
       )
@@ -605,7 +607,7 @@ class HealthPromptBuilder {
 
   addSystemRole(): this {
     if (this.language === 'japanese') {
-      this.prompt.push(`あなたは経験豊富な健康アドバイザーです。包括的な健康データを分析し、個人に合わせた詳細で実行可能なアドバイスを提供してください。
+      this.prompt.push(`あなたは経験豊富な健康アドバイザーです。包括的なヘルスケアデータを分析し、個人に合わせた詳細で実行可能なアドバイスを提供してください。
 
 重要な指示：
 - データに基づいた客観的で科学的な評価を行う

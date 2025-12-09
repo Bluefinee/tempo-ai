@@ -2,6 +2,7 @@ import SwiftUI
 
 struct HomeView: View {
     @StateObject private var batteryEngine: BatteryEngine
+    @StateObject private var hybridAnalysisEngine: HybridAnalysisEngine
     @ObservedObject private var userProfileManager = UserProfileManager.shared
     @ObservedObject private var focusTagManager = FocusTagManager.shared
 
@@ -12,11 +13,25 @@ struct HomeView: View {
     init() {
         let healthService = HealthService()
         let weatherService = WeatherService()
-        _batteryEngine = StateObject(
-            wrappedValue: BatteryEngine(
-                healthService: healthService,
-                weatherService: weatherService
-            ))
+        let batteryEngine = BatteryEngine(
+            healthService: healthService,
+            weatherService: weatherService
+        )
+
+        _batteryEngine = StateObject(wrappedValue: batteryEngine)
+
+        // HybridAnalysisEngine初期化 - 標準的なNetworkManagerを使用
+        let aiService = StandardAIAnalysisService()
+        let cacheManager = AnalysisCacheManager()
+
+        _hybridAnalysisEngine = StateObject(
+            wrappedValue: HybridAnalysisEngine(
+                batteryEngine: batteryEngine,
+                weatherService: weatherService,
+                aiAnalysisService: aiService,
+                cacheManager: cacheManager
+            )
+        )
     }
 
     var body: some View {
@@ -24,8 +39,49 @@ struct HomeView: View {
             ScrollView {
                 LazyVStack(spacing: Spacing.xl) {
                     VStack(spacing: Spacing.lg) {
-                        AdviceHeaderView(headline: currentAdvice) {
-                            showAdviceDetail()
+                        // AI分析結果の状態に応じた表示
+                        if let analysisResult = hybridAnalysisEngine.currentAnalysis {
+                            switch analysisResult.source {
+                            case .hybrid, .cached:
+                                // 真のAI分析結果
+                                if let aiAnalysis = analysisResult.aiAnalysis {
+                                    VStack(spacing: Spacing.sm) {
+                                        AIHeadlineCard(headline: aiAnalysis.headline)
+                                        DataSourceBadge(source: analysisResult.source)
+                                        AnalysisValidityIndicator(
+                                            generatedAt: aiAnalysis.generatedAt,
+                                            validUntil: Calendar.current.date(
+                                                byAdding: .hour, value: 8, to: aiAnalysis.generatedAt)
+                                        )
+                                    }
+                                } else {
+                                    AdviceHeaderView(headline: currentAdvice) {
+                                        showAdviceDetail()
+                                    }
+                                }
+                            case .aiError:
+                                // AI接続エラー表示
+                                AIErrorView(
+                                    error: hybridAnalysisEngine.analysisError,
+                                    fallbackAvailable: true
+                                ) {
+                                    Task {
+                                        await hybridAnalysisEngine.generateAnalysis()
+                                    }
+                                }
+                            case .fallback, .staticOnly:
+                                // 基本分析のみ表示
+                                VStack(spacing: Spacing.sm) {
+                                    AdviceHeaderView(headline: currentAdvice) {
+                                        showAdviceDetail()
+                                    }
+                                    DataSourceBadge(source: analysisResult.source)
+                                }
+                            }
+                        } else {
+                            AdviceHeaderView(headline: currentAdvice) {
+                                showAdviceDetail()
+                            }
                         }
 
                         LiquidBatteryView(battery: batteryEngine.currentBattery)
@@ -37,12 +93,32 @@ struct HomeView: View {
                         )
                         .padding(.horizontal, Spacing.lg)
 
-                        if !focusTagManager.activeTags.isEmpty {
+                        // AI提案がある場合はAI提案を表示、なければ従来の提案
+                        if let aiAnalysis = hybridAnalysisEngine.currentAnalysis?.aiAnalysis,
+                            !aiAnalysis.aiActionSuggestions.isEmpty
+                        {
+                            AITodaysTriesView(suggestions: aiAnalysis.aiActionSuggestions)
+                                .padding(.horizontal, Spacing.lg)
+                        } else if !focusTagManager.activeTags.isEmpty {
                             SmartSuggestionsView(
                                 activeTags: focusTagManager.activeTags,
                                 healthData: healthData,
                                 batteryLevel: batteryEngine.currentBattery.currentLevel
                             )
+                        }
+
+                        // AI詳細分析とタグインサイト表示
+                        if let aiAnalysis = hybridAnalysisEngine.currentAnalysis?.aiAnalysis,
+                            !aiAnalysis.tagInsights.isEmpty
+                        {
+                            AITagInsightsView(insights: aiAnalysis.tagInsights)
+                                .padding(.horizontal, Spacing.lg)
+                        }
+
+                        // AI分析ローディング状態
+                        if hybridAnalysisEngine.isEnhancingWithAI {
+                            AILoadingView()
+                                .padding(.horizontal, Spacing.lg)
                         }
                     }
                     .padding(.vertical, Spacing.lg)
@@ -67,6 +143,8 @@ struct HomeView: View {
                 }
             }
         }
+        .background(ColorPalette.pureWhite)
+        .preferredColorScheme(.light)
         .task {
             await refreshData()
         }
@@ -79,9 +157,12 @@ struct HomeView: View {
         do {
             healthData = try await batteryEngine.getLatestHealthData()
 
+            // 従来のアドバイス生成
             await generateAdvice()
+
+            // 新しいハイブリッド分析実行
+            await hybridAnalysisEngine.generateAnalysis()
         } catch {
-            // TODO: Replace with proper logging framework
             print("Failed to refresh data: \(error)")
         }
     }

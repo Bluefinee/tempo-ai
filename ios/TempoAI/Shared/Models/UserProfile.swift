@@ -106,9 +106,9 @@ extension UserProfile {
 
 extension UserProfile {
   enum LifestyleRhythm: String, Codable, CaseIterable, Sendable {
-    case morning = "morning"
-    case night = "night"
-    case irregular = "irregular"
+    case morning
+    case night
+    case irregular
 
     var displayName: String {
       switch self {

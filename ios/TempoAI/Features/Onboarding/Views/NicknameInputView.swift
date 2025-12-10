@@ -15,11 +15,10 @@ struct NicknameInputView: View {
       // ヘッダー
       ProgressHeader(
         currentStep: onboardingState.currentStep,
-        title: "あなたのお名前を教えてください",
-        onBack: {
-          onboardingState.goBack()
-        }
-      )
+        title: "あなたのお名前を教えてください"
+      ) {
+        onboardingState.goBack()
+      }
 
       // メインコンテンツ
       ScrollView {
@@ -83,9 +82,9 @@ struct NicknameInputView: View {
       }
 
       // 次へボタン
-      Button(action: {
+      Button {
         onboardingState.proceedToNext()
-      }) {
+      } label: {
         Text("次へ")
           .font(.headline)
           .fontWeight(.semibold)

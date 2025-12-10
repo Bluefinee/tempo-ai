@@ -60,7 +60,7 @@ struct OnboardingContainerView: View {
     LinearGradient(
       colors: [
         Color.tempoLightCream,
-        Color.tempoWarmBeige.opacity(0.3),
+        Color.tempoWarmBeige.opacity(0.3)
       ],
       startPoint: .topLeading,
       endPoint: .bottomTrailing
@@ -106,7 +106,7 @@ struct WelcomeView: View {
               LinearGradient(
                 colors: [
                   Color.tempoSageGreen.opacity(0.8),
-                  Color.tempoSageGreen.opacity(0.3),
+                  Color.tempoSageGreen.opacity(0.3)
                 ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
@@ -160,9 +160,9 @@ struct WelcomeView: View {
 
       // 開始ボタン
       VStack(spacing: 16) {
-        Button(action: {
+        Button {
           onboardingState.proceedToNext()
-        }) {
+        } label: {
           Text("始める")
             .font(.headline)
             .fontWeight(.semibold)
@@ -217,6 +217,11 @@ struct ProgressHeader: View {
   let onBack: () -> Void
 
   @Environment(\.dismiss) private var dismiss
+  init(currentStep: Int, title: String, onBack: @escaping () -> Void) {
+    self.currentStep = currentStep
+    self.title = title
+    self.onBack = onBack
+  }
 
   var body: some View {
     VStack(spacing: 16) {

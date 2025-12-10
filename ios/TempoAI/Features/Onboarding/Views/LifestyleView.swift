@@ -18,11 +18,10 @@ struct LifestyleView: View {
       // ヘッダー
       ProgressHeader(
         currentStep: onboardingState.currentStep,
-        title: "もう少し教えてください",
-        onBack: {
-          onboardingState.goBack()
-        }
-      )
+        title: "もう少し教えてください"
+      ) {
+        onboardingState.goBack()
+      }
 
       // メインコンテンツ
       ScrollView {
@@ -50,11 +49,12 @@ struct LifestyleView: View {
                 ForEach(UserProfile.Occupation.allCases, id: \.self) { occupation in
                   SelectionCard(
                     title: occupation.displayName,
-                    isSelected: selectedOccupation == occupation
-                  ) {
-                    selectedOccupation = selectedOccupation == occupation ? nil : occupation
-                    updateLifestyle()
-                  }
+                    isSelected: selectedOccupation == occupation,
+                    action: {
+                      selectedOccupation = selectedOccupation == occupation ? nil : occupation
+                      updateLifestyle()
+                    }
+                  )
                 }
               }
             }
@@ -67,11 +67,12 @@ struct LifestyleView: View {
                     title: rhythm.displayName,
                     subtitle: rhythm.description,
                     isSelected: selectedLifestyleRhythm == rhythm,
-                    style: .full
-                  ) {
-                    selectedLifestyleRhythm = selectedLifestyleRhythm == rhythm ? nil : rhythm
-                    updateLifestyle()
-                  }
+                    style: .full,
+                    action: {
+                      selectedLifestyleRhythm = selectedLifestyleRhythm == rhythm ? nil : rhythm
+                      updateLifestyle()
+                    }
+                  )
                 }
               }
             }
@@ -85,9 +86,9 @@ struct LifestyleView: View {
       // ボタンエリア
       VStack(spacing: 12) {
         // スキップボタン
-        Button(action: {
+        Button {
           onboardingState.proceedToNext()
-        }) {
+        } label: {
           Text("スキップ")
             .font(.body)
             .foregroundStyle(.tempoSageGreen)
@@ -96,10 +97,10 @@ struct LifestyleView: View {
         }
 
         // 次へボタン
-        Button(action: {
+        Button {
           updateLifestyle()
           onboardingState.proceedToNext()
-        }) {
+        } label: {
           Text("次へ")
             .font(.headline)
             .fontWeight(.semibold)

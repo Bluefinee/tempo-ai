@@ -108,7 +108,7 @@ struct OnboardingLoadingView: View {
       "HealthKit データを取得中...",
       "睡眠データを分析中...",
       "心拍数データを分析中...",
-      "あなた専用のプロフィールを作成中...",
+      "あなた専用のプロフィールを作成中..."
     ]
 
     for (index, step) in steps.enumerated() {

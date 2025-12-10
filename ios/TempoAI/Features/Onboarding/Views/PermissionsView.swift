@@ -15,11 +15,10 @@ struct PermissionsView: View {
       // ヘッダー
       ProgressHeader(
         currentStep: onboardingState.currentStep,
-        title: "Tempo AIに必要な権限",
-        onBack: {
-          onboardingState.goBack()
-        }
-      )
+        title: "Tempo AIに必要な権限"
+      ) {
+        onboardingState.goBack()
+      }
 
       // メインコンテンツ
       ScrollView {
@@ -63,9 +62,9 @@ struct PermissionsView: View {
 
       // 許可ボタン
       VStack(spacing: 12) {
-        Button(action: {
+        Button {
           requestPermissions()
-        }) {
+        } label: {
           HStack {
             if isRequestingPermissions {
               ProgressView()
@@ -90,9 +89,9 @@ struct PermissionsView: View {
         }
         .disabled(isRequestingPermissions)
 
-        Button(action: {
+        Button {
           onboardingState.proceedToNext()
-        }) {
+        } label: {
           Text("スキップ（後で設定）")
             .font(.body)
             .foregroundStyle(.tempoSecondaryText)

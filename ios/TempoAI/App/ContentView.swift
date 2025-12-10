@@ -72,7 +72,7 @@ private struct LaunchLoadingView: View {
               LinearGradient(
                 colors: [
                   Color.tempoSageGreen.opacity(0.8),
-                  Color.tempoSageGreen.opacity(0.3),
+                  Color.tempoSageGreen.opacity(0.3)
                 ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing

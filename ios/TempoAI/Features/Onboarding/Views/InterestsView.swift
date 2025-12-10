@@ -15,11 +15,10 @@ struct InterestsView: View {
       // ヘッダー
       ProgressHeader(
         currentStep: onboardingState.currentStep,
-        title: "あなたの関心ごとを教えてください",
-        onBack: {
-          onboardingState.goBack()
-        }
-      )
+        title: "あなたの関心ごとを教えてください"
+      ) {
+        onboardingState.goBack()
+      }
 
       // メインコンテンツ
       ScrollView {
@@ -47,7 +46,7 @@ struct InterestsView: View {
               InterestTagCard(
                 interest: interest,
                 isSelected: selectedInterests.contains(interest),
-                onTap: {
+onTap: {
                   toggleInterest(interest)
                 }
               )
@@ -60,10 +59,10 @@ struct InterestsView: View {
       }
 
       // 次へボタン
-      Button(action: {
+      Button {
         saveSelectedInterests()
         onboardingState.proceedToNext()
-      }) {
+      } label: {
         Text("次へ")
           .font(.headline)
           .fontWeight(.semibold)

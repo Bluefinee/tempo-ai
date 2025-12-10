@@ -19,11 +19,10 @@ struct BasicInfoView: View {
       // ヘッダー
       ProgressHeader(
         currentStep: onboardingState.currentStep,
-        title: "基本情報を教えてください",
-        onBack: {
-          onboardingState.goBack()
-        }
-      )
+        title: "基本情報を教えてください"
+      ) {
+        onboardingState.goBack()
+      }
 
       // メインコンテンツ
       ScrollView {
@@ -44,7 +43,7 @@ struct BasicInfoView: View {
                 TextField("例: 28", text: $age)
                   .font(.body)
                   .keyboardType(.numberPad)
-                  .onChange(of: age) { _, newValue in
+.onChange(of: age) { _, newValue in
                     age = String(newValue.prefix(3))
                     updateBasicInfo()
                   }
@@ -66,10 +65,10 @@ struct BasicInfoView: View {
             InputSection(title: "性別", isRequired: true) {
               LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 12) {
                 ForEach(UserProfile.Gender.allCases, id: \.self) { gender in
-                  Button(action: {
+                  Button {
                     selectedGender = gender
                     updateBasicInfo()
-                  }) {
+                  } label: {
                     Text(gender.displayName)
                       .font(.body)
                       .foregroundStyle(
@@ -149,9 +148,9 @@ struct BasicInfoView: View {
       }
 
       // 次へボタン
-      Button(action: {
+      Button {
         onboardingState.proceedToNext()
-      }) {
+      } label: {
         Text("次へ")
           .font(.headline)
           .fontWeight(.semibold)

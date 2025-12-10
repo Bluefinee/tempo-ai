@@ -146,7 +146,7 @@ final class CacheManager: Sendable {
       Keys.todayAdvice,
       Keys.recentDailyTries,
       Keys.lastWeeklyTry,
-      Keys.lastAdviceDate,
+      Keys.lastAdviceDate
     ]
 
     keys.forEach { userDefaults.removeObject(forKey: $0) }

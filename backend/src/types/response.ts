@@ -33,6 +33,10 @@ export type ApiInfoResponse = z.infer<typeof ApiInfoResponseSchema>;
 // Generic API Response Wrapper
 // =============================================================================
 
+/**
+ * Generic schema factory for API responses
+ * Provides consistent response structure across all endpoints
+ */
 export const ApiResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
   z.object({
     success: z.boolean(),
@@ -57,27 +61,18 @@ export const AdviceResponseDataSchema = z.object({
   additionalAdvice: AdditionalAdviceSchema.optional(),
 });
 
-export const AdviceResponseSchema = z.object({
-  success: z.boolean(),
-  data: AdviceResponseDataSchema.optional(),
-  error: z.string().optional(),
-  code: z.string().optional(),
-});
-
 export type AdviceResponseData = z.infer<typeof AdviceResponseDataSchema>;
+
+// Using generic ApiResponseSchema to avoid duplication
+export const AdviceResponseSchema = ApiResponseSchema(AdviceResponseDataSchema);
 export type AdviceResponse = z.infer<typeof AdviceResponseSchema>;
 
 // =============================================================================
 // Additional Advice Response
 // =============================================================================
 
-export const AdditionalAdviceResponseSchema = z.object({
-  success: z.boolean(),
-  data: AdditionalAdviceSchema.optional(),
-  error: z.string().optional(),
-  code: z.string().optional(),
-});
-
+// Using generic ApiResponseSchema to avoid duplication
+export const AdditionalAdviceResponseSchema = ApiResponseSchema(AdditionalAdviceSchema);
 export type AdditionalAdviceResponse = z.infer<typeof AdditionalAdviceResponseSchema>;
 
 // =============================================================================

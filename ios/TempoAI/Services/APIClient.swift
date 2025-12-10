@@ -4,20 +4,22 @@ import Foundation
 
 /**
  * Main API client for Tempo AI backend communication
- * 
+ *
  * Phase 7 Implementation:
  * - Basic HTTP client setup with URLSession
  * - API key authentication
  * - Type-safe request/response handling
  * - Error handling for network and API errors
- * 
+ *
  * Future phases will add:
  * - Retry logic with exponential backoff
  * - Request/response caching
  * - Background request support
+ *
+ * Note: ObservableObject conformance will be added when @Published properties are needed
  */
 @MainActor
-final class APIClient: ObservableObject {
+final class APIClient {
     
     // MARK: - Properties
     

@@ -4,6 +4,7 @@ import {
   ApiInfoResponseSchema,
   HealthCheckResponseSchema,
   AdviceResponseSchema,
+  ErrorResponseSchema,
 } from './types/response';
 
 describe('Tempo AI Backend', () => {
@@ -65,9 +66,14 @@ describe('Tempo AI Backend', () => {
 
     expect(res.status).toBe(401); // Unauthorized - authentication required
 
-    const json = (await res.json()) as { success: boolean; error: string };
-    expect(json.success).toBe(false);
-    expect(json.error).toBe('API key is required');
+    const json = await res.json();
+    const parsed = ErrorResponseSchema.safeParse(json);
+
+    expect(parsed.success).toBe(true);
+    if (parsed.success) {
+      expect(parsed.data.success).toBe(false);
+      expect(parsed.data.error).toBe('API key is required');
+    }
   });
 
   it('should return advice with valid API key', async () => {
@@ -137,9 +143,14 @@ describe('Tempo AI Backend', () => {
 
     expect(res.status).toBe(400);
 
-    const json = (await res.json()) as { success: boolean; error: string };
-    expect(json.success).toBe(false);
-    expect(json.error).toContain('Validation failed');
+    const json = await res.json();
+    const parsed = ErrorResponseSchema.safeParse(json);
+
+    expect(parsed.success).toBe(true);
+    if (parsed.success) {
+      expect(parsed.data.success).toBe(false);
+      expect(parsed.data.error).toContain('Validation failed');
+    }
   });
 
   it('should handle GET request to advice endpoint info', async () => {
@@ -153,9 +164,25 @@ describe('Tempo AI Backend', () => {
 
     expect(res.status).toBe(200);
 
-    const json = (await res.json()) as { message: string; phase: { current: number } };
-    expect(json.message).toContain('Tempo AI Advice API');
-    expect(json.phase.current).toBe(7);
+    const json = await res.json();
+    // Runtime validation of response structure
+    expect(json).toHaveProperty('message');
+    expect(json).toHaveProperty('phase');
+
+    // Type guard for accessing properties
+    if (
+      typeof json === 'object' &&
+      json !== null &&
+      'message' in json &&
+      'phase' in json &&
+      typeof json.message === 'string' &&
+      typeof json.phase === 'object' &&
+      json.phase !== null &&
+      'current' in json.phase
+    ) {
+      expect(json.message).toContain('Tempo AI Advice API');
+      expect(json.phase.current).toBe(7);
+    }
   });
 
   it('should handle CORS preflight', async () => {

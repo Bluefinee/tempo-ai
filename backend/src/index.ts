@@ -35,12 +35,15 @@ app.onError((err, c) => {
     method: c.req.method,
     error: err.message,
   });
-  
-  return c.json({
-    success: false,
-    error: err.message || 'Internal server error',
-    code: 'INTERNAL_ERROR',
-  }, 500);
+
+  return c.json(
+    {
+      success: false,
+      error: err.message || 'Internal server error',
+      code: 'INTERNAL_ERROR',
+    },
+    500,
+  );
 });
 
 // CORS middleware configuration
@@ -132,11 +135,14 @@ app.route('/api/advice', adviceRouter);
 // =============================================================================
 
 app.notFound((c) => {
-  return c.json({
-    success: false,
-    error: 'Endpoint not found',
-    code: 'NOT_FOUND',
-  }, 404);
+  return c.json(
+    {
+      success: false,
+      error: 'Endpoint not found',
+      code: 'NOT_FOUND',
+    },
+    404,
+  );
 });
 
 export default app;

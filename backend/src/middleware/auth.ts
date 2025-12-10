@@ -11,29 +11,47 @@ import { AuthenticationError, RateLimitError } from '../utils/errors.js';
 const API_KEY_HEADER = 'X-API-Key';
 
 /**
- * Valid API key for MVP development
+ * API key configuration with environment variable support
  *
  * ⚠️ セキュリティ警告:
- * - この実装はMVP開発用です
+ * - 本番環境では必ず環境変数 TEMPO_API_KEY を設定してください
  * - モバイルアプリに埋め込んだキーはリバースエンジニアリングで必ず漏洩します
  * - 本番運用ではOAuth/OIDC等のユーザー認証や署名付きリクエストに移行が必要です
  * - 現在のキーは識別子・レート制限・ロギング用途のみに使用してください
  */
-const VALID_API_KEY = 'tempo-ai-mobile-app-key-v1';
+const getValidApiKey = (environment?: string): string => {
+  const envApiKey = process.env['TEMPO_API_KEY'];
+
+  // Production requires environment variable
+  if (environment === 'production' && !envApiKey) {
+    throw new Error(
+      'TEMPO_API_KEY environment variable is required in production. ' +
+        'Please set a secure API key in your environment variables.',
+    );
+  }
+
+  // Use environment variable if available, otherwise fall back to development key
+  return envApiKey || 'tempo-ai-mobile-app-key-v1';
+};
 
 // =============================================================================
 // Authentication Middleware
 // =============================================================================
 
 /**
- * Validates API key authentication
+ * Validates API key authentication with environment-aware key management
  *
- * @param c - Hono context
+ * @param c - Hono context with environment bindings
  * @param next - Next middleware function
  * @throws {AuthenticationError} When API key is invalid or missing
+ * @throws {Error} When production environment lacks required API key configuration
  */
-export const validateApiKey = async (c: Context, next: Next): Promise<void> => {
+export const validateApiKey = async (
+  c: Context<{ Bindings: { ENVIRONMENT?: string } }>,
+  next: Next,
+): Promise<void> => {
   const apiKey = c.req.header(API_KEY_HEADER);
+  const environment = c.env?.ENVIRONMENT;
 
   // Check if API key is provided
   if (!apiKey) {
@@ -41,11 +59,29 @@ export const validateApiKey = async (c: Context, next: Next): Promise<void> => {
     throw error;
   }
 
+  // Get valid API key based on environment
+  let validApiKey: string;
+  try {
+    validApiKey = getValidApiKey(environment);
+  } catch (configError) {
+    // Production configuration error
+    console.error('API key configuration error:', configError);
+    const error = new AuthenticationError('Server configuration error');
+    throw error;
+  }
+
   // Validate API key
-  if (apiKey !== VALID_API_KEY) {
+  if (apiKey !== validApiKey) {
     const error = new AuthenticationError('Invalid API key');
     throw error;
   }
+
+  // Log successful authentication (without exposing key)
+  console.log('API key validated:', {
+    timestamp: new Date().toISOString(),
+    environment: environment || 'development',
+    keySource: process.env['TEMPO_API_KEY'] ? 'environment' : 'default',
+  });
 
   // API key is valid, proceed to next middleware
   await next();

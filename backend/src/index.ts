@@ -39,14 +39,13 @@ app.onError((err, c) => {
 
   // Check if error has operational/client-facing properties (AppError types)
   const isOperationalError = 'isOperational' in err && err.isOperational;
-  const statusCode: number = 'statusCode' in err && typeof err.statusCode === 'number' ? err.statusCode : 500;
+  const statusCode: number =
+    'statusCode' in err && typeof err.statusCode === 'number' ? err.statusCode : 500;
   const errorCode = 'code' in err && typeof err.code === 'string' ? err.code : 'INTERNAL_ERROR';
 
   // Only mask non-operational errors in production
   const isDevelopment = c.env?.ENVIRONMENT === 'development';
-  const errorMessage = isOperationalError || isDevelopment
-    ? err.message
-    : 'Internal server error';
+  const errorMessage = isOperationalError || isDevelopment ? err.message : 'Internal server error';
 
   return c.json(
     {

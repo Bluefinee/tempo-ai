@@ -101,8 +101,16 @@ adviceRouter.get('/', (c: Context): Response => {
 /**
  * Determines the current time slot based on ISO 8601 timestamp
  *
- * @param currentTime - ISO 8601 timestamp
- * @returns Time slot (morning, afternoon, evening)
+ * Maps hours to time slots:
+ * - 05:00-11:59: morning
+ * - 12:00-17:59: afternoon
+ * - 18:00-04:59: evening
+ *
+ * @param currentTime - ISO 8601 timestamp string
+ * @returns Time slot classification for advice personalization
+ * @example
+ * determineTimeSlot('2025-12-10T08:30:00.000Z') // returns 'morning'
+ * determineTimeSlot('2025-12-10T15:45:00.000Z') // returns 'afternoon'
  */
 const determineTimeSlot = (currentTime: string): 'morning' | 'afternoon' | 'evening' => {
   try {

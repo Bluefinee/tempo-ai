@@ -6,8 +6,15 @@ import type { AdviceResponse, AdviceResponseData } from '../types/response.js';
 // =============================================================================
 
 /**
- * Fixed mock response for Phase 7 development
- * This matches the specification from 07-phase-backend-foundation.md
+ * Creates a fixed mock response for Phase 7 development and testing
+ *
+ * This function generates a complete AdviceResponse with realistic health advice content
+ * that matches the specification from 07-phase-backend-foundation.md
+ *
+ * @returns Immutable AdviceResponse object with mock daily advice
+ * @example
+ * const mockResponse = createMockAdviceResponse();
+ * console.log(mockResponse.data?.mainAdvice.greeting); // "〇〇さん、おはようございます"
  */
 export const createMockAdviceResponse = (): AdviceResponse => {
   const mockAdvice: DailyAdvice = {
@@ -61,7 +68,16 @@ export const createMockAdviceResponse = (): AdviceResponse => {
 
 /**
  * Creates personalized mock response based on user profile
- * In Phase 7, this just returns the base mock with nickname replacement
+ *
+ * Takes the base mock advice and personalizes it by replacing the placeholder
+ * nickname with the actual user's nickname using immutable object creation.
+ * In Phase 7, this provides basic personalization for testing.
+ *
+ * @param nickname - User's display name for greeting personalization
+ * @returns Immutable AdviceResponse with personalized greeting
+ * @example
+ * const advice = createPersonalizedMockAdvice("田中");
+ * console.log(advice.data?.mainAdvice.greeting); // "田中さん、おはようございます"
  */
 export const createPersonalizedMockAdvice = (nickname: string): AdviceResponse => {
   const mockResponse = createMockAdviceResponse();
@@ -84,8 +100,22 @@ export const createPersonalizedMockAdvice = (nickname: string): AdviceResponse =
 };
 
 /**
- * Mock response for different time slots
- * Phase 7 focuses on morning advice, but provides structure for future phases
+ * Creates mock response for different time slots with time-appropriate greetings
+ *
+ * Generates personalized advice that adapts to the time of day:
+ * - Morning: "おはようございます" - energy and planning focus
+ * - Afternoon: "お疲れさまです" - midday wellness check
+ * - Evening: "お疲れさまでした" - recovery and rest focus
+ *
+ * Phase 7 provides basic time slot adaptation for testing and UI development.
+ * Future phases will enhance content based on circadian rhythm analysis.
+ *
+ * @param nickname - User's display name for personalized greeting
+ * @param timeSlot - Current time slot for appropriate greeting and content tone
+ * @returns Immutable AdviceResponse with time-appropriate personalization
+ * @example
+ * const morningAdvice = createMockAdviceForTimeSlot("田中", "morning");
+ * const eveningAdvice = createMockAdviceForTimeSlot("田中", "evening");
  */
 export const createMockAdviceForTimeSlot = (
   nickname: string,

@@ -99,25 +99,13 @@ struct WelcomeView: View {
 
       // メインビジュアル
       VStack(spacing: 32) {
-        // アプリアイコン／イメージ
-        ZStack {
-          Circle()
-            .fill(
-              LinearGradient(
-                colors: [
-                  Color.tempoSageGreen.opacity(0.8),
-                  Color.tempoSageGreen.opacity(0.3)
-                ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-              )
-            )
-            .frame(width: 120, height: 120)
-
-          Image(systemName: "heart.fill")
-            .font(.system(size: 60))
-            .foregroundStyle(.white)
-        }
+        // メインビジュアル画像
+        Image("WelcomeHeroImage")
+          .resizable()
+          .aspectRatio(contentMode: .fit)
+          .frame(maxHeight: 300)
+          .clipped()
+          .accessibilityLabel("自然の中で深呼吸をする女性のイラスト。健康的で穏やかなライフスタイルを表現")
 
         // キャッチコピー
         VStack(spacing: 16) {

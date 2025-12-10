@@ -204,15 +204,15 @@ struct OnboardingLoadingView: View {
     // データをCacheManagerに保存
     saveCollectedData()
     
-    // オンボーディング完了フラグを設定
+    // オンボーディング完了フラグは、プロフィール保存成功後に設定
+    // (OnboardingContainerView.handleOnboardingComplete で処理)
     onboardingState.isCompleted = true
-    CacheManager.shared.saveOnboardingCompleted(true)
     
     // ホーム画面への遷移（1秒後）
     Task { @MainActor in
       try? await Task.sleep(nanoseconds: 1_000_000_000)
       withAnimation(.easeInOut(duration: 0.5)) {
-        // ContentViewでハンドリングされるため、重複したフラグ設定を削除
+        // ContentViewでハンドリングされるため、UI遷移のみ担当
         onComplete()
       }
     }

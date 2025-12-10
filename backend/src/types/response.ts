@@ -27,16 +27,7 @@ export const ApiInfoResponseSchema = z.object({
 
 export type ApiInfoResponse = z.infer<typeof ApiInfoResponseSchema>;
 
-// =============================================================================
-// Placeholder Response (for development)
-// =============================================================================
-
-export const PlaceholderAdviceResponseSchema = z.object({
-  message: z.string(),
-  status: z.literal('coming_soon'),
-});
-
-export type PlaceholderAdviceResponse = z.infer<typeof PlaceholderAdviceResponseSchema>;
+// Placeholder response removed - replaced with full API implementation
 
 // =============================================================================
 // Generic API Response Wrapper

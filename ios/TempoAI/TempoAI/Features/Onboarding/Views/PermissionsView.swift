@@ -31,7 +31,7 @@ struct PermissionsView: View {
         VStack(spacing: 32) {
           // 説明テキスト
           VStack(spacing: 12) {
-            Text("よりパーソナライズされたアドバイスのために")
+            Text("パーソナライズされたアドバイスのために")
               .font(.body)
               .foregroundColor(.tempoSecondaryText)
               .multilineTextAlignment(.center)

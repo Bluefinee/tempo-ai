@@ -74,33 +74,12 @@ private struct LifestyleContentView: View {
             .font(.body)
             .foregroundColor(.tempoSecondaryText)
             .multilineTextAlignment(.center)
-
-          Text("以下の項目は任意です。スキップすることもできます。")
-            .font(.subheadline)
-            .foregroundColor(.tempoSecondaryText)
-            .multilineTextAlignment(.center)
         }
         .padding(.horizontal, 32)
         .padding(.top, 16)
 
         // 入力セクション
         VStack(spacing: 24) {
-          // 職業選択
-          SelectionSection(title: "職業カテゴリー", description: "お仕事の種類を教えてください") {
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 12) {
-              ForEach(UserProfile.Occupation.allCases, id: \.self) { occupation in
-                SelectionCard(
-                  title: occupation.displayName,
-                  isSelected: selectedOccupation == occupation,
-                  action: {
-                    selectedOccupation = selectedOccupation == occupation ? nil : occupation
-                    onUpdate()
-                  }
-                )
-              }
-            }
-          }
-
           // 生活リズム選択
           SelectionSection(title: "生活リズム", description: "いつ活動的になりますか？") {
             VStack(spacing: 12) {
@@ -112,6 +91,22 @@ private struct LifestyleContentView: View {
                   style: .full,
                   action: {
                     selectedLifestyleRhythm = selectedLifestyleRhythm == rhythm ? nil : rhythm
+                    onUpdate()
+                  }
+                )
+              }
+            }
+          }
+
+          // 職業選択
+          SelectionSection(title: "職業カテゴリー", description: "お仕事の種類を教えてください") {
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 12) {
+              ForEach(UserProfile.Occupation.allCases, id: \.self) { occupation in
+                SelectionCard(
+                  title: occupation.displayName,
+                  isSelected: selectedOccupation == occupation,
+                  action: {
+                    selectedOccupation = selectedOccupation == occupation ? nil : occupation
                     onUpdate()
                   }
                 )

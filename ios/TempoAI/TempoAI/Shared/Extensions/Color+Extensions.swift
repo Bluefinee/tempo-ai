@@ -73,16 +73,16 @@ extension Color {
   /// Progress Bar Background
   static let tempoProgressBackground: Color = tempoLightGray.opacity(0.3)
 
-  // MARK: - Adaptive Colors
+  // MARK: - Fixed Text Colors (Light Mode Only)
 
-  /// Primary text color that adapts to light/dark mode
-  static let tempoPrimaryText: Color = Color.primary
+  /// Primary text color (fixed for light mode)
+  static let tempoPrimaryText: Color = tempoDeepCharcoal
 
-  /// Secondary text color that adapts to light/dark mode
-  static let tempoSecondaryText: Color = Color.secondary
+  /// Secondary text color (fixed for light mode)
+  static let tempoSecondaryText: Color = tempoMediumGray
 
-  /// Background color that adapts to light/dark mode
-  static let tempoBackground: Color = Color(.systemBackground)
+  /// Background color (fixed for light mode)
+  static let tempoBackground: Color = tempoLightCream
 
   // MARK: - Methods
 
@@ -91,16 +91,16 @@ extension Color {
   /// - Returns: 対応する色
   static func colorForInterest(_ interest: UserProfile.Interest) -> Color {
     switch interest {
-    case .beauty:
-      return tempoBeauty
-    case .fitness:
-      return tempoFitness
-    case .mentalHealth:
-      return tempoMentalHealth
-    case .workPerformance:
+    case .energyPerformance:
       return tempoWorkPerformance
     case .nutrition:
       return tempoNutrition
+    case .fitness:
+      return tempoFitness
+    case .mentalStress:
+      return tempoMentalHealth
+    case .beauty:
+      return tempoBeauty
     case .sleep:
       return tempoSleep
     }

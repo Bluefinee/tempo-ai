@@ -51,13 +51,8 @@ struct NicknameInputView: View {
 private struct DescriptionTextSection: View {
   var body: some View {
     VStack(spacing: 16) {
-      Text("毎朝、あなたの名前でご挨拶します")
-        .font(.body)
-        .foregroundColor(.tempoSecondaryText)
-        .multilineTextAlignment(.center)
-
       Text("ニックネームや下のお名前など、\nお好きな呼び方を教えてください")
-        .font(.subheadline)
+        .font(.body)
         .foregroundColor(.tempoSecondaryText)
         .multilineTextAlignment(.center)
     }

@@ -61,6 +61,10 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	
+	<!-- ライトモード強制設定 -->
+	<key>UIUserInterfaceStyle</key>
+	<string>Light</string>
+	
 	<!-- HealthKit権限の説明 -->
 	<key>NSHealthShareUsageDescription</key>
 	<string>Tempo AIがあなたの健康データ（心拍数、睡眠、歩数など）を分析し、パーソナライズされたウェルネスアドバイスを提供するために使用します。</string>

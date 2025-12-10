@@ -206,7 +206,7 @@ struct WelcomeView: View {
                 .foregroundColor(.tempoSageGreen)
                 .multilineTextAlignment(.center)
               
-              Text("あなたのテンポで、\n健やかな毎日を")
+              Text("あなたのテンポで\n健やかな毎日を")
                 .font(.title2)
                 .fontWeight(.bold)
                 .foregroundColor(.tempoPrimaryText)
@@ -214,7 +214,7 @@ struct WelcomeView: View {
                 .lineLimit(nil)
                 .fixedSize(horizontal: false, vertical: true)
 
-              Text("AIがあなたのヘルスケアデータを分析し、\nパーソナライズしたアドバイスを\n毎日お届けします")
+              Text("AIがあなたのヘルスケアデータを分析し\nパーソナライズしたアドバイスを\n毎日お届けします")
                 .font(.body)
                 .foregroundColor(.tempoSecondaryText)
                 .multilineTextAlignment(.center)
@@ -260,10 +260,6 @@ struct WelcomeView: View {
                   )
               }
               .padding(.horizontal, 32)
-
-              Text("セットアップには約3分かかります")
-                .font(.caption)
-                .foregroundColor(.tempoSecondaryText)
             }
             .padding(.bottom, 48)
           }

@@ -63,45 +63,6 @@ extension UserProfile {
   }
 }
 
-// MARK: - Occupation
-
-extension UserProfile {
-  enum Occupation: String, Codable, CaseIterable, Sendable {
-    case itEngineer = "it_engineer"
-    case sales = "sales"
-    case standingWork = "standing_work"
-    case medical = "medical"
-    case creative = "creative"
-    case homemaker = "homemaker"
-    case student = "student"
-    case freelance = "freelance"
-    case other = "other"
-
-    var displayName: String {
-      switch self {
-      case .itEngineer:
-        return "IT・エンジニア"
-      case .sales:
-        return "営業・販売"
-      case .standingWork:
-        return "立ち仕事"
-      case .medical:
-        return "医療・介護"
-      case .creative:
-        return "クリエイティブ"
-      case .homemaker:
-        return "主婦・主夫"
-      case .student:
-        return "学生"
-      case .freelance:
-        return "フリーランス"
-      case .other:
-        return "その他"
-      }
-    }
-  }
-}
-
 // MARK: - LifestyleRhythm
 
 extension UserProfile {
@@ -124,11 +85,59 @@ extension UserProfile {
     var description: String {
       switch self {
       case .morning:
-        return "朝早く起きて夜は早めに就寝\n（目安：〜8:00起床、〜23:00就寝）"
+        return "朝早く起きて夜は早めに就寝"
       case .night:
-        return "夜遅くまで活動し朝はゆっくり\n（目安：8:00〜起床、23:00〜就寝）"
+        return "夜遅くまで活動し朝はゆっくり"
       case .irregular:
         return "日によって異なる生活リズム"
+      }
+    }
+  }
+}
+
+// MARK: - Occupation
+
+extension UserProfile {
+  enum Occupation: String, Codable, CaseIterable, Sendable {
+    case officeWork = "office_work"         // 事務・オフィスワーク
+    case sales = "sales"                    // 営業・接客
+    case serviceIndustry = "service_industry" // サービス業
+    case medical = "medical"                // 医療・介護
+    case education = "education"            // 教育・保育
+    case manufacturing = "manufacturing"    // 製造・技術
+    case transport = "transport"           // 運輸・物流
+    case itEngineer = "it_engineer"        // IT・エンジニア
+    case creative = "creative"             // クリエイティブ
+    case homemaker = "homemaker"           // 主婦・主夫
+    case student = "student"               // 学生
+    case other = "other"                   // その他
+
+    var displayName: String {
+      switch self {
+      case .officeWork:
+        return "事務"
+      case .sales:
+        return "営業・接客"
+      case .serviceIndustry:
+        return "サービス業"
+      case .medical:
+        return "医療・介護"
+      case .education:
+        return "教育・保育"
+      case .manufacturing:
+        return "製造・技術"
+      case .transport:
+        return "運輸・物流"
+      case .itEngineer:
+        return "IT・エンジニア"
+      case .creative:
+        return "クリエイティブ"
+      case .homemaker:
+        return "主婦・主夫"
+      case .student:
+        return "学生"
+      case .other:
+        return "その他"
       }
     }
   }
@@ -212,42 +221,42 @@ extension UserProfile {
 
 extension UserProfile {
   enum Interest: String, Codable, CaseIterable, Sendable {
-    case beauty = "beauty"
-    case fitness = "fitness"
-    case mentalHealth = "mental_health"
-    case workPerformance = "work_performance"
-    case nutrition = "nutrition"
-    case sleep = "sleep"
+    case energyPerformance = "energy_performance"  // 1. エネルギー・パフォーマンス
+    case nutrition = "nutrition"                   // 2. 栄養・食事
+    case fitness = "fitness"                      // 3. 運動・フィットネス
+    case mentalStress = "mental_stress"           // 4. メンタル・ストレス
+    case beauty = "beauty"                        // 5. 美容・スキンケア
+    case sleep = "sleep"                          // 6. 睡眠
 
     var displayName: String {
       switch self {
+      case .energyPerformance:
+        return "エネルギー・パフォーマンス"
+      case .nutrition:
+        return "栄養・食事"
+      case .fitness:
+        return "運動・フィットネス"
+      case .mentalStress:
+        return "メンタル・ストレス"
       case .beauty:
         return "美容・スキンケア"
-      case .fitness:
-        return "フィットネス・トレーニング"
-      case .mentalHealth:
-        return "メンタルヘルス・マインドフルネス"
-      case .workPerformance:
-        return "仕事・パフォーマンス向上"
-      case .nutrition:
-        return "栄養・食事管理"
       case .sleep:
-        return "睡眠改善"
+        return "睡眠"
       }
     }
 
     var icon: String {
       switch self {
-      case .beauty:
-        return "sparkles"
-      case .fitness:
-        return "figure.run"
-      case .mentalHealth:
-        return "brain.head.profile"
-      case .workPerformance:
-        return "briefcase.fill"
+      case .energyPerformance:
+        return "bolt.fill"
       case .nutrition:
         return "fork.knife"
+      case .fitness:
+        return "figure.run"
+      case .mentalStress:
+        return "brain.head.profile"
+      case .beauty:
+        return "sparkles"
       case .sleep:
         return "moon.fill"
       }
@@ -255,16 +264,16 @@ extension UserProfile {
 
     var description: String {
       switch self {
-      case .beauty:
-        return "肌の健康や美容に関するアドバイス"
-      case .fitness:
-        return "運動や体力向上に関するアドバイス"
-      case .mentalHealth:
-        return "ストレス管理や心の健康に関するアドバイス"
-      case .workPerformance:
-        return "集中力や生産性向上に関するアドバイス"
+      case .energyPerformance:
+        return "日中の活力や集中力、生産性向上に関するアドバイス"
       case .nutrition:
         return "食事や栄養バランスに関するアドバイス"
+      case .fitness:
+        return "運動や体力向上、フィットネスに関するアドバイス"
+      case .mentalStress:
+        return "ストレス管理や心の健康、リラクゼーションに関するアドバイス"
+      case .beauty:
+        return "肌の健康や美容ケアに関するアドバイス"
       case .sleep:
         return "睡眠の質向上に関するアドバイス"
       }
@@ -339,11 +348,11 @@ extension UserProfile {
       gender: .female,
       weightKg: 55.0,
       heightCm: 160.0,
-      occupation: .itEngineer,
+      occupation: .officeWork,
       lifestyleRhythm: .morning,
       exerciseFrequency: .oneToTwo,
       alcoholFrequency: .monthly,
-      interests: [.sleep, .nutrition, .mentalHealth]
+      interests: [.energyPerformance, .nutrition, .sleep]
     )
   }
 #endif

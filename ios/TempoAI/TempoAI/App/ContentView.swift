@@ -99,7 +99,7 @@ private struct LaunchLoadingView: View {
             .fontWeight(.bold)
             .foregroundColor(.tempoPrimaryText)
 
-          Text("あなたのテンポで、健やかな毎日を")
+          Text("あなたのテンポで健やかな毎日を")
             .font(.subheadline)
             .foregroundColor(.tempoSecondaryText)
         }

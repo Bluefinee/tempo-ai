@@ -29,7 +29,7 @@ struct InterestsView: View {
               .font(.body)
               .foregroundColor(.tempoSecondaryText)
 
-            Text("選択した分野に特化したアドバイスをお届けします")
+            Text("選択した分野に合わせたアドバイスをお届けします")
               .font(.subheadline)
               .foregroundColor(.tempoSecondaryText)
               .multilineTextAlignment(.center)

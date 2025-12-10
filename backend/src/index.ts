@@ -1,6 +1,5 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
-// import { notFoundHandler } from './middleware/errorHandler.js';
 import { adviceRouter } from './routes/advice.js';
 
 /**
@@ -29,20 +28,33 @@ const app = new Hono<{ Bindings: Bindings }>();
 
 // Error handling with Hono's built-in onError hook
 app.onError((err, c) => {
+  // Log full error details server-side for debugging
   console.error('API Error:', {
     timestamp: new Date().toISOString(),
     path: c.req.path,
     method: c.req.method,
     error: err.message,
+    stack: err.stack,
   });
+
+  // Check if error has operational/client-facing properties (AppError types)
+  const isOperationalError = 'isOperational' in err && err.isOperational;
+  const statusCode: number = 'statusCode' in err && typeof err.statusCode === 'number' ? err.statusCode : 500;
+  const errorCode = 'code' in err && typeof err.code === 'string' ? err.code : 'INTERNAL_ERROR';
+
+  // Only mask non-operational errors in production
+  const isDevelopment = c.env?.ENVIRONMENT === 'development';
+  const errorMessage = isOperationalError || isDevelopment
+    ? err.message
+    : 'Internal server error';
 
   return c.json(
     {
       success: false,
-      error: err.message || 'Internal server error',
-      code: 'INTERNAL_ERROR',
+      error: errorMessage,
+      code: errorCode,
     },
-    500,
+    statusCode as 500 | 401 | 400 | 429 | 502,
   );
 });
 
@@ -50,15 +62,27 @@ app.onError((err, c) => {
 app.use(
   '*',
   cors({
-    origin: (origin, _c) => {
+    origin: (origin, c) => {
       if (!origin) return origin || null; // Allow same-origin requests
 
+      const environment = c.env?.ENVIRONMENT || 'development';
+
+      // Production: only allow specific domains
+      if (environment === 'production') {
+        const productionOrigins: string[] = [
+          // Add production domains here when available
+          // 'https://tempo-ai.com',
+        ];
+        return productionOrigins.includes(origin) ? origin : null;
+      }
+
+      // Development/Staging: allow localhost and local network IPs
       const allowedOrigins = ['http://localhost:3000', 'https://localhost:3000'];
 
       // Check exact matches
       if (allowedOrigins.includes(origin)) return origin;
 
-      // Check iOS simulator local IP patterns
+      // Allow iOS simulator local IP patterns in development
       const localPatterns = [
         /^http:\/\/192\.168\.\d+\.\d+:\d+$/,
         /^http:\/\/10\.\d+\.\d+\.\d+:\d+$/,

@@ -63,7 +63,7 @@ describe('Tempo AI Backend', () => {
     });
     const res = await app.request(req);
 
-    expect(res.status).toBe(500); // Error handled by onError hook
+    expect(res.status).toBe(401); // Unauthorized - authentication required
 
     const json = (await res.json()) as { success: boolean; error: string };
     expect(json.success).toBe(false);

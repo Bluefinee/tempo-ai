@@ -28,9 +28,9 @@ final class APIClient: ObservableObject {
     
     /// URLSession for network requests
     private let session: URLSession
-    
-    /// API key for authentication
-    private let apiKey = "tempo-ai-mobile-app-key-v1"
+
+    /// API key for authentication (loaded from environment or defaults to development key)
+    private let apiKey: String
     
     // MARK: - Initialization
     
@@ -42,12 +42,21 @@ final class APIClient: ObservableObject {
             // Default to local development server
             self.baseURL = "http://localhost:8787"
         }
-        
+
+        // Configure API key from environment or use development default
+        // IMPORTANT: In production, API key should be loaded from Keychain or secure configuration
+        if let envAPIKey = ProcessInfo.processInfo.environment["TEMPO_API_KEY"] {
+            self.apiKey = envAPIKey
+        } else {
+            // Development-only default key
+            self.apiKey = "tempo-ai-mobile-app-key-v1"
+        }
+
         // Configure URLSession
         let configuration = URLSessionConfiguration.default
         configuration.timeoutIntervalForRequest = 30.0
         configuration.timeoutIntervalForResource = 60.0
-        
+
         self.session = URLSession(configuration: configuration)
     }
     
@@ -61,8 +70,10 @@ final class APIClient: ObservableObject {
      * @throws APIError for various failure conditions
      */
     func generateAdvice(request: AdviceRequest) async throws -> DailyAdvice {
-        let url = URL(string: "\(baseURL)/api/advice")!
-        
+        guard let url = URL(string: "\(baseURL)/api/advice") else {
+            throw APIError.invalidResponse
+        }
+
         var urlRequest = URLRequest(url: url)
         urlRequest.httpMethod = "POST"
         urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -123,8 +134,10 @@ final class APIClient: ObservableObject {
      * @returns True if backend is healthy, false otherwise
      */
     func healthCheck() async -> Bool {
-        let url = URL(string: "\(baseURL)/health")!
-        
+        guard let url = URL(string: "\(baseURL)/health") else {
+            return false
+        }
+
         do {
             let (_, response) = try await session.data(from: url)
             

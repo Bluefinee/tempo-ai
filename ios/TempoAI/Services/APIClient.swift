@@ -50,6 +50,13 @@ final class APIClient: ObservableObject {
         } else {
             // Development-only default key
             self.apiKey = "tempo-ai-mobile-app-key-v1"
+            
+            // Warn in production builds about insecure API key usage
+            #if RELEASE
+            print("⚠️ WARNING: Using development API key in release build!")
+            print("⚠️ Set TEMPO_API_KEY environment variable or configure secure key management")
+            print("⚠️ Hardcoded keys are vulnerable to reverse engineering")
+            #endif
         }
 
         // Configure URLSession
@@ -154,24 +161,96 @@ final class APIClient: ObservableObject {
     // MARK: - Private Helper Methods
     
     /**
-     * Decodes successful advice response
+     * Decodes successful advice response with comprehensive error handling
+     * 
+     * @param data Raw response data from the server
+     * @returns DailyAdvice object if successful
+     * @throws APIError for various decoding failure scenarios
      */
     private func decodeAdviceResponse(from data: Data) throws -> DailyAdvice {
+        // Validate that we have data to decode
+        guard !data.isEmpty else {
+            throw APIError.missingData("Empty response data")
+        }
+        
+        // Log raw response for debugging (development only)
+        #if DEBUG
+        if let jsonString = String(data: data, encoding: .utf8) {
+            print("📡 API Response: \(jsonString)")
+        }
+        #endif
+        
         do {
             let decoder = JSONDecoder()
             decoder.dateDecodingStrategy = .iso8601
             
+            // First, try to decode as a generic response to check for API errors
             let response = try decoder.decode(AdviceResponse.self, from: data)
             
-            guard response.success, let advice = response.data?.mainAdvice else {
-                throw APIError.missingData("No advice data in response")
+            // Check if the API returned an error
+            if !response.success {
+                let errorMessage = response.error ?? "Unknown API error"
+                let errorCode = response.code ?? "UNKNOWN_ERROR"
+                
+                // Map specific error codes to appropriate error types
+                switch errorCode {
+                case "UNAUTHORIZED":
+                    throw APIError.unauthorized
+                case "VALIDATION_ERROR":
+                    throw APIError.badRequest(errorMessage)
+                case "RATE_LIMIT_EXCEEDED":
+                    throw APIError.rateLimitExceeded
+                default:
+                    throw APIError.serverError(errorMessage)
+                }
+            }
+            
+            // Validate that we have the expected advice data
+            guard let advice = response.data?.mainAdvice else {
+                throw APIError.missingData("No advice data in successful response")
+            }
+            
+            // Additional validation of required fields
+            guard !advice.greeting.isEmpty,
+                  !advice.condition.summary.isEmpty,
+                  !advice.actionSuggestions.isEmpty,
+                  !advice.dailyTry.title.isEmpty else {
+                throw APIError.missingData("Incomplete advice data - missing required fields")
             }
             
             return advice
+            
         } catch let decodingError as DecodingError {
-            throw APIError.decodingError(decodingError.localizedDescription)
+            // Provide detailed decoding error information
+            let errorDescription = formatDecodingError(decodingError)
+            throw APIError.decodingError("JSON parsing failed: \(errorDescription)")
+        } catch let apiError as APIError {
+            // Re-throw API errors without modification
+            throw apiError
         } catch {
-            throw APIError.decodingError(error.localizedDescription)
+            // Handle any other unexpected errors
+            throw APIError.decodingError("Unexpected decoding error: \(error.localizedDescription)")
+        }
+    }
+    
+    /**
+     * Formats DecodingError into human-readable description
+     * 
+     * @param error DecodingError from JSON decoding
+     * @returns Formatted error description
+     */
+    private func formatDecodingError(_ error: DecodingError) -> String {
+        switch error {
+        case .typeMismatch(let type, let context):
+            return "Type mismatch for \(type) at \(context.codingPath.map(\.stringValue).joined(separator: "."))"
+        case .valueNotFound(let type, let context):
+            return "Missing value for \(type) at \(context.codingPath.map(\.stringValue).joined(separator: "."))"
+        case .keyNotFound(let key, let context):
+            return "Missing key '\(key.stringValue)' at \(context.codingPath.map(\.stringValue).joined(separator: "."))"
+        case .dataCorrupted(let context):
+            return "Data corrupted at \(context.codingPath.map(\.stringValue).joined(separator: ".")) - \(context.debugDescription)"
+        @unknown default:
+            return "Unknown decoding error"
         }
     }
     

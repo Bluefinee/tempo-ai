@@ -73,22 +73,11 @@ reviews:
     - "!**/*.bmp"
     - "!**/*.tiff"
 
-    # 設定・データファイル（レビュー不要、重要な設定除く）
-    - "!**/*.json"
-    - "!**/*.yaml" 
-    - "!**/*.yml"
-    - "!**/*.toml"
-    - "!**/*.ini"
-    - "!**/*.env*"
+    # データ・ログファイル（設定ファイルは含める）
     - "!**/*.log"
-    - "!**/*.config.*"
-    - "!**/*.conf"
-    
-    # 重要な設定ファイルは明示的に含める（上記除外の例外）
-    - "backend/package.json"
-    - "backend/tsconfig.json"
-    - "backend/wrangler.toml"
-    - ".coderabbit.yaml"
+    - "!**/*.cache"
+    - "!**/*.tmp"
+    - "!**/*.temp"
 
     # テストフィクスチャ・スナップショット
     - "!**/fixtures/**"

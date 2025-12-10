@@ -1,0 +1,65 @@
+import type { Context, Next } from 'hono';
+import { createErrorResponse, mapToAppError } from '../utils/errors.js';
+
+// =============================================================================
+// Error Handler Middleware
+// =============================================================================
+
+/**
+ * Global error handler middleware for Hono
+ *
+ * Catches all errors and returns standardized error responses
+ *
+ * @param c - Hono context
+ * @param next - Next middleware function
+ */
+export const errorHandler = async (c: Context, next: Next): Promise<void> => {
+  try {
+    await next();
+  } catch (error) {
+    // Map unknown errors to AppError instances
+    const appError = mapToAppError(error);
+
+    // Log error for monitoring (avoid logging sensitive data)
+    console.error('API Error:', {
+      timestamp: new Date().toISOString(),
+      path: c.req.path,
+      method: c.req.method,
+      error: appError.message,
+      code: appError.code,
+      statusCode: appError.statusCode,
+      userAgent: c.req.header('User-Agent'),
+      // Note: Do not log request body as it may contain sensitive health data
+    });
+
+    // Create standardized error response
+    const errorResponse = createErrorResponse(appError);
+
+    // Return error response and stop middleware chain
+    c.status(appError.statusCode);
+    throw new Response(JSON.stringify(errorResponse), {
+      status: appError.statusCode,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+};
+
+// =============================================================================
+// 404 Not Found Handler
+// =============================================================================
+
+/**
+ * Handler for 404 Not Found responses
+ *
+ * @param c - Hono context
+ */
+export const notFoundHandler = (c: Context): Response => {
+  return c.json(
+    {
+      success: false,
+      error: 'Endpoint not found',
+      code: 'NOT_FOUND',
+    },
+    404,
+  );
+};

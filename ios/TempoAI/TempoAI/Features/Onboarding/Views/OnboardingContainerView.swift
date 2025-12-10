@@ -6,7 +6,7 @@ struct OnboardingContainerView: View {
 
   // MARK: - Properties
 
-  @State private var onboardingState: OnboardingState = OnboardingState()
+  @State private var onboardingState: OnboardingState?
 
   let onComplete: (UserProfile) -> Void
 
@@ -27,29 +27,41 @@ struct OnboardingContainerView: View {
 
         // メインコンテンツ
         Group {
-          switch onboardingState.currentStep {
-          case 1:
-            WelcomeView(onboardingState: onboardingState)
-          case 2:
-            NicknameInputView(onboardingState: onboardingState)
-          case 3:
-            BasicInfoView(onboardingState: onboardingState)
-          case 4:
-            LifestyleView(onboardingState: onboardingState)
-          case 5:
-            InterestsView(onboardingState: onboardingState)
-          case 6:
-            PermissionsView(onboardingState: onboardingState)
-          case 7:
-            OnboardingLoadingView(
-              onboardingState: onboardingState, onComplete: handleOnboardingComplete)
-          default:
-            EmptyView()
+          if let onboardingState = onboardingState {
+            switch onboardingState.currentStep {
+            case 1:
+              WelcomeView(onboardingState: onboardingState)
+            case 2:
+              NicknameInputView(onboardingState: onboardingState)
+            case 3:
+              BasicInfoView(onboardingState: onboardingState)
+            case 4:
+              LifestyleView(onboardingState: onboardingState)
+            case 5:
+              InterestsView(onboardingState: onboardingState)
+            case 6:
+              PermissionsView(onboardingState: onboardingState)
+            case 7:
+              OnboardingLoadingView(
+                onboardingState: onboardingState, onComplete: handleOnboardingComplete)
+            default:
+              EmptyView()
+            }
+          } else {
+            ProgressView()
+              .progressViewStyle(CircularProgressViewStyle())
           }
         }
       }
     }
     .toolbar(.hidden, for: .navigationBar)
+    .onAppear {
+      if onboardingState == nil {
+        Task { @MainActor in
+          onboardingState = OnboardingState()
+        }
+      }
+    }
   }
 
   // MARK: - Components
@@ -68,9 +80,11 @@ struct OnboardingContainerView: View {
 
   // MARK: - Methods
 
+  @MainActor
   private func handleOnboardingComplete() {
-    guard let userProfile = onboardingState.createUserProfile() else {
-      onboardingState.setError("プロフィールの作成に失敗しました")
+    guard let onboardingState = onboardingState,
+          let userProfile = onboardingState.createUserProfile() else {
+      self.onboardingState?.setError("プロフィールの作成に失敗しました")
       return
     }
 

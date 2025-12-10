@@ -177,6 +177,7 @@ struct BasicInfoView: View {
 
   // MARK: - Helper Methods
 
+  @MainActor
   private func loadExistingData() {
     if let basicInfo = onboardingState.basicInfo {
       age = String(basicInfo.age)
@@ -190,6 +191,7 @@ struct BasicInfoView: View {
     }
   }
 
+  @MainActor
   private func updateBasicInfo() {
     guard let ageInt = Int(age),
       let weightDouble = Double(weight),

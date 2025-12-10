@@ -100,6 +100,7 @@ onTap: {
     }
   }
 
+  @MainActor
   private func saveSelectedInterests() {
     onboardingState.interests = Array(selectedInterests)
   }

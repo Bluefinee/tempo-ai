@@ -53,7 +53,7 @@ jobs:
   # ===========================================================================
   build:
     name: 🔨 Build
-    runs-on: macos-14
+    runs-on: macos-15
     needs: swiftlint
 
     steps:
@@ -104,7 +104,7 @@ jobs:
   # ===========================================================================
   test:
     name: 🧪 Unit Tests
-    runs-on: macos-14
+    runs-on: macos-15
     needs: swiftlint # SwiftLint成功後に実行
 
     steps:

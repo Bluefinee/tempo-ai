@@ -164,3 +164,6 @@ ENV/
 
 .serena
 .guidelines/
+
+# Review artifacts (temporary analysis files)
+docs/reviews/

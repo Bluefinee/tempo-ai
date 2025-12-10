@@ -1,12 +1,15 @@
 import SwiftUI
 import HealthKit
 import CoreLocation
+import os.log
 
 /// データ取得中画面（オンボーディング画面7）
 struct OnboardingLoadingView: View {
 
   // MARK: - Properties
 
+  private let logger: Logger = Logger(subsystem: "com.tempoai", category: "OnboardingLoading")
+  
   @Bindable var onboardingState: OnboardingState
   @StateObject private var healthKitManager = HealthKitManager()
   @StateObject private var locationManager = LocationManager()
@@ -152,37 +155,39 @@ struct OnboardingLoadingView: View {
   }
   
   /// HealthKitデータを取得
+  @MainActor
   private func fetchHealthData() async {
     guard healthData == nil else { return } // 重複取得を防ぐ
     
     do {
       let data = try await healthKitManager.fetchInitialData()
       healthData = data
-      print("HealthKit data fetched successfully")
+      logger.info("HealthKit data fetched successfully")
     } catch {
-      print("HealthKit data fetch failed: \(error)")
+      logger.error("HealthKit data fetch failed: \(error.localizedDescription)")
       // エラーの場合はモックデータを使用
       #if DEBUG
       healthData = HealthKitManager.generateMockData()
-      print("Using mock HealthKit data for development")
+      logger.debug("Using mock HealthKit data for development")
       #endif
     }
   }
   
   /// 位置情報データを取得
+  @MainActor
   private func fetchLocationData() async {
     guard locationData == nil else { return } // 重複取得を防ぐ
     
     do {
       let data = try await locationManager.requestCurrentLocation()
       locationData = data
-      print("Location data fetched successfully: \(data.cityName)")
+      logger.info("Location data fetched successfully: \(data.cityName)")
     } catch {
-      print("Location data fetch failed: \(error)")
+      logger.error("Location data fetch failed: \(error.localizedDescription)")
       // エラーの場合はモックデータを使用
       #if DEBUG
       locationData = LocationManager.generateMockLocationData()
-      print("Using mock location data for development")
+      logger.debug("Using mock location data for development")
       #endif
     }
   }
@@ -207,8 +212,7 @@ struct OnboardingLoadingView: View {
     Task { @MainActor in
       try? await Task.sleep(nanoseconds: 1_000_000_000)
       withAnimation(.easeInOut(duration: 0.5)) {
-        // ContentViewでハンドリングされるため、ここではフラグ設定のみ
-        onboardingState.isCompleted = true
+        // ContentViewでハンドリングされるため、重複したフラグ設定を削除
         onComplete()
       }
     }
@@ -220,21 +224,21 @@ struct OnboardingLoadingView: View {
     if let userProfile = onboardingState.createUserProfile() {
       do {
         try CacheManager.shared.saveUserProfile(userProfile)
-        print("User profile saved successfully")
+        logger.info("User profile saved successfully")
       } catch {
-        print("Failed to save user profile: \(error)")
+        logger.error("Failed to save user profile: \(error.localizedDescription)")
       }
     }
     
     // ヘルスデータの保存（今後の実装）
     if let healthData = healthData {
-      print("Health data ready for storage: \(healthData.fetchedAt)")
+      logger.debug("Health data ready for storage: \(healthData.fetchedAt)")
       // TODO: Phase 2で実装 - ヘルスデータをサーバーに送信または高度なローカル保存
     }
     
     // 位置データの保存（今後の実装）
     if let locationData = locationData {
-      print("Location data ready for storage: \(locationData.cityName)")
+      logger.debug("Location data ready for storage: \(locationData.cityName)")
       // TODO: Phase 2で実装 - 位置データをサーバーに送信または高度なローカル保存
     }
   }
@@ -244,12 +248,16 @@ struct OnboardingLoadingView: View {
 // MARK: - Preview
 
 #Preview {
-  let state = OnboardingState()
-  state.currentStep = 7
-  state.nickname = "さくら"
-  state.interests = [.sleep, .nutrition]
+  @MainActor func makePreview() -> OnboardingLoadingView {
+    let state = OnboardingState()
+    state.currentStep = 7
+    state.nickname = "さくら"
+    state.interests = [.sleep, .nutrition]
 
-  return OnboardingLoadingView(onboardingState: state) {
-    print("Loading completed")
+    return OnboardingLoadingView(onboardingState: state) {
+      print("Loading completed - Preview")
+    }
   }
+  
+  return makePreview()
 }

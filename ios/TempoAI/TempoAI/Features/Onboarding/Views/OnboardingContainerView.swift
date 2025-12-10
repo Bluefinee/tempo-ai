@@ -55,6 +55,18 @@ struct OnboardingContainerView: View {
       }
     }
     .toolbar(.hidden, for: .navigationBar)
+    .alert("エラー", isPresented: Binding(
+      get: { onboardingState?.errorMessage != nil },
+      set: { if !$0 { onboardingState?.clearError() } }
+    )) {
+      Button("OK", role: .cancel) {
+        onboardingState?.clearError()
+      }
+    } message: {
+      if let errorMessage = onboardingState?.errorMessage {
+        Text(errorMessage)
+      }
+    }
     .onAppear {
       if onboardingState == nil {
         Task { @MainActor in

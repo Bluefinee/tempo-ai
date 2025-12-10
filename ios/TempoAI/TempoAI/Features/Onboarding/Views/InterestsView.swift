@@ -93,16 +93,14 @@ onTap: {
   // MARK: - Methods
 
   private func toggleInterest(_ interest: UserProfile.Interest) {
-    if selectedInterests.contains(interest) {
-      selectedInterests.remove(interest)
-    } else if selectedInterests.count < 3 {
-      selectedInterests.insert(interest)
-    }
+    onboardingState.toggleInterest(interest, maxCount: 3)
+    selectedInterests = Set(onboardingState.interests)
   }
 
   @MainActor
   private func saveSelectedInterests() {
-    onboardingState.interests = Array(selectedInterests)
+    // ビジネスロジックはtoggleInterest内で処理済み
+    // selectedInterestsは既にonboardingState.interestsと同期済み
   }
 }
 

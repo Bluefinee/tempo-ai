@@ -136,8 +136,8 @@ final class OnboardingState {
   }
 
   /// 関心ごとタグを追加
-  func addInterest(_ interest: UserProfile.Interest) {
-    if !interests.contains(interest) && interests.count < 3 {
+  func addInterest(_ interest: UserProfile.Interest, maxCount: Int = 3) {
+    if !interests.contains(interest) && interests.count < maxCount {
       interests.append(interest)
     }
   }
@@ -148,11 +148,11 @@ final class OnboardingState {
   }
 
   /// 関心ごとタグの選択状態をトグル
-  func toggleInterest(_ interest: UserProfile.Interest) {
+  func toggleInterest(_ interest: UserProfile.Interest, maxCount: Int = 3) {
     if interests.contains(interest) {
       removeInterest(interest)
-    } else {
-      addInterest(interest)
+    } else if interests.count < maxCount {
+      interests.append(interest)
     }
   }
 

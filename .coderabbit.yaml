@@ -49,9 +49,15 @@ reviews:
     - "!*.xcodeproj/xcuserdata/**"
     - "!DerivedData/**"
 
-    # ライセンス・変更履歴
-    - "!LICENSE*"
+    # ドキュメント・レビューファイル除外
+    - "!**/*.md"
+    - "!**/*.txt"
+    - "!**/*.rst"
+    - "!**/*.adoc"
+    - "!docs/**"
     - "!CHANGELOG*"
+    - "!README*"
+    - "!LICENSE*"
     - "!AUTHORS*"
     - "!CONTRIBUTORS*"
 
@@ -63,11 +69,38 @@ reviews:
     - "!**/*.svg"
     - "!**/*.ico"
     - "!**/*.pdf"
+    - "!**/*.webp"
+    - "!**/*.bmp"
+    - "!**/*.tiff"
+
+    # 設定・データファイル（レビュー不要、重要な設定除く）
+    - "!**/*.json"
+    - "!**/*.yaml" 
+    - "!**/*.yml"
+    - "!**/*.toml"
+    - "!**/*.ini"
+    - "!**/*.env*"
+    - "!**/*.log"
+    - "!**/*.config.*"
+    - "!**/*.conf"
+    
+    # 重要な設定ファイルは明示的に含める（上記除外の例外）
+    - "backend/package.json"
+    - "backend/tsconfig.json"
+    - "backend/wrangler.toml"
+    - ".coderabbit.yaml"
 
     # テストフィクスチャ・スナップショット
     - "!**/fixtures/**"
-    - "!**/mocks/**"
+    - "!**/mocks/**" 
     - "!**/__snapshots__/**"
+    - "!**/test-data/**"
+
+    # その他の不要ファイル
+    - "!**/.DS_Store"
+    - "!**/*.tmp"
+    - "!**/*.temp"
+    - "!**/*.cache"
 
   path_instructions:
     # ===========================================

@@ -6,6 +6,34 @@
 
 ---
 
+## ⚠️ 実装前必読ドキュメント
+
+**実装を開始する前に、以下のドキュメントを必ず確認してください：**
+
+### 📋 必須参考資料
+- **[CLAUDE.md](../../CLAUDE.md)** - 開発ガイドライン・基本原則
+- **[AI Prompt Design](../ai-prompt-design.md)** - AI設計指針
+- **[UI Specification](../ui-spec.md)** - UI設計仕様書
+- **[Technical Specification](../technical-spec.md)** - 技術仕様書
+
+### 🔧 Backend専用資料
+- **[TypeScript Hono Standards](../../.claude/typescript-hono-standards.md)** - TypeScript + Hono 開発標準
+
+### ✅ 実装完了後の必須作業
+実装完了後は必ず以下を実行してください：
+```bash
+# TypeScript型チェック
+npm run typecheck
+
+# リント・フォーマット確認
+npm run lint
+
+# テスト実行
+npm test
+```
+
+---
+
 ## このフェーズで実現すること
 
 1. **プロンプト構造**の実装（Layer 1〜3）

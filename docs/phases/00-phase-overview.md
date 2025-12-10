@@ -11,6 +11,55 @@
 
 ---
 
+## ⚠️ 重要：全フェーズ共通の要件
+
+### 📋 実装前の必須確認事項
+
+**各フェーズの実装を開始する前に、必ず以下のドキュメントを確認してください：**
+
+**全フェーズ共通**:
+- **[CLAUDE.md](../../CLAUDE.md)** - 開発ガイドライン・基本原則
+- **[AI Prompt Design](../ai-prompt-design.md)** - AI設計指針
+- **[UI Specification](../ui-spec.md)** - UI設計仕様書
+- **[Technical Specification](../technical-spec.md)** - 技術仕様書
+
+**Swift/iOS フェーズ (1-6, 10-14)**:
+- **[UX Concepts & Principles](../../.claude/ux_concepts.md)** - UX設計原則
+- **[Swift Coding Standards](../../.claude/swift-coding-standards.md)** - Swift開発標準
+
+**Backend フェーズ (7-9, 10-14)**:
+- **[TypeScript Hono Standards](../../.claude/typescript-hono-standards.md)** - TypeScript + Hono 開発標準
+
+### ✅ 実装完了後の必須作業
+
+**各フェーズの実装完了後は、必ず以下の品質チェックを実行してください：**
+
+**Swift/iOS側** (該当フェーズ):
+```bash
+# リント・フォーマット確認
+swiftlint
+swift-format --lint --recursive ios/
+
+# テスト実行
+swift test
+```
+
+**Backend側** (該当フェーズ):
+```bash
+# TypeScript型チェック
+npm run typecheck
+
+# リント・フォーマット確認
+npm run lint
+
+# テスト実行
+npm test
+```
+
+これらのチェックがすべて通ることをCI通過の前提条件とします。
+
+---
+
 ## 全体構成
 
 | Part | フェーズ | 概要 |

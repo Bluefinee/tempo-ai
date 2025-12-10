@@ -6,6 +6,33 @@
 
 ---
 
+## ⚠️ 実装前必読ドキュメント
+
+**実装を開始する前に、以下のドキュメントを必ず確認してください：**
+
+### 📋 必須参考資料
+- **[CLAUDE.md](../../CLAUDE.md)** - 開発ガイドライン・基本原則
+- **[AI Prompt Design](../ai-prompt-design.md)** - AI設計指針
+- **[UI Specification](../ui-spec.md)** - UI設計仕様書
+- **[Technical Specification](../technical-spec.md)** - 技術仕様書
+
+### 📱 Swift/iOS専用資料
+- **[UX Concepts & Principles](../../.claude/ux_concepts.md)** - UX設計原則
+- **[Swift Coding Standards](../../.claude/swift-coding-standards.md)** - Swift開発標準
+
+### ✅ 実装完了後の必須作業
+実装完了後は必ず以下を実行してください：
+```bash
+# リント・フォーマット確認
+swiftlint
+swift-format --lint --recursive ios/
+
+# テスト実行
+swift test
+```
+
+---
+
 ## このフェーズで実現すること
 
 1. **オンボーディング全7画面**の実装と画面遷移

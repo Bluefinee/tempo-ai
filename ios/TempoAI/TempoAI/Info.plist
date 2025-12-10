@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Bundle設定 -->
+	<key>CFBundleIdentifier</key>
+	<string>com.tempoai.TempoAI</string>
+	
+	<key>CFBundleName</key>
+	<string>Tempo AI</string>
+	
+	<key>CFBundleDisplayName</key>
+	<string>Tempo AI</string>
+	
+	<key>CFBundleVersion</key>
+	<string>1</string>
+	
+	<key>CFBundleShortVersionString</key>
+	<string>1.0</string>
+	
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	
+	<key>CFBundleExecutable</key>
+	<string>TempoAI</string>
+	
+	<!-- アプリ基本設定 -->
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<false/>
+		<key>UISceneConfigurations</key>
+		<dict>
+			<key>UIWindowSceneSessionRoleApplication</key>
+			<array>
+				<dict>
+					<key>UISceneConfigurationName</key>
+					<string>Default Configuration</string>
+					<key>UISceneDelegateClassName</key>
+					<string>$(PRODUCT_MODULE_NAME).SceneDelegate</string>
+				</dict>
+			</array>
+		</dict>
+	</dict>
+	
+	<key>UILaunchScreen</key>
+	<dict/>
+	
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	
+	<!-- ライトモード強制設定 -->
+	<key>UIUserInterfaceStyle</key>
+	<string>Light</string>
+	
+	<!-- HealthKit権限の説明 -->
+	<key>NSHealthShareUsageDescription</key>
+	<string>Tempo AIがあなたの健康データ（心拍数、睡眠、歩数など）を分析し、パーソナライズされたウェルネスアドバイスを提供するために使用します。</string>
+	
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>Tempo AIがHealthKitにデータを書き込むために使用します。</string>
+	
+	<!-- 位置情報権限の説明 -->
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Tempo AIが現在地の天気や大気汚染情報を取得し、環境に配慮したヘルスアドバイスを提供するために位置情報を使用します。位置情報は都市レベルでのみ使用されます。</string>
+	
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Tempo AIが現在地の天気や大気汚染情報を取得し、環境に配慮したヘルスアドバイスを提供するために位置情報を使用します。位置情報は都市レベルでのみ使用されます。</string>
+</dict>
+</plist>

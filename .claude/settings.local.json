@@ -17,7 +17,6 @@
       "WebFetch(domain:github.com)",
       "Bash(pnpm remove:*)",
       "Bash(pnpm test:*)",
-      "Bash(./scripts/quality-check-all.sh:*)",
       "Bash(mv:*)",
       "Bash(xcodebuild:*)",
       "Bash(gh run list:*)",
@@ -39,13 +38,11 @@
       "Bash(sed:*)",
       "Bash(npm run test:*)",
       "mcp__serena__find_file",
-      "Bash(./scripts/quality-check.sh:*)",
       "Bash(grep:*)",
       "Bash(rm:*)",
       "mcp__serena__list_dir",
       "Bash(npm run typecheck:*)",
       "Bash(npm run type-check:*)",
-      "Bash(ios/scripts/quality-check.sh:*)",
       "Bash(npx biome check:*)",
       "Bash(npx biome:*)",
       "Bash(npm test)",
@@ -60,7 +57,6 @@
       "mcp__serena__think_about_collected_information",
       "Bash(make:*)",
       "Bash(gh api:*)",
-      "Bash(./ios/scripts/quality-check.sh:*)",
       "Bash(bash:*)",
       "Bash(gh pr comment:*)",
       "mcp__serena__think_about_whether_you_are_done",
@@ -71,9 +67,6 @@
       "Bash(awk:*)",
       "mcp__serena__insert_after_symbol",
       "mcp__serena__insert_before_symbol",
-      "Bash(ios/scripts/quality-check.sh:*)",
-      "Bash(../../scripts/quality-check.sh:*)",
-      "Bash(../scripts/fix-all.sh:*)",
       "Bash(./fix-all.sh)",
       "Bash(git log:*)",
       "Bash(timeout:*)",
@@ -86,9 +79,6 @@
     ],
     "deny": [],
     "ask": [],
-    "additionalDirectories": [
-      "/private/tmp",
-      "<USER_HOME>/Development"
-    ]
+    "additionalDirectories": ["/private/tmp", "<USER_HOME>/Development"]
   }
 }

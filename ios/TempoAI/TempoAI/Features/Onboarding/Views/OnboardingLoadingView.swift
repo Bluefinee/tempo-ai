@@ -204,7 +204,8 @@ struct OnboardingLoadingView: View {
     CacheManager.shared.saveOnboardingCompleted(true)
     
     // ホーム画面への遷移（1秒後）
-    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+    Task { @MainActor in
+      try? await Task.sleep(nanoseconds: 1_000_000_000)
       withAnimation(.easeInOut(duration: 0.5)) {
         // ContentViewでハンドリングされるため、ここではフラグ設定のみ
         onboardingState.isCompleted = true

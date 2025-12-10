@@ -5,11 +5,20 @@ import SwiftUI
 
 /// ユーザーデータのキャッシュ管理を担当するマネージャー
 /// UserDefaults を使用してローカルストレージに保存
+@MainActor
 final class CacheManager {
 
   // MARK: - Singleton
 
   static let shared: CacheManager = CacheManager()
+  
+  // MARK: - DateFormatter Cache
+  
+  private static let dateFormatter: DateFormatter = {
+    let formatter: DateFormatter = DateFormatter()
+    formatter.dateFormat = "yyyy-MM-dd"
+    return formatter
+  }()
 
   // MARK: - Properties
 
@@ -45,7 +54,6 @@ final class CacheManager {
     do {
       let data: Data = try encoder.encode(profile)
       userDefaults.set(data, forKey: Keys.userProfile)
-      userDefaults.synchronize()
     } catch {
       throw CacheError.encodingFailed(error)
     }
@@ -69,7 +77,6 @@ final class CacheManager {
   /// ユーザープロフィールを削除
   func deleteUserProfile() {
     userDefaults.removeObject(forKey: Keys.userProfile)
-    userDefaults.synchronize()
   }
 
   // MARK: - Onboarding Management
@@ -78,7 +85,6 @@ final class CacheManager {
   /// - Parameter completed: 完了状態
   func saveOnboardingCompleted(_ completed: Bool) {
     userDefaults.set(completed, forKey: Keys.onboardingCompleted)
-    userDefaults.synchronize()
   }
 
   /// オンボーディング完了状態を読み込み
@@ -90,7 +96,6 @@ final class CacheManager {
   /// オンボーディング状態をリセット
   func resetOnboardingState() {
     userDefaults.removeObject(forKey: Keys.onboardingCompleted)
-    userDefaults.synchronize()
   }
 
   // MARK: - Advice Cache Management
@@ -107,7 +112,6 @@ final class CacheManager {
       let data: Data = try encoder.encode(advice)
       userDefaults.set(data, forKey: dateKey)
       userDefaults.set(date, forKey: Keys.lastAdviceDate)
-      userDefaults.synchronize()
     } catch {
       throw CacheError.encodingFailed(error)
     }
@@ -148,9 +152,7 @@ final class CacheManager {
   /// - Parameter date: 対象日
   /// - Returns: ユニークなキー文字列
   private func adviceKey(for date: Date) -> String {
-    let formatter: DateFormatter = DateFormatter()
-    formatter.dateFormat = "yyyy-MM-dd"
-    return "advice_\(formatter.string(from: date))"
+    return "advice_\(Self.dateFormatter.string(from: date))"
   }
 }
 
@@ -639,7 +641,6 @@ extension CacheManager {
     ]
     
     keys.forEach { userDefaults.removeObject(forKey: $0) }
-    userDefaults.synchronize()
     
     print("✅ アプリデータを完全削除しました")
   }
@@ -652,7 +653,6 @@ extension CacheManager {
     ]
     
     onboardingKeys.forEach { userDefaults.removeObject(forKey: $0) }
-    userDefaults.synchronize()
   }
   
   /// 権限状態のリセット（アプリ内状態のみ）

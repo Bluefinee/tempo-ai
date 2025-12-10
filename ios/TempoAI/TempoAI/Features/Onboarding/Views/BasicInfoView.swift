@@ -181,16 +181,19 @@ struct BasicInfoView: View {
     if let basicInfo = onboardingState.basicInfo {
       age = String(basicInfo.age)
       selectedGender = basicInfo.gender
-      weight = String(format: "%.1f", basicInfo.weightKg).replacingOccurrences(of: ".0", with: "")
-      height = String(format: "%.1f", basicInfo.heightCm).replacingOccurrences(of: ".0", with: "")
+      weight = basicInfo.weightKg.truncatingRemainder(dividingBy: 1) == 0
+        ? String(Int(basicInfo.weightKg))
+        : String(format: "%.1f", basicInfo.weightKg)
+      height = basicInfo.heightCm.truncatingRemainder(dividingBy: 1) == 0
+        ? String(Int(basicInfo.heightCm))
+        : String(format: "%.1f", basicInfo.heightCm)
     }
   }
 
   private func updateBasicInfo() {
     guard let ageInt = Int(age),
       let weightDouble = Double(weight),
-      let heightDouble = Double(height),
-      !age.isEmpty && !weight.isEmpty && !height.isEmpty
+      let heightDouble = Double(height)
     else {
       return
     }

@@ -1,8 +1,9 @@
 import Foundation
 
 /// オンボーディングの進行状態を管理するObservableクラス
+@MainActor
 @Observable
-final class OnboardingState: Sendable {
+final class OnboardingState {
 
   // MARK: - Properties
 

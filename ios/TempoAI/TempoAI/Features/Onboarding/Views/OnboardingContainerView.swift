@@ -7,7 +7,6 @@ struct OnboardingContainerView: View {
   // MARK: - Properties
 
   @State private var onboardingState: OnboardingState = OnboardingState()
-  @Environment(\.dismiss) private var dismiss
 
   let onComplete: (UserProfile) -> Void
 
@@ -50,7 +49,7 @@ struct OnboardingContainerView: View {
         }
       }
     }
-    .navigationBarHidden(true)
+    .toolbar(.hidden, for: .navigationBar)
   }
 
   // MARK: - Components
@@ -301,7 +300,6 @@ struct ProgressHeader: View {
   let title: String
   let onBack: () -> Void
 
-  @Environment(\.dismiss) private var dismiss
   init(currentStep: Int, title: String, onBack: @escaping () -> Void) {
     self.currentStep = currentStep
     self.title = title

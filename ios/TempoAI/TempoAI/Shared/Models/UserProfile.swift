@@ -22,18 +22,20 @@ struct UserProfile: Codable, Sendable {
   /// BMI計算
   var bmi: Double {
     let heightInMeters: Double = heightCm / 100.0
+    guard heightInMeters > 0 else { return 0.0 }
     return weightKg / (heightInMeters * heightInMeters)
   }
 
   /// プロフィール完成度（0.0〜1.0）
   var completionRate: Double {
-    let totalFields: Double = 9.0
+    let totalFields: Double = 10.0
     var completedFields: Double = 5.0  // 必須フィールド（nickname, age, gender, weight, height）
 
     if occupation != nil { completedFields += 1.0 }
     if lifestyleRhythm != nil { completedFields += 1.0 }
     if exerciseFrequency != nil { completedFields += 1.0 }
     if alcoholFrequency != nil { completedFields += 1.0 }
+    if !interests.isEmpty { completedFields += 1.0 }
 
     return completedFields / totalFields
   }

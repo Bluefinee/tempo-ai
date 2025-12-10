@@ -8,8 +8,6 @@ struct LifestyleView: View {
   @Bindable var onboardingState: OnboardingState
   @State private var selectedOccupation: UserProfile.Occupation?
   @State private var selectedLifestyleRhythm: UserProfile.LifestyleRhythm?
-  @State private var selectedExerciseFrequency: UserProfile.ExerciseFrequency?
-  @State private var selectedAlcoholFrequency: UserProfile.AlcoholFrequency?
 
   // MARK: - Body
 
@@ -52,8 +50,8 @@ struct LifestyleView: View {
     onboardingState.updateLifestyle(
       occupation: selectedOccupation,
       lifestyleRhythm: selectedLifestyleRhythm,
-      exerciseFrequency: selectedExerciseFrequency,
-      alcoholFrequency: selectedAlcoholFrequency
+      exerciseFrequency: nil,
+      alcoholFrequency: nil
     )
   }
 }
@@ -246,13 +244,11 @@ private struct SelectionCard: View {
       .padding(.vertical, style == .compact ? 12 : 16)
       .background(
         RoundedRectangle(cornerRadius: 12)
-          .fill(
-            isSelected ? Color.tempoSageGreen : Color.tempoInputBackground
-          )
-          .stroke(
-            isSelected ? Color.tempoSageGreen : Color.tempoInputBorder,
-            lineWidth: 1
-          )
+          .fill(isSelected ? Color.tempoSageGreen : Color.tempoInputBackground)
+      )
+      .overlay(
+        RoundedRectangle(cornerRadius: 12)
+          .stroke(isSelected ? Color.tempoSageGreen : Color.tempoInputBorder, lineWidth: 1)
       )
     }
     .buttonStyle(.plain)

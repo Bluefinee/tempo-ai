@@ -133,7 +133,7 @@ reviews:
         - @StateObject: 作成・所有する場合
         - @ObservedObject: 親から受け取る場合
         - @State: ローカルUI状態のみ
-        - View body 50行以下（超過時はコンポーネント抽出）
+        - View body 120行以下（超過時はコンポーネント抽出）
         - NavigationStack使用（NavigationView非推奨）
 
         ### 4. 非同期・メモリ管理

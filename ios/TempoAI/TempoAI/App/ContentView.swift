@@ -1,5 +1,6 @@
 import SwiftUI
 import Foundation
+import os.log
 
 extension Notification.Name {
   static let onboardingReset = Notification.Name("onboardingReset")
@@ -9,6 +10,8 @@ struct ContentView: View {
 
   // MARK: - Properties
 
+  private let logger: Logger = Logger(subsystem: "com.tempoai", category: "ContentView")
+  
   @State private var isOnboardingCompleted: Bool = false
   @State private var userProfile: UserProfile?
   @State private var isCheckingOnboardingStatus: Bool = true
@@ -46,10 +49,17 @@ struct ContentView: View {
     if isCompleted {
       do {
         let profile = try CacheManager.shared.loadUserProfile()
-        userProfile = profile
-        isOnboardingCompleted = true
+        if let profile = profile {
+          userProfile = profile
+          isOnboardingCompleted = true
+        } else {
+          logger.warning("Onboarding completed but profile is nil, resetting state")
+          CacheManager.shared.resetOnboardingState()
+          isOnboardingCompleted = false
+        }
       } catch {
-        print("Failed to load user profile: \(error)")
+        logger.error("Failed to load user profile: \(error.localizedDescription)")
+        CacheManager.shared.deleteUserProfile()
         isOnboardingCompleted = false
       }
     } else {
@@ -167,7 +177,7 @@ private struct HomeView: View {
         }
       }
       .background(Color.tempoLightCream.ignoresSafeArea())
-      .navigationBarHidden(true)
+      .toolbar(.hidden, for: .navigationBar)
       .alert("オンボーディングをリセット", isPresented: $showingResetAlert) {
         Button("キャンセル", role: .cancel) { }
         Button("リセット", role: .destructive) {

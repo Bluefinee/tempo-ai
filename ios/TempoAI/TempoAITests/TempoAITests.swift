@@ -4,14 +4,6 @@ import XCTest
 
 final class TempoAITests: XCTestCase {
 
-  override func setUpWithError() throws {
-    // Put setup code here. This method is called before the invocation of each test method in the class.
-  }
-
-  override func tearDownWithError() throws {
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
-  }
-
   func testAppInitialization() throws {
     // Test that the app initializes without crashing
     XCTAssertNotNil(TempoAIApp(), "TempoAI app should initialize properly")

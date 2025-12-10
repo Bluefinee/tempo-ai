@@ -1,8 +1,10 @@
 import { z } from 'zod';
+import { AdditionalAdviceSchema, DailyAdviceSchema } from './domain.js';
 
-/**
- * Health check response schema
- */
+// =============================================================================
+// Health Check Response
+// =============================================================================
+
 export const HealthCheckResponseSchema = z.object({
   status: z.literal('ok'),
   timestamp: z.string(),
@@ -11,39 +13,101 @@ export const HealthCheckResponseSchema = z.object({
   version: z.string(),
 });
 
-/**
- * API info response schema
- */
+export type HealthCheckResponse = z.infer<typeof HealthCheckResponseSchema>;
+
+// =============================================================================
+// API Info Response
+// =============================================================================
+
 export const ApiInfoResponseSchema = z.object({
   message: z.literal('Tempo AI Backend API'),
   version: z.string(),
   endpoints: z.record(z.string()),
 });
 
-/**
- * Placeholder advice response schema
- */
-export const PlaceholderAdviceResponseSchema = z.object({
-  message: z.string(),
-  status: z.literal('coming_soon'),
-});
+export type ApiInfoResponse = z.infer<typeof ApiInfoResponseSchema>;
 
-/**
- * Generic API response wrapper schema
- */
+// Placeholder response removed - replaced with full API implementation
+
+// =============================================================================
+// Generic API Response Wrapper
+// =============================================================================
+
 export const ApiResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
   z.object({
     success: z.boolean(),
     data: dataSchema.optional(),
     error: z.string().optional(),
+    code: z.string().optional(),
   });
 
-// Export type definitions
-export type HealthCheckResponse = z.infer<typeof HealthCheckResponseSchema>;
-export type ApiInfoResponse = z.infer<typeof ApiInfoResponseSchema>;
-export type PlaceholderAdviceResponse = z.infer<typeof PlaceholderAdviceResponseSchema>;
-export type ApiResponse<T> = {
+export interface ApiResponse<T> {
   success: boolean;
   data?: T;
   error?: string;
-};
+  code?: string;
+}
+
+// =============================================================================
+// Advice Response Types
+// =============================================================================
+
+export const AdviceResponseDataSchema = z.object({
+  mainAdvice: DailyAdviceSchema,
+  additionalAdvice: AdditionalAdviceSchema.optional(),
+});
+
+export const AdviceResponseSchema = z.object({
+  success: z.boolean(),
+  data: AdviceResponseDataSchema.optional(),
+  error: z.string().optional(),
+  code: z.string().optional(),
+});
+
+export type AdviceResponseData = z.infer<typeof AdviceResponseDataSchema>;
+export type AdviceResponse = z.infer<typeof AdviceResponseSchema>;
+
+// =============================================================================
+// Additional Advice Response
+// =============================================================================
+
+export const AdditionalAdviceResponseSchema = z.object({
+  success: z.boolean(),
+  data: AdditionalAdviceSchema.optional(),
+  error: z.string().optional(),
+  code: z.string().optional(),
+});
+
+export type AdditionalAdviceResponse = z.infer<typeof AdditionalAdviceResponseSchema>;
+
+// =============================================================================
+// Error Response Types
+// =============================================================================
+
+export const ErrorResponseSchema = z.object({
+  success: z.literal(false),
+  error: z.string(),
+  code: z.string().optional(),
+});
+
+export type ErrorResponse = z.infer<typeof ErrorResponseSchema>;
+
+// =============================================================================
+// HTTP Status Code Constants
+// =============================================================================
+
+export const HttpStatus = {
+  OK: 200,
+  CREATED: 201,
+  BAD_REQUEST: 400,
+  UNAUTHORIZED: 401,
+  FORBIDDEN: 403,
+  NOT_FOUND: 404,
+  CONFLICT: 409,
+  TOO_MANY_REQUESTS: 429,
+  INTERNAL_SERVER_ERROR: 500,
+  BAD_GATEWAY: 502,
+  SERVICE_UNAVAILABLE: 503,
+} as const;
+
+export type HttpStatusCode = (typeof HttpStatus)[keyof typeof HttpStatus];

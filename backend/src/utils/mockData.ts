@@ -67,11 +67,17 @@ export const createPersonalizedMockAdvice = (nickname: string): AdviceResponse =
   const mockResponse = createMockAdviceResponse();
 
   if (mockResponse.data?.mainAdvice) {
-    // Replace placeholder with actual nickname
-    mockResponse.data.mainAdvice.greeting = mockResponse.data.mainAdvice.greeting.replace(
-      '〇〇さん',
-      `${nickname}さん`,
-    );
+    // Create new objects instead of mutating
+    return {
+      ...mockResponse,
+      data: {
+        ...mockResponse.data,
+        mainAdvice: {
+          ...mockResponse.data.mainAdvice,
+          greeting: mockResponse.data.mainAdvice.greeting.replace('〇〇さん', `${nickname}さん`),
+        },
+      },
+    };
   }
 
   return mockResponse;
@@ -88,20 +94,32 @@ export const createMockAdviceForTimeSlot = (
   const mockResponse = createPersonalizedMockAdvice(nickname);
 
   if (mockResponse.data?.mainAdvice) {
-    mockResponse.data.mainAdvice.timeSlot = timeSlot;
-
-    // Adjust greeting for time of day
+    // Determine greeting based on time slot
+    let greeting: string;
     switch (timeSlot) {
       case 'morning':
-        mockResponse.data.mainAdvice.greeting = `${nickname}さん、おはようございます`;
+        greeting = `${nickname}さん、おはようございます`;
         break;
       case 'afternoon':
-        mockResponse.data.mainAdvice.greeting = `${nickname}さん、お疲れさまです`;
+        greeting = `${nickname}さん、お疲れさまです`;
         break;
       case 'evening':
-        mockResponse.data.mainAdvice.greeting = `${nickname}さん、お疲れさまでした`;
+        greeting = `${nickname}さん、お疲れさまでした`;
         break;
     }
+
+    // Create new objects instead of mutating
+    return {
+      ...mockResponse,
+      data: {
+        ...mockResponse.data,
+        mainAdvice: {
+          ...mockResponse.data.mainAdvice,
+          timeSlot,
+          greeting,
+        },
+      },
+    };
   }
 
   return mockResponse;

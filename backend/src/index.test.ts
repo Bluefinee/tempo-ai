@@ -64,8 +64,8 @@ describe('Tempo AI Backend', () => {
     const res = await app.request(req);
 
     expect(res.status).toBe(500); // Error handled by onError hook
-    
-    const json = await res.json() as { success: boolean; error: string };
+
+    const json = (await res.json()) as { success: boolean; error: string };
     expect(json.success).toBe(false);
     expect(json.error).toBe('API key is required');
   });
@@ -137,7 +137,7 @@ describe('Tempo AI Backend', () => {
 
     expect(res.status).toBe(400);
 
-    const json = await res.json() as { success: boolean; error: string };
+    const json = (await res.json()) as { success: boolean; error: string };
     expect(json.success).toBe(false);
     expect(json.error).toContain('Validation failed');
   });
@@ -153,7 +153,7 @@ describe('Tempo AI Backend', () => {
 
     expect(res.status).toBe(200);
 
-    const json = await res.json() as { message: string; phase: { current: number } };
+    const json = (await res.json()) as { message: string; phase: { current: number } };
     expect(json.message).toContain('Tempo AI Advice API');
     expect(json.phase.current).toBe(7);
   });

@@ -27,6 +27,11 @@ struct HomeHeaderView: View {
         .font(.subheadline)
         .fontWeight(.medium)
         .foregroundColor(.tempoPrimaryText)
+      #else
+      Text(Date.now.formatted(.dateTime.month(.abbreviated).day().weekday(.abbreviated).locale(Locale(identifier: "ja_JP"))))
+        .font(.subheadline)
+        .fontWeight(.medium)
+        .foregroundColor(.tempoPrimaryText)
       #endif
       
       Spacer()
@@ -48,6 +53,10 @@ struct HomeHeaderView: View {
       )
       .font(.subheadline)
       .foregroundColor(.tempoSecondaryText)
+      #else
+      Text("☀️ --°C")
+        .font(.subheadline)
+        .foregroundColor(.tempoSecondaryText)
       #endif
       
       Spacer()
@@ -61,6 +70,12 @@ struct HomeHeaderView: View {
     HStack {
       #if DEBUG
       Text(MockData.getCurrentGreeting(nickname: userProfile.nickname))
+        .font(.title2)
+        .fontWeight(.semibold)
+        .foregroundColor(.tempoPrimaryText)
+        .multilineTextAlignment(.leading)
+      #else
+      Text("\(userProfile.nickname)さん、こんにちは")
         .font(.title2)
         .fontWeight(.semibold)
         .foregroundColor(.tempoPrimaryText)

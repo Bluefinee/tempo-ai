@@ -141,10 +141,9 @@ adviceRouter.post('/', async (c: Context): Promise<Response> => {
     });
 
     return c.json(response, HttpStatus.OK);
-
   } catch (error) {
     console.error('[Claude] Advice generation failed, using fallback:', error);
-    
+
     // Fallback to mock response on Claude API failure
     const fallbackAdvice = createFallbackAdvice(adviceRequest.userProfile.nickname);
     const mockResponse = {
@@ -211,7 +210,7 @@ adviceRouter.get('/', (c: Context): Response => {
 const getApiKey = (c: Context<{ Bindings: Bindings }>): string => {
   const key = c.env.ANTHROPIC_API_KEY;
   if (!key) {
-    throw new AuthenticationError("ANTHROPIC_API_KEY is not configured");
+    throw new AuthenticationError('ANTHROPIC_API_KEY is not configured');
   }
   return key;
 };
@@ -238,6 +237,5 @@ const buildRequestContext = (currentTime: string): RequestContext => {
     lastWeeklyTry,
   };
 };
-
 
 export { adviceRouter };

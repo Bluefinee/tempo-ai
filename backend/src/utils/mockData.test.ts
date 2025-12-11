@@ -11,7 +11,7 @@ describe('Mock Data Utilities', () => {
       expect(result.success).toBe(true);
       expect(result.data).toBeTruthy();
       expect(result.data?.mainAdvice).toBeDefined();
-      
+
       if (result.data?.mainAdvice) {
         expect(result.data.mainAdvice.greeting).toContain(testNickname);
         expect(result.data.mainAdvice.greeting).toContain('おはよう');
@@ -32,7 +32,7 @@ describe('Mock Data Utilities', () => {
       expect(result.success).toBe(true);
       expect(result.data).toBeTruthy();
       expect(result.data?.mainAdvice).toBeDefined();
-      
+
       if (result.data?.mainAdvice) {
         expect(result.data.mainAdvice.greeting).toContain(testNickname);
         expect(result.data.mainAdvice.greeting).toContain('お疲れさま');
@@ -49,7 +49,7 @@ describe('Mock Data Utilities', () => {
       expect(result.success).toBe(true);
       expect(result.data).toBeTruthy();
       expect(result.data?.mainAdvice).toBeDefined();
-      
+
       if (result.data?.mainAdvice) {
         expect(result.data.mainAdvice.greeting).toContain(testNickname);
         expect(result.data.mainAdvice.greeting).toContain('お疲れさま');
@@ -66,7 +66,7 @@ describe('Mock Data Utilities', () => {
       expect(result.success).toBe(true);
       expect(result.data).toBeTruthy();
       expect(result.data?.mainAdvice).toBeDefined();
-      
+
       if (result.data?.mainAdvice) {
         expect(result.data.mainAdvice.greeting).toContain('さん、おはよう');
       }
@@ -79,7 +79,7 @@ describe('Mock Data Utilities', () => {
       expect(result.success).toBe(true);
       expect(result.data).toBeTruthy();
       expect(result.data?.mainAdvice).toBeDefined();
-      
+
       if (result.data?.mainAdvice) {
         expect(result.data.mainAdvice.greeting).toContain(specialNickname);
       }
@@ -92,7 +92,7 @@ describe('Mock Data Utilities', () => {
       expect(result.success).toBe(true);
       expect(result.data).toBeTruthy();
       expect(result.data?.mainAdvice).toBeDefined();
-      
+
       if (result.data?.mainAdvice) {
         expect(result.data.mainAdvice.greeting).toContain(longNickname);
       }
@@ -101,7 +101,7 @@ describe('Mock Data Utilities', () => {
     describe('Response Structure Validation', () => {
       it('should have valid action suggestions structure', () => {
         const result = createMockAdviceForTimeSlot(testNickname, 'morning');
-        
+
         if (result.data?.mainAdvice) {
           for (const action of result.data.mainAdvice.actionSuggestions) {
             expect(action.icon).toBeTruthy();
@@ -116,7 +116,7 @@ describe('Mock Data Utilities', () => {
 
       it('should have valid daily try structure', () => {
         const result = createMockAdviceForTimeSlot(testNickname, 'morning');
-        
+
         if (result.data?.mainAdvice) {
           const { dailyTry } = result.data.mainAdvice;
           expect(dailyTry.title).toBeTruthy();
@@ -130,7 +130,7 @@ describe('Mock Data Utilities', () => {
 
       it('should have valid timestamp format', () => {
         const result = createMockAdviceForTimeSlot(testNickname, 'morning');
-        
+
         if (result.data?.mainAdvice) {
           const timestamp = new Date(result.data.mainAdvice.generatedAt);
           expect(timestamp.toISOString()).toBe(result.data.mainAdvice.generatedAt);
@@ -165,7 +165,7 @@ describe('Mock Data Utilities', () => {
         expect(morning.data?.mainAdvice.greeting).toContain('おはよう');
         expect(afternoon.data?.mainAdvice.greeting).toContain('お疲れさま');
         expect(evening.data?.mainAdvice.greeting).toContain('お疲れさま');
-        
+
         // Afternoon and evening should be different
         expect(afternoon.data?.mainAdvice.greeting).not.toBe(evening.data?.mainAdvice.greeting);
       });
@@ -181,9 +181,10 @@ describe('Mock Data Utilities', () => {
         expect(evening.data?.mainAdvice.actionSuggestions).toHaveLength(2);
 
         // In current implementation, action suggestions are the same (only greeting changes)
-        const morningTitles = morning.data?.mainAdvice.actionSuggestions.map(a => a.title) || [];
-        const afternoonTitles = afternoon.data?.mainAdvice.actionSuggestions.map(a => a.title) || [];
-        const eveningTitles = evening.data?.mainAdvice.actionSuggestions.map(a => a.title) || [];
+        const morningTitles = morning.data?.mainAdvice.actionSuggestions.map((a) => a.title) || [];
+        const afternoonTitles =
+          afternoon.data?.mainAdvice.actionSuggestions.map((a) => a.title) || [];
+        const eveningTitles = evening.data?.mainAdvice.actionSuggestions.map((a) => a.title) || [];
 
         // Current implementation uses same content, only greeting differs
         expect(morningTitles).toEqual(afternoonTitles);
@@ -201,8 +202,12 @@ describe('Mock Data Utilities', () => {
         expect(evening.data?.mainAdvice.dailyTry).toBeTruthy();
 
         // Current implementation uses same dailyTry content (only greeting differs)
-        expect(morning.data?.mainAdvice.dailyTry.title).toBe(afternoon.data?.mainAdvice.dailyTry.title);
-        expect(afternoon.data?.mainAdvice.dailyTry.title).toBe(evening.data?.mainAdvice.dailyTry.title);
+        expect(morning.data?.mainAdvice.dailyTry.title).toBe(
+          afternoon.data?.mainAdvice.dailyTry.title,
+        );
+        expect(afternoon.data?.mainAdvice.dailyTry.title).toBe(
+          evening.data?.mainAdvice.dailyTry.title,
+        );
       });
     });
 
@@ -212,13 +217,15 @@ describe('Mock Data Utilities', () => {
         const result2 = createMockAdviceForTimeSlot(testNickname, 'morning');
 
         expect(result1.data?.mainAdvice.greeting).toBe(result2.data?.mainAdvice.greeting);
-        expect(result1.data?.mainAdvice.condition.summary).toBe(result2.data?.mainAdvice.condition.summary);
+        expect(result1.data?.mainAdvice.condition.summary).toBe(
+          result2.data?.mainAdvice.condition.summary,
+        );
         expect(result1.data?.mainAdvice.timeSlot).toBe(result2.data?.mainAdvice.timeSlot);
       });
 
       it('should include nickname in greeting for all time slots', () => {
         const timeSlots = ['morning', 'afternoon', 'evening'] as const;
-        
+
         for (const timeSlot of timeSlots) {
           const result = createMockAdviceForTimeSlot(testNickname, timeSlot);
           expect(result.data?.mainAdvice.greeting).toContain(testNickname);

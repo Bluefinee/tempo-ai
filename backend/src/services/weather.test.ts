@@ -65,7 +65,7 @@ describe('Weather Service', () => {
         expect.stringContaining('api.open-meteo.com/v1/forecast'),
         expect.objectContaining({
           signal: expect.any(AbortSignal),
-        })
+        }),
       );
     });
 
@@ -81,8 +81,12 @@ describe('Weather Service', () => {
       expect(calledUrl).toBeDefined();
       expect(calledUrl).toContain('latitude=35.6762');
       expect(calledUrl).toContain('longitude=139.6503');
-      expect(calledUrl).toContain('current=temperature_2m%2Crelative_humidity_2m%2Cweather_code%2Csurface_pressure');
-      expect(calledUrl).toContain('daily=temperature_2m_max%2Ctemperature_2m_min%2Cuv_index_max%2Cprecipitation_probability_max');
+      expect(calledUrl).toContain(
+        'current=temperature_2m%2Crelative_humidity_2m%2Cweather_code%2Csurface_pressure',
+      );
+      expect(calledUrl).toContain(
+        'daily=temperature_2m_max%2Ctemperature_2m_min%2Cuv_index_max%2Cprecipitation_probability_max',
+      );
       expect(calledUrl).toContain('timezone=Asia%2FTokyo');
     });
 
@@ -108,21 +112,29 @@ describe('Weather Service', () => {
       });
 
       await expect(fetchWeatherData(validParams)).rejects.toThrow(WeatherApiError);
-      await expect(fetchWeatherData(validParams)).rejects.toThrow('Weather API returned 400: Bad Request');
+      await expect(fetchWeatherData(validParams)).rejects.toThrow(
+        'Weather API returned 400: Bad Request',
+      );
     });
 
     it('should handle network errors', async () => {
       mockFetch.mockRejectedValue(new Error('Network error'));
 
       await expect(fetchWeatherData(validParams)).rejects.toThrow(WeatherApiError);
-      await expect(fetchWeatherData(validParams)).rejects.toThrow('Weather API request failed: Network error');
+      await expect(fetchWeatherData(validParams)).rejects.toThrow(
+        'Weather API request failed: Network error',
+      );
     });
 
     it('should handle timeout errors', async () => {
-      mockFetch.mockRejectedValue(Object.assign(new Error('The operation was aborted.'), { name: 'AbortError' }));
+      mockFetch.mockRejectedValue(
+        Object.assign(new Error('The operation was aborted.'), { name: 'AbortError' }),
+      );
 
       await expect(fetchWeatherData(validParams)).rejects.toThrow(WeatherApiError);
-      await expect(fetchWeatherData(validParams)).rejects.toThrow('Weather API request timed out after 5000ms');
+      await expect(fetchWeatherData(validParams)).rejects.toThrow(
+        'Weather API request timed out after 5000ms',
+      );
     });
 
     it('should handle missing current data', async () => {
@@ -203,7 +215,7 @@ describe('Weather Service', () => {
 
     it('should log request and response correctly', async () => {
       const consoleSpy = vi.spyOn(console, 'log');
-      
+
       mockFetch.mockResolvedValue({
         ok: true,
         json: async () => mockOpenMeteoResponse,
@@ -217,19 +229,22 @@ describe('Weather Service', () => {
 
     it('should log errors correctly', async () => {
       const consoleErrorSpy = vi.spyOn(console, 'error');
-      
+
       mockFetch.mockRejectedValue(new Error('Test error'));
 
       await expect(fetchWeatherData(validParams)).rejects.toThrow();
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith('[Weather] Error:', expect.stringContaining('Test error'));
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        '[Weather] Error:',
+        expect.stringContaining('Test error'),
+      );
     });
   });
 
   describe('Edge Cases', () => {
     it('should handle extreme coordinates', async () => {
       const extremeParams = { latitude: -89.9, longitude: 179.9 };
-      
+
       mockFetch.mockResolvedValue({
         ok: true,
         json: async () => mockOpenMeteoResponse,
@@ -241,7 +256,7 @@ describe('Weather Service', () => {
 
     it('should handle zero coordinates', async () => {
       const zeroParams = { latitude: 0, longitude: 0 };
-      
+
       mockFetch.mockResolvedValue({
         ok: true,
         json: async () => mockOpenMeteoResponse,
@@ -253,7 +268,7 @@ describe('Weather Service', () => {
 
     it('should handle fractional coordinates', async () => {
       const fractionalParams = { latitude: 35.6762123, longitude: 139.6503456 };
-      
+
       mockFetch.mockResolvedValue({
         ok: true,
         json: async () => mockOpenMeteoResponse,

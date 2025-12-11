@@ -5,7 +5,7 @@ import { validateApiKey, rateLimit } from './auth.js';
 // Create a test app with auth middleware and proper error handling
 const createTestApp = () => {
   const app = new Hono<{ Bindings: { ENVIRONMENT?: string } }>();
-  
+
   // Error handling similar to main app
   app.onError((err, c) => {
     const statusCode: number =
@@ -21,20 +21,20 @@ const createTestApp = () => {
       statusCode as 200 | 400 | 401 | 429 | 500,
     );
   });
-  
+
   app.use('/*', validateApiKey);
   app.use('/*', rateLimit);
-  
+
   app.get('/test', (c) => c.json({ success: true }));
   app.post('/test', (c) => c.json({ success: true }));
-  
+
   return app;
 };
 
 // Create separate test app for rate limiting tests to avoid interference
 const createRateLimitTestApp = () => {
   const app = new Hono<{ Bindings: { ENVIRONMENT?: string } }>();
-  
+
   app.onError((err, c) => {
     const statusCode: number =
       'statusCode' in err && typeof err.statusCode === 'number' ? err.statusCode : 500;
@@ -49,11 +49,11 @@ const createRateLimitTestApp = () => {
       statusCode as 200 | 400 | 401 | 429 | 500,
     );
   });
-  
+
   app.use('/*', rateLimit); // Only rate limiting, no auth
-  
+
   app.get('/test', (c) => c.json({ success: true }));
-  
+
   return app;
 };
 
@@ -68,7 +68,7 @@ describe('Authentication Middleware', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {
       // Mock implementation for testing
     });
-    
+
     testApp = createTestApp();
   });
 
@@ -89,7 +89,7 @@ describe('Authentication Middleware', () => {
       const res = await testApp.request(req, {}, { ENVIRONMENT: 'development' });
 
       expect(res.status).toBe(200);
-      const json = await res.json() as { success: boolean };
+      const json = (await res.json()) as { success: boolean };
       expect(json.success).toBe(true);
     });
 
@@ -99,7 +99,7 @@ describe('Authentication Middleware', () => {
       const res = await testApp.request(req, {}, { ENVIRONMENT: 'development' });
 
       expect(res.status).toBe(401);
-      const json = await res.json() as { success: boolean; error: string };
+      const json = (await res.json()) as { success: boolean; error: string };
       expect(json.success).toBe(false);
       expect(json.error).toBe('API key is required');
     });
@@ -114,7 +114,7 @@ describe('Authentication Middleware', () => {
       const res = await testApp.request(req, {}, { ENVIRONMENT: 'development' });
 
       expect(res.status).toBe(401);
-      const json = await res.json() as { success: boolean; error: string };
+      const json = (await res.json()) as { success: boolean; error: string };
       expect(json.success).toBe(false);
       expect(json.error).toBe('Invalid API key');
     });
@@ -141,7 +141,7 @@ describe('Authentication Middleware', () => {
       const res = await testApp.request(req, {}, { ENVIRONMENT: 'production' });
 
       expect(res.status).toBe(401);
-      const json = await res.json() as { success: boolean; error: string };
+      const json = (await res.json()) as { success: boolean; error: string };
       expect(json.error).toBe('Server configuration error');
     });
   });
@@ -172,13 +172,16 @@ describe('Authentication Middleware', () => {
       // 11th request should be rate limited
       const rateLimitedRes = await rateLimitApp.request(req, {}, { ENVIRONMENT: 'development' });
       expect(rateLimitedRes.status).toBe(429);
-      
-      const json = await rateLimitedRes.json() as { success: boolean; error: string; code: string };
+
+      const json = (await rateLimitedRes.json()) as {
+        success: boolean;
+        error: string;
+        code: string;
+      };
       expect(json.success).toBe(false);
       expect(json.error).toBe('Rate limit exceeded');
       expect(json.code).toBe('RATE_LIMIT_EXCEEDED');
     });
-
 
     it('should handle anonymous requests', async () => {
       const req = new Request('http://localhost/test');
@@ -194,7 +197,7 @@ describe('Authentication Middleware', () => {
     it('should clear all rate limiter data', async () => {
       const { clearRateLimiter } = await import('./auth.js');
       const rateLimitApp = createRateLimitTestApp();
-      
+
       const req = new Request('http://localhost/test');
 
       // Make some requests to populate rate limiter

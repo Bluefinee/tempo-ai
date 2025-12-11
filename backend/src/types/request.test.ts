@@ -56,7 +56,7 @@ describe('Request Validation', () => {
 
     it('should reject request with missing userProfile', () => {
       const invalidData = { ...validRequestData };
-      (invalidData as Record<string, unknown>)["userProfile"] = undefined;
+      (invalidData as Record<string, unknown>)['userProfile'] = undefined;
 
       const result = validateAdviceRequest(invalidData);
 
@@ -67,7 +67,7 @@ describe('Request Validation', () => {
 
     it('should reject request with missing healthData', () => {
       const invalidData = { ...validRequestData };
-      (invalidData as Record<string, unknown>)["healthData"] = undefined;
+      (invalidData as Record<string, unknown>)['healthData'] = undefined;
 
       const result = validateAdviceRequest(invalidData);
 
@@ -77,7 +77,7 @@ describe('Request Validation', () => {
 
     it('should reject request with missing location', () => {
       const invalidData = { ...validRequestData };
-      (invalidData as Record<string, unknown>)["location"] = undefined;
+      (invalidData as Record<string, unknown>)['location'] = undefined;
 
       const result = validateAdviceRequest(invalidData);
 
@@ -87,7 +87,7 @@ describe('Request Validation', () => {
 
     it('should reject request with missing context', () => {
       const invalidData = { ...validRequestData };
-      (invalidData as Record<string, unknown>)["context"] = undefined;
+      (invalidData as Record<string, unknown>)['context'] = undefined;
 
       const result = validateAdviceRequest(invalidData);
 

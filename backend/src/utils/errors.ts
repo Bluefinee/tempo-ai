@@ -117,7 +117,11 @@ export class ClaudeApiError extends ExternalApiError {
   override readonly code = 'CLAUDE_API_ERROR';
   readonly apiStatusCode?: number | undefined;
 
-  constructor(message: string, apiStatusCode?: number, public readonly originalError?: Error) {
+  constructor(
+    message: string,
+    apiStatusCode?: number,
+    public readonly originalError?: Error,
+  ) {
     super(message, 'claude');
     this.apiStatusCode = apiStatusCode;
   }

@@ -1,7 +1,7 @@
-import type { ClaudePromptLayer } from "../types/claude.js";
+import type { ClaudePromptLayer } from '../types/claude.js';
 
 export const buildSystemPrompt = (): ClaudePromptLayer => ({
-  type: "text",
+  type: 'text',
   text: `あなたはTempo AIの専属ヘルスケアアドバイザーです。
 
 【役割】
@@ -61,7 +61,7 @@ export const buildSystemPrompt = (): ClaudePromptLayer => ({
 }
 
 JSONの前後に説明文は不要です。純粋なJSONのみを出力してください。`,
-  cache_control: { type: "ephemeral" },
+  cache_control: { type: 'ephemeral' },
 });
 
 export const buildAdditionalAdviceSystemPrompt = (): string => {

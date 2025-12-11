@@ -1,21 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { Mock } from 'vitest';
 import Anthropic from '@anthropic-ai/sdk';
-import { 
-  generateMainAdvice, 
-  generateAdditionalAdvice, 
-  createFallbackAdvice 
-} from './claude.js';
-import type { 
-  GenerateAdviceParams, 
-  AdditionalAdviceParams 
-} from '../types/claude.js';
-import type { 
-  UserProfile, 
-  HealthData, 
-  WeatherData, 
-  AirQualityData 
-} from '../types/domain.js';
+import { generateMainAdvice, generateAdditionalAdvice, createFallbackAdvice } from './claude.js';
+import type { GenerateAdviceParams, AdditionalAdviceParams } from '../types/claude.js';
+import type { UserProfile, HealthData, WeatherData, AirQualityData } from '../types/domain.js';
 import { ClaudeApiError } from '../utils/errors.js';
 
 // Mock Anthropic SDK
@@ -32,13 +20,13 @@ describe('Claude API Service', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     mockClient = {
       messages: {
         create: vi.fn(),
       },
     };
-    
+
     MockedAnthropic.mockImplementation(() => mockClient as unknown as Anthropic);
   });
 
@@ -309,7 +297,9 @@ ${JSON.stringify(mockAdviceResponse, null, 2)}
     it('should handle additional advice API errors with fallback', async () => {
       mockClient.messages.create.mockRejectedValue(new Error('API Error'));
 
-      await expect(generateAdditionalAdvice(mockAdditionalAdviceParams)).rejects.toThrow(ClaudeApiError);
+      await expect(generateAdditionalAdvice(mockAdditionalAdviceParams)).rejects.toThrow(
+        ClaudeApiError,
+      );
     });
   });
 

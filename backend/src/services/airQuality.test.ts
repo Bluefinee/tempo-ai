@@ -53,7 +53,7 @@ describe('Air Quality Service', () => {
         expect.stringContaining('air-quality-api.open-meteo.com/v1/air-quality'),
         expect.objectContaining({
           signal: expect.any(AbortSignal),
-        })
+        }),
       );
     });
 
@@ -94,21 +94,29 @@ describe('Air Quality Service', () => {
       });
 
       await expect(fetchAirQualityData(validParams)).rejects.toThrow(AirQualityApiError);
-      await expect(fetchAirQualityData(validParams)).rejects.toThrow('Air Quality API returned 500: Internal Server Error');
+      await expect(fetchAirQualityData(validParams)).rejects.toThrow(
+        'Air Quality API returned 500: Internal Server Error',
+      );
     });
 
     it('should handle network errors', async () => {
       mockFetch.mockRejectedValue(new Error('Network connection failed'));
 
       await expect(fetchAirQualityData(validParams)).rejects.toThrow(AirQualityApiError);
-      await expect(fetchAirQualityData(validParams)).rejects.toThrow('Air Quality API request failed: Network connection failed');
+      await expect(fetchAirQualityData(validParams)).rejects.toThrow(
+        'Air Quality API request failed: Network connection failed',
+      );
     });
 
     it('should handle timeout errors', async () => {
-      mockFetch.mockRejectedValue(Object.assign(new Error('The operation was aborted.'), { name: 'AbortError' }));
+      mockFetch.mockRejectedValue(
+        Object.assign(new Error('The operation was aborted.'), { name: 'AbortError' }),
+      );
 
       await expect(fetchAirQualityData(validParams)).rejects.toThrow(AirQualityApiError);
-      await expect(fetchAirQualityData(validParams)).rejects.toThrow('Air Quality API request timed out after 5000ms');
+      await expect(fetchAirQualityData(validParams)).rejects.toThrow(
+        'Air Quality API request timed out after 5000ms',
+      );
     });
 
     it('should handle missing current data', async () => {
@@ -203,7 +211,7 @@ describe('Air Quality Service', () => {
 
     it('should log request and response correctly', async () => {
       const consoleSpy = vi.spyOn(console, 'log');
-      
+
       mockFetch.mockResolvedValue({
         ok: true,
         json: async () => mockOpenMeteoResponse,
@@ -211,25 +219,30 @@ describe('Air Quality Service', () => {
 
       await fetchAirQualityData(validParams);
 
-      expect(consoleSpy).toHaveBeenCalledWith('[AirQuality] Fetching for lat=35.6762, lon=139.6503');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        '[AirQuality] Fetching for lat=35.6762, lon=139.6503',
+      );
       expect(consoleSpy).toHaveBeenCalledWith('[AirQuality] Response:', expect.any(Object));
     });
 
     it('should log errors correctly', async () => {
       const consoleErrorSpy = vi.spyOn(console, 'error');
-      
+
       mockFetch.mockRejectedValue(new Error('Test error'));
 
       await expect(fetchAirQualityData(validParams)).rejects.toThrow();
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith('[AirQuality] Error:', expect.stringContaining('Test error'));
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        '[AirQuality] Error:',
+        expect.stringContaining('Test error'),
+      );
     });
   });
 
   describe('Edge Cases', () => {
     it('should handle extreme coordinates', async () => {
       const extremeParams = { latitude: -89.9, longitude: 179.9 };
-      
+
       mockFetch.mockResolvedValue({
         ok: true,
         json: async () => mockOpenMeteoResponse,
@@ -241,7 +254,7 @@ describe('Air Quality Service', () => {
 
     it('should handle zero coordinates', async () => {
       const zeroParams = { latitude: 0, longitude: 0 };
-      
+
       mockFetch.mockResolvedValue({
         ok: true,
         json: async () => mockOpenMeteoResponse,
@@ -266,7 +279,7 @@ describe('Air Quality Service', () => {
       });
 
       const result = await fetchAirQualityData(validParams);
-      
+
       expect(result.aqi).toBe(250);
       expect(result.pm25).toBe(150.7);
       expect(result.pm10).toBe(300.2);

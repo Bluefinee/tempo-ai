@@ -1,4 +1,3 @@
-
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import app from '../index.js';
 import { generateMainAdvice } from '../services/claude.js';
@@ -31,10 +30,10 @@ const mockFetchAirQualityData = vi.mocked(fetchAirQualityData);
 describe('Advice Routes - Claude API Integration', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     // Clear rate limiter for test isolation
     clearRateLimiter();
-    
+
     // Mock successful weather data
     mockFetchWeatherData.mockResolvedValue({
       condition: '晴れ',
@@ -134,7 +133,7 @@ describe('Advice Routes - Claude API Integration', () => {
         headers: {
           'Content-Type': 'application/json',
           'X-API-Key': 'tempo-ai-mobile-app-key-v1',
-          'ANTHROPIC_API_KEY': 'test-claude-key',
+          ANTHROPIC_API_KEY: 'test-claude-key',
         },
         body: JSON.stringify(validRequestBody),
       });
@@ -143,14 +142,14 @@ describe('Advice Routes - Claude API Integration', () => {
         ANTHROPIC_API_KEY: 'test-claude-key',
         ENVIRONMENT: 'development' as const,
       };
-      
+
       const res = await app.request(req, {}, testEnv);
 
       expect(res.status).toBe(200);
 
-      const json = await res.json() as TestAdviceResponse;
+      const json = (await res.json()) as TestAdviceResponse;
       expect(json.success).toBe(true);
-      
+
       if (json.data) {
         expect(json.data.greeting).toContain('テストユーザーさん');
         expect(json.data.timeSlot).toBe('morning');
@@ -158,10 +157,10 @@ describe('Advice Routes - Claude API Integration', () => {
 
       // Verify Claude API was called
       expect(mockGenerateMainAdvice).toHaveBeenCalledTimes(1);
-      
+
       const callArgs = mockGenerateMainAdvice.mock.calls[0]?.[0];
       expect(callArgs).toBeDefined();
-      
+
       if (callArgs) {
         expect(callArgs.userProfile.nickname).toBe('テストユーザー');
         expect(callArgs.userProfile.interests).toEqual(['fitness', 'beauty']);
@@ -185,14 +184,14 @@ describe('Advice Routes - Claude API Integration', () => {
         ANTHROPIC_API_KEY: 'test-claude-key',
         ENVIRONMENT: 'development' as const,
       };
-      
+
       const res = await app.request(req, {}, testEnv);
 
       expect(res.status).toBe(200);
 
-      const json = await res.json() as TestAdviceResponse;
+      const json = (await res.json()) as TestAdviceResponse;
       expect(json.success).toBe(true);
-      
+
       if (json.data) {
         expect(json.data.greeting).toContain('テストユーザーさん');
         expect(json.data.condition.summary).toContain('あなたのペースで');
@@ -212,14 +211,14 @@ describe('Advice Routes - Claude API Integration', () => {
       const testEnv = {
         ENVIRONMENT: 'development' as const,
       };
-      
+
       const res = await app.request(req, {}, testEnv);
 
       expect(res.status).toBe(200);
 
-      const json = await res.json() as TestAdviceResponse;
+      const json = (await res.json()) as TestAdviceResponse;
       expect(json.success).toBe(true);
-      
+
       if (json.data) {
         // Should fallback due to missing API key
         expect(json.data.condition.summary).toContain('あなたのペースで');
@@ -244,14 +243,14 @@ describe('Advice Routes - Claude API Integration', () => {
         ANTHROPIC_API_KEY: 'test-claude-key',
         ENVIRONMENT: 'development' as const,
       };
-      
+
       const res = await app.request(req, {}, testEnv);
 
       expect(res.status).toBe(200);
 
-      const json = await res.json() as TestAdviceResponse;
+      const json = (await res.json()) as TestAdviceResponse;
       expect(json.success).toBe(true);
-      
+
       if (json.data) {
         expect(json.data).toBeTruthy();
       }
@@ -261,7 +260,7 @@ describe('Advice Routes - Claude API Integration', () => {
         expect.objectContaining({
           weatherData: undefined,
           airQualityData: undefined,
-        })
+        }),
       );
     });
 
@@ -285,12 +284,12 @@ describe('Advice Routes - Claude API Integration', () => {
         ANTHROPIC_API_KEY: 'test-claude-key',
         ENVIRONMENT: 'development' as const,
       };
-      
+
       await app.request(req, {}, testEnv);
 
       // Verify that logs were called (exact content may vary)
       expect(consoleSpy).toHaveBeenCalled();
-      
+
       // Check that sensitive data is not in logs
       const allLogs = consoleSpy.mock.calls.flat().join(' ');
       expect(allLogs).not.toContain('45'); // HRV value
@@ -319,13 +318,13 @@ describe('Advice Routes - Claude API Integration', () => {
         ANTHROPIC_API_KEY: 'test-claude-key',
         ENVIRONMENT: 'development' as const,
       };
-      
+
       const res = await app.request(req, {}, testEnv);
 
       expect(res.status).toBe(200);
       expect(consoleSpy).toHaveBeenCalledWith(
         '[Claude] Advice generation failed, using fallback:',
-        expect.any(Error)
+        expect.any(Error),
       );
 
       consoleSpy.mockRestore();
@@ -345,10 +344,10 @@ describe('Advice Routes - Claude API Integration', () => {
 
       expect(res.status).toBe(200);
 
-      const json = await res.json() as { 
-        message: string; 
-        phase: { current: number; description: string }; 
-        features: { claudeApi: string; promptCaching: string } 
+      const json = (await res.json()) as {
+        message: string;
+        phase: { current: number; description: string };
+        features: { claudeApi: string; promptCaching: string };
       };
       expect(json.message).toContain('Phase 9 Implementation');
       expect(json.phase.current).toBe(9);
@@ -385,7 +384,7 @@ describe('Advice Routes - Claude API Integration', () => {
         ANTHROPIC_API_KEY: 'test-claude-key',
         ENVIRONMENT: 'development' as const,
       };
-      
+
       await app.request(req, {}, testEnv);
 
       expect(mockGenerateMainAdvice).toHaveBeenCalledWith(
@@ -397,7 +396,7 @@ describe('Advice Routes - Claude API Integration', () => {
             recentDailyTries: [],
             lastWeeklyTry: null,
           }),
-        })
+        }),
       );
     });
   });
@@ -417,7 +416,7 @@ describe('Advice Routes - Claude API Integration', () => {
       const res = await app.request(req, {}, testEnv);
 
       expect(res.status).toBe(400);
-      const json = await res.json() as { success: boolean; error: string };
+      const json = (await res.json()) as { success: boolean; error: string };
       expect(json.success).toBe(false);
       expect(json.error).toBeTruthy();
     });
@@ -446,7 +445,7 @@ describe('Advice Routes - Claude API Integration', () => {
       const res = await app.request(req, {}, testEnv);
 
       expect(res.status).toBe(400);
-      const json = await res.json() as { success: boolean; error: string };
+      const json = (await res.json()) as { success: boolean; error: string };
       expect(json.success).toBe(false);
       expect(json.error).toContain('Validation failed');
     });
@@ -485,11 +484,11 @@ describe('Advice Routes - Claude API Integration', () => {
         ANTHROPIC_API_KEY: 'test-claude-key',
         ENVIRONMENT: 'development' as const,
       };
-      
+
       const res = await app.request(req, {}, testEnv);
 
       expect(res.status).toBe(200);
-      const json = await res.json() as TestAdviceResponse;
+      const json = (await res.json()) as TestAdviceResponse;
       expect(json.data?.greeting).toContain('たろう');
     });
 
@@ -511,13 +510,13 @@ describe('Advice Routes - Claude API Integration', () => {
         ANTHROPIC_API_KEY: 'test-claude-key',
         ENVIRONMENT: 'development' as const,
       };
-      
+
       await app.request(req, {}, testEnv);
 
       // Verify that sensitive data is not logged
       const logCalls = consoleSpy.mock.calls.flat();
       const logString = JSON.stringify(logCalls);
-      
+
       // Should not contain specific health values
       expect(logString).not.toContain('45'); // HRV value
       expect(logString).not.toContain('8500'); // Step count

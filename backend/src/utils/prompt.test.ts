@@ -1,15 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { 
-  getExamplesForInterest, 
-  buildUserDataPrompt 
-} from './prompt.js';
+import { getExamplesForInterest, buildUserDataPrompt } from './prompt.js';
 import type { GenerateAdviceParams } from '../types/claude.js';
-import type { 
-  UserProfile, 
-  HealthData, 
-  WeatherData, 
-  AirQualityData 
-} from '../types/domain.js';
+import type { UserProfile, HealthData, WeatherData, AirQualityData } from '../types/domain.js';
 
 describe('Prompt Utilities', () => {
   // Test data
@@ -77,7 +69,7 @@ describe('Prompt Utilities', () => {
   describe('getExamplesForInterest', () => {
     it('should return fitness examples for fitness interest', () => {
       const result = getExamplesForInterest('fitness');
-      
+
       expect(result.type).toBe('text');
       expect(result.cache_control).toEqual({ type: 'ephemeral' });
       expect(result.text).toContain('フィットネスに関心の高いユーザー');
@@ -87,7 +79,7 @@ describe('Prompt Utilities', () => {
 
     it('should return beauty examples for beauty interest', () => {
       const result = getExamplesForInterest('beauty');
-      
+
       expect(result.type).toBe('text');
       expect(result.cache_control).toEqual({ type: 'ephemeral' });
       expect(result.text).toContain('美容に関心の高いユーザー');
@@ -96,7 +88,7 @@ describe('Prompt Utilities', () => {
 
     it('should return mental health examples for mental_health interest', () => {
       const result = getExamplesForInterest('mental_health');
-      
+
       expect(result.type).toBe('text');
       expect(result.cache_control).toEqual({ type: 'ephemeral' });
       expect(result.text).toContain('メンタルヘルスに関心の高いユーザー');
@@ -104,7 +96,7 @@ describe('Prompt Utilities', () => {
 
     it('should return work examples for work_performance interest', () => {
       const result = getExamplesForInterest('work_performance');
-      
+
       expect(result.type).toBe('text');
       expect(result.cache_control).toEqual({ type: 'ephemeral' });
       expect(result.text).toContain('仕事パフォーマンスに関心の高いユーザー');
@@ -112,7 +104,7 @@ describe('Prompt Utilities', () => {
 
     it('should return nutrition examples for nutrition interest', () => {
       const result = getExamplesForInterest('nutrition');
-      
+
       expect(result.type).toBe('text');
       expect(result.cache_control).toEqual({ type: 'ephemeral' });
       expect(result.text).toContain('栄養に関心の高いユーザー');
@@ -120,23 +112,23 @@ describe('Prompt Utilities', () => {
 
     it('should return sleep examples for sleep interest', () => {
       const result = getExamplesForInterest('sleep');
-      
+
       expect(result.type).toBe('text');
       expect(result.cache_control).toEqual({ type: 'ephemeral' });
       expect(result.text).toContain('睡眠に関心の高いユーザー');
     });
 
     it('should return fitness examples as default for unknown interest', () => {
-      // Cast to test default behavior for unknown string  
+      // Cast to test default behavior for unknown string
       const result = getExamplesForInterest('unknown_interest' as never);
-      
+
       expect(result.type).toBe('text');
       expect(result.text).toContain('フィットネスに関心の高いユーザー');
     });
 
     it('should return fitness examples when no interest provided', () => {
       const result = getExamplesForInterest(undefined);
-      
+
       expect(result.type).toBe('text');
       expect(result.text).toContain('フィットネスに関心の高いユーザー');
     });
@@ -154,7 +146,7 @@ describe('Prompt Utilities', () => {
 
     it('should build complete user data prompt with all data', () => {
       const result = buildUserDataPrompt(mockParams);
-      
+
       // Check user profile section
       expect(result).toContain('<user_data>');
       expect(result).toContain('<profile>');
@@ -167,7 +159,7 @@ describe('Prompt Utilities', () => {
       expect(result).toContain('生活リズム: 朝型');
       expect(result).toContain('運動習慣: 週3-4回');
       expect(result).toContain('関心ごと: fitness, beauty');
-      
+
       // Check health data section
       expect(result).toContain('<health_data>');
       expect(result).toContain('日付: 2025-12-11T07:00:00.000Z');
@@ -179,7 +171,7 @@ describe('Prompt Utilities', () => {
       expect(result).toContain('歩数: 8500歩');
       expect(result).toContain('運動: ヨガ');
       expect(result).toContain('平均睡眠時間: 7.5時間');
-      
+
       // Check environment section
       expect(result).toContain('<environment>');
       expect(result).toContain('天気: 晴れ');
@@ -187,7 +179,7 @@ describe('Prompt Utilities', () => {
       expect(result).toContain('湿度: 60%');
       expect(result).toContain('AQI: 25');
       expect(result).toContain('PM2.5: 12μg/m³');
-      
+
       // Check context section
       expect(result).toContain('<context>');
       expect(result).toContain('現在時刻: 2025-12-11T07:00:00.000Z');
@@ -195,8 +187,10 @@ describe('Prompt Utilities', () => {
       expect(result).toContain('月曜日: いいえ');
       expect(result).toContain('過去2週間の今日のトライ: 深呼吸, 水分補給');
       expect(result).toContain('先週の今週のトライ: 新しい運動');
-      
-      expect(result).toContain('上記のデータに基づいて、今日のアドバイスをJSON形式で生成してください。');
+
+      expect(result).toContain(
+        '上記のデータに基づいて、今日のアドバイスをJSON形式で生成してください。',
+      );
     });
 
     it('should handle missing optional health data fields', () => {
@@ -209,7 +203,7 @@ describe('Prompt Utilities', () => {
       };
 
       const result = buildUserDataPrompt(paramsWithPartialData);
-      
+
       expect(result).toContain('就寝: 不明');
       expect(result).toContain('起床: 不明');
       expect(result).toContain('睡眠時間: 不明時間');
@@ -234,7 +228,7 @@ describe('Prompt Utilities', () => {
       };
 
       const result = buildUserDataPrompt(paramsWithPartialProfile);
-      
+
       expect(result).toContain('職業: 未設定');
       expect(result).toContain('生活リズム: 未設定');
       expect(result).toContain('運動習慣: 未設定');
@@ -247,7 +241,7 @@ describe('Prompt Utilities', () => {
       };
 
       const result = buildUserDataPrompt(paramsWithoutWeather);
-      
+
       expect(result).toContain('気象データ: 取得できませんでした');
     });
 
@@ -258,7 +252,7 @@ describe('Prompt Utilities', () => {
       };
 
       const result = buildUserDataPrompt(paramsWithoutAirQuality);
-      
+
       expect(result).toContain('大気汚染データ: 取得できませんでした');
     });
 
@@ -275,7 +269,7 @@ describe('Prompt Utilities', () => {
       };
 
       const result = buildUserDataPrompt(paramsWithEmptyContext);
-      
+
       expect(result).toContain('過去2週間の今日のトライ: なし');
       expect(result).toContain('先週の今週のトライ: なし');
     });

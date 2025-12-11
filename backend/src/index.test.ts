@@ -1,10 +1,6 @@
-
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import app from './index';
-import {
-  ApiInfoResponseSchema,
-  HealthCheckResponseSchema,
-} from './types/response';
+import { ApiInfoResponseSchema, HealthCheckResponseSchema } from './types/response';
 import { generateMainAdvice } from './services/claude';
 
 // Mock external services to avoid real API calls
@@ -17,7 +13,7 @@ const mockGenerateMainAdvice = vi.mocked(generateMainAdvice);
 describe('Tempo AI Backend', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     // Mock successful Claude API response
     const mockAdviceResponse = {
       greeting: 'テストユーザーさん、おはようございます',
@@ -156,15 +152,18 @@ describe('Tempo AI Backend', () => {
       ANTHROPIC_API_KEY: 'test-claude-key',
       ENVIRONMENT: 'development' as const,
     };
-    
+
     const res = await app.request(req, {}, testEnv);
 
     expect(res.status).toBe(200);
-    
-    const json = await res.json() as { success: boolean; data?: { greeting: string; timeSlot: string; actionSuggestions: unknown[] } };
+
+    const json = (await res.json()) as {
+      success: boolean;
+      data?: { greeting: string; timeSlot: string; actionSuggestions: unknown[] };
+    };
     expect(json.success).toBe(true);
     expect(json.data).toBeTruthy();
-    
+
     if (json.data) {
       expect(json.data.greeting).toContain('テストユーザーさん');
       expect(json.data.timeSlot).toBeTruthy();
@@ -264,7 +263,7 @@ describe('Tempo AI Backend', () => {
       expect(res.status).toBe(200);
       const json = await res.json();
       const parsed = HealthCheckResponseSchema.safeParse(json);
-      
+
       expect(parsed.success).toBe(true);
       if (parsed.success) {
         expect(parsed.data.environment).toBe('production');
@@ -278,7 +277,7 @@ describe('Tempo AI Backend', () => {
       expect(res.status).toBe(200);
       const json = await res.json();
       const parsed = HealthCheckResponseSchema.safeParse(json);
-      
+
       expect(parsed.success).toBe(true);
       if (parsed.success) {
         expect(parsed.data.environment).toBe('staging');

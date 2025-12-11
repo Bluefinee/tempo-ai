@@ -30,6 +30,11 @@
 		F4E5541F63F14DCFB399F81B /* SettingsPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E5541F63F14DCFB399F81C /* SettingsPlaceholderView.swift */; };
 		E532203C3AC34064B4BE47B1 /* DailyAdvice.swift in Sources */ = {isa = PBXBuildFile; fileRef = E532203C3AC34064B4BE47B2 /* DailyAdvice.swift */; };
 		4FB9C1F4B10E40BD9881662D /* HomeComponentsTests.swift in TestSources */ = {isa = PBXBuildFile; fileRef = 4FB9C1F4B10E40BD9881662E /* HomeComponentsTests.swift */; };
+		3EEA5E094198433AB789466C /* CacheManagerTests.swift in TestSources */ = {isa = PBXBuildFile; fileRef = 3EEA5E094198433AB789466D /* CacheManagerTests.swift */; };
+		260F5F4924A94689AB55B534 /* UserProfileTests.swift in TestSources */ = {isa = PBXBuildFile; fileRef = 260F5F4924A94689AB55B535 /* UserProfileTests.swift */; };
+		0B4A3BB64563417B8B4A34BF /* OnboardingStateTests.swift in TestSources */ = {isa = PBXBuildFile; fileRef = 0B4A3BB64563417B8B4A34C0 /* OnboardingStateTests.swift */; };
+		1B2C5887B3474D7299C4546C /* DailyAdviceExtensionTests.swift in TestSources */ = {isa = PBXBuildFile; fileRef = 1B2C5887B3474D7299C4546D /* DailyAdviceExtensionTests.swift */; };
+		BA073E34F0B949628360DECC /* ColorExtensionTests.swift in TestSources */ = {isa = PBXBuildFile; fileRef = BA073E34F0B949628360DECD /* ColorExtensionTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -69,6 +74,11 @@
 		F4E5541F63F14DCFB399F81C /* SettingsPlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsPlaceholderView.swift; sourceTree = "<group>"; };
 		E532203C3AC34064B4BE47B2 /* DailyAdvice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyAdvice.swift; sourceTree = "<group>"; };
 		4FB9C1F4B10E40BD9881662E /* HomeComponentsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeComponentsTests.swift; sourceTree = "<group>"; };
+		3EEA5E094198433AB789466D /* CacheManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CacheManagerTests.swift; sourceTree = "<group>"; };
+		260F5F4924A94689AB55B535 /* UserProfileTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileTests.swift; sourceTree = "<group>"; };
+		0B4A3BB64563417B8B4A34C0 /* OnboardingStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingStateTests.swift; sourceTree = "<group>"; };
+		1B2C5887B3474D7299C4546D /* DailyAdviceExtensionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyAdviceExtensionTests.swift; sourceTree = "<group>"; };
+		BA073E34F0B949628360DECD /* ColorExtensionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorExtensionTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -206,8 +216,13 @@
 		A1000010295A8F3F00000001 /* TempoAITests */ = {
 			isa = PBXGroup;
 			children = (
+				3EEA5E094198433AB789466D /* CacheManagerTests.swift */,
+				BA073E34F0B949628360DECD /* ColorExtensionTests.swift */,
+				1B2C5887B3474D7299C4546D /* DailyAdviceExtensionTests.swift */,
 				4FB9C1F4B10E40BD9881662E /* HomeComponentsTests.swift */,
+				0B4A3BB64563417B8B4A34C0 /* OnboardingStateTests.swift */,
 				A1000011295A8F3F00000001 /* TempoAITests.swift */,
+				260F5F4924A94689AB55B535 /* UserProfileTests.swift */,
 			);
 			path = TempoAITests;
 			sourceTree = "<group>";
@@ -368,8 +383,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3EEA5E094198433AB789466C /* CacheManagerTests.swift in TestSources */,
+				BA073E34F0B949628360DECC /* ColorExtensionTests.swift in TestSources */,
+				1B2C5887B3474D7299C4546C /* DailyAdviceExtensionTests.swift in TestSources */,
 				4FB9C1F4B10E40BD9881662D /* HomeComponentsTests.swift in TestSources */,
+				0B4A3BB64563417B8B4A34BF /* OnboardingStateTests.swift in TestSources */,
 				A1000012295A8F3F00000001 /* TempoAITests.swift in Sources */,
+				260F5F4924A94689AB55B534 /* UserProfileTests.swift in TestSources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

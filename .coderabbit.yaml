@@ -126,6 +126,8 @@ reviews:
     - path: "backend/**/*.test.ts"
       instructions: |
         ## テストレビュー基準
+        - **any型使用許可**: テストファイルでは実用性重視でany型の使用を許可
+        - テストヘルパー・モックでのany型は問題なし（/* eslint-disable */コメント推奨）
         - Hono testClientの使用確認
         - 適切なモック設計
         - テストケースの網羅性

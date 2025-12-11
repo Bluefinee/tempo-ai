@@ -4,10 +4,11 @@ import { rateLimit, validateApiKey } from '../middleware/auth.js';
 import { validateAdviceRequest, type AdviceRequest } from '../types/request.js';
 import type { LocationData, EnvironmentData } from '../types/domain.js';
 import { HttpStatus } from '../types/response.js';
-import { createValidationErrorResponse } from '../utils/errors.js';
-import { createMockAdviceForTimeSlot } from '../utils/mockData.js';
+import { createValidationErrorResponse, AuthenticationError } from '../utils/errors.js';
 import { fetchWeatherData } from '../services/weather.js';
 import { fetchAirQualityData } from '../services/airQuality.js';
+import { generateMainAdvice, createFallbackAdvice } from '../services/claude.js';
+import type { RequestContext } from '../types/claude.js';
 
 // =============================================================================
 // Advice Router Setup
@@ -15,6 +16,7 @@ import { fetchAirQualityData } from '../services/airQuality.js';
 
 interface Bindings {
   ENVIRONMENT: 'development' | 'production' | 'staging';
+  ANTHROPIC_API_KEY: string;
 }
 
 const adviceRouter = new Hono<{ Bindings: Bindings }>();
@@ -97,38 +99,67 @@ adviceRouter.post('/', async (c: Context): Promise<Response> => {
 
   const adviceRequest = validation.data as AdviceRequest;
 
-  // Determine time slot based on current time
-  const timeSlot = determineTimeSlot(adviceRequest.context.currentTime);
-
   // Fetch environment data (weather and air quality) with fallback handling
   const environmentData = await fetchEnvironmentData(adviceRequest.location);
 
-  // Generate mock advice response
-  const mockResponse = createMockAdviceForTimeSlot(adviceRequest.userProfile.nickname, timeSlot);
+  // Generate AI-powered advice using Claude API
+  try {
+    const apiKey = getApiKey(c);
+    const requestContext = buildRequestContext(adviceRequest.context.currentTime);
 
-  // Log successful request (without sensitive data)
-  console.log('Advice request processed:', {
-    timestamp: new Date().toISOString(),
-    nickname: adviceRequest.userProfile.nickname,
-    timeSlot,
-    interests: adviceRequest.userProfile.interests,
-    hasHealthData: !!adviceRequest.healthData.sleep,
-    location: adviceRequest.location.city || 'coordinates-only',
-    environment: {
-      hasWeatherData: !!environmentData.weather,
-      hasAirQualityData: !!environmentData.airQuality,
-      weatherCondition: environmentData.weather?.condition,
-      aqi: environmentData.airQuality?.aqi,
-    },
-  });
+    const advice = await generateMainAdvice({
+      userProfile: adviceRequest.userProfile,
+      healthData: adviceRequest.healthData,
+      weatherData: environmentData.weather ?? undefined,
+      airQualityData: environmentData.airQuality ?? undefined,
+      context: requestContext,
+      apiKey,
+    });
 
-  // Debug environment data (Phase 8 - will be used in Phase 9 for Claude API)
-  console.log('Environment data for advice generation:', {
-    weather: environmentData.weather,
-    airQuality: environmentData.airQuality,
-  });
+    console.log('[Claude] Main advice generated successfully');
 
-  return c.json(mockResponse, HttpStatus.OK);
+    const response = {
+      success: true,
+      data: advice,
+    };
+
+    // Log successful request (without sensitive data)
+    console.log('Advice request processed:', {
+      timestamp: new Date().toISOString(),
+      nickname: adviceRequest.userProfile.nickname,
+      timeSlot: advice.timeSlot,
+      interests: adviceRequest.userProfile.interests,
+      hasHealthData: !!adviceRequest.healthData.sleep,
+      location: adviceRequest.location.city || 'coordinates-only',
+      environment: {
+        hasWeatherData: !!environmentData.weather,
+        hasAirQualityData: !!environmentData.airQuality,
+        weatherCondition: environmentData.weather?.condition,
+        aqi: environmentData.airQuality?.aqi,
+      },
+      aiGenerated: true,
+    });
+
+    return c.json(response, HttpStatus.OK);
+  } catch (error) {
+    console.error('[Claude] Advice generation failed, using fallback:', error);
+
+    // Fallback to mock response on Claude API failure
+    const fallbackAdvice = createFallbackAdvice(adviceRequest.userProfile.nickname);
+    const mockResponse = {
+      success: true,
+      data: fallbackAdvice,
+    };
+
+    // Log fallback usage
+    console.log('Using fallback advice due to Claude API error:', {
+      timestamp: new Date().toISOString(),
+      nickname: adviceRequest.userProfile.nickname,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+
+    return c.json(mockResponse, HttpStatus.OK);
+  }
 });
 
 // =============================================================================
@@ -142,21 +173,23 @@ adviceRouter.post('/', async (c: Context): Promise<Response> => {
 adviceRouter.get('/', (c: Context): Response => {
   return c.json(
     {
-      message: 'Tempo AI Advice API - Phase 8 Implementation',
+      message: 'Tempo AI Advice API - Phase 9 Implementation',
       status: 'active',
       version: '0.1.0',
       environment: c.env?.ENVIRONMENT || 'development',
       endpoints: {
-        advice: 'POST /api/advice - Generate daily advice with environmental data',
+        advice: 'POST /api/advice - Generate AI-powered daily advice with environmental data',
       },
       phase: {
-        current: 8,
-        description: 'External API integration (Weather + Air Quality)',
-        next: 'Phase 9 - Claude API integration',
+        current: 9,
+        description: 'Claude API integration for AI-powered advice generation',
+        next: 'Phase 10 - iOS frontend integration',
       },
       features: {
+        claudeApi: 'Claude Sonnet API for main advice generation',
         weatherApi: 'Open-Meteo Weather API integration',
         airQualityApi: 'Open-Meteo Air Quality API integration',
+        promptCaching: 'Optimized prompt caching for cost reduction',
         fallbackHandling: 'Graceful degradation on API failures',
       },
     },
@@ -169,35 +202,40 @@ adviceRouter.get('/', (c: Context): Response => {
 // =============================================================================
 
 /**
- * Determines the current time slot based on ISO 8601 timestamp
- *
- * Maps hours to time slots:
- * - 05:00-11:59: morning
- * - 12:00-17:59: afternoon
- * - 18:00-04:59: evening
- *
- * @param currentTime - ISO 8601 timestamp string
- * @returns Time slot classification for advice personalization
- * @example
- * determineTimeSlot('2025-12-10T08:30:00.000Z') // returns 'morning'
- * determineTimeSlot('2025-12-10T15:45:00.000Z') // returns 'afternoon'
+ * Claude API キーを環境変数から取得
+ * @param c - Hono context
+ * @returns API key
+ * @throws AuthenticationError if API key is not configured
  */
-const determineTimeSlot = (currentTime: string): 'morning' | 'afternoon' | 'evening' => {
-  try {
-    const date = new Date(currentTime);
-    const hour = date.getHours();
-
-    if (hour >= 5 && hour < 12) {
-      return 'morning';
-    }
-    if (hour >= 12 && hour < 18) {
-      return 'afternoon';
-    }
-    return 'evening';
-  } catch {
-    // Default to morning if timestamp parsing fails
-    return 'morning';
+const getApiKey = (c: Context<{ Bindings: Bindings }>): string => {
+  const key = c.env.ANTHROPIC_API_KEY;
+  if (!key) {
+    throw new AuthenticationError('ANTHROPIC_API_KEY is not configured');
   }
+  return key;
+};
+
+/**
+ * リクエストコンテキストを構築
+ * @param currentTime - 現在時刻のISO文字列
+ * @returns RequestContext
+ */
+const buildRequestContext = (currentTime: string): RequestContext => {
+  const date = new Date(currentTime);
+  const dayOfWeek = date.toLocaleDateString('ja-JP', { weekday: 'long' });
+  const isMonday = date.getDay() === 1;
+
+  // TODO: Phase 12で実際の履歴データを取得する予定
+  const recentDailyTries: string[] = [];
+  const lastWeeklyTry: string | null = null;
+
+  return {
+    currentTime,
+    dayOfWeek,
+    isMonday,
+    recentDailyTries,
+    lastWeeklyTry,
+  };
 };
 
 export { adviceRouter };

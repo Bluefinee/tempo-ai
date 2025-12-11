@@ -14,7 +14,8 @@
 				"noUselessThisAlias": "error",
 				"noUselessTypeConstraint": "error",
 				"useArrowFunction": "warn",
-				"noMultipleSpacesInRegularExpressionLiterals": "error"
+				"noMultipleSpacesInRegularExpressionLiterals": "error",
+				"useLiteralKeys": "off"
 			},
 			"correctness": {
 				"noConstAssign": "error",
@@ -128,5 +129,20 @@
 		"enabled": true,
 		"clientKind": "git",
 		"useIgnoreFile": true
-	}
+	},
+	"overrides": [
+		{
+			"include": ["**/*.test.ts"],
+			"linter": {
+				"rules": {
+					"suspicious": {
+						"noExplicitAny": "off"
+					},
+					"complexity": {
+						"noForEach": "off"
+					}
+				}
+			}
+		}
+	]
 }

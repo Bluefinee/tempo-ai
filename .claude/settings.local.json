@@ -75,10 +75,17 @@
       "Bash(git checkout:*)",
       "Bash(swift build)",
       "Bash(lsof:*)",
-      "Bash(git pull:*)"
+      "Bash(git pull:*)",
+      "Bash(git stash show:*)",
+      "Bash(swift test)",
+      "Bash(uuidgen)"
     ],
     "deny": [],
     "ask": [],
-    "additionalDirectories": ["/private/tmp", "<USER_HOME>/Development"]
+    "additionalDirectories": [
+      "/private/tmp",
+      "<USER_HOME>/Development",
+      "/Users/masakazuiwahara/Development"
+    ]
   }
 }

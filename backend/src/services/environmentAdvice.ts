@@ -48,23 +48,23 @@ export const generateEnvironmentAdvice = (
   const advice: EnvironmentAdvice[] = [];
 
   // 1. 大気質（必須）
-  const airQualityAdvice: EnvironmentAdvice = generateAirQualityAdvice(airQuality);
+  const airQualityAdvice = generateAirQualityAdvice(airQuality);
   advice.push(airQualityAdvice);
 
   // 2. 気温
-  const tempAdvice: EnvironmentAdvice | null = generateTemperatureAdvice(weather);
+  const tempAdvice = generateTemperatureAdvice(weather);
   if (tempAdvice) advice.push(tempAdvice);
 
   // 3. UV
-  const uvAdvice: EnvironmentAdvice | null = generateUVAdvice(weather);
+  const uvAdvice = generateUVAdvice(weather);
   if (uvAdvice) advice.push(uvAdvice);
 
   // 4. 気圧
-  const pressureAdvice: EnvironmentAdvice | null = generatePressureAdvice(pressureTrend);
+  const pressureAdvice = generatePressureAdvice(pressureTrend);
   if (pressureAdvice) advice.push(pressureAdvice);
 
   // 5. 湿度
-  const humidityAdvice: EnvironmentAdvice | null = generateHumidityAdvice(weather);
+  const humidityAdvice = generateHumidityAdvice(weather);
   if (humidityAdvice) advice.push(humidityAdvice);
 
   // 最大3つまで

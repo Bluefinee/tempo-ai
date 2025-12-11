@@ -39,7 +39,7 @@ const querySchema = z.object({
  * GET /api/environment?lat=35.6762&lon=139.6503
  * ```
  */
-app.get('/', zValidator('query', querySchema), async (c) => {
+app.get('/', zValidator('query', querySchema), async (c): Promise<Response> => {
   const { lat, lon } = c.req.valid('query');
 
   console.log(`[Environment] Fetching data for lat=${lat}, lon=${lon}`);

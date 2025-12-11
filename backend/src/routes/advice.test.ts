@@ -5,17 +5,41 @@ import { fetchWeatherData } from '../services/weather.js';
 import { fetchAirQualityData } from '../services/airQuality.js';
 import { clearRateLimiter } from '../middleware/auth.js';
 
-// Type for test response structure
+// Type-safe response interfaces for testing
 interface TestAdviceResponse {
   success: boolean;
   data?: {
     greeting: string;
-    timeSlot: string;
-    actionSuggestions: unknown[];
+    timeSlot: 'morning' | 'afternoon' | 'evening';
+    actionSuggestions: Array<{
+      icon: string;
+      title: string;
+      detail: string;
+    }>;
     condition: {
       summary: string;
+      detail: string;
     };
+    closingMessage: string;
+    dailyTry: {
+      title: string;
+      summary: string;
+      detail: string;
+    };
+    generatedAt: string;
   };
+}
+
+interface TestErrorResponse {
+  success: false;
+  error: string;
+  code?: string;
+}
+
+interface TestDevInfoResponse {
+  message: string;
+  phase: { current: number; description: string };
+  features: { claudeApi: string; promptCaching: string };
 }
 
 // Mock external services
@@ -344,11 +368,7 @@ describe('Advice Routes - Claude API Integration', () => {
 
       expect(res.status).toBe(200);
 
-      const json = (await res.json()) as {
-        message: string;
-        phase: { current: number; description: string };
-        features: { claudeApi: string; promptCaching: string };
-      };
+      const json = (await res.json()) as TestDevInfoResponse;
       expect(json.message).toContain('Phase 9 Implementation');
       expect(json.phase.current).toBe(9);
       expect(json.phase.description).toContain('Claude API');
@@ -416,7 +436,7 @@ describe('Advice Routes - Claude API Integration', () => {
       const res = await app.request(req, {}, testEnv);
 
       expect(res.status).toBe(400);
-      const json = (await res.json()) as { success: boolean; error: string };
+      const json = (await res.json()) as TestErrorResponse;
       expect(json.success).toBe(false);
       expect(json.error).toBeTruthy();
     });
@@ -445,7 +465,7 @@ describe('Advice Routes - Claude API Integration', () => {
       const res = await app.request(req, {}, testEnv);
 
       expect(res.status).toBe(400);
-      const json = (await res.json()) as { success: boolean; error: string };
+      const json = (await res.json()) as TestErrorResponse;
       expect(json.success).toBe(false);
       expect(json.error).toContain('Validation failed');
     });

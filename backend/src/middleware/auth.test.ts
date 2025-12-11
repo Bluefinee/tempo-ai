@@ -2,6 +2,17 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { Hono } from 'hono';
 import { validateApiKey, rateLimit } from './auth.js';
 
+// Type-safe response interfaces for testing
+interface TestSuccessResponse {
+  success: true;
+}
+
+interface TestErrorResponse {
+  success: false;
+  error: string;
+  code?: string;
+}
+
 // Create a test app with auth middleware and proper error handling
 const createTestApp = () => {
   const app = new Hono<{ Bindings: { ENVIRONMENT?: string } }>();
@@ -89,7 +100,7 @@ describe('Authentication Middleware', () => {
       const res = await testApp.request(req, {}, { ENVIRONMENT: 'development' });
 
       expect(res.status).toBe(200);
-      const json = (await res.json()) as { success: boolean };
+      const json = (await res.json()) as TestSuccessResponse;
       expect(json.success).toBe(true);
     });
 
@@ -99,7 +110,7 @@ describe('Authentication Middleware', () => {
       const res = await testApp.request(req, {}, { ENVIRONMENT: 'development' });
 
       expect(res.status).toBe(401);
-      const json = (await res.json()) as { success: boolean; error: string };
+      const json = (await res.json()) as TestErrorResponse;
       expect(json.success).toBe(false);
       expect(json.error).toBe('API key is required');
     });
@@ -114,7 +125,7 @@ describe('Authentication Middleware', () => {
       const res = await testApp.request(req, {}, { ENVIRONMENT: 'development' });
 
       expect(res.status).toBe(401);
-      const json = (await res.json()) as { success: boolean; error: string };
+      const json = (await res.json()) as TestErrorResponse;
       expect(json.success).toBe(false);
       expect(json.error).toBe('Invalid API key');
     });
@@ -141,7 +152,7 @@ describe('Authentication Middleware', () => {
       const res = await testApp.request(req, {}, { ENVIRONMENT: 'production' });
 
       expect(res.status).toBe(401);
-      const json = (await res.json()) as { success: boolean; error: string };
+      const json = (await res.json()) as TestErrorResponse;
       expect(json.error).toBe('Server configuration error');
     });
   });
@@ -173,11 +184,7 @@ describe('Authentication Middleware', () => {
       const rateLimitedRes = await rateLimitApp.request(req, {}, { ENVIRONMENT: 'development' });
       expect(rateLimitedRes.status).toBe(429);
 
-      const json = (await rateLimitedRes.json()) as {
-        success: boolean;
-        error: string;
-        code: string;
-      };
+      const json = (await rateLimitedRes.json()) as TestErrorResponse;
       expect(json.success).toBe(false);
       expect(json.error).toBe('Rate limit exceeded');
       expect(json.code).toBe('RATE_LIMIT_EXCEEDED');

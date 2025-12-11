@@ -19,9 +19,28 @@ import { ValidationError, ClaudeApiError } from '../utils/errors.js';
  * 3層プロンプト構造（システム・例文・ユーザーデータ）でPrompt Cachingを活用し、
  * ユーザーの健康データと環境データを統合分析してパーソナライズされたアドバイスを生成します。
  *
- * @param params ユーザー情報・ヘルスデータ・環境データ・APIキーなどのリクエストパラメータ
- * @returns バリデーション済みの `DailyAdvice`。JSONパース/バリデーション失敗時はフォールバックを返します
- * @throws {ClaudeApiError} Claude API呼び出しエラーや予期しない例外時
+ * @param params - 生成パラメータ
+ * @param params.userProfile - ユーザープロフィール（年齢、性別、関心ごと等）
+ * @param params.healthData - HealthKitデータ（睡眠、HRV、活動量等）
+ * @param params.weatherData - 気象データ（温度、湿度、UV指数等、取得失敗時undefined）
+ * @param params.airQualityData - 大気汚染データ（AQI、PM2.5等、取得失敗時undefined）
+ * @param params.context - リクエストコンテキスト（時刻、曜日、履歴等）
+ * @param params.apiKey - Claude API認証キー
+ * @returns バリデーション済みの `DailyAdvice` オブジェクト
+ * @throws {ClaudeApiError} Claude API呼び出し失敗、ネットワークエラー、認証エラー時
+ * @throws {ValidationError} JSONパース・バリデーション失敗時（自動的にフォールバック処理）
+ *
+ * @example
+ * ```typescript
+ * const advice = await generateMainAdvice({
+ *   userProfile: { nickname: '田中', age: 28, ... },
+ *   healthData: { sleep: { durationHours: 7.5 }, ... },
+ *   weatherData: { condition: '晴れ', tempCurrentC: 22, ... },
+ *   context: { currentTime: '2025-12-11T07:00:00Z', ... },
+ *   apiKey: 'claude-api-key'
+ * });
+ * console.log(advice.greeting); // "田中さん、おはようございます"
+ * ```
  */
 export const generateMainAdvice = async (params: GenerateAdviceParams): Promise<DailyAdvice> => {
   const client = new Anthropic({ apiKey: params.apiKey });
@@ -66,9 +85,25 @@ export const generateMainAdvice = async (params: GenerateAdviceParams): Promise<
  * 朝のメインアドバイスを補完する短文のアドバイスを低コストで生成し、
  * 時間帯に応じた適切なメッセージを提供します。
  *
- * @param params メインアドバイス・時間帯・ユーザー情報・APIキーを含むパラメータ
- * @returns 時間帯に適した `AdditionalAdvice`
- * @throws {ClaudeApiError} Claude API呼び出しエラーや予期しない例外時
+ * @param params - 追加アドバイス生成パラメータ
+ * @param params.mainAdvice - 朝に生成されたメインアドバイス（文脈として使用）
+ * @param params.timeSlot - 対象時間帯（"midday": 昼間、"evening": 夕方）
+ * @param params.userProfile - ユーザープロフィール（ニックネーム等）
+ * @param params.apiKey - Claude API認証キー
+ * @returns 時間帯に適した `AdditionalAdvice` オブジェクト（短文メッセージ）
+ * @throws {ClaudeApiError} Claude Haiku API呼び出し失敗、ネットワークエラー時
+ * @throws {ValidationError} JSONパース失敗時（自動的にフォールバック処理）
+ *
+ * @example
+ * ```typescript
+ * const additionalAdvice = await generateAdditionalAdvice({
+ *   mainAdvice: morningAdvice,
+ *   timeSlot: 'midday',
+ *   userProfile: { nickname: '田中', ... },
+ *   apiKey: 'claude-api-key'
+ * });
+ * console.log(additionalAdvice.greeting); // "田中さん、お疲れ様です"
+ * ```
  */
 export const generateAdditionalAdvice = async (
   params: AdditionalAdviceParams,
@@ -248,11 +283,27 @@ const validateAdditionalAdvice = (data: unknown): void => {
 /**
  * AI生成が失敗した場合の汎用フォールバックアドバイスを作成します
  *
- * Claude API の障害やタイムアウト時に、基本的な健康アドバイスを提供し、
- * サービスの継続性を確保します。
+ * Claude API の障害、タイムアウト、JSONパースエラー時に基本的な健康アドバイスを提供し、
+ * サービスの継続性とユーザー体験を確保します。固定コンテンツで安全性を保証します。
  *
- * @param nickname ユーザーのニックネーム（挨拶に使用）
+ * @param nickname - ユーザーのニックネーム（挨拶のパーソナライズに使用）
  * @returns 汎用的な `DailyAdvice` オブジェクト
+ * @returns {string} returns.greeting - パーソナライズされた挨拶
+ * @returns {object} returns.condition - 汎用的な体調メッセージ
+ * @returns {Array} returns.actionSuggestions - 基本的な健康行動提案（水分補給、深呼吸）
+ * @returns {string} returns.closingMessage - 励ましのメッセージ
+ * @returns {object} returns.dailyTry - 基本的な実践提案（深呼吸）
+ * @returns {undefined} returns.weeklyTry - フォールバック時は週次提案なし
+ *
+ * @example
+ * ```typescript
+ * try {
+ *   const advice = await generateMainAdvice(params);
+ * } catch (error) {
+ *   const fallback = createFallbackAdvice('田中');
+ *   console.log(fallback.greeting); // "田中さん、おはようございます"
+ * }
+ * ```
  */
 export const createFallbackAdvice = (nickname: string): DailyAdvice => ({
   greeting: `${nickname}さん、おはようございます`,
@@ -287,12 +338,27 @@ export const createFallbackAdvice = (nickname: string): DailyAdvice => ({
 /**
  * 追加アドバイス生成失敗時に使用するフォールバックを生成します
  *
- * Claude Haiku API の障害や応答エラー時に、基本的なメッセージを提供し、
- * 時間帯に適したフォールバック体験を確保します。
+ * Claude Haiku API の障害、タイムアウト、JSONパースエラー時に時間帯に適した
+ * 基本的なメッセージを提供し、追加アドバイス機能の継続性を確保します。
  *
- * @param nickname ユーザーのニックネーム（挨拶に使用）
- * @param timeSlot "midday" または "evening"
- * @returns 基本的なメッセージを含む AdditionalAdvice オブジェクト
+ * @param nickname - ユーザーのニックネーム（挨拶のパーソナライズに使用）
+ * @param timeSlot - 対象時間帯（"midday": 昼間、"evening": 夕方）
+ * @returns 基本的なメッセージを含む `AdditionalAdvice` オブジェクト
+ * @returns {string} returns.greeting - 時間帯に適したパーソナライズ挨拶
+ * @returns {string} returns.message - 時間帯に応じた励ましメッセージ
+ * @returns {object} returns.actionSuggestion - 基本的な水分補給提案
+ * @returns {string} returns.generatedAt - フォールバック生成時刻
+ * @returns {string} returns.timeSlot - リクエストされた時間帯
+ *
+ * @example
+ * ```typescript
+ * try {
+ *   const advice = await generateAdditionalAdvice(params);
+ * } catch (error) {
+ *   const fallback = createFallbackAdditionalAdvice('田中', 'midday');
+ *   console.log(fallback.greeting); // "田中さん、お疲れ様です"
+ * }
+ * ```
  */
 export const createFallbackAdditionalAdvice = (
   nickname: string,

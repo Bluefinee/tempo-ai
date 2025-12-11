@@ -3,6 +3,20 @@ import app from './index';
 import { ApiInfoResponseSchema, HealthCheckResponseSchema } from './types/response';
 import { generateMainAdvice } from './services/claude';
 
+// Type-safe response interface for testing
+interface TestAdviceResponse {
+  success: boolean;
+  data?: {
+    greeting: string;
+    timeSlot: string;
+    actionSuggestions: Array<{
+      icon: string;
+      title: string;
+      detail: string;
+    }>;
+  };
+}
+
 // Mock external services to avoid real API calls
 vi.mock('./services/claude');
 vi.mock('./services/weather');
@@ -157,10 +171,7 @@ describe('Tempo AI Backend', () => {
 
     expect(res.status).toBe(200);
 
-    const json = (await res.json()) as {
-      success: boolean;
-      data?: { greeting: string; timeSlot: string; actionSuggestions: unknown[] };
-    };
+    const json = (await res.json()) as TestAdviceResponse;
     expect(json.success).toBe(true);
     expect(json.data).toBeTruthy();
 

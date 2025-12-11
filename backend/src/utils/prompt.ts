@@ -17,99 +17,67 @@ import { workExamples } from '../prompts/examples/work.js';
 import { nutritionExamples } from '../prompts/examples/nutrition.js';
 import { sleepExamples } from '../prompts/examples/sleep.js';
 
+const genderLabels: Record<Gender, string> = {
+  male: '男性',
+  female: '女性',
+  other: 'その他',
+  not_specified: '未設定',
+};
+
 const formatGender = (gender: Gender): string => {
-  switch (gender) {
-    case 'male':
-      return '男性';
-    case 'female':
-      return '女性';
-    case 'other':
-      return 'その他';
-    case 'not_specified':
-      return '未設定';
-    default:
-      return '未設定';
-  }
+  return genderLabels[gender] ?? '未設定';
+};
+
+const occupationLabels: Record<Occupation, string> = {
+  it_engineer: 'ITエンジニア',
+  sales: '営業',
+  standing_work: '立ち仕事',
+  medical: '医療従事者',
+  creative: 'クリエイティブ',
+  freelance: 'フリーランス',
+  student: '学生',
+  homemaker: '主婦/主夫',
+  other: 'その他',
 };
 
 const formatOccupation = (occupation: Occupation): string => {
-  switch (occupation) {
-    case 'it_engineer':
-      return 'ITエンジニア';
-    case 'sales':
-      return '営業';
-    case 'standing_work':
-      return '立ち仕事';
-    case 'medical':
-      return '医療従事者';
-    case 'creative':
-      return 'クリエイティブ';
-    case 'freelance':
-      return 'フリーランス';
-    case 'student':
-      return '学生';
-    case 'homemaker':
-      return '主婦/主夫';
-    case 'other':
-      return 'その他';
-    default:
-      return '未設定';
-  }
+  return occupationLabels[occupation] ?? '未設定';
+};
+
+const lifestyleLabels: Record<LifestyleRhythm, string> = {
+  morning: '朝型',
+  night: '夜型',
+  irregular: '不規則',
 };
 
 const formatLifestyle = (lifestyle: LifestyleRhythm): string => {
-  switch (lifestyle) {
-    case 'morning':
-      return '朝型';
-    case 'night':
-      return '夜型';
-    case 'irregular':
-      return '不規則';
-    default:
-      return '未設定';
-  }
+  return lifestyleLabels[lifestyle] ?? '未設定';
+};
+
+const exerciseLabels: Record<ExerciseFrequency, string> = {
+  rarely: '運動習慣なし',
+  one_to_two: '週1-2回',
+  three_to_four: '週3-4回',
+  daily: 'ほぼ毎日',
 };
 
 const formatExercise = (exercise: ExerciseFrequency): string => {
-  switch (exercise) {
-    case 'rarely':
-      return '運動習慣なし';
-    case 'one_to_two':
-      return '週1-2回';
-    case 'three_to_four':
-      return '週3-4回';
-    case 'daily':
-      return 'ほぼ毎日';
-    default:
-      return '未設定';
-  }
+  return exerciseLabels[exercise] ?? '未設定';
+};
+
+const interestExamplesMap: Record<Interest, string> = {
+  fitness: fitnessExamples,
+  beauty: beautyExamples,
+  mental_health: mentalExamples,
+  work_performance: workExamples,
+  nutrition: nutritionExamples,
+  sleep: sleepExamples,
 };
 
 export const getExamplesForInterest = (primaryInterest?: Interest): ClaudePromptLayer => {
-  let examples: string;
-
-  switch (primaryInterest) {
-    case 'fitness':
-      examples = fitnessExamples;
-      break;
-    case 'beauty':
-      examples = beautyExamples;
-      break;
-    case 'mental_health':
-      examples = mentalExamples;
-      break;
-    case 'work_performance':
-      examples = workExamples;
-      break;
-    case 'nutrition':
-      examples = nutritionExamples;
-      break;
-    case 'sleep':
-      examples = sleepExamples;
-      break;
-    default:
-      examples = fitnessExamples; // デフォルトはフィットネス
-  }
+  const examples = primaryInterest
+    ? (interestExamplesMap[primaryInterest] ?? fitnessExamples)
+    : fitnessExamples;
 
   return {
     type: 'text',

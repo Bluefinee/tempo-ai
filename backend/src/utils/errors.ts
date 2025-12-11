@@ -32,6 +32,7 @@ export class ValidationError extends AppError {
   constructor(
     message: string,
     public readonly field?: string,
+    public readonly value?: unknown,
   ) {
     super(message);
   }
@@ -105,6 +106,19 @@ export class AirQualityApiError extends ExternalApiError {
 
   constructor(message: string, apiStatusCode?: number) {
     super(message, 'air_quality');
+    this.apiStatusCode = apiStatusCode;
+  }
+}
+
+/**
+ * Claude API specific error
+ */
+export class ClaudeApiError extends ExternalApiError {
+  override readonly code = 'CLAUDE_API_ERROR';
+  readonly apiStatusCode?: number | undefined;
+
+  constructor(message: string, apiStatusCode?: number, public readonly originalError?: Error) {
+    super(message, 'claude');
     this.apiStatusCode = apiStatusCode;
   }
 }

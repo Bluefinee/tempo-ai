@@ -169,3 +169,11 @@ const cleanupRateLimiter = (): void => {
     rateLimiter.delete(key);
   }
 };
+
+/**
+ * Clear all rate limiter data - for testing purposes
+ * This function should only be used in test environments
+ */
+export const clearRateLimiter = (): void => {
+  rateLimiter.clear();
+};

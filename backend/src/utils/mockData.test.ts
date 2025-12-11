@@ -1,6 +1,3 @@
-// Test files allow any type for testing utilities and mocks
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { describe, it, expect } from 'vitest';
 import { createMockAdviceForTimeSlot } from './mockData.js';
 

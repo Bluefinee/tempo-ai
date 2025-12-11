@@ -1,6 +1,3 @@
-// Test files allow any type for testing utilities and mocks
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { Mock } from 'vitest';
 import Anthropic from '@anthropic-ai/sdk';

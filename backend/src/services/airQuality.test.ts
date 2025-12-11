@@ -1,6 +1,3 @@
-// Test files allow any type for testing utilities and mocks
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { fetchAirQualityData } from './airQuality.js';
 import { AirQualityApiError } from '../utils/errors.js';

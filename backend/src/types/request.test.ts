@@ -1,6 +1,3 @@
-// Test files allow any type for testing utilities and mocks
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { describe, it, expect } from 'vitest';
 import { validateAdviceRequest } from './request.js';
 
@@ -59,8 +56,7 @@ describe('Request Validation', () => {
 
     it('should reject request with missing userProfile', () => {
       const invalidData = { ...validRequestData };
-      // biome-ignore lint/suspicious/noExplicitAny: Test data manipulation requires flexible typing
-      (invalidData as any).userProfile = undefined;
+      (invalidData as Record<string, unknown>)["userProfile"] = undefined;
 
       const result = validateAdviceRequest(invalidData);
 
@@ -71,8 +67,7 @@ describe('Request Validation', () => {
 
     it('should reject request with missing healthData', () => {
       const invalidData = { ...validRequestData };
-      // biome-ignore lint/suspicious/noExplicitAny: Test data manipulation requires flexible typing
-      (invalidData as any).healthData = undefined;
+      (invalidData as Record<string, unknown>)["healthData"] = undefined;
 
       const result = validateAdviceRequest(invalidData);
 
@@ -82,8 +77,7 @@ describe('Request Validation', () => {
 
     it('should reject request with missing location', () => {
       const invalidData = { ...validRequestData };
-      // biome-ignore lint/suspicious/noExplicitAny: Test data manipulation requires flexible typing
-      (invalidData as any).location = undefined;
+      (invalidData as Record<string, unknown>)["location"] = undefined;
 
       const result = validateAdviceRequest(invalidData);
 
@@ -93,8 +87,7 @@ describe('Request Validation', () => {
 
     it('should reject request with missing context', () => {
       const invalidData = { ...validRequestData };
-      // biome-ignore lint/suspicious/noExplicitAny: Test data manipulation requires flexible typing
-      (invalidData as any).context = undefined;
+      (invalidData as Record<string, unknown>)["context"] = undefined;
 
       const result = validateAdviceRequest(invalidData);
 

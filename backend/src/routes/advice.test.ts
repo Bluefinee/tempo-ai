@@ -1,5 +1,3 @@
-// Test files allow any type for testing utilities and mocks
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import app from '../index.js';
@@ -7,6 +5,19 @@ import { generateMainAdvice } from '../services/claude.js';
 import { fetchWeatherData } from '../services/weather.js';
 import { fetchAirQualityData } from '../services/airQuality.js';
 import { clearRateLimiter } from '../middleware/auth.js';
+
+// Type for test response structure
+interface TestAdviceResponse {
+  success: boolean;
+  data?: {
+    greeting: string;
+    timeSlot: string;
+    actionSuggestions: unknown[];
+    condition: {
+      summary: string;
+    };
+  };
+}
 
 // Mock external services
 vi.mock('../services/claude.js');
@@ -137,9 +148,7 @@ describe('Advice Routes - Claude API Integration', () => {
 
       expect(res.status).toBe(200);
 
-      // Test response parsing - any type allowed for test flexibility
-      // biome-ignore lint/suspicious/noExplicitAny: Test response parsing requires flexible typing
-      const json = await res.json() as { success: boolean; data?: any };
+      const json = await res.json() as TestAdviceResponse;
       expect(json.success).toBe(true);
       
       if (json.data) {
@@ -181,9 +190,7 @@ describe('Advice Routes - Claude API Integration', () => {
 
       expect(res.status).toBe(200);
 
-      // Test response parsing - any type allowed for test flexibility
-      // biome-ignore lint/suspicious/noExplicitAny: Test response parsing requires flexible typing
-      const json = await res.json() as { success: boolean; data?: any };
+      const json = await res.json() as TestAdviceResponse;
       expect(json.success).toBe(true);
       
       if (json.data) {
@@ -210,9 +217,7 @@ describe('Advice Routes - Claude API Integration', () => {
 
       expect(res.status).toBe(200);
 
-      // Test response parsing - any type allowed for test flexibility
-      // biome-ignore lint/suspicious/noExplicitAny: Test response parsing requires flexible typing
-      const json = await res.json() as { success: boolean; data?: any };
+      const json = await res.json() as TestAdviceResponse;
       expect(json.success).toBe(true);
       
       if (json.data) {
@@ -244,9 +249,7 @@ describe('Advice Routes - Claude API Integration', () => {
 
       expect(res.status).toBe(200);
 
-      // Test response parsing - any type allowed for test flexibility
-      // biome-ignore lint/suspicious/noExplicitAny: Test response parsing requires flexible typing
-      const json = await res.json() as { success: boolean; data?: any };
+      const json = await res.json() as TestAdviceResponse;
       expect(json.success).toBe(true);
       
       if (json.data) {
@@ -486,9 +489,7 @@ describe('Advice Routes - Claude API Integration', () => {
       const res = await app.request(req, {}, testEnv);
 
       expect(res.status).toBe(200);
-      // Test response parsing - any type allowed for test flexibility
-      // biome-ignore lint/suspicious/noExplicitAny: Test response parsing requires flexible typing
-      const json = await res.json() as { success: boolean; data?: any };
+      const json = await res.json() as TestAdviceResponse;
       expect(json.data?.greeting).toContain('たろう');
     });
 

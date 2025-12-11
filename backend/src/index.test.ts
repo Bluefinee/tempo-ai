@@ -1,5 +1,3 @@
-// Test files allow any type for testing utilities and mocks
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import app from './index';
@@ -163,9 +161,7 @@ describe('Tempo AI Backend', () => {
 
     expect(res.status).toBe(200);
     
-    // Test response parsing - any type allowed for test flexibility
-    // biome-ignore lint/suspicious/noExplicitAny: Test response parsing requires flexible typing
-    const json = await res.json() as { success: boolean; data?: any };
+    const json = await res.json() as { success: boolean; data?: { greeting: string; timeSlot: string; actionSuggestions: unknown[] } };
     expect(json.success).toBe(true);
     expect(json.data).toBeTruthy();
     

@@ -1,6 +1,3 @@
-// Test files allow any type for testing utilities and mocks
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { describe, it, expect } from 'vitest';
 import { 
   getExamplesForInterest, 
@@ -130,9 +127,8 @@ describe('Prompt Utilities', () => {
     });
 
     it('should return fitness examples as default for unknown interest', () => {
-      // Cast to test default behavior for unknown string
-      // biome-ignore lint/suspicious/noExplicitAny: Test requires invalid enum value
-      const result = getExamplesForInterest('unknown_interest' as any);
+      // Cast to test default behavior for unknown string  
+      const result = getExamplesForInterest('unknown_interest' as never);
       
       expect(result.type).toBe('text');
       expect(result.text).toContain('フィットネスに関心の高いユーザー');

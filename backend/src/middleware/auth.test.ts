@@ -1,6 +1,3 @@
-// Test files allow any type for testing utilities and mocks
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { Hono } from 'hono';
 import { validateApiKey, rateLimit } from './auth.js';
@@ -21,8 +18,7 @@ const createTestApp = () => {
         error: err.message,
         code: errorCode,
       },
-      // biome-ignore lint/suspicious/noExplicitAny: Test error handler requires flexible status code typing
-      statusCode as any,
+      statusCode as 200 | 400 | 401 | 429 | 500,
     );
   });
   
@@ -50,8 +46,7 @@ const createRateLimitTestApp = () => {
         error: err.message,
         code: errorCode,
       },
-      // biome-ignore lint/suspicious/noExplicitAny: Test error handler requires flexible status code typing
-      statusCode as any,
+      statusCode as 200 | 400 | 401 | 429 | 500,
     );
   });
   

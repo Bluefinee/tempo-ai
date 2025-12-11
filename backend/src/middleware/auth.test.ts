@@ -21,6 +21,7 @@ const createTestApp = () => {
         error: err.message,
         code: errorCode,
       },
+      // biome-ignore lint/suspicious/noExplicitAny: Test error handler requires flexible status code typing
       statusCode as any,
     );
   });
@@ -39,8 +40,12 @@ describe('Authentication Middleware', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.spyOn(console, 'log').mockImplementation(() => {});
-    vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(console, 'log').mockImplementation(() => {
+      // Mock implementation for testing
+    });
+    vi.spyOn(console, 'error').mockImplementation(() => {
+      // Mock implementation for testing
+    });
     
     testApp = createTestApp();
   });
@@ -48,7 +53,8 @@ describe('Authentication Middleware', () => {
   afterEach(() => {
     vi.restoreAllMocks();
     // Reset environment
-    delete process.env['TEMPO_API_KEY'];
+    // biome-ignore lint/complexity/useLiteralKeys: Environment variable requires bracket notation
+    process.env['TEMPO_API_KEY'] = undefined;
   });
 
   describe('validateApiKey', () => {

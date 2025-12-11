@@ -163,6 +163,8 @@ describe('Tempo AI Backend', () => {
 
     expect(res.status).toBe(200);
     
+    // Test response parsing - any type allowed for test flexibility
+    // biome-ignore lint/suspicious/noExplicitAny: Test response parsing requires flexible typing
     const json = await res.json() as { success: boolean; data?: any };
     expect(json.success).toBe(true);
     expect(json.data).toBeTruthy();

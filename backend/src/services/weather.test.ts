@@ -12,8 +12,12 @@ vi.stubGlobal('fetch', mockFetch);
 describe('Weather Service', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.spyOn(console, 'log').mockImplementation(() => {});
-    vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(console, 'log').mockImplementation(() => {
+      // Mock implementation for testing
+    });
+    vi.spyOn(console, 'error').mockImplementation(() => {
+      // Mock implementation for testing
+    });
   });
 
   afterEach(() => {

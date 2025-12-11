@@ -59,7 +59,8 @@ describe('Request Validation', () => {
 
     it('should reject request with missing userProfile', () => {
       const invalidData = { ...validRequestData };
-      delete (invalidData as any).userProfile;
+      // biome-ignore lint/suspicious/noExplicitAny: Test data manipulation requires flexible typing
+      (invalidData as any).userProfile = undefined;
 
       const result = validateAdviceRequest(invalidData);
 
@@ -70,7 +71,8 @@ describe('Request Validation', () => {
 
     it('should reject request with missing healthData', () => {
       const invalidData = { ...validRequestData };
-      delete (invalidData as any).healthData;
+      // biome-ignore lint/suspicious/noExplicitAny: Test data manipulation requires flexible typing
+      (invalidData as any).healthData = undefined;
 
       const result = validateAdviceRequest(invalidData);
 
@@ -80,7 +82,8 @@ describe('Request Validation', () => {
 
     it('should reject request with missing location', () => {
       const invalidData = { ...validRequestData };
-      delete (invalidData as any).location;
+      // biome-ignore lint/suspicious/noExplicitAny: Test data manipulation requires flexible typing
+      (invalidData as any).location = undefined;
 
       const result = validateAdviceRequest(invalidData);
 
@@ -90,7 +93,8 @@ describe('Request Validation', () => {
 
     it('should reject request with missing context', () => {
       const invalidData = { ...validRequestData };
-      delete (invalidData as any).context;
+      // biome-ignore lint/suspicious/noExplicitAny: Test data manipulation requires flexible typing
+      (invalidData as any).context = undefined;
 
       const result = validateAdviceRequest(invalidData);
 

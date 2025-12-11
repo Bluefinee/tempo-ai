@@ -291,7 +291,7 @@ describe('Prompt Utilities', () => {
         { gender: 'not_specified', expected: '未設定' },
       ] as const;
 
-      testCases.forEach(({ gender, expected }) => {
+      for (const { gender, expected } of testCases) {
         const params: GenerateAdviceParams = {
           ...mockParams,
           userProfile: {
@@ -302,7 +302,7 @@ describe('Prompt Utilities', () => {
 
         const result = buildUserDataPrompt(params);
         expect(result).toContain(`性別: ${expected}`);
-      });
+      }
     });
 
     it('should format occupation correctly', () => {
@@ -314,7 +314,7 @@ describe('Prompt Utilities', () => {
         { occupation: 'other', expected: 'その他' },
       ] as const;
 
-      testCases.forEach(({ occupation, expected }) => {
+      for (const { occupation, expected } of testCases) {
         const params: GenerateAdviceParams = {
           ...mockParams,
           userProfile: {
@@ -325,7 +325,7 @@ describe('Prompt Utilities', () => {
 
         const result = buildUserDataPrompt(params);
         expect(result).toContain(`職業: ${expected}`);
-      });
+      }
     });
 
     it('should format exercise frequency correctly', () => {
@@ -336,7 +336,7 @@ describe('Prompt Utilities', () => {
         { exerciseFrequency: 'rarely', expected: '運動習慣なし' },
       ] as const;
 
-      testCases.forEach(({ exerciseFrequency, expected }) => {
+      for (const { exerciseFrequency, expected } of testCases) {
         const params: GenerateAdviceParams = {
           ...mockParams,
           userProfile: {
@@ -347,7 +347,7 @@ describe('Prompt Utilities', () => {
 
         const result = buildUserDataPrompt(params);
         expect(result).toContain(`運動習慣: ${expected}`);
-      });
+      }
     });
   });
 });

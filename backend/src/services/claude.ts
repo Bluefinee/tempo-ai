@@ -171,7 +171,9 @@ const validateDailyAdvice = (data: unknown): void => {
 
   const advice = data as Record<string, unknown>;
 
+  // biome-ignore lint/complexity/useLiteralKeys: TypeScript CI requires bracket notation for dynamic property access
   if (typeof advice["greeting"] !== "string") {
+    // biome-ignore lint/complexity/useLiteralKeys: TypeScript CI requires bracket notation for dynamic property access
     throw new ValidationError("Missing or invalid greeting", "greeting", advice["greeting"]);
   }
   

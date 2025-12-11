@@ -137,6 +137,8 @@ describe('Advice Routes - Claude API Integration', () => {
 
       expect(res.status).toBe(200);
 
+      // Test response parsing - any type allowed for test flexibility
+      // biome-ignore lint/suspicious/noExplicitAny: Test response parsing requires flexible typing
       const json = await res.json() as { success: boolean; data?: any };
       expect(json.success).toBe(true);
       
@@ -179,6 +181,8 @@ describe('Advice Routes - Claude API Integration', () => {
 
       expect(res.status).toBe(200);
 
+      // Test response parsing - any type allowed for test flexibility
+      // biome-ignore lint/suspicious/noExplicitAny: Test response parsing requires flexible typing
       const json = await res.json() as { success: boolean; data?: any };
       expect(json.success).toBe(true);
       
@@ -206,6 +210,8 @@ describe('Advice Routes - Claude API Integration', () => {
 
       expect(res.status).toBe(200);
 
+      // Test response parsing - any type allowed for test flexibility
+      // biome-ignore lint/suspicious/noExplicitAny: Test response parsing requires flexible typing
       const json = await res.json() as { success: boolean; data?: any };
       expect(json.success).toBe(true);
       
@@ -238,6 +244,8 @@ describe('Advice Routes - Claude API Integration', () => {
 
       expect(res.status).toBe(200);
 
+      // Test response parsing - any type allowed for test flexibility
+      // biome-ignore lint/suspicious/noExplicitAny: Test response parsing requires flexible typing
       const json = await res.json() as { success: boolean; data?: any };
       expect(json.success).toBe(true);
       
@@ -478,6 +486,8 @@ describe('Advice Routes - Claude API Integration', () => {
       const res = await app.request(req, {}, testEnv);
 
       expect(res.status).toBe(200);
+      // Test response parsing - any type allowed for test flexibility
+      // biome-ignore lint/suspicious/noExplicitAny: Test response parsing requires flexible typing
       const json = await res.json() as { success: boolean; data?: any };
       expect(json.data?.greeting).toContain('たろう');
     });

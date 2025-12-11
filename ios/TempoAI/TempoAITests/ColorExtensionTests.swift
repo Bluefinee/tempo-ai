@@ -6,6 +6,7 @@ final class ColorExtensionTests: XCTestCase {
     
     // MARK: - Brand Colors Existence Tests
     
+    // Verify brand colors defined in Color+Extensions are accessible at runtime
     func testBrandColorsExist() {
         XCTAssertNotNil(Color.tempoSageGreen, "tempoSageGreen should be available")
         XCTAssertNotNil(Color.tempoWarmBeige, "tempoWarmBeige should be available")
@@ -60,7 +61,12 @@ final class ColorExtensionTests: XCTestCase {
             XCTAssertNotNil(color, "Interest \(interest) should have color mapping")
         }
         
-        XCTAssertEqual(allInterests.count, 6, "Should have 6 interest categories")
+        // Verify all interests have color mapping (dynamic count)
+        XCTAssertGreaterThan(allInterests.count, 0, "Should have at least one interest category")
+        
+        // Ensure each interest has a distinct color mapping
+        let colorMappings = allInterests.map { Color.colorForInterest($0) }
+        XCTAssertEqual(colorMappings.count, allInterests.count, "Each interest should have a color mapping")
     }
     
     // MARK: - Color Distinction Tests

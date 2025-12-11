@@ -9,6 +9,18 @@ struct HomeHeaderView: View {
   @State private var toastTask: Task<Void, Never>?
   @State private var tooltipTask: Task<Void, Never>?
 
+  private var timeBasedGreeting: String {
+    let hour: Int = Calendar.current.component(.hour, from: Date())
+    switch hour {
+    case 6..<13:
+      return "おはようございます"
+    case 13..<18:
+      return "こんにちは"
+    default:
+      return "お疲れさまです"
+    }
+  }
+
   var body: some View {
     VStack(spacing: 0) {
       headerTopRow
@@ -75,7 +87,7 @@ struct HomeHeaderView: View {
         .foregroundColor(.tempoPrimaryText)
         .multilineTextAlignment(.leading)
       #else
-      Text("\(userProfile.nickname)さん、こんにちは")
+      Text("\(userProfile.nickname)さん、\(timeBasedGreeting)")
         .font(.title2)
         .fontWeight(.semibold)
         .foregroundColor(.tempoPrimaryText)

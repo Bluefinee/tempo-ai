@@ -48,10 +48,8 @@
 /* Begin PBXFileReference section */
 		06105202FB15455A991C2EB6 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
 		07F599A263CC446DBC079101 /* HomeHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeHeaderView.swift; sourceTree = "<group>"; };
-		0B4A3BB64563417B8B4A34C0 /* OnboardingStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingStateTests.swift; sourceTree = "<group>"; };
 		1B2C5887B3474D7299C4546D /* DailyAdviceModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyAdviceModelTests.swift; sourceTree = "<group>"; };
 		260F5F4924A94689AB55B535 /* UserProfileValidationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileValidationTests.swift; sourceTree = "<group>"; };
-		3EEA5E094198433AB789466D /* CacheManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CacheManagerTests.swift; sourceTree = "<group>"; };
 		4FB9C1F4B10E40BD9881662E /* HomeComponentsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeComponentsTests.swift; sourceTree = "<group>"; };
 		6978C76F2EE96C5E00FCDC58 /* OnboardingState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingState.swift; sourceTree = "<group>"; };
 		6978C7712EE96C5E00FCDC58 /* BasicInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BasicInfoView.swift; sourceTree = "<group>"; };

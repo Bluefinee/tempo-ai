@@ -30,37 +30,43 @@ adviceRouter.use('/*', rateLimit);
 /**
  * 環境データ（気象・大気汚染）を取得する統合関数
  * フォールバック処理により、片方のAPI失敗時でも残りの処理を継続
- * 
+ *
  * @param location - 位置情報（緯度・経度）
  * @returns 環境データ（失敗時は該当フィールドがundefined）
  */
 const fetchEnvironmentData = async (location: LocationData): Promise<EnvironmentData> => {
   const results: EnvironmentData = {};
-  
+
   // Weather APIとAir Quality APIの並行実行
   const [weatherResult, airQualityResult] = await Promise.allSettled([
     fetchWeatherData(location),
     fetchAirQualityData(location),
   ]);
-  
+
   // Weather APIの結果処理
   if (weatherResult.status === 'fulfilled') {
     results.weather = weatherResult.value;
     console.log('[Environment] Weather data fetched successfully');
   } else {
-    console.error('[Environment] Weather fetch failed:', weatherResult.reason?.message || 'Unknown error');
+    console.error(
+      '[Environment] Weather fetch failed:',
+      weatherResult.reason?.message || 'Unknown error',
+    );
     // weatherフィールドはundefinedのまま（フォールバック）
   }
-  
+
   // Air Quality APIの結果処理
   if (airQualityResult.status === 'fulfilled') {
     results.airQuality = airQualityResult.value;
     console.log('[Environment] Air quality data fetched successfully');
   } else {
-    console.error('[Environment] Air quality fetch failed:', airQualityResult.reason?.message || 'Unknown error');
+    console.error(
+      '[Environment] Air quality fetch failed:',
+      airQualityResult.reason?.message || 'Unknown error',
+    );
     // airQualityフィールドはundefinedのまま（フォールバック）
   }
-  
+
   return results;
 };
 

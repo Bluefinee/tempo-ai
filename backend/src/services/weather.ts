@@ -61,7 +61,7 @@ const WEATHER_CODE_MAP: Record<number, string> = {
 
 /**
  * Weather Codeを日本語天気に変換
- * 
+ *
  * @param weatherCode - Open-Meteo Weather Code
  * @returns 日本語天気文字列
  */
@@ -75,16 +75,13 @@ const convertWeatherCodeToCondition = (weatherCode: number): string => {
 
 /**
  * タイムアウト付きFetch実行
- * 
+ *
  * @param url - リクエストURL
  * @param timeoutMs - タイムアウト時間（ミリ秒）
  * @returns Response Promise
  * @throws WeatherApiError タイムアウト時
  */
-const fetchWithTimeout = async (
-  url: string,
-  timeoutMs: number = TIMEOUT_MS
-): Promise<Response> => {
+const fetchWithTimeout = async (url: string, timeoutMs: number = TIMEOUT_MS): Promise<Response> => {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
@@ -107,19 +104,25 @@ const fetchWithTimeout = async (
 
 /**
  * Open-Meteo Weather APIのリクエストURLを構築
- * 
+ *
  * @param params - 緯度経度パラメータ
  * @returns リクエストURL
  */
 const buildWeatherApiUrl = (params: WeatherParams): string => {
   const url = new URL(API_BASE_URL);
-  
+
   url.searchParams.append('latitude', params.latitude.toString());
   url.searchParams.append('longitude', params.longitude.toString());
-  url.searchParams.append('current', 'temperature_2m,relative_humidity_2m,weather_code,surface_pressure');
-  url.searchParams.append('daily', 'temperature_2m_max,temperature_2m_min,uv_index_max,precipitation_probability_max');
+  url.searchParams.append(
+    'current',
+    'temperature_2m,relative_humidity_2m,weather_code,surface_pressure',
+  );
+  url.searchParams.append(
+    'daily',
+    'temperature_2m_max,temperature_2m_min,uv_index_max,precipitation_probability_max',
+  );
   url.searchParams.append('timezone', 'Asia/Tokyo');
-  
+
   return url.toString();
 };
 
@@ -129,33 +132,33 @@ const buildWeatherApiUrl = (params: WeatherParams): string => {
 
 /**
  * Open-Meteo APIレスポンスをWeatherDataに変換
- * 
+ *
  * @param response - Open-Meteo APIレスポンス
  * @returns 変換されたWeatherData
  * @throws WeatherApiError データが不正な場合
  */
 const transformWeatherResponse = (response: OpenMeteoWeatherResponse): WeatherData => {
   const { current, daily } = response;
-  
+
   // 必須フィールドの存在確認
   if (!current || !daily) {
     throw new WeatherApiError('Invalid weather API response: missing current or daily data');
   }
-  
+
   const {
     temperature_2m: tempCurrentC,
     relative_humidity_2m: humidityPercent,
     weather_code: weatherCode,
     surface_pressure: pressureHpa,
   } = current;
-  
+
   const {
     temperature_2m_max: tempMaxArray,
     temperature_2m_min: tempMinArray,
     uv_index_max: uvIndexArray,
     precipitation_probability_max: precipitationArray,
   } = daily;
-  
+
   // 配列データの存在確認
   if (
     tempMaxArray?.[0] === undefined ||
@@ -165,7 +168,7 @@ const transformWeatherResponse = (response: OpenMeteoWeatherResponse): WeatherDa
   ) {
     throw new WeatherApiError('Invalid weather API response: missing daily forecast data');
   }
-  
+
   return {
     condition: convertWeatherCodeToCondition(weatherCode),
     tempCurrentC,
@@ -184,11 +187,11 @@ const transformWeatherResponse = (response: OpenMeteoWeatherResponse): WeatherDa
 
 /**
  * Open-Meteo Weather APIから気象データを取得
- * 
+ *
  * @param params - 緯度経度パラメータ
  * @returns 気象データ
  * @throws WeatherApiError API呼び出し失敗時
- * 
+ *
  * @example
  * ```typescript
  * const weatherData = await fetchWeatherData({
@@ -200,47 +203,47 @@ const transformWeatherResponse = (response: OpenMeteoWeatherResponse): WeatherDa
  */
 export const fetchWeatherData = async (params: WeatherParams): Promise<WeatherData> => {
   const { latitude, longitude } = params;
-  
+
   // パラメータバリデーション
   if (latitude < -90 || latitude > 90) {
     throw new WeatherApiError(`Invalid latitude: ${latitude}. Must be between -90 and 90.`);
   }
-  
+
   if (longitude < -180 || longitude > 180) {
     throw new WeatherApiError(`Invalid longitude: ${longitude}. Must be between -180 and 180.`);
   }
-  
+
   const url = buildWeatherApiUrl(params);
-  
+
   console.log(`[Weather] Fetching for lat=${latitude}, lon=${longitude}`);
-  
+
   try {
     const response = await fetchWithTimeout(url);
-    
+
     if (!response.ok) {
       throw new WeatherApiError(
         `Weather API returned ${response.status}: ${response.statusText}`,
-        response.status
+        response.status,
       );
     }
-    
-    const data = await response.json() as OpenMeteoWeatherResponse;
+
+    const data = (await response.json()) as OpenMeteoWeatherResponse;
     const weatherData = transformWeatherResponse(data);
-    
+
     console.log('[Weather] Response:', weatherData);
-    
+
     return weatherData;
   } catch (error) {
     if (error instanceof WeatherApiError) {
       console.error('[Weather] Error:', error.message);
       throw error;
     }
-    
+
     // 予期しないエラーをWeatherApiErrorに変換
     const weatherError = new WeatherApiError(
-      `Weather API request failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      `Weather API request failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
     );
-    
+
     console.error('[Weather] Error:', weatherError.message);
     throw weatherError;
   }

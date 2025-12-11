@@ -27,7 +27,7 @@ concurrency:
 env:
   DEVELOPER_DIR: /Applications/Xcode.app/Contents/Developer
   SCHEME: TempoAI
-  DESTINATION: "platform=iOS Simulator,OS=latest,name=iPhone 16"
+  DESTINATION: "platform=iOS Simulator,name=Any iOS Simulator Device"
 
 jobs:
   # ===========================================================================

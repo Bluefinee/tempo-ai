@@ -24,6 +24,12 @@
 		6978C78B2EE96C5E00FCDC58 /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6978C77F2EE96C5E00FCDC58 /* UserProfile.swift */; };
 		6978C78C2EE96C5E00FCDC58 /* PermissionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6978C7772EE96C5E00FCDC58 /* PermissionsView.swift */; };
 		6978C78F2EE96CB900FCDC58 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6978C78D2EE96CB900FCDC58 /* Assets.xcassets */; };
+		6978C7D72EEB141B00FCDC58 /* AdditionalAdvicePopup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6978C7D22EEB141B00FCDC58 /* AdditionalAdvicePopup.swift */; };
+		6978C7D82EEB141B00FCDC58 /* MetricsGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6978C7D52EEB141B00FCDC58 /* MetricsGridView.swift */; };
+		6978C7D92EEB141B00FCDC58 /* MetricCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6978C7D42EEB141B00FCDC58 /* MetricCard.swift */; };
+		6978C7DA2EEB141B00FCDC58 /* WeeklyTryCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6978C7D62EEB141B00FCDC58 /* WeeklyTryCard.swift */; };
+		6978C7DB2EEB141B00FCDC58 /* DailyTryCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6978C7D32EEB141B00FCDC58 /* DailyTryCard.swift */; };
+		6978C7DD2EEB14C000FCDC58 /* MetricDataModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6978C7DC2EEB14C000FCDC58 /* MetricDataModelTests.swift */; };
 		843322BABBD34316B8C0F0FE /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843322BABBD34316B8C0F0FF /* HomeView.swift */; };
 		A1000001295A8F3E00000001 /* TempoAIApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000000295A8F3E00000001 /* TempoAIApp.swift */; };
 		A1000003295A8F3E00000001 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000002295A8F3E00000001 /* ContentView.swift */; };
@@ -63,6 +69,12 @@
 		6978C77D2EE96C5E00FCDC58 /* Color+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Extensions.swift"; sourceTree = "<group>"; };
 		6978C77F2EE96C5E00FCDC58 /* UserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfile.swift; sourceTree = "<group>"; };
 		6978C78D2EE96CB900FCDC58 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		6978C7D22EEB141B00FCDC58 /* AdditionalAdvicePopup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdditionalAdvicePopup.swift; sourceTree = "<group>"; };
+		6978C7D32EEB141B00FCDC58 /* DailyTryCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyTryCard.swift; sourceTree = "<group>"; };
+		6978C7D42EEB141B00FCDC58 /* MetricCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricCard.swift; sourceTree = "<group>"; };
+		6978C7D52EEB141B00FCDC58 /* MetricsGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricsGridView.swift; sourceTree = "<group>"; };
+		6978C7D62EEB141B00FCDC58 /* WeeklyTryCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyTryCard.swift; sourceTree = "<group>"; };
+		6978C7DC2EEB14C000FCDC58 /* MetricDataModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricDataModelTests.swift; sourceTree = "<group>"; };
 		69D700C92EE83ADD00FBC56D /* TempoAI.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TempoAI.entitlements; sourceTree = "<group>"; };
 		843322BABBD34316B8C0F0FF /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		A0FFFFFD295A8F3E00000001 /* TempoAI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TempoAI.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -189,6 +201,11 @@
 		719E2608701640429846F6E1 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				6978C7D22EEB141B00FCDC58 /* AdditionalAdvicePopup.swift */,
+				6978C7D32EEB141B00FCDC58 /* DailyTryCard.swift */,
+				6978C7D42EEB141B00FCDC58 /* MetricCard.swift */,
+				6978C7D52EEB141B00FCDC58 /* MetricsGridView.swift */,
+				6978C7D62EEB141B00FCDC58 /* WeeklyTryCard.swift */,
 				DCE68EB664CE485388FCCD82 /* AdviceSummaryCard.swift */,
 				07F599A263CC446DBC079101 /* HomeHeaderView.swift */,
 				843322BABBD34316B8C0F0FF /* HomeView.swift */,
@@ -232,6 +249,7 @@
 		A1000010295A8F3F00000001 /* TempoAITests */ = {
 			isa = PBXGroup;
 			children = (
+				6978C7DC2EEB14C000FCDC58 /* MetricDataModelTests.swift */,
 				BA073E34F0B949628360DECD /* ColorExtensionTests.swift */,
 				1B2C5887B3474D7299C4546D /* DailyAdviceModelTests.swift */,
 				4FB9C1F4B10E40BD9881662E /* HomeComponentsTests.swift */,
@@ -357,6 +375,11 @@
 				6978C7852EE96C5E00FCDC58 /* Color+Extensions.swift in Sources */,
 				6978C7862EE96C5E00FCDC58 /* CacheManager.swift in Sources */,
 				6978C7872EE96C5E00FCDC58 /* InterestsView.swift in Sources */,
+				6978C7D72EEB141B00FCDC58 /* AdditionalAdvicePopup.swift in Sources */,
+				6978C7D82EEB141B00FCDC58 /* MetricsGridView.swift in Sources */,
+				6978C7D92EEB141B00FCDC58 /* MetricCard.swift in Sources */,
+				6978C7DA2EEB141B00FCDC58 /* WeeklyTryCard.swift in Sources */,
+				6978C7DB2EEB141B00FCDC58 /* DailyTryCard.swift in Sources */,
 				6978C7882EE96C5E00FCDC58 /* OnboardingContainerView.swift in Sources */,
 				6978C7892EE96C5E00FCDC58 /* OnboardingLoadingView.swift in Sources */,
 				6978C78A2EE96C5E00FCDC58 /* BasicInfoView.swift in Sources */,
@@ -380,6 +403,7 @@
 				BA073E34F0B949628360DECC /* ColorExtensionTests.swift in Sources */,
 				1B2C5887B3474D7299C4546C /* DailyAdviceModelTests.swift in Sources */,
 				4FB9C1F4B10E40BD9881662D /* HomeComponentsTests.swift in Sources */,
+				6978C7DD2EEB14C000FCDC58 /* MetricDataModelTests.swift in Sources */,
 				A1000012295A8F3F00000001 /* TempoAITests.swift in Sources */,
 				260F5F4924A94689AB55B534 /* UserProfileValidationTests.swift in Sources */,
 			);

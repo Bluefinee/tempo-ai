@@ -49,10 +49,10 @@ jobs:
           DIFF_BASE: ${{ github.base_ref }}
 
   # ===========================================================================
-  # Job 2: Build（SwiftLint 成功後に実行）
+  # Job 2: Build Debug（SwiftLint 成功後に実行）
   # ===========================================================================
-  build:
-    name: 🔨 Build
+  build-debug:
+    name: 🔨 Build (Debug)
     runs-on: macos-15
     needs: swiftlint
 
@@ -81,8 +81,8 @@ jobs:
       - name: List schemes
         run: xcodebuild -list -project ios/TempoAI/TempoAI.xcodeproj
 
-      # ビルド実行
-      - name: Build for testing
+      # Debug ビルド実行
+      - name: Build for testing (Debug)
         run: |
           set -o pipefail
           xcodebuild build-for-testing \
@@ -96,8 +96,52 @@ jobs:
       # ビルド成果確認（デバッグ用）
       - name: Verify build output
         run: |
-          echo "Build completed successfully for testing"
+          echo "Debug build completed successfully"
           ls -la ~/Library/Developer/Xcode/DerivedData/TempoAI-*/Build/Products/ || echo "No build products found"
+
+  # ===========================================================================
+  # Job 3: Build Release（App Store準備品質チェック）
+  # ===========================================================================
+  build-release:
+    name: 🚀 Build (Release)
+    runs-on: macos-15
+    needs: swiftlint
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show Xcode version
+        run: xcodebuild -version
+
+      # Swift Package Manager のキャッシュ
+      - name: Cache SPM
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/Library/Caches/org.swift.swiftpm
+            ~/Library/Developer/Xcode/DerivedData/**/SourcePackages
+          key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-
+
+      # Release ビルド実行
+      - name: Build (Release)
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -project ios/TempoAI/TempoAI.xcodeproj \
+            -scheme ${{ env.SCHEME }} \
+            -destination "${{ env.DESTINATION }}" \
+            -configuration Release \
+            CODE_SIGNING_ALLOWED=NO \
+            | xcpretty --color
+
+      # Release ビルド成果確認
+      - name: Verify Release build
+        run: |
+          echo "Release build completed successfully"
+          echo "App Store deployment ready"
 
   # ===========================================================================
   # Job 3: Unit Tests（Build 成功後に実行）
@@ -105,7 +149,7 @@ jobs:
   test:
     name: 🧪 Unit Tests
     runs-on: macos-15
-    needs: swiftlint # SwiftLint成功後に実行
+    needs: build-debug # Debug build成功後に実行
 
     steps:
       - name: Checkout

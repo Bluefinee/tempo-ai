@@ -39,6 +39,8 @@ swift test
 
 ## このフェーズで実現すること
 
+k
+
 1. **オンボーディング全 7 画面**の実装と画面遷移
 2. **HealthKit 権限リクエスト**と実際のデータ取得
 3. **位置情報権限リクエスト**と位置取得
@@ -328,21 +330,21 @@ swift test
 │    1〜3個選んでください          │
 │                                 │
 │  ┌───────────┐ ┌───────────┐ │
-│  │   ⚡       │ │   🍎       │ │
-│  │ エネルギー  │ │   栄養     │ │
-│  │パフォーマンス│ │   食事     │ │
+│  │   💄       │ │   💪       │ │
+│  │   美容     │ │ フィットネス │ │
+│  │スキンケア   │ │トレーニング  │ │
 │  └───────────┘ └───────────┘ │
 │                                 │
 │  ┌───────────┐ ┌───────────┐ │
-│  │   💪       │ │   🧘       │ │
-│  │   運動     │ │  メンタル   │ │
-│  │フィットネス │ │ ストレス    │ │
+│  │   🧘       │ │   💼       │ │
+│  │  メンタル   │ │   仕事     │ │
+│  │  ヘルス     │ │パフォーマンス│ │
 │  └───────────┘ └───────────┘ │
 │                                 │
 │  ┌───────────┐ ┌───────────┐ │
-│  │   💄       │ │   😴       │ │
-│  │   美容     │ │   睡眠     │ │
-│  │スキンケア   │ │           │ │
+│  │   🍎       │ │   😴       │ │
+│  │   栄養     │ │   睡眠     │ │
+│  │ 食事管理    │ │   改善     │ │
 │  └───────────┘ └───────────┘ │
 │                                 │
 │        [次へ]ボタン              │
@@ -357,12 +359,12 @@ swift test
 - タイトル: 「あなたの関心ごとを教えてください」
 - 説明: 「1〜3 個選んでください」
 - 6 つのタグ（カード形式、2 列 ×3 行）:
-  - ⚡ エネルギー・パフォーマンス
-  - 🍎 栄養・食事
-  - 💪 運動・フィットネス
-  - 🧘 メンタル・ストレス
   - 💄 美容・スキンケア
-  - 😴 睡眠
+  - 💪 フィットネス・トレーニング
+  - 🧘 メンタルヘルス・マインドフルネス
+  - 💼 仕事・パフォーマンス向上
+  - 🍎 栄養・食事管理
+  - 😴 睡眠改善
 - 「次へ」ボタン
 
 **インタラクション**:
@@ -716,32 +718,26 @@ enum Gender: String, Codable, CaseIterable {
 }
 
 enum Occupation: String, Codable, CaseIterable {
-    case officeWork = "office_work"
-    case sales = "sales"
-    case serviceIndustry = "service_industry"
-    case medical = "medical"
-    case education = "education"
-    case manufacturing = "manufacturing"
-    case transport = "transport"
     case itEngineer = "it_engineer"
+    case sales = "sales"
+    case standingWork = "standing_work"
+    case medical = "medical"
     case creative = "creative"
     case homemaker = "homemaker"
     case student = "student"
+    case freelance = "freelance"
     case other = "other"
 
     var displayName: String {
         switch self {
-        case .officeWork: return "事務・オフィスワーク"
-        case .sales: return "営業・接客"
-        case .serviceIndustry: return "サービス業"
+        case .itEngineer: return "ITエンジニア・デスクワーク"
+        case .sales: return "営業・外回り"
+        case .standingWork: return "立ち仕事（販売・接客）"
         case .medical: return "医療・介護"
-        case .education: return "教育・保育"
-        case .manufacturing: return "製造・技術"
-        case .transport: return "運輸・物流"
-        case .itEngineer: return "IT・エンジニア"
-        case .creative: return "クリエイティブ"
+        case .creative: return "クリエイティブ職"
         case .homemaker: return "主婦・主夫"
         case .student: return "学生"
+        case .freelance: return "フリーランス・自営業"
         case .other: return "その他"
         }
     }
@@ -794,31 +790,31 @@ enum AlcoholFrequency: String, Codable, CaseIterable {
 }
 
 enum Interest: String, Codable, CaseIterable {
-    case energyPerformance = "energy_performance"
-    case nutrition = "nutrition"
-    case fitness = "fitness"
-    case mentalStress = "mental_stress"
     case beauty = "beauty"
+    case fitness = "fitness"
+    case mentalHealth = "mental_health"
+    case workPerformance = "work_performance"
+    case nutrition = "nutrition"
     case sleep = "sleep"
 
     var displayName: String {
         switch self {
-        case .energyPerformance: return "エネルギー・パフォーマンス"
-        case .nutrition: return "栄養・食事"
-        case .fitness: return "運動・フィットネス"
-        case .mentalStress: return "メンタル・ストレス"
         case .beauty: return "美容・スキンケア"
-        case .sleep: return "睡眠"
+        case .fitness: return "フィットネス・トレーニング"
+        case .mentalHealth: return "メンタルヘルス・マインドフルネス"
+        case .workPerformance: return "仕事・パフォーマンス向上"
+        case .nutrition: return "栄養・食事管理"
+        case .sleep: return "睡眠改善"
         }
     }
 
     var emoji: String {
         switch self {
-        case .energyPerformance: return "⚡"
-        case .nutrition: return "🍎"
-        case .fitness: return "💪"
-        case .mentalStress: return "🧘"
         case .beauty: return "💄"
+        case .fitness: return "💪"
+        case .mentalHealth: return "🧘"
+        case .workPerformance: return "💼"
+        case .nutrition: return "🍎"
         case .sleep: return "😴"
         }
     }

@@ -1,0 +1,349 @@
+Starting CodeRabbit review in plain text mode...
+
+Connecting to review service
+Setting up
+Analyzing
+Reviewing
+
+============================================================================
+File: backend/src/utils/errors.ts
+Line: 93 to 97
+Type: nitpick
+
+Comment:
+不要な条件分岐を削除してください。
+
+パラメータapiStatusCodeは既にoptionalとして定義されているため、undefinedチェックは冗長です。TypeScriptが自動的にundefinedを処理します。
+
+
+
+以下のdiffを適用してコードを簡潔化してください：
+
+   constructor(message: string, apiStatusCode?: number) {
+     super(message, 'weather');
+-    if (apiStatusCode !== undefined) {
+-      this.apiStatusCode = apiStatusCode;
+-    }
++    this.apiStatusCode = apiStatusCode;
+   }
+
+Prompt for AI Agent:
+In backend/src/utils/errors.ts around lines 93 to 97, the constructor contains a redundant undefined check for the optional parameter apiStatusCode; remove the conditional and assign directly (this.apiStatusCode = apiStatusCode) so the optional parameter is handled by TypeScript, ensuring the class property type permits undefined if needed.
+
+
+
+============================================================================
+File: backend/src/utils/errors.ts
+Line: 108 to 112
+Type: nitpick
+
+Comment:
+不要な条件分岐を削除してください。
+
+パラメータapiStatusCodeは既にoptionalとして定義されているため、undefinedチェックは冗長です。TypeScriptが自動的にundefinedを処理します。
+
+
+
+以下のdiffを適用してコードを簡潔化してください：
+
+   constructor(message: string, apiStatusCode?: number) {
+     super(message, 'air_quality');
+-    if (apiStatusCode !== undefined) {
+-      this.apiStatusCode = apiStatusCode;
+-    }
++    this.apiStatusCode = apiStatusCode;
+   }
+
+Prompt for AI Agent:
+In backend/src/utils/errors.ts around lines 108 to 112, the constructor currently checks if the optional parameter apiStatusCode is undefined before assignment; remove the redundant conditional and assign apiStatusCode directly to this.apiStatusCode (letting TypeScript handle undefined), keeping the rest of the constructor unchanged so the property is set concisely.
+
+
+
+============================================================================
+File: backend/tests/services/weather.test.ts
+Line: 5 to 6
+Type: potential_issue
+
+Comment:
+any型の使用を避けてください
+
+コーディングガイドラインに従い、any型は禁止されています。fetchモックには適切な型定義を使用してください。
+
+
+
+-// Mock global fetch
+-global.fetch = vi.fn();
++// Mock global fetch with proper typing
++const mockFetch = vi.fn();
++global.fetch = mockFetch;
+
+
+各テストケースでの使用も修正が必要です：
+
+-        (fetch as any).mockResolvedValueOnce({
++        mockFetch.mockResolvedValueOnce({
+           ok: true,
+           json: vi.fn().mockResolvedValueOnce(mockWeatherResponse),
+-        });
++        } as unknown as Response);
+
+
+
+Also applies to: 40-43
+
+Prompt for AI Agent:
+In backend/tests/services/weather.test.ts around lines 5-6 (and similarly at lines 40-43), the test assigns vi.fn() to global.fetch using the any-typed approach; replace the use of any by typing the mock as a Fetch-like function (e.g., cast to typeof global.fetch or to (input: RequestInfo, init?: RequestInit) => Promise) and update individual test usages to use typed mock helpers (e.g., vi.MockedFunction or ReturnType with the fetch signature) so the mock has proper request/response types and TypeScript no longer requires any. Ensure imports/types are added if needed and adjust assertions to use the typed mock methods (mockResolvedValueOnce, mockImplementationOnce) accordingly.
+
+
+
+============================================================================
+File: backend/src/services/airQuality.ts
+Line: 15 to 18
+Type: nitpick
+
+Comment:
+共通ユーティリティの抽出を検討してください
+
+AirQualityParamsとfetchWithTimeoutはweather.tsと重複しています。DRY原則に従い、共通モジュールへの抽出を検討してください。
+
+
+
+例えば backend/src/utils/http.ts を作成：
+
+// backend/src/utils/http.ts
+export interface CoordinateParams {
+  latitude: number;
+  longitude: number;
+}
+
+export const validateCoordinates = (params: CoordinateParams): void => {
+  if (params.latitude  90) {
+    throw new Error(Invalid latitude: ${params.latitude});
+  }
+  if (params.longitude  180) {
+    throw new Error(Invalid longitude: ${params.longitude});
+  }
+};
+
+export const fetchWithTimeout = async (
+  url: string,
+  timeoutMs: number,
+  ErrorClass: new (message: string) => Error
+): Promise => {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const response = await fetch(url, { signal: controller.signal });
+    return response;
+  } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new ErrorClass(API request timed out after ${timeoutMs}ms);
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+};
+
+
+
+Also applies to: 40-58
+
+Prompt for AI Agent:
+In backend/src/services/airQuality.ts around lines 15-18 and 40-58, the Coordinate interface and fetchWithTimeout implementation duplicate code found in weather.ts; extract them to a shared module (e.g., backend/src/utils/http.ts) that exports a CoordinateParams (or Coordinate) interface, a validateCoordinates function, and a fetchWithTimeout utility with the same signature (including the ErrorClass constructor type), update both airQuality.ts and weather.ts to import these utilities, replace local definitions with imports, run TypeScript checks and adjust any import paths and usages (including error class references) to ensure types and behavior remain identical.
+
+
+
+============================================================================
+File: backend/src/services/weather.ts
+Line: 43 to 60
+Type: nitpick
+
+Comment:
+Weather Codeマッピングの網羅性を検討してください
+
+Open-Meteo APIの一部Weather Codeがマッピングされていません（例：56-57 着氷性霧雨、66-67 着氷性雨、77 霧雪、80-86 にわか雨/にわか雪、96/99 雷雨+雹）。
+
+
+
+これらのコードに遭遇した場合「不明」と表示されます。必要に応じて追加を検討してください：
+
+const WEATHER_CODE_MAP: Record = {
+  // ... existing codes ...
+};
+
+
+
+
+============================================================================
+File: backend/tests/services/airQuality.test.ts
+Line: 5 to 6
+Type: potential_issue
+
+Comment:
+any型の使用を避けてください
+
+weather.test.tsと同様に、any型の使用はコーディングガイドラインに違反しています。適切な型定義を使用してください。
+
+
+
+-// Mock global fetch
+-global.fetch = vi.fn();
++// Mock global fetch with proper typing
++const mockFetch = vi.fn();
++global.fetch = mockFetch;
+
+
+
+Also applies to: 33-36
+
+Prompt for AI Agent:
+In backend/tests/services/airQuality.test.ts around lines 5-6 (and also lines 33-36), the mock assignment uses the any type; replace it with a proper typed mock to satisfy the coding guideline. Change the global fetch mock to use the built-in DOM type, e.g. assign global.fetch = vi.fn() as unknown as GlobalFetch['fetch'] and for mocked implementations/response stubs on lines 33-36 cast them to the appropriate function signature or Response type (e.g. vi.fn().mockResolvedValue(...) as unknown as Promise or use GlobalFetch['fetch'] for implementations) so no any is used.
+
+
+
+============================================================================
+File: backend/src/services/weather.ts
+Line: 159 to 162
+Type: potential_issue
+
+Comment:
+0値のチェックで誤判定が発生します
+
+!tempMaxArray?.[0]の条件は、温度が0°Cの場合にもエラーを投げてしまいます。0は有効な温度値ですが、falsyとして評価されます。
+
+
+
+   // 配列データの存在確認
+-  if (!tempMaxArray?.[0] || !tempMinArray?.[0] || !uvIndexArray?.[0] || !precipitationArray?.[0]) {
++  if (
++    tempMaxArray?.[0] === undefined ||
++    tempMinArray?.[0] === undefined ||
++    uvIndexArray?.[0] === undefined ||
++    precipitationArray?.[0] === undefined
++  ) {
+     throw new WeatherApiError('Invalid weather API response: missing daily forecast data');
+   }
+
+
+これにより、気温0°C、UV指数0、降水確率0%のケースも正しく処理されます。
+
+Prompt for AI Agent:
+In backend/src/services/weather.ts around lines 159 to 162, the current presence check uses falsy checks (e.g. !tempMaxArray?.[0]) which incorrectly treats valid 0 values as missing; change the checks to explicitly detect undefined/null (for example ensure each array exists and has length > 0, or test that tempMaxArray?.[0] != null) so that 0 is accepted as a valid value and only truly missing data triggers WeatherApiError.
+
+
+
+============================================================================
+File: backend/tests/services/airQuality.test.ts
+Line: 198 to 224
+Type: potential_issue
+
+Comment:
+境界値テストでモックが不足しています
+
+weather.test.tsと同様の問題があります。4つのアサーションに対して1つのモックしか設定されていません。
+
+
+
+     describe('境界値', () => {
+       it('緯度経度の境界値で正常に動作する', async () => {
+-        (fetch as any).mockResolvedValueOnce({
+-          ok: true,
+-          json: vi.fn().mockResolvedValueOnce(mockAirQualityResponse),
+-        });
++        const setupMock = (): void => {
++          (fetch as ReturnType).mockResolvedValueOnce({
++            ok: true,
++            json: vi.fn().mockResolvedValueOnce(mockAirQualityResponse),
++          } as unknown as Response);
++        };
+
+         // 北極点
++        setupMock();
+         await expect(
+           fetchAirQualityData({ latitude: 90, longitude: 0 })
+         ).resolves.toBeDefined();
+
+         // 南極点
++        setupMock();
+         await expect(
+           fetchAirQualityData({ latitude: -90, longitude: 0 })
+         ).resolves.toBeDefined();
+
+         // 東端
++        setupMock();
+         await expect(
+           fetchAirQualityData({ latitude: 0, longitude: 180 })
+         ).resolves.toBeDefined();
+
+         // 西端
++        setupMock();
+         await expect(
+           fetchAirQualityData({ latitude: 0, longitude: -180 })
+         ).resolves.toBeDefined();
+       });
+
+Prompt for AI Agent:
+In backend/tests/services/airQuality.test.ts around lines 198-224, the boundary-value test calls fetchAirQualityData four times but only sets fetch mock once; update the test so each call has a corresponding mock response (e.g., call (fetch as any).mockResolvedValueOnce(...) before each expect or set (fetch as any).mockResolvedValue(...) to return the value for all calls), or alternatively reset and re-mock fetch between assertions with vi.resetAllMocks()/mockResolvedValueOnce to ensure each invocation receives a mocked response.
+
+
+
+============================================================================
+File: backend/tests/services/weather.test.ts
+Line: 182 to 209
+Type: potential_issue
+
+Comment:
+境界値テストでモックが不足しています
+
+1つのモックで4つの非同期アサーションを実行していますが、最初のアサーション以降はモックが消費されるため、残りのテストは失敗する可能性があります。
+
+
+
+     describe('境界値', () => {
+       it('緯度経度の境界値で正常に動作する', async () => {
+-        (fetch as any).mockResolvedValueOnce({
+-          ok: true,
+-          json: vi.fn().mockResolvedValueOnce(mockWeatherResponse),
+-        });
++        // 各アサーションに対してモックを設定
++        const setupMock = (): void => {
++          (fetch as ReturnType).mockResolvedValueOnce({
++            ok: true,
++            json: vi.fn().mockResolvedValueOnce(mockWeatherResponse),
++          } as unknown as Response);
++        };
+
+         // 北極点
++        setupMock();
+         await expect(
+           fetchWeatherData({ latitude: 90, longitude: 0 })
+         ).resolves.toBeDefined();
+
+         // 南極点
++        setupMock();
+         await expect(
+           fetchWeatherData({ latitude: -90, longitude: 0 })
+         ).resolves.toBeDefined();
+
+         // 東端
++        setupMock();
+         await expect(
+           fetchWeatherData({ latitude: 0, longitude: 180 })
+         ).resolves.toBeDefined();
+
+         // 西端
++        setupMock();
+         await expect(
+           fetchWeatherData({ latitude: 0, longitude: -180 })
+         ).resolves.toBeDefined();
+       });
+     });
+
+Prompt for AI Agent:
+In backend/tests/services/weather.test.ts around lines 182 to 209, the boundary-value test uses a single mockResolvedValueOnce for four async fetchWeatherData calls so the mock is consumed by the first assertion causing later calls to fail; fix by providing one resolved mock per call (e.g., call mockResolvedValueOnce four times with the same mock response or replace with mockResolvedValue to persist across calls), or reset/reconfigure the fetch mock between assertions so each fetchWeatherData call receives a valid mocked response.
+
+
+
+Review completed ✔

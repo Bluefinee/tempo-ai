@@ -71,15 +71,41 @@ export class RateLimitError extends AppError {
  * External API service error
  */
 export class ExternalApiError extends AppError {
-  readonly statusCode = 502;
+  readonly statusCode: number = 502;
   readonly isOperational = true;
-  readonly code = 'EXTERNAL_API_ERROR';
+  readonly code: string = 'EXTERNAL_API_ERROR';
 
   constructor(
     message: string,
     public readonly service: 'claude' | 'weather' | 'air_quality',
   ) {
     super(message);
+  }
+}
+
+/**
+ * Weather API specific error
+ */
+export class WeatherApiError extends ExternalApiError {
+  override readonly code = 'WEATHER_API_ERROR';
+  readonly apiStatusCode?: number | undefined;
+
+  constructor(message: string, apiStatusCode?: number) {
+    super(message, 'weather');
+    this.apiStatusCode = apiStatusCode;
+  }
+}
+
+/**
+ * Air Quality API specific error
+ */
+export class AirQualityApiError extends ExternalApiError {
+  override readonly code = 'AIR_QUALITY_API_ERROR';
+  readonly apiStatusCode?: number | undefined;
+
+  constructor(message: string, apiStatusCode?: number) {
+    super(message, 'air_quality');
+    this.apiStatusCode = apiStatusCode;
   }
 }
 

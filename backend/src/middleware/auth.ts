@@ -20,6 +20,7 @@ const API_KEY_HEADER = 'X-API-Key';
  * - 現在のキーは識別子・レート制限・ロギング用途のみに使用してください
  */
 const getValidApiKey = (environment?: string): string => {
+  // biome-ignore lint/complexity/useLiteralKeys: TypeScript CI requires bracket notation
   const envApiKey = process.env['TEMPO_API_KEY'];
 
   // Production requires environment variable
@@ -80,6 +81,7 @@ export const validateApiKey = async (
   console.log('API key validated:', {
     timestamp: new Date().toISOString(),
     environment: environment || 'development',
+    // biome-ignore lint/complexity/useLiteralKeys: TypeScript CI requires bracket notation
     keySource: process.env['TEMPO_API_KEY'] ? 'environment' : 'default',
   });
 

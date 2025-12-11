@@ -138,5 +138,81 @@ describe('Authentication Middleware', () => {
       expect(res.status).toBe(200);
     });
 
+    it('should reject requests exceeding rate limit', async () => {
+      const testKey = 'tempo-ai-rate-limit-test-key';
+      const req = new Request('http://localhost/test', {
+        headers: {
+          'X-API-Key': testKey,
+        },
+      });
+
+      // Make requests up to the limit (10 requests per minute)
+      for (let i = 0; i < 10; i++) {
+        const res = await testApp.request(req, {}, { ENVIRONMENT: 'development' });
+        expect(res.status).toBe(200);
+      }
+
+      // 11th request should be rate limited
+      const rateLimitedRes = await testApp.request(req, {}, { ENVIRONMENT: 'development' });
+      expect(rateLimitedRes.status).toBe(429);
+      
+      const json = await rateLimitedRes.json() as { success: boolean; error: string; code: string };
+      expect(json.success).toBe(false);
+      expect(json.error).toBe('Rate limit exceeded');
+      expect(json.code).toBe('RATE_LIMIT_EXCEEDED');
+    });
+
+    it('should handle different clients separately', async () => {
+      const req1 = new Request('http://localhost/test', {
+        headers: { 'X-API-Key': 'client-1-key' },
+      });
+      
+      const req2 = new Request('http://localhost/test', {
+        headers: { 'X-API-Key': 'client-2-key' },
+      });
+
+      // Each client should have separate rate limits
+      for (let i = 0; i < 5; i++) {
+        const res1 = await testApp.request(req1, {}, { ENVIRONMENT: 'development' });
+        const res2 = await testApp.request(req2, {}, { ENVIRONMENT: 'development' });
+        
+        expect(res1.status).toBe(200);
+        expect(res2.status).toBe(200);
+      }
+    });
+
+    it('should handle anonymous requests', async () => {
+      const req = new Request('http://localhost/test');
+
+      const res = await testApp.request(req, {}, { ENVIRONMENT: 'development' });
+
+      // Should fail at authentication before rate limiting
+      expect(res.status).toBe(401);
+    });
+  });
+
+  describe('clearRateLimiter', () => {
+    it('should clear all rate limiter data', async () => {
+      const { clearRateLimiter } = await import('./auth.js');
+      
+      const testKey = 'tempo-ai-clear-test-key';
+      const req = new Request('http://localhost/test', {
+        headers: { 'X-API-Key': testKey },
+      });
+
+      // Make some requests to populate rate limiter
+      for (let i = 0; i < 5; i++) {
+        await testApp.request(req, {}, { ENVIRONMENT: 'development' });
+      }
+
+      // Clear rate limiter
+      clearRateLimiter();
+
+      // Should be able to make full 10 requests again
+      for (let i = 0; i < 10; i++) {
+        const res = await testApp.request(req, {}, { ENVIRONMENT: 'development' });
+        expect(res.status).toBe(200);
+      }
+    });
   });
 });

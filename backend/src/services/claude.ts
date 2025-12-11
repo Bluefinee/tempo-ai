@@ -9,6 +9,16 @@ import { buildSystemPrompt, buildAdditionalAdviceSystemPrompt } from "../prompts
 import { getExamplesForInterest, buildUserDataPrompt, buildAdditionalAdviceUserPrompt } from "../utils/prompt.js";
 import { ValidationError, ClaudeApiError } from "../utils/errors.js";
 
+/**
+ * Claude Sonnet を用いてメインの朝アドバイスを生成します
+ * 
+ * 3層プロンプト構造（システム・例文・ユーザーデータ）でPrompt Cachingを活用し、
+ * ユーザーの健康データと環境データを統合分析してパーソナライズされたアドバイスを生成します。
+ *
+ * @param params ユーザー情報・ヘルスデータ・環境データ・APIキーなどのリクエストパラメータ
+ * @returns バリデーション済みの `DailyAdvice`。JSONパース/バリデーション失敗時はフォールバックを返します
+ * @throws {ClaudeApiError} Claude API呼び出しエラーや予期しない例外時
+ */
 export const generateMainAdvice = async (
   params: GenerateAdviceParams
 ): Promise<DailyAdvice> => {
@@ -55,6 +65,16 @@ export const generateMainAdvice = async (
   }
 };
 
+/**
+ * Claude Haiku を用いて追加アドバイス（昼間・夕方）を生成します
+ * 
+ * 朝のメインアドバイスを補完する短文のアドバイスを低コストで生成し、
+ * 時間帯に応じた適切なメッセージを提供します。
+ *
+ * @param params メインアドバイス・時間帯・ユーザー情報・APIキーを含むパラメータ
+ * @returns 時間帯に適した `AdditionalAdvice`
+ * @throws {ClaudeApiError} Claude API呼び出しエラーや予期しない例外時
+ */
 export const generateAdditionalAdvice = async (
   params: AdditionalAdviceParams
 ): Promise<AdditionalAdvice> => {
@@ -222,6 +242,15 @@ const validateAdditionalAdvice = (data: unknown): void => {
   }
 };
 
+/**
+ * AI生成が失敗した場合の汎用フォールバックアドバイスを作成します
+ * 
+ * Claude API の障害やタイムアウト時に、基本的な健康アドバイスを提供し、
+ * サービスの継続性を確保します。
+ *
+ * @param nickname ユーザーのニックネーム（挨拶に使用）
+ * @returns 汎用的な `DailyAdvice` オブジェクト
+ */
 export const createFallbackAdvice = (nickname: string): DailyAdvice => ({
   greeting: `${nickname}さん、おはようございます`,
   condition: {

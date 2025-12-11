@@ -13,6 +13,7 @@ describe('Mock Data Utilities', () => {
 
       expect(result.success).toBe(true);
       expect(result.data).toBeTruthy();
+      expect(result.data?.mainAdvice).toBeDefined();
       
       if (result.data?.mainAdvice) {
         expect(result.data.mainAdvice.greeting).toContain(testNickname);
@@ -33,6 +34,7 @@ describe('Mock Data Utilities', () => {
 
       expect(result.success).toBe(true);
       expect(result.data).toBeTruthy();
+      expect(result.data?.mainAdvice).toBeDefined();
       
       if (result.data?.mainAdvice) {
         expect(result.data.mainAdvice.greeting).toContain(testNickname);
@@ -49,6 +51,7 @@ describe('Mock Data Utilities', () => {
 
       expect(result.success).toBe(true);
       expect(result.data).toBeTruthy();
+      expect(result.data?.mainAdvice).toBeDefined();
       
       if (result.data?.mainAdvice) {
         expect(result.data.mainAdvice.greeting).toContain(testNickname);
@@ -65,6 +68,7 @@ describe('Mock Data Utilities', () => {
 
       expect(result.success).toBe(true);
       expect(result.data).toBeTruthy();
+      expect(result.data?.mainAdvice).toBeDefined();
       
       if (result.data?.mainAdvice) {
         expect(result.data.mainAdvice.greeting).toContain('さん、おはよう');
@@ -77,6 +81,7 @@ describe('Mock Data Utilities', () => {
 
       expect(result.success).toBe(true);
       expect(result.data).toBeTruthy();
+      expect(result.data?.mainAdvice).toBeDefined();
       
       if (result.data?.mainAdvice) {
         expect(result.data.mainAdvice.greeting).toContain(specialNickname);
@@ -89,6 +94,7 @@ describe('Mock Data Utilities', () => {
 
       expect(result.success).toBe(true);
       expect(result.data).toBeTruthy();
+      expect(result.data?.mainAdvice).toBeDefined();
       
       if (result.data?.mainAdvice) {
         expect(result.data.mainAdvice.greeting).toContain(longNickname);

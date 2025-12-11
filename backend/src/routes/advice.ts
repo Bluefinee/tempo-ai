@@ -4,7 +4,7 @@ import { rateLimit, validateApiKey } from '../middleware/auth.js';
 import { validateAdviceRequest, type AdviceRequest } from '../types/request.js';
 import type { LocationData, EnvironmentData } from '../types/domain.js';
 import { HttpStatus } from '../types/response.js';
-import { createValidationErrorResponse } from '../utils/errors.js';
+import { createValidationErrorResponse, AuthenticationError } from '../utils/errors.js';
 import { fetchWeatherData } from '../services/weather.js';
 import { fetchAirQualityData } from '../services/airQuality.js';
 import { generateMainAdvice, createFallbackAdvice } from '../services/claude.js';
@@ -211,7 +211,7 @@ adviceRouter.get('/', (c: Context): Response => {
 const getApiKey = (c: Context<{ Bindings: Bindings }>): string => {
   const key = c.env.ANTHROPIC_API_KEY;
   if (!key) {
-    throw new Error("ANTHROPIC_API_KEY is not configured");
+    throw new AuthenticationError("ANTHROPIC_API_KEY is not configured");
   }
   return key;
 };

@@ -521,6 +521,8 @@ describe('Advice Routes - Claude API Integration', () => {
       expect(logString).not.toContain('45'); // HRV value
       expect(logString).not.toContain('8500'); // Step count
       expect(logString).not.toContain('ヨガ'); // Workout type
+
+      consoleSpy.mockRestore();
     });
   });
 });

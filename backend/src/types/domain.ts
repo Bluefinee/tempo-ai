@@ -194,3 +194,41 @@ export type ActionSuggestion = z.infer<typeof ActionSuggestionSchema>;
 export type TryContent = z.infer<typeof TryContentSchema>;
 export type DailyAdvice = z.infer<typeof DailyAdviceSchema>;
 export type AdditionalAdvice = z.infer<typeof AdditionalAdviceSchema>;
+
+// =============================================================================
+// Weather Data Types
+// =============================================================================
+
+export const WeatherDataSchema = z.object({
+  condition: z.string().min(1), // Weather Codeから変換した日本語天気
+  tempCurrentC: z.number(), // 現在気温（℃）
+  tempMaxC: z.number(), // 最高気温（℃）
+  tempMinC: z.number(), // 最低気温（℃）
+  humidityPercent: z.number().min(0).max(100), // 湿度（%）
+  uvIndex: z.number().nonnegative(), // UV指数
+  pressureHpa: z.number().positive(), // 気圧（hPa）
+  precipitationProbability: z.number().min(0).max(100), // 降水確率（%）
+});
+
+// =============================================================================
+// Air Quality Data Types
+// =============================================================================
+
+export const AirQualityDataSchema = z.object({
+  aqi: z.number().int().nonnegative(), // 大気質指数（AQI）
+  pm25: z.number().nonnegative(), // PM2.5濃度
+  pm10: z.number().nonnegative().optional(), // PM10濃度（オプション）
+});
+
+// =============================================================================
+// Environment Data Types
+// =============================================================================
+
+export const EnvironmentDataSchema = z.object({
+  weather: WeatherDataSchema.optional(), // 気象データ（取得失敗時はundefined）
+  airQuality: AirQualityDataSchema.optional(), // 大気汚染データ（取得失敗時はundefined）
+});
+
+export type WeatherData = z.infer<typeof WeatherDataSchema>;
+export type AirQualityData = z.infer<typeof AirQualityDataSchema>;
+export type EnvironmentData = z.infer<typeof EnvironmentDataSchema>;

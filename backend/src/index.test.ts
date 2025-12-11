@@ -155,7 +155,7 @@ describe('Tempo AI Backend', () => {
 
     const json = (await res.json()) as { message: string; phase: { current: number } };
     expect(json.message).toContain('Tempo AI Advice API');
-    expect(json.phase.current).toBe(7);
+    expect(json.phase.current).toBe(8);
   });
 
   it('should handle CORS preflight', async () => {

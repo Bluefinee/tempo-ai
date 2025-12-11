@@ -84,8 +84,7 @@
     "ask": [],
     "additionalDirectories": [
       "/private/tmp",
-      "<USER_HOME>/Development",
-      "/Users/masakazuiwahara/Development"
+      "<USER_HOME>/Development"
     ]
   }
 }

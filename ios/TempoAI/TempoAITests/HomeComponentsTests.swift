@@ -8,7 +8,6 @@ final class HomeComponentsTests: XCTestCase {
     
     func testMockDataGreetingMorning() throws {
         // Test morning greeting (6:00-12:59)
-        let mockDate = Calendar.current.date(from: DateComponents(hour: 9, minute: 30))!
         let testNickname = "テストユーザー"
         
         // Create a custom Calendar component for testing

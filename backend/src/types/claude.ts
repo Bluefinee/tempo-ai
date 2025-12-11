@@ -47,11 +47,3 @@ export interface AdditionalAdvice {
   generatedAt: string;
   timeSlot: 'midday' | 'evening';
 }
-
-export type Interest =
-  | 'fitness'
-  | 'beauty'
-  | 'mental_health'
-  | 'work_performance'
-  | 'nutrition'
-  | 'sleep';

@@ -9,6 +9,18 @@ struct HomeHeaderView: View {
   @State private var toastTask: Task<Void, Never>?
   @State private var tooltipTask: Task<Void, Never>?
 
+  private var timeBasedGreeting: String {
+    let hour: Int = Calendar.current.component(.hour, from: Date())
+    switch hour {
+    case 6..<13:
+      return "おはようございます"
+    case 13..<18:
+      return "こんにちは"
+    default:
+      return "お疲れさまです"
+    }
+  }
+
   var body: some View {
     VStack(spacing: 0) {
       headerTopRow
@@ -24,6 +36,11 @@ struct HomeHeaderView: View {
     HStack {
       #if DEBUG
       Text(MockData.getCurrentDateString())
+        .font(.subheadline)
+        .fontWeight(.medium)
+        .foregroundColor(.tempoPrimaryText)
+      #else
+      Text(Date.now.formatted(.dateTime.month(.abbreviated).day().weekday(.abbreviated).locale(Locale(identifier: "ja_JP"))))
         .font(.subheadline)
         .fontWeight(.medium)
         .foregroundColor(.tempoPrimaryText)
@@ -48,6 +65,10 @@ struct HomeHeaderView: View {
       )
       .font(.subheadline)
       .foregroundColor(.tempoSecondaryText)
+      #else
+      Text("☀️ --°C")
+        .font(.subheadline)
+        .foregroundColor(.tempoSecondaryText)
       #endif
       
       Spacer()
@@ -61,6 +82,12 @@ struct HomeHeaderView: View {
     HStack {
       #if DEBUG
       Text(MockData.getCurrentGreeting(nickname: userProfile.nickname))
+        .font(.title2)
+        .fontWeight(.semibold)
+        .foregroundColor(.tempoPrimaryText)
+        .multilineTextAlignment(.leading)
+      #else
+      Text("\(userProfile.nickname)さん、\(timeBasedGreeting)")
         .font(.title2)
         .fontWeight(.semibold)
         .foregroundColor(.tempoPrimaryText)

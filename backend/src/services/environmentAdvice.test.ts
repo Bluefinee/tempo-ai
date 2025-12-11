@@ -30,7 +30,7 @@ describe('Environment Advice Service', () => {
           humidityPercent: 25, // Trigger humidity advice
         },
         mockAirQualityData,
-        'falling' // Trigger pressure advice
+        'falling', // Trigger pressure advice
       );
 
       expect(advice.length).toBeLessThanOrEqual(3);
@@ -52,7 +52,7 @@ describe('Environment Advice Service', () => {
           humidityPercent: 25, // Priority 5
         },
         mockAirQualityData, // Priority 1
-        'falling' // Priority 4
+        'falling', // Priority 4
       );
 
       expect(advice.length).toBe(3);
@@ -66,7 +66,7 @@ describe('Environment Advice Service', () => {
       const advice = generateEnvironmentAdvice(
         { ...mockWeatherData, uvIndex: 2, tempCurrentC: 20, humidityPercent: 50 },
         mockAirQualityData,
-        'stable'
+        'stable',
       );
 
       expect(advice.length).toBe(1);
@@ -79,7 +79,7 @@ describe('Environment Advice Service', () => {
       const advice = generateEnvironmentAdvice(
         mockWeatherData,
         { aqi: 45, pm25: 12, pm10: 25 },
-        'stable'
+        'stable',
       );
 
       expect(advice[0]?.type).toBe('air_quality');
@@ -91,7 +91,7 @@ describe('Environment Advice Service', () => {
       const advice = generateEnvironmentAdvice(
         mockWeatherData,
         { aqi: 75, pm25: 25, pm10: 50 },
-        'stable'
+        'stable',
       );
 
       expect(advice[0]?.type).toBe('air_quality');
@@ -103,7 +103,7 @@ describe('Environment Advice Service', () => {
       const advice = generateEnvironmentAdvice(
         mockWeatherData,
         { aqi: 150, pm25: 60, pm10: 120 },
-        'stable'
+        'stable',
       );
 
       expect(advice[0]?.type).toBe('air_quality');
@@ -115,7 +115,7 @@ describe('Environment Advice Service', () => {
       const advice = generateEnvironmentAdvice(
         mockWeatherData,
         { aqi: 50, pm25: 15, pm10: 30 },
-        'stable'
+        'stable',
       );
 
       expect(advice[0]?.type).toBe('air_quality');
@@ -126,7 +126,7 @@ describe('Environment Advice Service', () => {
       const advice = generateEnvironmentAdvice(
         mockWeatherData,
         { aqi: 100, pm25: 35, pm10: 70 },
-        'stable'
+        'stable',
       );
 
       expect(advice[0]?.type).toBe('air_quality');
@@ -139,7 +139,7 @@ describe('Environment Advice Service', () => {
       const advice = generateEnvironmentAdvice(
         { ...mockWeatherData, tempCurrentC: 5 },
         mockAirQualityData,
-        'stable'
+        'stable',
       );
 
       const tempAdvice = advice.find((a) => a.type === 'temperature');
@@ -152,7 +152,7 @@ describe('Environment Advice Service', () => {
       const advice = generateEnvironmentAdvice(
         { ...mockWeatherData, tempCurrentC: 35 },
         mockAirQualityData,
-        'stable'
+        'stable',
       );
 
       const tempAdvice = advice.find((a) => a.type === 'temperature');
@@ -165,7 +165,7 @@ describe('Environment Advice Service', () => {
       const advice = generateEnvironmentAdvice(
         { ...mockWeatherData, tempCurrentC: 20 },
         mockAirQualityData,
-        'stable'
+        'stable',
       );
 
       const tempAdvice = advice.find((a) => a.type === 'temperature');
@@ -176,7 +176,7 @@ describe('Environment Advice Service', () => {
       const advice = generateEnvironmentAdvice(
         { ...mockWeatherData, tempCurrentC: 10 },
         mockAirQualityData,
-        'stable'
+        'stable',
       );
 
       const tempAdvice = advice.find((a) => a.type === 'temperature');
@@ -187,7 +187,7 @@ describe('Environment Advice Service', () => {
       const advice = generateEnvironmentAdvice(
         { ...mockWeatherData, tempCurrentC: 30 },
         mockAirQualityData,
-        'stable'
+        'stable',
       );
 
       const tempAdvice = advice.find((a) => a.type === 'temperature');
@@ -198,7 +198,7 @@ describe('Environment Advice Service', () => {
       const advice = generateEnvironmentAdvice(
         { ...mockWeatherData, tempCurrentC: 9.99 },
         mockAirQualityData,
-        'stable'
+        'stable',
       );
 
       const tempAdvice = advice.find((a) => a.type === 'temperature');
@@ -209,7 +209,7 @@ describe('Environment Advice Service', () => {
       const advice = generateEnvironmentAdvice(
         { ...mockWeatherData, tempCurrentC: 30.01 },
         mockAirQualityData,
-        'stable'
+        'stable',
       );
 
       const tempAdvice = advice.find((a) => a.type === 'temperature');
@@ -222,7 +222,7 @@ describe('Environment Advice Service', () => {
       const advice = generateEnvironmentAdvice(
         { ...mockWeatherData, uvIndex: 7 },
         mockAirQualityData,
-        'stable'
+        'stable',
       );
 
       const uvAdvice = advice.find((a) => a.type === 'uv');
@@ -236,7 +236,7 @@ describe('Environment Advice Service', () => {
       const advice = generateEnvironmentAdvice(
         { ...mockWeatherData, uvIndex: 4 },
         mockAirQualityData,
-        'stable'
+        'stable',
       );
 
       const uvAdvice = advice.find((a) => a.type === 'uv');
@@ -248,7 +248,7 @@ describe('Environment Advice Service', () => {
       const advice = generateEnvironmentAdvice(
         { ...mockWeatherData, uvIndex: 2 },
         mockAirQualityData,
-        'stable'
+        'stable',
       );
 
       const uvAdvice = advice.find((a) => a.type === 'uv');
@@ -259,7 +259,7 @@ describe('Environment Advice Service', () => {
       const advice = generateEnvironmentAdvice(
         { ...mockWeatherData, uvIndex: 3 },
         mockAirQualityData,
-        'stable'
+        'stable',
       );
 
       const uvAdvice = advice.find((a) => a.type === 'uv');
@@ -271,7 +271,7 @@ describe('Environment Advice Service', () => {
       const advice = generateEnvironmentAdvice(
         { ...mockWeatherData, uvIndex: 6 },
         mockAirQualityData,
-        'stable'
+        'stable',
       );
 
       const uvAdvice = advice.find((a) => a.type === 'uv');
@@ -310,7 +310,7 @@ describe('Environment Advice Service', () => {
       const advice = generateEnvironmentAdvice(
         { ...mockWeatherData, humidityPercent: 25 },
         mockAirQualityData,
-        'stable'
+        'stable',
       );
 
       const humidityAdvice = advice.find((a) => a.type === 'humidity');
@@ -323,7 +323,7 @@ describe('Environment Advice Service', () => {
       const advice = generateEnvironmentAdvice(
         { ...mockWeatherData, humidityPercent: 85 },
         mockAirQualityData,
-        'stable'
+        'stable',
       );
 
       const humidityAdvice = advice.find((a) => a.type === 'humidity');
@@ -336,7 +336,7 @@ describe('Environment Advice Service', () => {
       const advice = generateEnvironmentAdvice(
         { ...mockWeatherData, humidityPercent: 50 },
         mockAirQualityData,
-        'stable'
+        'stable',
       );
 
       const humidityAdvice = advice.find((a) => a.type === 'humidity');
@@ -347,7 +347,7 @@ describe('Environment Advice Service', () => {
       const advice = generateEnvironmentAdvice(
         { ...mockWeatherData, humidityPercent: 30 },
         mockAirQualityData,
-        'stable'
+        'stable',
       );
 
       const humidityAdvice = advice.find((a) => a.type === 'humidity');
@@ -358,7 +358,7 @@ describe('Environment Advice Service', () => {
       const advice = generateEnvironmentAdvice(
         { ...mockWeatherData, humidityPercent: 80 },
         mockAirQualityData,
-        'stable'
+        'stable',
       );
 
       const humidityAdvice = advice.find((a) => a.type === 'humidity');
@@ -369,7 +369,7 @@ describe('Environment Advice Service', () => {
       const advice = generateEnvironmentAdvice(
         { ...mockWeatherData, humidityPercent: 29.99 },
         mockAirQualityData,
-        'stable'
+        'stable',
       );
 
       const humidityAdvice = advice.find((a) => a.type === 'humidity');
@@ -380,7 +380,7 @@ describe('Environment Advice Service', () => {
       const advice = generateEnvironmentAdvice(
         { ...mockWeatherData, humidityPercent: 80.01 },
         mockAirQualityData,
-        'stable'
+        'stable',
       );
 
       const humidityAdvice = advice.find((a) => a.type === 'humidity');

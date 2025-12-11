@@ -33,7 +33,7 @@ import type { PressureTrend } from '../types/domain.js';
  */
 export const calculatePressureTrend = (
   currentPressure: number,
-  pressure3hAgo?: number
+  pressure3hAgo?: number,
 ): PressureTrend => {
   // 過去データがない場合は "stable" を返す
   if (pressure3hAgo === undefined) {

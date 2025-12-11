@@ -161,7 +161,7 @@ const buildWeatherApiUrl = (params: WeatherParams): string => {
  */
 const transformWeatherResponse = (
   response: OpenMeteoWeatherResponse,
-  includeHourlyPressure = false
+  includeHourlyPressure = false,
 ): WeatherData & { hourlyPressure?: HourlyPressureData } => {
   const { current, daily } = response;
 
@@ -252,7 +252,7 @@ const transformWeatherResponse = (
  * ```
  */
 export const fetchWeatherData = async (
-  params: WeatherParams
+  params: WeatherParams,
 ): Promise<WeatherData & { hourlyPressure?: HourlyPressureData }> => {
   const { latitude, longitude } = params;
 

@@ -43,7 +43,7 @@ import type {
 export const generateEnvironmentAdvice = (
   weather: WeatherData,
   airQuality: AirQualityData,
-  pressureTrend: PressureTrend
+  pressureTrend: PressureTrend,
 ): EnvironmentAdvice[] => {
   const advice: EnvironmentAdvice[] = [];
 

@@ -54,7 +54,7 @@ app.get('/', zValidator('query', querySchema), async (c): Promise<Response> => {
     // 気圧トレンド算出
     const pressureTrend = calculatePressureTrend(
       weatherData.pressureHpa,
-      weatherData.hourlyPressure?.pressure3hAgo
+      weatherData.hourlyPressure?.pressure3hAgo,
     );
 
     console.log(`[Environment] Pressure trend: ${pressureTrend}`);
@@ -99,7 +99,7 @@ app.get('/', zValidator('query', querySchema), async (c): Promise<Response> => {
         error: 'Failed to fetch environment data',
         message: error instanceof Error ? error.message : 'Unknown error',
       },
-      500
+      500,
     );
   }
 });

@@ -42,7 +42,7 @@ describe('Air Quality Service', () => {
           aqi: 45,
           pm25: 12.5,
           pm10: 25.3,
-        } as unknown as Response);
+        });
       });
 
       it('PM10が無効な場合はundefinedになる', async () => {

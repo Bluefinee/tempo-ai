@@ -130,8 +130,9 @@ describe('Prompt Utilities', () => {
     });
 
     it('should return fitness examples as default for unknown interest', () => {
-      // Cast to undefined to test default behavior
-      const result = getExamplesForInterest(undefined);
+      // Cast to test default behavior for unknown string
+      // biome-ignore lint/suspicious/noExplicitAny: Test requires invalid enum value
+      const result = getExamplesForInterest('unknown_interest' as any);
       
       expect(result.type).toBe('text');
       expect(result.text).toContain('フィットネスに関心の高いユーザー');

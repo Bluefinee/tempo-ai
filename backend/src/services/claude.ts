@@ -191,46 +191,32 @@ const validateDailyAdvice = (data: unknown): void => {
 
   const advice = data as Record<string, unknown>;
 
-  // biome-ignore lint/complexity/useLiteralKeys: TypeScript CI requires bracket notation for dynamic property access
   if (typeof advice["greeting"] !== "string") {
-    // biome-ignore lint/complexity/useLiteralKeys: TypeScript CI requires bracket notation for dynamic property access
     throw new ValidationError("Missing or invalid greeting", "greeting", advice["greeting"]);
   }
   
-  // biome-ignore lint/complexity/useLiteralKeys: TypeScript CI requires bracket notation for dynamic property access
   if (typeof advice["condition"] !== "object" || advice["condition"] === null) {
-    // biome-ignore lint/complexity/useLiteralKeys: TypeScript CI requires bracket notation for dynamic property access
     throw new ValidationError("Missing or invalid condition", "condition", advice["condition"]);
   }
   
-  // biome-ignore lint/complexity/useLiteralKeys: TypeScript CI requires bracket notation for dynamic property access
   const condition = advice["condition"] as Record<string, unknown>;
-  // biome-ignore lint/complexity/useLiteralKeys: TypeScript CI requires bracket notation for dynamic property access
   if (typeof condition["summary"] !== "string" || typeof condition["detail"] !== "string") {
     throw new ValidationError("Invalid condition structure", "condition", condition);
   }
 
-  // biome-ignore lint/complexity/useLiteralKeys: TypeScript CI requires bracket notation for dynamic property access
   if (!Array.isArray(advice["actionSuggestions"])) {
-    // biome-ignore lint/complexity/useLiteralKeys: TypeScript CI requires bracket notation for dynamic property access
     throw new ValidationError("Missing or invalid actionSuggestions", "actionSuggestions", advice["actionSuggestions"]);
   }
 
-  // biome-ignore lint/complexity/useLiteralKeys: TypeScript CI requires bracket notation for dynamic property access
   if (typeof advice["closingMessage"] !== "string") {
-    // biome-ignore lint/complexity/useLiteralKeys: TypeScript CI requires bracket notation for dynamic property access
     throw new ValidationError("Missing or invalid closingMessage", "closingMessage", advice["closingMessage"]);
   }
 
-  // biome-ignore lint/complexity/useLiteralKeys: TypeScript CI requires bracket notation for dynamic property access
   if (typeof advice["dailyTry"] !== "object" || advice["dailyTry"] === null) {
-    // biome-ignore lint/complexity/useLiteralKeys: TypeScript CI requires bracket notation for dynamic property access
     throw new ValidationError("Missing or invalid dailyTry", "dailyTry", advice["dailyTry"]);
   }
   
-  // biome-ignore lint/complexity/useLiteralKeys: TypeScript CI requires bracket notation for dynamic property access
   const dailyTry = advice["dailyTry"] as Record<string, unknown>;
-  // biome-ignore lint/complexity/useLiteralKeys: TypeScript CI requires bracket notation for dynamic property access
   if (typeof dailyTry["title"] !== "string" || 
       typeof dailyTry["summary"] !== "string" || 
       typeof dailyTry["detail"] !== "string") {
@@ -245,15 +231,11 @@ const validateAdditionalAdvice = (data: unknown): void => {
 
   const advice = data as Record<string, unknown>;
 
-  // biome-ignore lint/complexity/useLiteralKeys: TypeScript CI requires bracket notation for dynamic property access
   if (typeof advice["greeting"] !== "string") {
-    // biome-ignore lint/complexity/useLiteralKeys: TypeScript CI requires bracket notation for dynamic property access
     throw new ValidationError("Missing or invalid greeting", "greeting", advice["greeting"]);
   }
 
-  // biome-ignore lint/complexity/useLiteralKeys: TypeScript CI requires bracket notation for dynamic property access
   if (typeof advice["message"] !== "string") {
-    // biome-ignore lint/complexity/useLiteralKeys: TypeScript CI requires bracket notation for dynamic property access
     throw new ValidationError("Missing or invalid message", "message", advice["message"]);
   }
 };
@@ -296,7 +278,17 @@ export const createFallbackAdvice = (nickname: string): DailyAdvice => ({
   timeSlot: "morning",
 });
 
-const createFallbackAdditionalAdvice = (
+/**
+ * 追加アドバイス生成失敗時に使用するフォールバックを生成します
+ * 
+ * Claude Haiku API の障害や応答エラー時に、基本的なメッセージを提供し、
+ * 時間帯に適したフォールバック体験を確保します。
+ *
+ * @param nickname ユーザーのニックネーム（挨拶に使用）
+ * @param timeSlot "midday" または "evening"
+ * @returns 基本的なメッセージを含む AdditionalAdvice オブジェクト
+ */
+export const createFallbackAdditionalAdvice = (
   nickname: string, 
   timeSlot: "midday" | "evening"
 ): AdditionalAdvice => {

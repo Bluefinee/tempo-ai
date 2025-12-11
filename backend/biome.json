@@ -14,7 +14,8 @@
 				"noUselessThisAlias": "error",
 				"noUselessTypeConstraint": "error",
 				"useArrowFunction": "warn",
-				"noMultipleSpacesInRegularExpressionLiterals": "error"
+				"noMultipleSpacesInRegularExpressionLiterals": "error",
+				"useLiteralKeys": "off"
 			},
 			"correctness": {
 				"noConstAssign": "error",

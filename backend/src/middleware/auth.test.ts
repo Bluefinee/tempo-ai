@@ -80,7 +80,6 @@ describe('Authentication Middleware', () => {
   afterEach(() => {
     vi.restoreAllMocks();
     // Reset environment
-    // biome-ignore lint/complexity/useLiteralKeys: Environment variable requires bracket notation
     process.env['TEMPO_API_KEY'] = undefined;
   });
 

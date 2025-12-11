@@ -81,4 +81,3 @@ struct HomeView: View {
 #Preview {
   HomeView(userProfile: UserProfile.sampleData)
 }
-

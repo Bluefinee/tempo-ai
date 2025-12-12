@@ -27,7 +27,11 @@ concurrency:
 env:
   DEVELOPER_DIR: /Applications/Xcode.app/Contents/Developer
   SCHEME: TempoAI
-  DESTINATION: "platform=iOS Simulator,OS=latest,name=iPhone 16"
+  PROJECT_PATH: ios/TempoAI/TempoAI.xcodeproj
+  # ビルド専用（シミュレータ起動不要）
+  BUILD_DESTINATION: "generic/platform=iOS Simulator"
+  # テスト用（実際のシミュレータが必要）
+  TEST_DESTINATION: "platform=iOS Simulator,name=iPhone 16,OS=latest"
 
 jobs:
   # ===========================================================================
@@ -63,9 +67,6 @@ jobs:
       - name: Show Xcode version
         run: xcodebuild -version
 
-      - name: List available simulators
-        run: xcrun simctl list devices available
-
       # Swift Package Manager のキャッシュ
       - name: Cache SPM
         uses: actions/cache@v4
@@ -79,25 +80,24 @@ jobs:
 
       # プロジェクトのスキーム一覧を確認
       - name: List schemes
-        run: xcodebuild -list -project ios/TempoAI/TempoAI.xcodeproj
+        run: xcodebuild -list -project ${{ env.PROJECT_PATH }}
 
-      # Debug ビルド実行
-      - name: Build for testing (Debug)
+      # Debug ビルド実行（generic destination でビルドのみ）
+      - name: Build (Debug)
         run: |
           set -o pipefail
-          xcodebuild build-for-testing \
-            -project ios/TempoAI/TempoAI.xcodeproj \
+          xcodebuild build \
+            -project ${{ env.PROJECT_PATH }} \
             -scheme ${{ env.SCHEME }} \
-            -destination "${{ env.DESTINATION }}" \
+            -destination "${{ env.BUILD_DESTINATION }}" \
             -configuration Debug \
             CODE_SIGNING_ALLOWED=NO \
             | xcpretty --color
 
-      # ビルド成果確認（デバッグ用）
+      # ビルド成果確認
       - name: Verify build output
         run: |
-          echo "Debug build completed successfully"
-          ls -la ~/Library/Developer/Xcode/DerivedData/TempoAI-*/Build/Products/ || echo "No build products found"
+          echo "✅ Debug build completed successfully"
 
   # ===========================================================================
   # Job 3: Build Release（App Store準備品質チェック）
@@ -125,14 +125,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-spm-
 
-      # Release ビルド実行
+      # Release ビルド実行（generic destination でビルドのみ）
       - name: Build (Release)
         run: |
           set -o pipefail
           xcodebuild build \
-            -project ios/TempoAI/TempoAI.xcodeproj \
+            -project ${{ env.PROJECT_PATH }} \
             -scheme ${{ env.SCHEME }} \
-            -destination "${{ env.DESTINATION }}" \
+            -destination "${{ env.BUILD_DESTINATION }}" \
             -configuration Release \
             CODE_SIGNING_ALLOWED=NO \
             | xcpretty --color
@@ -140,20 +140,29 @@ jobs:
       # Release ビルド成果確認
       - name: Verify Release build
         run: |
-          echo "Release build completed successfully"
-          echo "App Store deployment ready"
+          echo "✅ Release build completed successfully"
+          echo "📦 App Store deployment ready"
 
   # ===========================================================================
-  # Job 3: Unit Tests（Build 成功後に実行）
+  # Job 4: Unit Tests（Build 成功後に実行）
   # ===========================================================================
   test:
     name: 🧪 Unit Tests
     runs-on: macos-15
-    needs: build-debug # Debug build成功後に実行
+    needs: build-debug
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Show Xcode version
+        run: xcodebuild -version
+
+      # 利用可能なシミュレータを確認（デバッグ用）
+      - name: List available simulators
+        run: |
+          echo "📱 Available iOS Simulators:"
+          xcrun simctl list devices available | grep -E "iPhone|iPad" | head -20
 
       # SPM キャッシュを復元
       - name: Cache SPM
@@ -166,14 +175,18 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-spm-
 
-      # テスト実行（独立したビルド・テスト）
+      # テスト実行（具体的なシミュレータを使用）
       - name: Run unit tests
         run: |
           set -o pipefail
           xcodebuild test \
-            -project ios/TempoAI/TempoAI.xcodeproj \
+            -project ${{ env.PROJECT_PATH }} \
             -scheme ${{ env.SCHEME }} \
-            -destination "${{ env.DESTINATION }}" \
+            -destination "${{ env.TEST_DESTINATION }}" \
             -configuration Debug \
             CODE_SIGNING_ALLOWED=NO \
             | xcpretty --color
+
+      - name: Test completed
+        run: |
+          echo "✅ All unit tests passed"

@@ -242,7 +242,9 @@ struct HomeHeaderView: View {
   }
 }
 
+#if DEBUG
 #Preview {
   HomeHeaderView(userProfile: UserProfile.sampleData)
 }
+#endif
 

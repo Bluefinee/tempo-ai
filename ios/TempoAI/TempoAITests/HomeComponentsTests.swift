@@ -156,4 +156,29 @@ final class HomeComponentsTests: XCTestCase {
         let settingsView = SettingsPlaceholderView()
         XCTAssertNotNil(settingsView, "SettingsPlaceholderView should be created successfully")
     }
+
+    // MARK: - Phase 3 Component Tests
+
+    func testMetricCardCreation() throws {
+        #if DEBUG
+        let metric = MockData.mockMetrics[0]
+        let card = MetricCard(metric: metric)
+        XCTAssertNotNil(card, "MetricCard should be created successfully")
+        #endif
+    }
+
+    func testMetricsGridViewCreation() throws {
+        #if DEBUG
+        let metrics = MockData.mockMetrics
+        let gridView = MetricsGridView(metrics: metrics)
+        XCTAssertNotNil(gridView, "MetricsGridView should be created successfully")
+        #endif
+    }
+
+    func testMetricsGridViewWithFourMetrics() throws {
+        #if DEBUG
+        let metrics = MockData.mockMetrics
+        XCTAssertEqual(metrics.count, 4, "Should have exactly 4 metrics for grid")
+        #endif
+    }
 }

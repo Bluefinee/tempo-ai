@@ -78,6 +78,8 @@ struct HomeView: View {
   }
 }
 
+#if DEBUG
 #Preview {
   HomeView(userProfile: UserProfile.sampleData)
 }
+#endif

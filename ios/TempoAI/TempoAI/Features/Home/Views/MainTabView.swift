@@ -23,7 +23,9 @@ struct MainTabView: View {
   }
 }
 
+#if DEBUG
 #Preview {
   MainTabView(userProfile: UserProfile.sampleData)
 }
+#endif
 

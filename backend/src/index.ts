@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { adviceRouter } from './routes/advice.js';
+import environmentRouter from './routes/environment.js';
 
 /**
  * Cloudflare Workers environment bindings for Tempo AI backend
@@ -131,6 +132,7 @@ app.get('/', (c) => {
       health: '/health - Service health check',
       advice: '/api/advice - Daily advice generation (POST)',
       adviceInfo: '/api/advice - Endpoint information (GET)',
+      environment: '/api/environment - Environment data with pressure trend (GET)',
     },
     authentication: {
       required: true,
@@ -152,6 +154,14 @@ app.get('/', (c) => {
  * - GET /api/advice - Development endpoint information
  */
 app.route('/api/advice', adviceRouter);
+
+/**
+ * Environment data routes (Phase 10)
+ *
+ * Includes:
+ * - GET /api/environment - Environment data with pressure trend and advice
+ */
+app.route('/api/environment', environmentRouter);
 
 // =============================================================================
 // 404 Handler

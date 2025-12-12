@@ -232,3 +232,80 @@ export const EnvironmentDataSchema = z.object({
 export type WeatherData = z.infer<typeof WeatherDataSchema>;
 export type AirQualityData = z.infer<typeof AirQualityDataSchema>;
 export type EnvironmentData = z.infer<typeof EnvironmentDataSchema>;
+
+// =============================================================================
+// Pressure Trend Types (Phase 10)
+// =============================================================================
+
+/**
+ * 気圧トレンド
+ * - rising: 上昇中 (2hPa以上の上昇)
+ * - stable: 安定 (±2hPa以内の変化)
+ * - falling: 下降中 (2hPa以上の下降)
+ */
+export const PressureTrendSchema = z.enum(['rising', 'stable', 'falling']);
+export type PressureTrend = z.infer<typeof PressureTrendSchema>;
+
+// =============================================================================
+// Environment Advice Types (Phase 10)
+// =============================================================================
+
+/**
+ * 環境アドバイスの種類
+ */
+export const EnvironmentAdviceTypeSchema = z.enum([
+  'temperature',
+  'uv',
+  'air_quality',
+  'humidity',
+  'pressure',
+]);
+
+export type EnvironmentAdviceType = z.infer<typeof EnvironmentAdviceTypeSchema>;
+
+/**
+ * 環境アドバイス
+ */
+export const EnvironmentAdviceSchema = z.object({
+  type: EnvironmentAdviceTypeSchema,
+  message: z.string().min(1),
+});
+
+export type EnvironmentAdvice = z.infer<typeof EnvironmentAdviceSchema>;
+
+// =============================================================================
+// Hourly Pressure Data Types (Phase 10)
+// =============================================================================
+
+/**
+ * 時間別気圧データ（内部使用）
+ */
+export const HourlyPressureDataSchema = z.object({
+  pressure3hAgo: z.number().positive().optional(),
+});
+
+export type HourlyPressureData = z.infer<typeof HourlyPressureDataSchema>;
+
+// =============================================================================
+// Environment Response Types (Phase 10)
+// =============================================================================
+
+/**
+ * 環境データAPIレスポンス
+ */
+export const EnvironmentResponseSchema = z.object({
+  location: z.object({
+    city: z.string(),
+    latitude: z.number(),
+    longitude: z.number(),
+  }),
+  weather: z.object({
+    current: WeatherDataSchema,
+    pressureTrend: PressureTrendSchema,
+  }),
+  airQuality: AirQualityDataSchema,
+  advice: z.array(EnvironmentAdviceSchema).max(3),
+  fetchedAt: z.string(), // ISO 8601
+});
+
+export type EnvironmentResponse = z.infer<typeof EnvironmentResponseSchema>;

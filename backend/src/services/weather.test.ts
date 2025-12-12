@@ -278,4 +278,113 @@ describe('Weather Service', () => {
       expect(result).toBeTruthy();
     });
   });
+
+  // Phase 10: Hourly Pressure Data Tests
+  describe('Phase 10: Hourly Pressure Data', () => {
+    const mockResponseWithHourlyPressure = {
+      ...mockOpenMeteoResponse,
+      hourly: {
+        time: ['2025-12-11T20:00:00Z', '2025-12-11T21:00:00Z', '2025-12-11T22:00:00Z'],
+        surface_pressure: [1015.5, 1016.2, 1017.0],
+      },
+    };
+
+    it('should fetch hourly pressure data when includeHourlyPressure is true', async () => {
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: async () => mockResponseWithHourlyPressure,
+      });
+
+      const result = await fetchWeatherData({
+        ...validParams,
+        includeHourlyPressure: true,
+      });
+
+      expect(result.hourlyPressure).toBeDefined();
+      expect(result.hourlyPressure?.pressure3hAgo).toBe(1015.5);
+    });
+
+    it('should not include hourly pressure data when includeHourlyPressure is false', async () => {
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: async () => mockOpenMeteoResponse,
+      });
+
+      const result = await fetchWeatherData({
+        ...validParams,
+        includeHourlyPressure: false,
+      });
+
+      expect(result.hourlyPressure).toBeUndefined();
+    });
+
+    it('should not include hourly pressure data by default (backward compatibility)', async () => {
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: async () => mockOpenMeteoResponse,
+      });
+
+      const result = await fetchWeatherData(validParams);
+
+      expect(result.hourlyPressure).toBeUndefined();
+    });
+
+    it('should handle missing hourly data when includeHourlyPressure is true', async () => {
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: async () => mockOpenMeteoResponse, // No hourly data
+      });
+
+      const result = await fetchWeatherData({
+        ...validParams,
+        includeHourlyPressure: true,
+      });
+
+      expect(result.hourlyPressure).toBeUndefined();
+    });
+
+    it('should handle empty hourly pressure array', async () => {
+      const responseWithEmptyHourly = {
+        ...mockOpenMeteoResponse,
+        hourly: {
+          time: [],
+          surface_pressure: [],
+        },
+      };
+
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: async () => responseWithEmptyHourly,
+      });
+
+      const result = await fetchWeatherData({
+        ...validParams,
+        includeHourlyPressure: true,
+      });
+
+      expect(result.hourlyPressure).toBeUndefined();
+    });
+
+    it('should extract the first element as pressure3hAgo', async () => {
+      const responseWithMultiplePressures = {
+        ...mockOpenMeteoResponse,
+        hourly: {
+          time: ['2025-12-11T20:00:00Z', '2025-12-11T21:00:00Z', '2025-12-11T22:00:00Z'],
+          surface_pressure: [1010.0, 1012.0, 1014.0],
+        },
+      };
+
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: async () => responseWithMultiplePressures,
+      });
+
+      const result = await fetchWeatherData({
+        ...validParams,
+        includeHourlyPressure: true,
+      });
+
+      expect(result.hourlyPressure?.pressure3hAgo).toBe(1010.0);
+    });
+  });
 });

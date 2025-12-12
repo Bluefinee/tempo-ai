@@ -1,4 +1,4 @@
-import type { WeatherData } from '../types/domain.js';
+import type { WeatherData, HourlyPressureData } from '../types/domain.js';
 import { WeatherApiError } from '../utils/errors.js';
 
 // =============================================================================
@@ -15,6 +15,7 @@ const API_BASE_URL = 'https://api.open-meteo.com/v1/forecast';
 interface WeatherParams {
   latitude: number;
   longitude: number;
+  includeHourlyPressure?: boolean; // Phase 10: 過去3時間の気圧データを取得するか
 }
 
 interface OpenMeteoWeatherResponse {
@@ -29,6 +30,11 @@ interface OpenMeteoWeatherResponse {
     temperature_2m_min: number[];
     uv_index_max: number[];
     precipitation_probability_max: number[];
+  };
+  hourly?: {
+    // Phase 10: 時間別データ
+    time: string[];
+    surface_pressure: number[];
   };
 }
 
@@ -129,6 +135,13 @@ const buildWeatherApiUrl = (params: WeatherParams): string => {
     'daily',
     'temperature_2m_max,temperature_2m_min,uv_index_max,precipitation_probability_max',
   );
+
+  // Phase 10: 過去3時間の気圧データを取得
+  if (params.includeHourlyPressure) {
+    url.searchParams.append('hourly', 'surface_pressure');
+    url.searchParams.append('past_hours', '3');
+  }
+
   url.searchParams.append('timezone', 'Asia/Tokyo');
 
   return url.toString();
@@ -142,10 +155,14 @@ const buildWeatherApiUrl = (params: WeatherParams): string => {
  * Open-Meteo APIレスポンスをWeatherDataに変換
  *
  * @param response - Open-Meteo APIレスポンス
- * @returns 変換されたWeatherData
+ * @param includeHourlyPressure - 過去の気圧データを含めるか
+ * @returns 変換されたWeatherData（オプションで過去気圧データ含む）
  * @throws WeatherApiError データが不正な場合
  */
-const transformWeatherResponse = (response: OpenMeteoWeatherResponse): WeatherData => {
+const transformWeatherResponse = (
+  response: OpenMeteoWeatherResponse,
+  includeHourlyPressure = false,
+): WeatherData & { hourlyPressure?: HourlyPressureData } => {
   const { current, daily } = response;
 
   // 必須フィールドの存在確認
@@ -177,7 +194,7 @@ const transformWeatherResponse = (response: OpenMeteoWeatherResponse): WeatherDa
     throw new WeatherApiError('Invalid weather API response: missing daily forecast data');
   }
 
-  return {
+  const result: WeatherData = {
     condition: convertWeatherCodeToCondition(weatherCode),
     tempCurrentC,
     tempMaxC: tempMaxArray[0],
@@ -187,6 +204,22 @@ const transformWeatherResponse = (response: OpenMeteoWeatherResponse): WeatherDa
     pressureHpa,
     precipitationProbability: precipitationArray[0],
   };
+
+  // Phase 10: 時間別気圧データの追加
+  if (includeHourlyPressure && response.hourly) {
+    const pressureArray: number[] = response.hourly.surface_pressure;
+    // 最初のデータポイントが3時間前のデータ
+    const pressure3hAgo: number | undefined = pressureArray?.[0];
+
+    if (pressure3hAgo !== undefined) {
+      return {
+        ...result,
+        hourlyPressure: { pressure3hAgo },
+      };
+    }
+  }
+
+  return result;
 };
 
 // =============================================================================
@@ -196,20 +229,31 @@ const transformWeatherResponse = (response: OpenMeteoWeatherResponse): WeatherDa
 /**
  * Open-Meteo Weather APIから気象データを取得
  *
- * @param params - 緯度経度パラメータ
- * @returns 気象データ
+ * @param params - 緯度経度パラメータ（includeHourlyPressure: 過去3時間の気圧データを含むか）
+ * @returns 気象データ（オプションで過去気圧データ含む）
  * @throws WeatherApiError API呼び出し失敗時
  *
  * @example
  * ```typescript
+ * // 基本的な使用法
  * const weatherData = await fetchWeatherData({
  *   latitude: 35.6895,
  *   longitude: 139.6917
  * });
  * console.log(weatherData.condition); // "晴れ"
+ *
+ * // 過去の気圧データを含める（Phase 10）
+ * const weatherDataWithPressure = await fetchWeatherData({
+ *   latitude: 35.6895,
+ *   longitude: 139.6917,
+ *   includeHourlyPressure: true
+ * });
+ * console.log(weatherDataWithPressure.hourlyPressure?.pressure3hAgo); // 1015
  * ```
  */
-export const fetchWeatherData = async (params: WeatherParams): Promise<WeatherData> => {
+export const fetchWeatherData = async (
+  params: WeatherParams,
+): Promise<WeatherData & { hourlyPressure?: HourlyPressureData }> => {
   const { latitude, longitude } = params;
 
   // パラメータバリデーション
@@ -236,7 +280,7 @@ export const fetchWeatherData = async (params: WeatherParams): Promise<WeatherDa
     }
 
     const data = (await response.json()) as OpenMeteoWeatherResponse;
-    const weatherData = transformWeatherResponse(data);
+    const weatherData = transformWeatherResponse(data, params.includeHourlyPressure);
 
     console.log('[Weather] Response:', weatherData);
 

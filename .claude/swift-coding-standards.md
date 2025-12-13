@@ -352,4 +352,211 @@ var globalHealthData: HealthData?  // Use proper state management
 
 ---
 
+## 📁 File Organization Guidelines
+
+### Single Responsibility Principle
+
+1つのファイルに複数のクラス/構造体を含める場合:
+- 密接に関連するもののみ（例: ErrorとそのExtension）
+- 合計400行を超えない
+- 独立して使用されるものは別ファイルに分割
+
+```swift
+// ❌ 複数の責務を1ファイルに（悪い例）
+// CacheManager.swift (700行)
+class CacheManager { ... }
+class HealthKitManager { ... }
+class LocationManager { ... }
+
+// ✅ 責務ごとに分割（良い例）
+// CacheManager.swift (200行)
+class CacheManager { ... }
+
+// HealthKitManager.swift (150行)
+class HealthKitManager { ... }
+
+// LocationManager.swift (150行)
+class LocationManager { ... }
+```
+
+### Manager/Service Class Organization
+
+サービスクラスは以下のルールで分割:
+- 1ファイル = 1つの主要クラス
+- 関連するError enumは同じファイルに含めてOK
+- Extensionは同ファイルまたは `+Extension.swift` に分割
+
+```text
+Services/
+├── CacheManager.swift           # キャッシュ管理のみ
+├── HealthKitManager.swift       # HealthKit統合
+├── LocationManager.swift        # 位置情報サービス
+├── APIClient.swift              # API通信
+└── DebugHelpers.swift           # #if DEBUG 用ユーティリティ
+```
+
+---
+
+## 🐛 DEBUG Code Organization
+
+### Preview/Debug拡張は別ファイルに
+
+本番コードの可読性を保つため、DEBUGコードは分離:
+
+```swift
+// ✅ 推奨: 別ファイルで管理
+// HomeView+Preview.swift
+#if DEBUG
+extension HomeView {
+    static var previewAdvice: DailyAdvice {
+        DailyAdvice.createMock()
+    }
+
+    static var previewMetrics: [MetricData] {
+        MockData.mockMetrics
+    }
+}
+#endif
+
+// ❌ 避ける: 本番コードにDEBUGブロックが散在
+struct HomeView: View {
+    #if DEBUG
+    static var previewData: DailyAdvice { ... }
+    #endif
+
+    var body: some View { ... }
+
+    #if DEBUG
+    func debugHelper() { ... }
+    #endif
+
+    // さらに #if DEBUG が続く...
+}
+```
+
+### ルール
+- 1ファイルに `#if DEBUG` ブロックが3箇所以上 → 別ファイルに分離
+- Preview用データは `+Preview.swift` サフィックスで管理
+- デバッグヘルパーは `DebugHelpers.swift` に集約
+
+---
+
+## 🔄 Reusable Components
+
+### 共通UIパターンの抽出
+
+2箇所以上で使用されるUIパターンは `Shared/Components/` に抽出:
+
+```swift
+// ✅ 再利用可能なコンポーネント
+// Shared/Components/ToastView.swift
+import SwiftUI
+
+struct ToastView: View {
+    let message: String
+    let systemImage: String
+    @Binding var isShowing: Bool
+
+    var body: some View {
+        if isShowing {
+            HStack(spacing: 12) {
+                Image(systemName: systemImage)
+                    .font(.system(size: 20))
+                Text(message)
+                    .font(.subheadline)
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 12)
+            .background(.ultraThinMaterial)
+            .cornerRadius(25)
+            .transition(.move(edge: .top).combined(with: .opacity))
+        }
+    }
+}
+
+// 使用側
+ToastView(
+    message: "保存しました",
+    systemImage: "checkmark.circle.fill",
+    isShowing: $showToast
+)
+```
+
+### 抽出の判断基準
+- 同じUIパターンが2箇所以上で使用
+- コピペではなく、パラメータ化可能
+- 独立してテスト・プレビュー可能
+
+---
+
+## ⚠️ Error Handling Best Practices
+
+### サイレントフェイルの禁止
+
+エラーをログ出力だけで握り潰さない:
+
+```swift
+// ❌ 禁止: ログのみでユーザーに通知なし
+do {
+    try await healthKitManager.requestAuthorization()
+} catch {
+    print("Error: \(error)")  // ユーザーには何も伝わらない
+}
+
+// ✅ 推奨: ユーザーに適切に通知
+do {
+    try await healthKitManager.requestAuthorization()
+} catch {
+    errorMessage = error.localizedDescription
+    showErrorAlert = true
+}
+```
+
+### DEBUGフォールバックの明示
+
+```swift
+// ❌ 避ける: 本番で黙ってモックを返す
+func fetchData() async throws -> HealthData {
+    do {
+        return try await realFetch()
+    } catch {
+        #if DEBUG
+        return mockData  // 本番では何が起きる？
+        #else
+        throw error
+        #endif
+    }
+}
+
+// ✅ 推奨: 明示的なエラー処理とログ
+func fetchData() async throws -> HealthData {
+    do {
+        return try await realFetch()
+    } catch {
+        #if DEBUG
+        print("⚠️ Using mock data due to: \(error)")
+        return HealthKitManager.generateMockData()
+        #else
+        throw error
+        #endif
+    }
+}
+```
+
+### エラー情報の保持
+
+```swift
+// ❌ 避ける: 元のエラー情報を消失
+catch {
+    throw APIError.networkError("通信エラーが発生しました")
+}
+
+// ✅ 推奨: 元のエラー情報を保持
+catch {
+    throw APIError.networkError(error.localizedDescription)
+}
+```
+
+---
+
 **Note**: This supplements CLAUDE.md architecture principles with Swift-specific patterns for iOS health app development.

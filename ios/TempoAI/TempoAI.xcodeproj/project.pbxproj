@@ -43,6 +43,14 @@
 		E532203C3AC34064B4BE47B1 /* DailyAdvice.swift in Sources */ = {isa = PBXBuildFile; fileRef = E532203C3AC34064B4BE47B2 /* DailyAdvice.swift */; };
 		F4E5541F63F14DCFB399F81B /* SettingsPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E5541F63F14DCFB399F81C /* SettingsPlaceholderView.swift */; };
 		FA276E19530F415894277C2A /* MockData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA276E19530F415894277C2B /* MockData.swift */; };
+		AAAA0001000000000000001 /* CacheManaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAA0002000000000000001 /* CacheManaging.swift */; };
+		AAAA0001000000000000002 /* HealthKitManaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAA0002000000000000002 /* HealthKitManaging.swift */; };
+		AAAA0001000000000000003 /* LocationManaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAA0002000000000000003 /* LocationManaging.swift */; };
+		AAAA0001000000000000004 /* AuthorizationStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAA0002000000000000004 /* AuthorizationStatus.swift */; };
+		AAAA0001000000000000005 /* HealthData.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAA0002000000000000005 /* HealthData.swift */; };
+		AAAA0001000000000000006 /* HealthKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAA0002000000000000006 /* HealthKitManager.swift */; };
+		AAAA0001000000000000007 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAA0002000000000000007 /* LocationManager.swift */; };
+		AAAA0001000000000000008 /* DebugResetService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAA0002000000000000008 /* DebugResetService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -95,6 +103,14 @@
 		E532203C3AC34064B4BE47B2 /* DailyAdvice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyAdvice.swift; sourceTree = "<group>"; };
 		F4E5541F63F14DCFB399F81C /* SettingsPlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsPlaceholderView.swift; sourceTree = "<group>"; };
 		FA276E19530F415894277C2B /* MockData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockData.swift; sourceTree = "<group>"; };
+		AAAA0002000000000000001 /* CacheManaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CacheManaging.swift; sourceTree = "<group>"; };
+		AAAA0002000000000000002 /* HealthKitManaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitManaging.swift; sourceTree = "<group>"; };
+		AAAA0002000000000000003 /* LocationManaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManaging.swift; sourceTree = "<group>"; };
+		AAAA0002000000000000004 /* AuthorizationStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthorizationStatus.swift; sourceTree = "<group>"; };
+		AAAA0002000000000000005 /* HealthData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthData.swift; sourceTree = "<group>"; };
+		AAAA0002000000000000006 /* HealthKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitManager.swift; sourceTree = "<group>"; };
+		AAAA0002000000000000007 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
+		AAAA0002000000000000008 /* DebugResetService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugResetService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -167,6 +183,9 @@
 			isa = PBXGroup;
 			children = (
 				6978C77B2EE96C5E00FCDC58 /* CacheManager.swift */,
+				AAAA0002000000000000006 /* HealthKitManager.swift */,
+				AAAA0002000000000000007 /* LocationManager.swift */,
+				AAAA0002000000000000008 /* DebugResetService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -182,7 +201,9 @@
 		6978C7802EE96C5E00FCDC58 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				AAAA0002000000000000004 /* AuthorizationStatus.swift */,
 				E532203C3AC34064B4BE47B2 /* DailyAdvice.swift */,
+				AAAA0002000000000000005 /* HealthData.swift */,
 				FA276E19530F415894277C2B /* MockData.swift */,
 				6978C77F2EE96C5E00FCDC58 /* UserProfile.swift */,
 			);
@@ -196,6 +217,16 @@
 				6978C7802EE96C5E00FCDC58 /* Models */,
 			);
 			path = Shared;
+			sourceTree = "<group>";
+		};
+		AAAA0003000000000000001 /* Protocols */ = {
+			isa = PBXGroup;
+			children = (
+				AAAA0002000000000000001 /* CacheManaging.swift */,
+				AAAA0002000000000000002 /* HealthKitManaging.swift */,
+				AAAA0002000000000000003 /* LocationManaging.swift */,
+			);
+			path = Protocols;
 			sourceTree = "<group>";
 		};
 		6978C78E2EE96CB900FCDC58 /* Resources */ = {
@@ -251,6 +282,7 @@
 				69D700C92EE83ADD00FBC56D /* TempoAI.entitlements */,
 				A1000020295A8F3E00000001 /* App */,
 				6978C77A2EE96C5E00FCDC58 /* Features */,
+				AAAA0003000000000000001 /* Protocols */,
 				6978C77C2EE96C5E00FCDC58 /* Services */,
 				6978C7812EE96C5E00FCDC58 /* Shared */,
 				6978C78E2EE96CB900FCDC58 /* Resources */,
@@ -409,6 +441,14 @@
 				06105202FB15455A991C2EB5 /* MainTabView.swift in Sources */,
 				F4E5541F63F14DCFB399F81B /* SettingsPlaceholderView.swift in Sources */,
 				E532203C3AC34064B4BE47B1 /* DailyAdvice.swift in Sources */,
+				AAAA0001000000000000001 /* CacheManaging.swift in Sources */,
+				AAAA0001000000000000002 /* HealthKitManaging.swift in Sources */,
+				AAAA0001000000000000003 /* LocationManaging.swift in Sources */,
+				AAAA0001000000000000004 /* AuthorizationStatus.swift in Sources */,
+				AAAA0001000000000000005 /* HealthData.swift in Sources */,
+				AAAA0001000000000000006 /* HealthKitManager.swift in Sources */,
+				AAAA0001000000000000007 /* LocationManager.swift in Sources */,
+				AAAA0001000000000000008 /* DebugResetService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

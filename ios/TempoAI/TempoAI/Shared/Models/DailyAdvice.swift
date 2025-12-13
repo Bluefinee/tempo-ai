@@ -103,6 +103,21 @@ enum IconType: String, Codable {
         case .outdoor: return "アウトドア"
         }
     }
+
+    var emoji: String {
+        switch self {
+        case .fitness: return "💪"
+        case .stretch: return "🧘"
+        case .nutrition: return "🍽️"
+        case .hydration: return "💧"
+        case .rest: return "😴"
+        case .work: return "💼"
+        case .sleep: return "🌙"
+        case .mental: return "🧠"
+        case .beauty: return "✨"
+        case .outdoor: return "🚶"
+        }
+    }
 }
 
 // MARK: - Try Content

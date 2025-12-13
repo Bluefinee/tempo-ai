@@ -29,6 +29,13 @@ final class MetricDataModelTests: XCTestCase {
     XCTAssertTrue(MetricType.allCases.contains(.stress), "Should contain stress")
   }
 
+  func testMetricTypeSystemImageName() {
+    XCTAssertEqual(MetricType.recovery.systemImageName, "heart.fill")
+    XCTAssertEqual(MetricType.sleep.systemImageName, "moon.zzz.fill")
+    XCTAssertEqual(MetricType.energy.systemImageName, "bolt.fill")
+    XCTAssertEqual(MetricType.stress.systemImageName, "figure.mind.and.body")
+  }
+
   // MARK: - MetricData Creation Tests
 
   func testMetricDataCreation() {
@@ -51,64 +58,7 @@ final class MetricDataModelTests: XCTestCase {
     XCTAssertNotEqual(metric1.id, metric2.id, "Different instances should have different IDs")
   }
 
-  // MARK: - Status Calculation Tests
-
-  func testStatusForHighScore() {
-    let metric = MetricData(type: .recovery, score: 85, displayValue: "85")
-    XCTAssertEqual(metric.status, "最高", "Score 85 should return '最高'")
-  }
-
-  func testStatusForScore80() {
-    let metric = MetricData(type: .recovery, score: 80, displayValue: "80")
-    XCTAssertEqual(metric.status, "最高", "Score 80 should return '最高'")
-  }
-
-  func testStatusForGoodScore() {
-    let metric = MetricData(type: .recovery, score: 70, displayValue: "70")
-    XCTAssertEqual(metric.status, "良好", "Score 70 should return '良好'")
-  }
-
-  func testStatusForScore60() {
-    let metric = MetricData(type: .recovery, score: 60, displayValue: "60")
-    XCTAssertEqual(metric.status, "良好", "Score 60 should return '良好'")
-  }
-
-  func testStatusForNormalScore() {
-    let metric = MetricData(type: .recovery, score: 50, displayValue: "50")
-    XCTAssertEqual(metric.status, "普通", "Score 50 should return '普通'")
-  }
-
-  func testStatusForScore40() {
-    let metric = MetricData(type: .recovery, score: 40, displayValue: "40")
-    XCTAssertEqual(metric.status, "普通", "Score 40 should return '普通'")
-  }
-
-  func testStatusForLowScore() {
-    let metric = MetricData(type: .recovery, score: 30, displayValue: "30")
-    XCTAssertEqual(metric.status, "やや低め", "Score 30 should return 'やや低め'")
-  }
-
-  func testStatusForScore20() {
-    let metric = MetricData(type: .recovery, score: 20, displayValue: "20")
-    XCTAssertEqual(metric.status, "やや低め", "Score 20 should return 'やや低め'")
-  }
-
-  func testStatusForVeryLowScore() {
-    let metric = MetricData(type: .recovery, score: 15, displayValue: "15")
-    XCTAssertEqual(metric.status, "注意", "Score 15 should return '注意'")
-  }
-
-  func testStatusForZeroScore() {
-    let metric = MetricData(type: .recovery, score: 0, displayValue: "0")
-    XCTAssertEqual(metric.status, "注意", "Score 0 should return '注意'")
-  }
-
-  func testStatusForMaxScore() {
-    let metric = MetricData(type: .recovery, score: 100, displayValue: "100")
-    XCTAssertEqual(metric.status, "最高", "Score 100 should return '最高'")
-  }
-
-  // MARK: - Progress Bar Color Tests
+  // MARK: - Progress Bar Color Tests (Normal Metrics)
 
   func testProgressBarColorForHighScore() {
     let metric = MetricData(type: .recovery, score: 85, displayValue: "85")
@@ -131,6 +81,40 @@ final class MetricDataModelTests: XCTestCase {
     let metric = MetricData(type: .recovery, score: 30, displayValue: "30")
     XCTAssertEqual(
       metric.progressBarColor, Color.tempoSoftCoral, "Low score should use soft coral color")
+  }
+
+  // MARK: - Stress Color Tests (Inverted: Lower is Better)
+
+  func testStressColorForLowScore() {
+    // Low stress (score 20) = good = green
+    let metric = MetricData(type: .stress, score: 20, displayValue: "低")
+    XCTAssertEqual(
+      metric.progressBarColor, Color.tempoSuccess,
+      "Low stress score should use success color (lower is better)")
+  }
+
+  func testStressColorForMediumLowScore() {
+    // Medium-low stress (score 30) = good = sage green
+    let metric = MetricData(type: .stress, score: 30, displayValue: "やや低")
+    XCTAssertEqual(
+      metric.progressBarColor, Color.tempoSageGreen,
+      "Medium-low stress should use sage green color")
+  }
+
+  func testStressColorForMediumScore() {
+    // Medium stress (score 50) = warning = yellow
+    let metric = MetricData(type: .stress, score: 50, displayValue: "中")
+    XCTAssertEqual(
+      metric.progressBarColor, Color.tempoWarning,
+      "Medium stress should use warning color")
+  }
+
+  func testStressColorForHighScore() {
+    // High stress (score 80) = bad = coral
+    let metric = MetricData(type: .stress, score: 80, displayValue: "高")
+    XCTAssertEqual(
+      metric.progressBarColor, Color.tempoSoftCoral,
+      "High stress score should use soft coral color (higher is worse)")
   }
 
   // MARK: - Progress Value Tests

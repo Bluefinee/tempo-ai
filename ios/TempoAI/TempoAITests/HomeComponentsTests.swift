@@ -143,7 +143,9 @@ final class HomeComponentsTests: XCTestCase {
     
     func testAdviceSummaryCardCreation() throws {
         let mockAdvice = DailyAdvice.createMock()
-        let card = AdviceSummaryCard(advice: mockAdvice)
+        let card = AdviceSummaryCard(advice: mockAdvice) {
+            // Empty action for test
+        }
         XCTAssertNotNil(card, "AdviceSummaryCard should be created successfully")
     }
     

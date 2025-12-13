@@ -76,6 +76,26 @@ final class MetricDataModelTests: XCTestCase {
       metric.progressBarColor, Color.tempoSoftCoral, "Low score should use soft coral color")
   }
 
+  // MARK: - Boundary Value Tests
+
+  func testProgressBarColorAtBoundary40() {
+    let metric = MetricData(type: .recovery, score: 40, displayValue: "40")
+    XCTAssertEqual(
+      metric.progressBarColor, Color.tempoWarning, "Score 40 should use warning color")
+  }
+
+  func testProgressBarColorAtBoundary60() {
+    let metric = MetricData(type: .recovery, score: 60, displayValue: "60")
+    XCTAssertEqual(
+      metric.progressBarColor, Color.tempoSageGreen, "Score 60 should use sage green color")
+  }
+
+  func testProgressBarColorAtBoundary80() {
+    let metric = MetricData(type: .recovery, score: 80, displayValue: "80")
+    XCTAssertEqual(
+      metric.progressBarColor, Color.tempoSuccess, "Score 80 should use success color")
+  }
+
   // MARK: - Stress Color Tests (Inverted: Lower is Better)
 
   func testStressColorForLowScore() {

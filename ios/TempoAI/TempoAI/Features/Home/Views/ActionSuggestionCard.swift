@@ -13,6 +13,7 @@ struct ActionSuggestionCard: View {
                 Image(systemName: suggestion.icon.systemImageName)
                     .font(.system(size: 18, weight: .medium))
                     .foregroundStyle(Color.tempoSoftCoral)
+                    .accessibilityHidden(true)
                     .frame(width: 36, height: 36)
                     .background(
                         Circle()

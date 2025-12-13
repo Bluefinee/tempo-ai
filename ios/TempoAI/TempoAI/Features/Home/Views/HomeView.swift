@@ -101,16 +101,14 @@ struct HomeView: View {
                 }
             }
         }
-        .onAppear {
-            #if DEBUG
-                Task { @MainActor in
-                    try? await Task.sleep(nanoseconds: 2_000_000_000)
-                    withAnimation {
-                        showAdditionalAdvice = true
-                    }
-                }
-            #endif
+        #if DEBUG
+        .task {
+            try? await Task.sleep(nanoseconds: 2_000_000_000)
+            await MainActor.run {
+                withAnimation { showAdditionalAdvice = true }
+            }
         }
+        #endif
     }
 }
 

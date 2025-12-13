@@ -25,6 +25,8 @@ struct AdviceResponseData: Codable {
  * and detail views
  */
 struct DailyAdvice: Codable, Identifiable, Hashable {
+    /// Note: id is intentionally excluded from CodingKeys.
+    /// A new UUID is generated on each decode to ensure unique identity for SwiftUI views.
     let id: UUID = UUID()
     let greeting: String
     let condition: Condition
@@ -116,6 +118,9 @@ enum IconType: String, Codable {
 // MARK: - Try Content
 
 struct TryContent: Codable, Identifiable, Hashable {
+    /// Note: id is intentionally excluded from CodingKeys.
+    /// A new UUID is generated on each decode to ensure unique identity for SwiftUI views.
+    /// This is by design as TryContent is embedded in DailyAdvice and doesn't need persistent identity.
     let id: UUID = UUID()
     let title: String      // For card title
     let summary: String    // For card subtitle

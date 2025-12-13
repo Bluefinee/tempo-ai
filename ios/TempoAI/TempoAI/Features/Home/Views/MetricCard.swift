@@ -95,6 +95,9 @@ private struct CircularProgressView: View {
                 .foregroundColor(.tempoPrimaryText)
         }
         .frame(width: size, height: size)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(Int(progress * 100))パーセント")
+        .accessibilityValue(displayValue)
     }
 }
 

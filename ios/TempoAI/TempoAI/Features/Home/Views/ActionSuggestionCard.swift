@@ -36,7 +36,7 @@ struct ActionSuggestionCard: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color.white)
+                .fill(Color.tempoLightCream)
                 .shadow(
                     color: Color.black.opacity(0.06),
                     radius: 4,

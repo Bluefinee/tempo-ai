@@ -24,8 +24,8 @@ struct AdviceResponseData: Codable {
  * Core daily advice model containing all information for the home screen
  * and detail views
  */
-struct DailyAdvice: Codable, Identifiable {
-    let id = UUID()
+struct DailyAdvice: Codable, Identifiable, Hashable {
+    let id: UUID = UUID()
     let greeting: String
     let condition: Condition
     let actionSuggestions: [ActionSuggestion]
@@ -34,11 +34,19 @@ struct DailyAdvice: Codable, Identifiable {
     let weeklyTry: TryContent?
     let generatedAt: Date
     let timeSlot: TimeSlot
-    
+
     private enum CodingKeys: String, CodingKey {
         case greeting, condition, actionSuggestions
         case closingMessage, dailyTry, weeklyTry
         case generatedAt, timeSlot
+    }
+
+    static func == (lhs: DailyAdvice, rhs: DailyAdvice) -> Bool {
+        lhs.id == rhs.id
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
     }
 }
 
@@ -103,33 +111,26 @@ enum IconType: String, Codable {
         case .outdoor: return "アウトドア"
         }
     }
-
-    var emoji: String {
-        switch self {
-        case .fitness: return "💪"
-        case .stretch: return "🧘"
-        case .nutrition: return "🍽️"
-        case .hydration: return "💧"
-        case .rest: return "😴"
-        case .work: return "💼"
-        case .sleep: return "🌙"
-        case .mental: return "🧠"
-        case .beauty: return "✨"
-        case .outdoor: return "🚶"
-        }
-    }
 }
 
 // MARK: - Try Content
 
-struct TryContent: Codable, Identifiable {
-    let id = UUID()
+struct TryContent: Codable, Identifiable, Hashable {
+    let id: UUID = UUID()
     let title: String      // For card title
     let summary: String    // For card subtitle
     let detail: String     // For detail view
-    
+
     private enum CodingKeys: String, CodingKey {
         case title, summary, detail
+    }
+
+    static func == (lhs: TryContent, rhs: TryContent) -> Bool {
+        lhs.id == rhs.id
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
     }
 }
 

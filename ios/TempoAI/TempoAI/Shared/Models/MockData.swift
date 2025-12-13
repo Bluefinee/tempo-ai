@@ -51,19 +51,6 @@ enum MetricType: String, Codable, CaseIterable {
   case energy = "energy"
   case stress = "stress"
 
-  var icon: String {
-    switch self {
-    case .recovery:
-      return "💚"
-    case .sleep:
-      return "😴"
-    case .energy:
-      return "⚡"
-    case .stress:
-      return "🧘"
-    }
-  }
-
   var label: String {
     switch self {
     case .recovery:

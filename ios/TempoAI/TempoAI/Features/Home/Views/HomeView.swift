@@ -8,35 +8,13 @@ enum HomeNavigationDestination: Hashable {
     case weeklyTryDetail(TryContent)
 }
 
-// MARK: - Hashable Conformance for Navigation
-
-extension DailyAdvice: Hashable {
-    static func == (lhs: DailyAdvice, rhs: DailyAdvice) -> Bool {
-        lhs.id == rhs.id
-    }
-
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-    }
-}
-
-extension TryContent: Hashable {
-    static func == (lhs: TryContent, rhs: TryContent) -> Bool {
-        lhs.id == rhs.id
-    }
-
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-    }
-}
-
 // MARK: - HomeView
 
 struct HomeView: View {
     let userProfile: UserProfile
-    @State private var mockAdvice = DailyAdvice.createMock()
+    @State private var mockAdvice: DailyAdvice = DailyAdvice.createMock()
     @State private var showAdditionalAdvice: Bool = false
-    @State private var navigationPath = NavigationPath()
+    @State private var navigationPath: NavigationPath = NavigationPath()
 
     private var isMonday: Bool {
         Calendar.current.component(.weekday, from: Date()) == 2
@@ -66,6 +44,7 @@ struct HomeView: View {
                                 .padding(.top, 8)
 
                                 #if DEBUG
+                                    // Note: Mock data for development. Real data integration in future phases.
                                     // Metrics grid (2x2)
                                     MetricsGridView(metrics: MockData.mockMetrics)
                                         .padding(.horizontal, 24)
@@ -79,7 +58,7 @@ struct HomeView: View {
                                     .padding(.horizontal, 24)
 
                                     // Weekly try card
-                                    if let weeklyTry: TryContent = mockAdvice.weeklyTry {
+                                    if let weeklyTry = mockAdvice.weeklyTry {
                                         WeeklyTryCard(
                                             tryContent: weeklyTry,
                                             isMonday: isMonday
@@ -110,7 +89,7 @@ struct HomeView: View {
                     }
                 #endif
             }
-            .navigationBarHidden(true)
+            .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(for: HomeNavigationDestination.self) { destination in
                 switch destination {
                 case .adviceDetail(let advice):
@@ -123,9 +102,9 @@ struct HomeView: View {
             }
         }
         .onAppear {
-            // Demo: Show additional advice after 2 seconds
             #if DEBUG
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                Task { @MainActor in
+                    try? await Task.sleep(nanoseconds: 2_000_000_000)
                     withAnimation {
                         showAdditionalAdvice = true
                     }

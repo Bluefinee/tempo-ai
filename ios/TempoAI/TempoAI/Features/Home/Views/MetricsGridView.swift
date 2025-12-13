@@ -18,9 +18,11 @@ struct MetricsGridView: View {
             HStack(spacing: 12) {
                 if metrics.count > 0 {
                     MetricCard(metric: metrics[0])
+                        .frame(maxWidth: .infinity)
                 }
                 if metrics.count > 1 {
                     MetricCard(metric: metrics[1])
+                        .frame(maxWidth: .infinity)
                 }
             }
 
@@ -28,9 +30,11 @@ struct MetricsGridView: View {
             HStack(spacing: 12) {
                 if metrics.count > 2 {
                     MetricCard(metric: metrics[2])
+                        .frame(maxWidth: .infinity)
                 }
                 if metrics.count > 3 {
                     MetricCard(metric: metrics[3])
+                        .frame(maxWidth: .infinity)
                 }
             }
         }

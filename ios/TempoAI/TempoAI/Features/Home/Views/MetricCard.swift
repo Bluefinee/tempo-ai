@@ -46,7 +46,7 @@ struct MetricCard: View {
         .frame(maxWidth: .infinity, minHeight: 120)
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(Color.white)
+                .fill(Color.tempoLightCream)
                 .shadow(
                     color: Color.black.opacity(0.06),
                     radius: 6,

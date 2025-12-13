@@ -10,7 +10,7 @@ struct WeeklyTryCard: View {
     let onTapAction: () -> Void
 
     var body: some View {
-        if let tryContent: TryContent = tryContent {
+        if let tryContent = tryContent {
             if isMonday {
                 // Full card for Monday
                 VStack(alignment: .leading, spacing: 16) {
@@ -74,12 +74,13 @@ struct WeeklyTryCard: View {
                             }
                             .foregroundColor(.tempoSoftCoral)
                         }
+                        .buttonStyle(.plain)
                     }
                 }
                 .padding(20)
                 .background(
                     RoundedRectangle(cornerRadius: 16)
-                        .fill(Color.white)
+                        .fill(Color.tempoLightCream)
                         .shadow(
                             color: Color.black.opacity(0.08),
                             radius: 8,
@@ -117,7 +118,7 @@ struct WeeklyTryCard: View {
                     .padding(.vertical, 12)
                     .background(
                         RoundedRectangle(cornerRadius: 12)
-                            .fill(Color.white)
+                            .fill(Color.tempoLightCream)
                             .shadow(
                                 color: Color.black.opacity(0.06),
                                 radius: 4,

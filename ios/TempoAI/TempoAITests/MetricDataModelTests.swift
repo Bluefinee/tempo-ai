@@ -7,13 +7,6 @@ final class MetricDataModelTests: XCTestCase {
 
   // MARK: - MetricType Tests
 
-  func testMetricTypeIcon() {
-    XCTAssertEqual(MetricType.recovery.icon, "💚", "Recovery icon should be green heart")
-    XCTAssertEqual(MetricType.sleep.icon, "😴", "Sleep icon should be sleeping face")
-    XCTAssertEqual(MetricType.energy.icon, "⚡", "Energy icon should be lightning bolt")
-    XCTAssertEqual(MetricType.stress.icon, "🧘", "Stress icon should be meditation")
-  }
-
   func testMetricTypeLabel() {
     XCTAssertEqual(MetricType.recovery.label, "回復", "Recovery label should be correct")
     XCTAssertEqual(MetricType.sleep.label, "睡眠", "Sleep label should be correct")

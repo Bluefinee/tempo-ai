@@ -1,21 +1,26 @@
 # Tempo AI 開発フェーズ管理書
 
-**バージョン**: 2.0  
-**作成日**: 2025 年 12 月 10 日  
-**最終更新日**: 2025 年 12 月 11 日
+**バージョン**: 2.2
+**作成日**: 2025 年 12 月 10 日
+**最終更新日**: 2025 年 12 月 13 日
 
 ---
 
 ## 概要
 
-本ドキュメントは、Tempo AI の開発を 17 のフェーズに分割し、各フェーズの目的・成果物・依存関係を管理するものです。
+本ドキュメントは、Tempo AI の開発を 18 のフェーズに分割し、各フェーズの目的・成果物・依存関係を管理するものです。
+
+**v2.2 での主な変更点**:
+
+- **Phase 4.5 を追加**: ホーム画面メトリクスを新体系（睡眠・HRV・リズム・活動量 + ストレスグラフ）に改修
+- 新規仕様ドキュメントを必須参考資料に追加
+- 絵文字からカスタムアイコンへの変更を反映
 
 **v2.0 での主な変更点**:
 
 - コンディション画面を通常モードに含め、Phase 5 として新設
 - タブバーを最初から 3 タブ構成（ホーム / コンディション / 設定）に変更
-- トラベルモードを Phase 16-17 として通常モード完成後に追加
-- 全体フェーズ数を 14→17 に拡張
+- トラベルモードを Phase 16-19 として通常モード完成後に追加
 
 ---
 
@@ -28,20 +33,26 @@
 **全フェーズ共通**:
 
 - **[CLAUDE.md](../../CLAUDE.md)** - 開発ガイドライン・基本原則
-- **[AI Prompt Design](../ai-prompt-design.md)** - AI 設計指針
+- **[AI Prompt Design](../ai-prompt-design.md)** - AI 設計指針（インデックス）
 - **[UI Specification](../ui-spec.md)** - UI 設計仕様書
 - **[Technical Specification](../technical-spec.md)** - 技術仕様書
 
-**Swift/iOS フェーズ (1-6, 11-17)**:
+**メトリクス関連フェーズ (3, 4.5, 5, 5.5)**:
+
+- **[メトリクスアルゴリズム仕様](../metrics-algorithm-spec.md)** - スコア算出ロジック（重要）
+- **[相関分析仕様](../correlation-analysis-spec.md)** - 相関分析とインサイト生成
+- **[アイコンデザインガイド](../icon-design-guide.md)** - アイコン仕様
+
+**Swift/iOS フェーズ (1-6, 11-19)**:
 
 - **[UX Concepts & Principles](../../.claude/ux_concepts.md)** - UX 設計原則
 - **[Swift Coding Standards](../../.claude/swift-coding-standards.md)** - Swift 開発標準
 
-**Backend フェーズ (7-10, 11-17)**:
+**Backend フェーズ (7-10, 11-19)**:
 
 - **[TypeScript Hono Standards](../../.claude/typescript-hono-standards.md)** - TypeScript + Hono 開発標準
 
-**コンディション画面・トラベルモード関連 (5, 16-17)**:
+**コンディション画面・トラベルモード関連 (5, 16-19)**:
 
 - **[Travel Mode & Condition Spec](../travel-mode-condition-spec.md)** - トラベルモード・コンディション画面設計
 
@@ -79,13 +90,13 @@ npm test
 
 ## 全体構成
 
-| Part                  | フェーズ              | 概要                          |
-| --------------------- | --------------------- | ----------------------------- |
-| **A: iOS UI**         | Phase 1〜6 (5.5 含む) | Mock データを使用した UI 実装 |
-| **B: Backend**        | Phase 7〜10           | API・外部サービス統合         |
-| **C: 結合**           | Phase 11〜13          | UI と API の接続、状態管理    |
-| **D: 仕上げ**         | Phase 14〜15          | エラー処理、ポリッシュ        |
-| **E: トラベルモード** | Phase 16〜17          | トラベルモード機能追加        |
+| Part                  | フェーズ                   | 概要                          |
+| --------------------- | -------------------------- | ----------------------------- |
+| **A: iOS UI**         | Phase 1〜6 (4.5, 5.5 含む) | Mock データを使用した UI 実装 |
+| **B: Backend**        | Phase 7〜10                | API・外部サービス統合         |
+| **C: 結合**           | Phase 11〜13               | UI と API の接続、状態管理    |
+| **D: 仕上げ**         | Phase 14〜15               | エラー処理、ポリッシュ        |
+| **E: トラベルモード** | Phase 16〜19               | トラベルモード機能追加        |
 
 ---
 
@@ -103,6 +114,8 @@ Phase 2 ──────────────── Phase 8
 Phase 3 ──────────────── Phase 9
     │                      │
 Phase 4 ──────────────── Phase 10
+    │                      │
+Phase 4.5                  │  ← メトリクス改修（睡眠・HRV・リズム・活動量）
     │                      │
 Phase 5                    │
     │                      │
@@ -122,7 +135,7 @@ Phase 6                    │
     ───────────────────────
                │
          Part E (トラベルモード)
-         Phase 16〜17
+         Phase 16〜19
 ```
 
 Git Worktree を使用して、iOS と Backend を同時に進めることを想定しています。
@@ -194,6 +207,8 @@ Git Worktree を使用して、iOS と Backend を同時に進めることを想
 
 **変更点**: 旧「メトリクスカード」を「コンディションサマリーカード」に名称変更
 
+**⚠️ 注意**: Phase 3 は実装済み。メトリクスは Phase 4.5 で新体系（睡眠・HRV・リズム・活動量 + ストレスグラフ）に改修される。
+
 ---
 
 ### Phase 4: 詳細画面 UI
@@ -215,6 +230,40 @@ Git Worktree を使用して、iOS と Backend を同時に進めることを想
 **設計書**: `04-phase-detail-screens.md`
 
 **変更点**: 旧「メトリクス詳細画面」は Phase 5（コンディション画面）に移動
+
+---
+
+### Phase 4.5: ホーム画面メトリクス改修
+
+**目的**: Phase 3 で実装したメトリクスを新体系に置き換える
+
+**背景**:
+Phase 3 で実装した旧メトリクス（回復・睡眠・エネルギー・ストレス）を、
+新メトリクス体系（睡眠・HRV・リズム・活動量 + ストレスグラフ）に改修する。
+
+**スコープ**:
+
+- メトリクスカード 4 つを新構成に変更
+  - 睡眠（三日月 + Z アイコン）
+  - HRV（ハート + 波形アイコン）
+  - リズム（時計 + サイクルアイコン）
+  - 活動量（歩く人アイコン）
+- ストレスグラフの追加（カードとは別に 24 時間推移グラフ）
+- 絵文字をカスタムアイコンに置き換え
+- 新スコアアルゴリズムの適用
+
+**成果物**:
+
+- 新メトリクス体系でホーム画面が表示される
+- ストレスグラフが表示される
+- 全てのアイコンがカスタムアイコンに置き換わっている
+
+**設計書**: `045-phase-home-metrics-revision.md`
+
+**参照ドキュメント**:
+- `metrics-algorithm-spec.md` - スコア算出ロジック
+- `icon-design-guide.md` - アイコン仕様
+- `correlation-analysis-spec.md` - 相関分析
 
 ---
 
@@ -527,30 +576,33 @@ Git Worktree を使用して、iOS と Backend を同時に進めることを想
 ## 依存関係
 
 ```
-Phase 1  ← 独立
-Phase 2  ← Phase 1（オンボーディング完了後にホームへ遷移）
-Phase 3  ← Phase 2
-Phase 4  ← Phase 2, 3
-Phase 5  ← Phase 2（タブバー）, Phase 3（コンディションサマリーカード）
-Phase 5.5← Phase 5（コンディショントップ画面）
-Phase 6  ← Phase 2（タブバー）
+Phase 1   ← 独立
+Phase 2   ← Phase 1（オンボーディング完了後にホームへ遷移）
+Phase 3   ← Phase 2
+Phase 4   ← Phase 2, 3
+Phase 4.5 ← Phase 3, 4（メトリクス改修）
+Phase 5   ← Phase 2（タブバー）, Phase 4.5（新メトリクス体系）
+Phase 5.5 ← Phase 5（コンディショントップ画面）
+Phase 6   ← Phase 2（タブバー）
 
-Phase 7  ← 独立
-Phase 8  ← Phase 7
-Phase 9  ← Phase 7, 8
-Phase 10 ← Phase 7, 8（コンディションデータ用）
+Phase 7   ← 独立
+Phase 8   ← Phase 7
+Phase 9   ← Phase 7, 8
+Phase 10  ← Phase 7, 8（コンディションデータ用）
 
-Phase 11 ← Phase 1〜6（5.5含む）, Phase 7〜10（全て完了後）
-Phase 12 ← Phase 11
-Phase 13 ← Phase 11, 12
+Phase 11  ← Phase 1〜6（4.5, 5.5含む）, Phase 7〜10（全て完了後）
+Phase 12  ← Phase 11
+Phase 13  ← Phase 11, 12
 
-Phase 14 ← Phase 11
-Phase 15 ← Phase 11〜14
+Phase 14  ← Phase 11
+Phase 15  ← Phase 11〜14
 
 ─── 通常モード完成 ───
 
-Phase 16 ← Phase 15（通常モード完成後）
-Phase 17 ← Phase 16
+Phase 16  ← Phase 15（通常モード完成後）
+Phase 17  ← Phase 16
+Phase 18  ← Phase 17
+Phase 19  ← Phase 18
 ```
 
 ---
@@ -562,7 +614,10 @@ Phase 17 ← Phase 16
 | `product-spec.md`               | プロダクト仕様書                         |
 | `technical-spec.md`             | 技術仕様書                               |
 | `ui-spec.md`                    | UI/UX 仕様書                             |
-| `ai-prompt-design.md`           | AI プロンプト設計書                      |
+| `ai-prompt-design.md`           | AI プロンプト設計書（インデックス）      |
+| `metrics-algorithm-spec.md`     | メトリクスアルゴリズム仕様（新規）       |
+| `correlation-analysis-spec.md`  | 相関分析仕様（新規）                     |
+| `icon-design-guide.md`          | アイコンデザインガイド（新規）           |
 | `travel-mode-condition-spec.md` | トラベルモード・コンディション画面設計書 |
 
 ---
@@ -574,3 +629,4 @@ Phase 17 ← Phase 16
 | 1.0        | 2025-12-10 | 初版作成                                                                                                                                 |
 | 2.0        | 2025-12-11 | コンディション画面を Phase 5 として追加、タブバーを 3 タブに変更、トラベルモードを Phase 16-17 として追加、全体フェーズ数を 14→17 に拡張 |
 | 2.1        | 2025-12-11 | Phase 5 を Phase 5（トップ画面）と Phase 5.5（詳細画面群）に分割                                                                         |
+| 2.2        | 2025-12-13 | Phase 4.5（メトリクス改修）追加、新仕様ドキュメント参照追加、フェーズ数を 17→18 に拡張                                                   |

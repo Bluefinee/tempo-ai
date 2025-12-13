@@ -53,7 +53,8 @@ struct SettingsPlaceholderView: View {
           Text("アプリ設定")
         }
 
-        // MARK: - Data Management Section
+        #if DEBUG
+        // MARK: - Data Management Section (DEBUG only)
         Section {
           Button {
             showResetConfirmation = true
@@ -95,11 +96,12 @@ struct SettingsPlaceholderView: View {
           }
           .padding(.vertical, 4)
         } header: {
-          Text("データ管理")
+          Text("データ管理 (開発用)")
         } footer: {
           Text("データを削除すると、プロフィール情報やアドバイス履歴がすべて消去されます。")
             .font(.caption2)
         }
+        #endif
 
         // MARK: - About Section
         Section {
@@ -140,6 +142,7 @@ struct SettingsPlaceholderView: View {
       .scrollContentBackground(.hidden)
       .navigationTitle("設定")
       .navigationBarTitleDisplayMode(.large)
+      #if DEBUG
       .confirmationDialog(
         "オンボーディングをやり直しますか？",
         isPresented: $showResetConfirmation,
@@ -169,6 +172,7 @@ struct SettingsPlaceholderView: View {
           resetSuccessToast
         }
       }
+      #endif
     }
   }
 
@@ -181,7 +185,8 @@ struct SettingsPlaceholderView: View {
     return "\(version) (\(build))"
   }
 
-  // MARK: - Views
+  #if DEBUG
+  // MARK: - Views (DEBUG only)
 
   @ViewBuilder
   private var resetSuccessToast: some View {
@@ -218,8 +223,10 @@ struct SettingsPlaceholderView: View {
       )
     )
   }
+  #endif
 
-  // MARK: - Methods
+  #if DEBUG
+  // MARK: - Methods (DEBUG only)
 
   private func performLightReset() {
     CacheManager.shared.performLightReset()
@@ -243,6 +250,7 @@ struct SettingsPlaceholderView: View {
       }
     }
   }
+  #endif
 }
 
 #if DEBUG

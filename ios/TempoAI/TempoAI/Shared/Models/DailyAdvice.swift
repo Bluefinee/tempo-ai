@@ -24,8 +24,10 @@ struct AdviceResponseData: Codable {
  * Core daily advice model containing all information for the home screen
  * and detail views
  */
-struct DailyAdvice: Codable, Identifiable {
-    let id = UUID()
+struct DailyAdvice: Codable, Identifiable, Hashable {
+    /// Note: id is intentionally excluded from CodingKeys.
+    /// A new UUID is generated on each decode to ensure unique identity for SwiftUI views.
+    let id: UUID = UUID()
     let greeting: String
     let condition: Condition
     let actionSuggestions: [ActionSuggestion]
@@ -34,11 +36,19 @@ struct DailyAdvice: Codable, Identifiable {
     let weeklyTry: TryContent?
     let generatedAt: Date
     let timeSlot: TimeSlot
-    
+
     private enum CodingKeys: String, CodingKey {
         case greeting, condition, actionSuggestions
         case closingMessage, dailyTry, weeklyTry
         case generatedAt, timeSlot
+    }
+
+    static func == (lhs: DailyAdvice, rhs: DailyAdvice) -> Bool {
+        lhs.id == rhs.id
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
     }
 }
 
@@ -107,14 +117,25 @@ enum IconType: String, Codable {
 
 // MARK: - Try Content
 
-struct TryContent: Codable, Identifiable {
-    let id = UUID()
+struct TryContent: Codable, Identifiable, Hashable {
+    /// Note: id is intentionally excluded from CodingKeys.
+    /// A new UUID is generated on each decode to ensure unique identity for SwiftUI views.
+    /// This is by design as TryContent is embedded in DailyAdvice and doesn't need persistent identity.
+    let id: UUID = UUID()
     let title: String      // For card title
     let summary: String    // For card subtitle
     let detail: String     // For detail view
-    
+
     private enum CodingKeys: String, CodingKey {
         case title, summary, detail
+    }
+
+    static func == (lhs: TryContent, rhs: TryContent) -> Bool {
+        lhs.id == rhs.id
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
     }
 }
 

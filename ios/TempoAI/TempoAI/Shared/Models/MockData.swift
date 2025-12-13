@@ -18,28 +18,12 @@ struct MetricData: Codable, Identifiable {
   }
 
   /**
-   * Status text based on score ranges
-   */
-  var status: String {
-    switch score {
-    case 80...100:
-      return "最高"
-    case 60..<80:
-      return "良好"
-    case 40..<60:
-      return "普通"
-    case 20..<40:
-      return "やや低め"
-    default:
-      return "注意"
-    }
-  }
-
-  /**
    * Progress bar color based on score ranges
+   * Note: For stress, lower is better (inverted logic)
    */
   var progressBarColor: Color {
-    switch score {
+    let effectiveScore = type == .stress ? (100 - score) : score
+    switch effectiveScore {
     case 80...100:
       return .tempoSuccess
     case 60..<80:
@@ -67,19 +51,6 @@ enum MetricType: String, Codable, CaseIterable {
   case energy = "energy"
   case stress = "stress"
 
-  var icon: String {
-    switch self {
-    case .recovery:
-      return "💚"
-    case .sleep:
-      return "😴"
-    case .energy:
-      return "⚡"
-    case .stress:
-      return "🧘"
-    }
-  }
-
   var label: String {
     switch self {
     case .recovery:
@@ -90,6 +61,19 @@ enum MetricType: String, Codable, CaseIterable {
       return "エネルギー"
     case .stress:
       return "ストレス"
+    }
+  }
+
+  var systemImageName: String {
+    switch self {
+    case .recovery:
+      return "heart.fill"
+    case .sleep:
+      return "moon.zzz.fill"
+    case .energy:
+      return "bolt.fill"
+    case .stress:
+      return "figure.mind.and.body"
     }
   }
 }

@@ -1,7 +1,7 @@
 # Phase 5.5: コンディション詳細画面 UI 設計書
 
-**フェーズ**: 5.5 / 17  
-**Part**: A（iOS UI）  
+**フェーズ**: 5.5 / 17
+**Part**: A（iOS UI）
 **前提フェーズ**: Phase 5（コンディショントップ画面）
 
 ---
@@ -13,7 +13,9 @@
 ### 📋 必須参考資料
 
 - **[CLAUDE.md](../../CLAUDE.md)** - 開発ガイドライン・基本原則
-- **[AI Prompt Design](../ai-prompt-design.md)** - AI 設計指針
+- **[メトリクスアルゴリズム仕様](../metrics-algorithm-spec.md)** - スコア算出ロジック（重要）
+- **[相関分析仕様](../correlation-analysis-spec.md)** - 相関分析とインサイト生成
+- **[アイコンデザインガイド](../icon-design-guide.md)** - アイコン仕様
 - **[UI Specification](../ui-spec.md)** - UI 設計仕様書
 - **[Technical Specification](../technical-spec.md)** - 技術仕様書
 - **[Travel Mode & Condition Spec](../travel-mode-condition-spec.md)** - コンディション画面詳細仕様
@@ -216,73 +218,73 @@ swift test
 
 ### リズム安定度スコアの算出
 
+リズムスコアの詳細な算出ロジックは **[メトリクスアルゴリズム仕様](../metrics-algorithm-spec.md)** を参照してください。
+
 ```swift
 // RhythmCalculator.swift
 
 struct RhythmCalculator {
 
-    /// リズム安定度スコアを算出
-    /// - Parameters:
-    ///   - bedtimeStdDev: 就寝時刻の標準偏差（分）
-    ///   - wakeTimeStdDev: 起床時刻の標準偏差（分）
-    /// - Returns: 0-100のスコア
-    static func calculateStabilityScore(
-        bedtimeStdDev: Double,
-        wakeTimeStdDev: Double
+    /// リズムスコアを算出（0-100）
+    /// 算出式: 就寝安定度(35) + 起床安定度(35) + 週末シフト(20) + 理想時間帯(10)
+    static func calculateRhythmScore(
+        bedtimeStability: Int,    // 0-35
+        wakeTimeStability: Int,   // 0-35
+        weekendShift: Int,        // 0-20
+        idealTiming: Int          // 0-10
     ) -> Int {
-        // 係数（就寝の方を重視）
-        let bedtimeCoefficient = 2.5
-        let wakeTimeCoefficient = 2.0
-
-        // 分→時間に変換
-        let bedtimeHours = bedtimeStdDev / 60.0
-        let wakeTimeHours = wakeTimeStdDev / 60.0
-
-        // スコア算出
-        let score = 100.0
-            - (bedtimeHours * bedtimeCoefficient * 10)
-            - (wakeTimeHours * wakeTimeCoefficient * 10)
-
-        return max(0, min(100, Int(score.rounded())))
+        return bedtimeStability + wakeTimeStability + weekendShift + idealTiming
     }
 
     /// スコアからステータスを取得
-    static func getStatus(score: Int) -> StabilityStatus {
+    static func getStatus(score: Int) -> MetricStatus {
         switch score {
-        case 90...100: return .veryStable
-        case 75..<90:  return .stable
-        case 60..<75:  return .unstable
-        default:       return .veryUnstable
+        case 80...100: return .excellent
+        case 60..<80:  return .good
+        case 40..<60:  return .fair
+        case 20..<40:  return .low
+        default:       return .poor
         }
     }
 }
 
-enum StabilityStatus {
-    case veryStable    // 90-100
-    case stable        // 75-89
-    case unstable      // 60-74
-    case veryUnstable  // 0-59
+enum MetricStatus: String {
+    case excellent  // 80-100: 最高
+    case good       // 60-79: 良好
+    case fair       // 40-59: 普通
+    case low        // 20-39: やや低下
+    case poor       // 0-19: 要改善
 
     var displayText: String {
         switch self {
-        case .veryStable:   return "非常に安定 ✓✓"
-        case .stable:       return "安定 ✓"
-        case .unstable:     return "やや不安定 △"
-        case .veryUnstable: return "不安定 ▽"
+        case .excellent: return "最高"
+        case .good:      return "良好"
+        case .fair:      return "普通"
+        case .low:       return "やや低下"
+        case .poor:      return "要改善"
+        }
+    }
+
+    var color: Color {
+        switch self {
+        case .excellent, .good: return .primaryColor
+        case .fair:             return .yellow
+        case .low:              return .orange
+        case .poor:             return .red
         }
     }
 }
 ```
 
-**計算例**:
+**計算例**（詳細は metrics-algorithm-spec.md 参照）:
 
 ```
-就寝時刻の標準偏差: 30分（0.5時間）
-起床時刻の標準偏差: 20分（0.33時間）
+就寝時刻安定度: 30分以内のばらつき → 32/35
+起床時刻安定度: 20分以内のばらつき → 33/35
+週末シフト: 平日との差1時間以内 → 18/20
+理想時間帯: 23:00前後就寝 → 8/10
 
-スコア = 100 - (0.5 × 2.5 × 10) - (0.33 × 2.0 × 10)
-      = 100 - 12.5 - 6.6
-      = 80.9 ≒ 81
+リズムスコア = 32 + 33 + 18 + 8 = 91（最高）
 ```
 
 ### ヒントの条件分岐ロジック
@@ -362,7 +364,7 @@ struct HintGenerator {
 ├─────────────────────────────────────────┤
 │                                         │
 │ ┌─────────────────────────────────────┐ │
-│ │            💚                       │ │
+│ │           [♡〜]                     │ │ ← カスタムアイコン
 │ │                                     │ │
 │ │           65 ms                     │ │
 │ │        （今朝の値）                 │ │
@@ -419,7 +421,7 @@ struct HintGenerator {
 ├─────────────────────────────────────────┤
 │                                         │
 │ ┌─────────────────────────────────────┐ │
-│ │            😴                       │ │
+│ │          [icon]                     │ │
 │ │                                     │ │
 │ │         7h 45m                      │ │
 │ │        （昨夜）                     │ │
@@ -927,7 +929,11 @@ extension Color {
 
 ## 関連ドキュメント
 
-- `05-phase-condition-top.md` - Phase 5（コンディショントップ画面）
+- `05-phase-metrics-detail.md` - Phase 5（コンディショントップ画面）
+- `045-phase-home-metrics-revision.md` - Phase 4.5（ホーム画面メトリクス改修）
+- `metrics-algorithm-spec.md` - メトリクスアルゴリズム仕様（重要）
+- `correlation-analysis-spec.md` - 相関分析仕様
+- `icon-design-guide.md` - アイコンデザインガイド
 - `travel-mode-condition-spec.md` - セクション 4「コンディション画面設計」
 - `technical-spec.md` - セクション 2.3「データモデル」
 - `ui-spec.md` - セクション 7「詳細画面群」
@@ -936,6 +942,7 @@ extension Color {
 
 ## 改訂履歴
 
-| バージョン | 日付       | 変更内容                               |
-| ---------- | ---------- | -------------------------------------- |
-| 1.0        | 2025-12-11 | 初版作成（Phase 5 を分割、詳細画面群） |
+| バージョン | 日付       | 変更内容                                                       |
+| ---------- | ---------- | -------------------------------------------------------------- |
+| 1.0        | 2025-12-11 | 初版作成（Phase 5 を分割、詳細画面群）                         |
+| 1.1        | 2025-12-13 | 新メトリクス体系に対応、スコア算出をmetrics-algorithm-spec参照に変更 |

@@ -1,7 +1,7 @@
 # Tempo AI 技術仕様書
 
-**バージョン**: 1.0  
-**最終更新日**: 2025 年 12 月 9 日  
+**バージョン**: 1.1
+**最終更新日**: 2025年12月13日  
 **ステータス**: MVP 開発準備中
 
 ---
@@ -451,6 +451,102 @@ struct AdditionalAdvice: Codable {
     let greeting: String
     let message: String
     let generatedAt: Date
+}
+```
+
+#### MetricsScore（新メトリクス体系）
+
+```swift
+/// メトリクススコア（0-100）
+/// 詳細なアルゴリズムは docs/metrics-algorithm-spec.md を参照
+struct MetricsScore: Codable {
+    let date: Date
+    let sleep: MetricDetail
+    let hrv: MetricDetail
+    let rhythm: MetricDetail
+    let activity: MetricDetail
+
+    struct MetricDetail: Codable {
+        let score: Int  // 0-100
+        let status: MetricStatus
+        let trend: Trend
+        let components: [String: Int]?  // スコア内訳
+
+        enum MetricStatus: String, Codable {
+            case excellent = "excellent"  // 80-100
+            case good = "good"            // 60-79
+            case fair = "fair"            // 40-59
+            case low = "low"              // 20-39
+            case poor = "poor"            // 0-19
+
+            static func from(score: Int) -> MetricStatus {
+                switch score {
+                case 80...100: return .excellent
+                case 60..<80: return .good
+                case 40..<60: return .fair
+                case 20..<40: return .low
+                default: return .poor
+                }
+            }
+        }
+
+        enum Trend: String, Codable {
+            case improving = "improving"
+            case stable = "stable"
+            case declining = "declining"
+        }
+    }
+}
+
+/// ストレスグラフデータ
+/// 24時間の自律神経バランス推移
+struct StressGraphData: Codable {
+    let date: Date
+    let dataPoints: [DataPoint]
+    let summary: Summary
+
+    struct DataPoint: Codable {
+        let timestamp: Date
+        let balance: Double  // -100 (ストレス) 〜 +100 (リラックス)
+    }
+
+    struct Summary: Codable {
+        let avgBalance: Double
+        let minBalance: Double
+        let maxBalance: Double
+        let peakStressTime: Date?
+        let mostRelaxedTime: Date?
+    }
+}
+
+/// 相関分析結果
+/// 詳細なアルゴリズムは docs/correlation-analysis-spec.md を参照
+struct CorrelationAnalysis: Codable {
+    let analyzedAt: Date
+    let dataRange: DateInterval
+    let sampleSize: Int
+    let pairs: [PairCorrelation]
+    let insights: [CorrelationInsight]
+
+    struct PairCorrelation: Codable {
+        let pair: String  // e.g., "hrv_sleep", "rhythm_sleep"
+        let coefficient: Double  // -1.0 to 1.0
+        let strength: CorrelationStrength
+        let isSignificant: Bool
+
+        enum CorrelationStrength: String, Codable {
+            case strong = "strong"      // |r| >= 0.7
+            case moderate = "moderate"  // 0.4 <= |r| < 0.7
+            case weak = "weak"          // 0.2 <= |r| < 0.4
+            case none = "none"          // |r| < 0.2
+        }
+    }
+
+    struct CorrelationInsight: Codable {
+        let pair: String
+        let message: String
+        let actionSuggestion: String?
+    }
 }
 ```
 

@@ -1,11 +1,14 @@
-import XCTest
+import Foundation
+import Testing
+
 @testable import TempoAI
 
-final class UserProfileValidationTests: XCTestCase {
-    
+struct UserProfileValidationTests {
+
     // MARK: - BMI Calculation Tests
-    
-    func testBMICalculationNormal() {
+
+    @Test("BMI calculates correctly for normal values")
+    func bmiCalculationNormal() {
         let profile = UserProfile(
             nickname: "テスト",
             age: 30,
@@ -18,13 +21,14 @@ final class UserProfileValidationTests: XCTestCase {
             alcoholFrequency: nil,
             interests: [.fitness]
         )
-        
+
         // BMI = 70 / (1.75)^2 ≈ 22.86
         let expectedBMI = 70.0 / (1.75 * 1.75)
-        XCTAssertEqual(profile.bmi, expectedBMI, accuracy: 0.01, "BMI calculation should be correct")
+        #expect(abs(profile.bmi - expectedBMI) < 0.01)
     }
-    
-    func testBMICalculationZeroHeight() {
+
+    @Test("BMI returns 0 when height is 0")
+    func bmiCalculationZeroHeight() {
         let profile = UserProfile(
             nickname: "テスト",
             age: 30,
@@ -37,13 +41,14 @@ final class UserProfileValidationTests: XCTestCase {
             alcoholFrequency: nil,
             interests: [.fitness]
         )
-        
-        XCTAssertEqual(profile.bmi, 0.0, "BMI should be 0 when height is 0")
+
+        #expect(profile.bmi == 0.0)
     }
-    
+
     // MARK: - Completion Rate Tests
-    
-    func testCompletionRateMinimal() {
+
+    @Test("Minimal profile has 60% completion")
+    func completionRateMinimal() {
         let minimalProfile = UserProfile(
             nickname: "テスト",
             age: 30,
@@ -56,12 +61,13 @@ final class UserProfileValidationTests: XCTestCase {
             alcoholFrequency: nil,
             interests: [.fitness]
         )
-        
+
         // 5 required + 1 interest = 6/10 = 0.6
-        XCTAssertEqual(minimalProfile.completionRate, 0.6, accuracy: 0.01, "Minimal completion should be 60%")
+        #expect(abs(minimalProfile.completionRate - 0.6) < 0.01)
     }
-    
-    func testCompletionRateFull() {
+
+    @Test("Full profile has 100% completion")
+    func completionRateFull() {
         let fullProfile = UserProfile(
             nickname: "テスト",
             age: 30,
@@ -74,19 +80,23 @@ final class UserProfileValidationTests: XCTestCase {
             alcoholFrequency: .never,
             interests: [.fitness, .nutrition, .sleep]
         )
-        
+
         // All 10 fields = 10/10 = 1.0
-        XCTAssertEqual(fullProfile.completionRate, 1.0, accuracy: 0.01, "Full completion should be 100%")
+        #expect(abs(fullProfile.completionRate - 1.0) < 0.01)
     }
-    
+
     // MARK: - Validation Tests
-    
-    func testValidationSuccess() {
+
+    @Test("Valid profile passes validation")
+    func validationSuccess() throws {
         let validProfile = UserProfile.sampleData
-        XCTAssertNoThrow(try validProfile.validate(), "Valid profile should pass validation")
+        #expect(throws: Never.self) {
+            try validProfile.validate()
+        }
     }
-    
-    func testValidationEmptyNickname() {
+
+    @Test("Empty nickname fails validation with emptyNickname error")
+    func validationEmptyNickname() {
         let invalidProfile = UserProfile(
             nickname: "",
             age: 25,
@@ -99,15 +109,14 @@ final class UserProfileValidationTests: XCTestCase {
             alcoholFrequency: nil,
             interests: [.fitness]
         )
-        
-        XCTAssertThrowsError(try invalidProfile.validate()) { error in
-            if let validationError = error as? UserProfile.ValidationError {
-                XCTAssertEqual(validationError, .emptyNickname, "Should be emptyNickname error")
-            }
+
+        #expect(throws: UserProfile.ValidationError.emptyNickname) {
+            try invalidProfile.validate()
         }
     }
-    
-    func testValidationNicknameTooLong() {
+
+    @Test("Nickname over 20 characters fails validation")
+    func validationNicknameTooLong() {
         let invalidProfile = UserProfile(
             nickname: String(repeating: "a", count: 25),
             age: 25,
@@ -120,47 +129,49 @@ final class UserProfileValidationTests: XCTestCase {
             alcoholFrequency: nil,
             interests: [.fitness]
         )
-        
-        XCTAssertThrowsError(try invalidProfile.validate()) { error in
-            if let validationError = error as? UserProfile.ValidationError {
-                XCTAssertEqual(validationError, .nicknameTooLong, "Should be nicknameTooLong error")
-            }
+
+        #expect(throws: UserProfile.ValidationError.nicknameTooLong) {
+            try invalidProfile.validate()
         }
     }
-    
+
     // MARK: - Enum Tests
-    
-    func testGenderDisplayNames() {
-        XCTAssertEqual(UserProfile.Gender.male.displayName, "男性", "Male display name should be correct")
-        XCTAssertEqual(UserProfile.Gender.female.displayName, "女性", "Female display name should be correct")
-        XCTAssertEqual(UserProfile.Gender.other.displayName, "その他", "Other display name should be correct")
-        XCTAssertEqual(UserProfile.Gender.notSpecified.displayName, "回答しない", "Not specified display name should be correct")
+
+    @Test("Gender display names are correctly localized")
+    func genderDisplayNames() {
+        #expect(UserProfile.Gender.male.displayName == "男性")
+        #expect(UserProfile.Gender.female.displayName == "女性")
+        #expect(UserProfile.Gender.other.displayName == "その他")
+        #expect(UserProfile.Gender.notSpecified.displayName == "回答しない")
     }
-    
-    func testInterestDisplayNames() {
-        XCTAssertEqual(UserProfile.Interest.fitness.displayName, "運動・フィットネス", "Fitness display name should be correct")
-        XCTAssertEqual(UserProfile.Interest.nutrition.displayName, "栄養・食事", "Nutrition display name should be correct")
-        XCTAssertEqual(UserProfile.Interest.sleep.displayName, "睡眠", "Sleep display name should be correct")
+
+    @Test("Interest display names are correctly localized")
+    func interestDisplayNames() {
+        #expect(UserProfile.Interest.fitness.displayName == "運動・フィットネス")
+        #expect(UserProfile.Interest.nutrition.displayName == "栄養・食事")
+        #expect(UserProfile.Interest.sleep.displayName == "睡眠")
     }
-    
-    func testInterestIcons() {
-        XCTAssertEqual(UserProfile.Interest.fitness.icon, "figure.run", "Fitness icon should be correct")
-        XCTAssertEqual(UserProfile.Interest.nutrition.icon, "fork.knife", "Nutrition icon should be correct")
-        XCTAssertEqual(UserProfile.Interest.sleep.icon, "moon.fill", "Sleep icon should be correct")
+
+    @Test("Interest icons are correct")
+    func interestIcons() {
+        #expect(UserProfile.Interest.fitness.icon == "figure.run")
+        #expect(UserProfile.Interest.nutrition.icon == "fork.knife")
+        #expect(UserProfile.Interest.sleep.icon == "moon.fill")
     }
-    
+
     // MARK: - Codable Tests
-    
-    func testUserProfileCodable() throws {
+
+    @Test("UserProfile can be encoded and decoded")
+    func userProfileCodable() throws {
         let profile = UserProfile.sampleData
-        
+
         let encodedData = try JSONEncoder().encode(profile)
-        XCTAssertGreaterThan(encodedData.count, 0, "Encoded data should not be empty")
-        
+        #expect(encodedData.count > 0)
+
         let decodedProfile = try JSONDecoder().decode(UserProfile.self, from: encodedData)
-        
-        XCTAssertEqual(decodedProfile.nickname, profile.nickname, "Decoded nickname should match")
-        XCTAssertEqual(decodedProfile.age, profile.age, "Decoded age should match")
-        XCTAssertEqual(decodedProfile.gender, profile.gender, "Decoded gender should match")
+
+        #expect(decodedProfile.nickname == profile.nickname)
+        #expect(decodedProfile.age == profile.age)
+        #expect(decodedProfile.gender == profile.gender)
     }
 }

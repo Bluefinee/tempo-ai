@@ -1,79 +1,79 @@
-import XCTest
 import SwiftUI
+import Testing
+
 @testable import TempoAI
 
-final class ColorExtensionTests: XCTestCase {
-    
+struct ColorExtensionTests {
+
     // MARK: - Brand Colors Existence Tests
-    
-    // Verify brand colors defined in Color+Extensions are accessible at runtime
-    func testBrandColorsExist() {
-        XCTAssertNotNil(Color.tempoSageGreen, "tempoSageGreen should be available")
-        XCTAssertNotNil(Color.tempoWarmBeige, "tempoWarmBeige should be available")
-        XCTAssertNotNil(Color.tempoSoftCoral, "tempoSoftCoral should be available")
-        XCTAssertNotNil(Color.tempoLightCream, "tempoLightCream should be available")
+
+    @Test("Brand colors are accessible at runtime")
+    func brandColorsExist() {
+        // Verify brand colors defined in Color+Extensions are accessible at runtime
+        #expect(Color.tempoSageGreen != nil)
+        #expect(Color.tempoWarmBeige != nil)
+        #expect(Color.tempoSoftCoral != nil)
+        #expect(Color.tempoLightCream != nil)
     }
-    
-    func testTextColorsExist() {
-        XCTAssertNotNil(Color.tempoPrimaryText, "tempoPrimaryText should be available")
-        XCTAssertNotNil(Color.tempoSecondaryText, "tempoSecondaryText should be available")
-        XCTAssertNotNil(Color.tempoBackground, "tempoBackground should be available")
+
+    @Test("Text colors are accessible at runtime")
+    func textColorsExist() {
+        #expect(Color.tempoPrimaryText != nil)
+        #expect(Color.tempoSecondaryText != nil)
+        #expect(Color.tempoBackground != nil)
     }
-    
-    func testSemanticColorsExist() {
-        XCTAssertNotNil(Color.tempoSuccess, "tempoSuccess should be available")
-        XCTAssertNotNil(Color.tempoWarning, "tempoWarning should be available")
-        XCTAssertNotNil(Color.tempoError, "tempoError should be available")
-        XCTAssertNotNil(Color.tempoInfo, "tempoInfo should be available")
+
+    @Test("Semantic colors are accessible at runtime")
+    func semanticColorsExist() {
+        #expect(Color.tempoSuccess != nil)
+        #expect(Color.tempoWarning != nil)
+        #expect(Color.tempoError != nil)
+        #expect(Color.tempoInfo != nil)
     }
-    
-    func testInterestCategoryColorsExist() {
-        XCTAssertNotNil(Color.tempoBeauty, "tempoBeauty should be available")
-        XCTAssertNotNil(Color.tempoFitness, "tempoFitness should be available")
-        XCTAssertNotNil(Color.tempoMentalHealth, "tempoMentalHealth should be available")
-        XCTAssertNotNil(Color.tempoWorkPerformance, "tempoWorkPerformance should be available")
-        XCTAssertNotNil(Color.tempoNutrition, "tempoNutrition should be available")
-        XCTAssertNotNil(Color.tempoSleep, "tempoSleep should be available")
+
+    @Test("Interest category colors are accessible at runtime")
+    func interestCategoryColorsExist() {
+        #expect(Color.tempoBeauty != nil)
+        #expect(Color.tempoFitness != nil)
+        #expect(Color.tempoMentalHealth != nil)
+        #expect(Color.tempoWorkPerformance != nil)
+        #expect(Color.tempoNutrition != nil)
+        #expect(Color.tempoSleep != nil)
     }
-    
+
     // MARK: - Interest Color Mapping Tests
-    
-    func testColorForInterestMapping() {
-        XCTAssertEqual(Color.colorForInterest(.energyPerformance), Color.tempoWorkPerformance,
-                      "Energy performance should map to work performance color")
-        XCTAssertEqual(Color.colorForInterest(.nutrition), Color.tempoNutrition,
-                      "Nutrition should map to nutrition color")
-        XCTAssertEqual(Color.colorForInterest(.fitness), Color.tempoFitness,
-                      "Fitness should map to fitness color")
-        XCTAssertEqual(Color.colorForInterest(.mentalStress), Color.tempoMentalHealth,
-                      "Mental stress should map to mental health color")
-        XCTAssertEqual(Color.colorForInterest(.beauty), Color.tempoBeauty,
-                      "Beauty should map to beauty color")
-        XCTAssertEqual(Color.colorForInterest(.sleep), Color.tempoSleep,
-                      "Sleep should map to sleep color")
+
+    @Test("Interests map to correct colors")
+    func colorForInterestMapping() {
+        #expect(Color.colorForInterest(.energyPerformance) == Color.tempoWorkPerformance)
+        #expect(Color.colorForInterest(.nutrition) == Color.tempoNutrition)
+        #expect(Color.colorForInterest(.fitness) == Color.tempoFitness)
+        #expect(Color.colorForInterest(.mentalStress) == Color.tempoMentalHealth)
+        #expect(Color.colorForInterest(.beauty) == Color.tempoBeauty)
+        #expect(Color.colorForInterest(.sleep) == Color.tempoSleep)
     }
-    
-    func testAllInterestsHaveColorMapping() {
+
+    @Test("All interests have color mappings")
+    func allInterestsHaveColorMapping() {
         let allInterests = UserProfile.Interest.allCases
-        
+
         for interest in allInterests {
             let color = Color.colorForInterest(interest)
-            XCTAssertNotNil(color, "Interest \(interest) should have color mapping")
+            #expect(color != nil)
         }
-        
-        // Verify all interests have color mapping (dynamic count)
-        XCTAssertGreaterThan(allInterests.count, 0, "Should have at least one interest category")
-        
-        // Ensure each interest has a distinct color mapping
+
+        #expect(allInterests.count > 0)
+
         let colorMappings = allInterests.map { Color.colorForInterest($0) }
-        XCTAssertEqual(colorMappings.count, allInterests.count, "Each interest should have a color mapping")
+        #expect(colorMappings.count == allInterests.count)
     }
-    
+
     // MARK: - Color Distinction Tests
-    
-    func testColorsAreDistinct() {
-        XCTAssertNotEqual(Color.tempoSageGreen, Color.tempoSoftCoral, "Brand colors should be distinct")
-        XCTAssertNotEqual(Color.tempoPrimaryText, Color.tempoSecondaryText, "Text colors should be distinct")
-        XCTAssertNotEqual(Color.tempoSuccess, Color.tempoError, "Semantic colors should be distinct")
+
+    @Test("Brand and semantic colors are distinct from each other")
+    func colorsAreDistinct() {
+        #expect(Color.tempoSageGreen != Color.tempoSoftCoral)
+        #expect(Color.tempoPrimaryText != Color.tempoSecondaryText)
+        #expect(Color.tempoSuccess != Color.tempoError)
     }
 }

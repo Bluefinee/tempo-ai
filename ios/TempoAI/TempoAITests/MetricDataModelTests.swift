@@ -1,211 +1,217 @@
 import SwiftUI
-import XCTest
+import Testing
 
 @testable import TempoAI
 
-final class MetricDataModelTests: XCTestCase {
+struct MetricDataModelTests {
 
-  // MARK: - MetricType Tests
+    // MARK: - MetricType Tests
 
-  func testMetricTypeLabel() {
-    XCTAssertEqual(MetricType.recovery.label, "回復", "Recovery label should be correct")
-    XCTAssertEqual(MetricType.sleep.label, "睡眠", "Sleep label should be correct")
-    XCTAssertEqual(MetricType.energy.label, "エネルギー", "Energy label should be correct")
-    XCTAssertEqual(MetricType.stress.label, "ストレス", "Stress label should be correct")
-  }
-
-  func testMetricTypeAllCases() {
-    XCTAssertEqual(MetricType.allCases.count, 4, "Should have 4 metric types")
-    XCTAssertTrue(MetricType.allCases.contains(.recovery), "Should contain recovery")
-    XCTAssertTrue(MetricType.allCases.contains(.sleep), "Should contain sleep")
-    XCTAssertTrue(MetricType.allCases.contains(.energy), "Should contain energy")
-    XCTAssertTrue(MetricType.allCases.contains(.stress), "Should contain stress")
-  }
-
-  func testMetricTypeSystemImageName() {
-    XCTAssertEqual(MetricType.recovery.systemImageName, "heart.fill")
-    XCTAssertEqual(MetricType.sleep.systemImageName, "moon.zzz.fill")
-    XCTAssertEqual(MetricType.energy.systemImageName, "bolt.fill")
-    XCTAssertEqual(MetricType.stress.systemImageName, "figure.mind.and.body")
-  }
-
-  // MARK: - MetricData Creation Tests
-
-  func testMetricDataCreation() {
-    let metric = MetricData(
-      type: .recovery,
-      score: 78,
-      displayValue: "78"
-    )
-
-    XCTAssertEqual(metric.type, .recovery, "Type should be recovery")
-    XCTAssertEqual(metric.score, 78, "Score should be 78")
-    XCTAssertEqual(metric.displayValue, "78", "Display value should be 78")
-    XCTAssertNotNil(metric.id, "ID should not be nil")
-  }
-
-  func testMetricDataIdentifiable() {
-    let metric1 = MetricData(type: .recovery, score: 78, displayValue: "78")
-    let metric2 = MetricData(type: .recovery, score: 78, displayValue: "78")
-
-    XCTAssertNotEqual(metric1.id, metric2.id, "Different instances should have different IDs")
-  }
-
-  // MARK: - Progress Bar Color Tests (Normal Metrics)
-
-  func testProgressBarColorForHighScore() {
-    let metric = MetricData(type: .recovery, score: 85, displayValue: "85")
-    XCTAssertEqual(metric.progressBarColor, Color.tempoSuccess, "High score should use success color")
-  }
-
-  func testProgressBarColorForGoodScore() {
-    let metric = MetricData(type: .recovery, score: 70, displayValue: "70")
-    XCTAssertEqual(
-      metric.progressBarColor, Color.tempoSageGreen, "Good score should use sage green color")
-  }
-
-  func testProgressBarColorForNormalScore() {
-    let metric = MetricData(type: .recovery, score: 50, displayValue: "50")
-    XCTAssertEqual(
-      metric.progressBarColor, Color.tempoWarning, "Normal score should use warning color")
-  }
-
-  func testProgressBarColorForLowScore() {
-    let metric = MetricData(type: .recovery, score: 30, displayValue: "30")
-    XCTAssertEqual(
-      metric.progressBarColor, Color.tempoSoftCoral, "Low score should use soft coral color")
-  }
-
-  // MARK: - Boundary Value Tests
-
-  func testProgressBarColorAtBoundary40() {
-    let metric = MetricData(type: .recovery, score: 40, displayValue: "40")
-    XCTAssertEqual(
-      metric.progressBarColor, Color.tempoWarning, "Score 40 should use warning color")
-  }
-
-  func testProgressBarColorAtBoundary60() {
-    let metric = MetricData(type: .recovery, score: 60, displayValue: "60")
-    XCTAssertEqual(
-      metric.progressBarColor, Color.tempoSageGreen, "Score 60 should use sage green color")
-  }
-
-  func testProgressBarColorAtBoundary80() {
-    let metric = MetricData(type: .recovery, score: 80, displayValue: "80")
-    XCTAssertEqual(
-      metric.progressBarColor, Color.tempoSuccess, "Score 80 should use success color")
-  }
-
-  // MARK: - Stress Color Tests (Inverted: Lower is Better)
-
-  func testStressColorForLowScore() {
-    // Low stress (score 20) = good = green
-    let metric = MetricData(type: .stress, score: 20, displayValue: "低")
-    XCTAssertEqual(
-      metric.progressBarColor, Color.tempoSuccess,
-      "Low stress score should use success color (lower is better)")
-  }
-
-  func testStressColorForMediumLowScore() {
-    // Medium-low stress (score 30) = good = sage green
-    let metric = MetricData(type: .stress, score: 30, displayValue: "やや低")
-    XCTAssertEqual(
-      metric.progressBarColor, Color.tempoSageGreen,
-      "Medium-low stress should use sage green color")
-  }
-
-  func testStressColorForMediumScore() {
-    // Medium stress (score 50) = warning = yellow
-    let metric = MetricData(type: .stress, score: 50, displayValue: "中")
-    XCTAssertEqual(
-      metric.progressBarColor, Color.tempoWarning,
-      "Medium stress should use warning color")
-  }
-
-  func testStressColorForHighScore() {
-    // High stress (score 80) = bad = coral
-    let metric = MetricData(type: .stress, score: 80, displayValue: "高")
-    XCTAssertEqual(
-      metric.progressBarColor, Color.tempoSoftCoral,
-      "High stress score should use soft coral color (higher is worse)")
-  }
-
-  // MARK: - Progress Value Tests
-
-  func testProgressValue() {
-    let metric = MetricData(type: .recovery, score: 78, displayValue: "78")
-    XCTAssertEqual(metric.progressValue, 0.78, accuracy: 0.001, "Progress value should be 0.78")
-  }
-
-  func testProgressValueForZero() {
-    let metric = MetricData(type: .recovery, score: 0, displayValue: "0")
-    XCTAssertEqual(metric.progressValue, 0.0, accuracy: 0.001, "Progress value should be 0.0")
-  }
-
-  func testProgressValueForMax() {
-    let metric = MetricData(type: .recovery, score: 100, displayValue: "100")
-    XCTAssertEqual(metric.progressValue, 1.0, accuracy: 0.001, "Progress value should be 1.0")
-  }
-
-  // MARK: - Codable Tests
-
-  func testMetricDataEncodeDecode() throws {
-    let original = MetricData(type: .sleep, score: 85, displayValue: "7.0h")
-
-    let encoder = JSONEncoder()
-    let data = try encoder.encode(original)
-    XCTAssertGreaterThan(data.count, 0, "Encoded data should not be empty")
-
-    let decoder = JSONDecoder()
-    let decoded = try decoder.decode(MetricData.self, from: data)
-
-    XCTAssertEqual(decoded.type, original.type, "Type should match after decode")
-    XCTAssertEqual(decoded.score, original.score, "Score should match after decode")
-    XCTAssertEqual(decoded.displayValue, original.displayValue, "Display value should match after decode")
-  }
-
-  func testMetricTypeCodable() throws {
-    let original = MetricType.energy
-    let encoder = JSONEncoder()
-    let data = try encoder.encode(original)
-
-    let decoder = JSONDecoder()
-    let decoded = try decoder.decode(MetricType.self, from: data)
-
-    XCTAssertEqual(decoded, original, "MetricType should encode/decode correctly")
-  }
-
-  // MARK: - Mock Data Tests
-
-  #if DEBUG
-    func testMockMetricsExist() {
-      let metrics = MockData.mockMetrics
-      XCTAssertEqual(metrics.count, 4, "Should have 4 mock metrics")
+    @Test("MetricType labels are correctly localized")
+    func metricTypeLabel() {
+        #expect(MetricType.recovery.label == "回復")
+        #expect(MetricType.sleep.label == "睡眠")
+        #expect(MetricType.energy.label == "エネルギー")
+        #expect(MetricType.stress.label == "ストレス")
     }
 
-    func testMockMetricsTypes() {
-      let metrics = MockData.mockMetrics
-      let types = metrics.map { $0.type }
-
-      XCTAssertTrue(types.contains(.recovery), "Mock metrics should contain recovery")
-      XCTAssertTrue(types.contains(.sleep), "Mock metrics should contain sleep")
-      XCTAssertTrue(types.contains(.energy), "Mock metrics should contain energy")
-      XCTAssertTrue(types.contains(.stress), "Mock metrics should contain stress")
+    @Test("MetricType has all 4 cases")
+    func metricTypeAllCases() {
+        #expect(MetricType.allCases.count == 4)
+        #expect(MetricType.allCases.contains(.recovery))
+        #expect(MetricType.allCases.contains(.sleep))
+        #expect(MetricType.allCases.contains(.energy))
+        #expect(MetricType.allCases.contains(.stress))
     }
 
-    func testMockMetricsScoresAreValid() {
-      let metrics = MockData.mockMetrics
-
-      for metric in metrics {
-        XCTAssertGreaterThanOrEqual(metric.score, 0, "Score should be >= 0")
-        XCTAssertLessThanOrEqual(metric.score, 100, "Score should be <= 100")
-      }
+    @Test("MetricType system image names are correct")
+    func metricTypeSystemImageName() {
+        #expect(MetricType.recovery.systemImageName == "heart.fill")
+        #expect(MetricType.sleep.systemImageName == "moon.zzz.fill")
+        #expect(MetricType.energy.systemImageName == "bolt.fill")
+        #expect(MetricType.stress.systemImageName == "figure.mind.and.body")
     }
 
-    func testMockAdditionalAdviceExists() {
-      let advice = MockData.mockAdditionalAdvice
-      XCTAssertFalse(advice.message.isEmpty, "Mock additional advice message should not be empty")
-      XCTAssertFalse(advice.greeting.isEmpty, "Mock additional advice greeting should not be empty")
+    // MARK: - MetricData Creation Tests
+
+    @Test("MetricData can be created with correct values")
+    func metricDataCreation() {
+        let metric = MetricData(
+            type: .recovery,
+            score: 78,
+            displayValue: "78"
+        )
+
+        #expect(metric.type == .recovery)
+        #expect(metric.score == 78)
+        #expect(metric.displayValue == "78")
     }
-  #endif
+
+    @Test("Different MetricData instances have different IDs")
+    func metricDataIdentifiable() {
+        let metric1 = MetricData(type: .recovery, score: 78, displayValue: "78")
+        let metric2 = MetricData(type: .recovery, score: 78, displayValue: "78")
+
+        #expect(metric1.id != metric2.id)
+    }
+
+    // MARK: - Progress Bar Color Tests (Normal Metrics)
+
+    @Test("High score (85) uses success color")
+    func progressBarColorForHighScore() {
+        let metric = MetricData(type: .recovery, score: 85, displayValue: "85")
+        #expect(metric.progressBarColor == Color.tempoSuccess)
+    }
+
+    @Test("Good score (70) uses sage green color")
+    func progressBarColorForGoodScore() {
+        let metric = MetricData(type: .recovery, score: 70, displayValue: "70")
+        #expect(metric.progressBarColor == Color.tempoSageGreen)
+    }
+
+    @Test("Normal score (50) uses warning color")
+    func progressBarColorForNormalScore() {
+        let metric = MetricData(type: .recovery, score: 50, displayValue: "50")
+        #expect(metric.progressBarColor == Color.tempoWarning)
+    }
+
+    @Test("Low score (30) uses soft coral color")
+    func progressBarColorForLowScore() {
+        let metric = MetricData(type: .recovery, score: 30, displayValue: "30")
+        #expect(metric.progressBarColor == Color.tempoSoftCoral)
+    }
+
+    // MARK: - Boundary Value Tests
+
+    @Test("Score 40 uses warning color (boundary)")
+    func progressBarColorAtBoundary40() {
+        let metric = MetricData(type: .recovery, score: 40, displayValue: "40")
+        #expect(metric.progressBarColor == Color.tempoWarning)
+    }
+
+    @Test("Score 60 uses sage green color (boundary)")
+    func progressBarColorAtBoundary60() {
+        let metric = MetricData(type: .recovery, score: 60, displayValue: "60")
+        #expect(metric.progressBarColor == Color.tempoSageGreen)
+    }
+
+    @Test("Score 80 uses success color (boundary)")
+    func progressBarColorAtBoundary80() {
+        let metric = MetricData(type: .recovery, score: 80, displayValue: "80")
+        #expect(metric.progressBarColor == Color.tempoSuccess)
+    }
+
+    // MARK: - Stress Color Tests (Inverted: Lower is Better)
+
+    @Test("Low stress (20) uses success color (lower is better)")
+    func stressColorForLowScore() {
+        let metric = MetricData(type: .stress, score: 20, displayValue: "低")
+        #expect(metric.progressBarColor == Color.tempoSuccess)
+    }
+
+    @Test("Medium-low stress (30) uses sage green color")
+    func stressColorForMediumLowScore() {
+        let metric = MetricData(type: .stress, score: 30, displayValue: "やや低")
+        #expect(metric.progressBarColor == Color.tempoSageGreen)
+    }
+
+    @Test("Medium stress (50) uses warning color")
+    func stressColorForMediumScore() {
+        let metric = MetricData(type: .stress, score: 50, displayValue: "中")
+        #expect(metric.progressBarColor == Color.tempoWarning)
+    }
+
+    @Test("High stress (80) uses soft coral color (higher is worse)")
+    func stressColorForHighScore() {
+        let metric = MetricData(type: .stress, score: 80, displayValue: "高")
+        #expect(metric.progressBarColor == Color.tempoSoftCoral)
+    }
+
+    // MARK: - Progress Value Tests
+
+    @Test("Progress value calculates correctly for score 78")
+    func progressValue() {
+        let metric = MetricData(type: .recovery, score: 78, displayValue: "78")
+        #expect(abs(metric.progressValue - 0.78) < 0.001)
+    }
+
+    @Test("Progress value is 0.0 for score 0")
+    func progressValueForZero() {
+        let metric = MetricData(type: .recovery, score: 0, displayValue: "0")
+        #expect(abs(metric.progressValue - 0.0) < 0.001)
+    }
+
+    @Test("Progress value is 1.0 for score 100")
+    func progressValueForMax() {
+        let metric = MetricData(type: .recovery, score: 100, displayValue: "100")
+        #expect(abs(metric.progressValue - 1.0) < 0.001)
+    }
+
+    // MARK: - Codable Tests
+
+    @Test("MetricData can be encoded and decoded")
+    func metricDataEncodeDecode() throws {
+        let original = MetricData(type: .sleep, score: 85, displayValue: "7.0h")
+
+        let encoder = JSONEncoder()
+        let data = try encoder.encode(original)
+        #expect(data.count > 0)
+
+        let decoder = JSONDecoder()
+        let decoded = try decoder.decode(MetricData.self, from: data)
+
+        #expect(decoded.type == original.type)
+        #expect(decoded.score == original.score)
+        #expect(decoded.displayValue == original.displayValue)
+    }
+
+    @Test("MetricType can be encoded and decoded")
+    func metricTypeCodable() throws {
+        let original = MetricType.energy
+        let encoder = JSONEncoder()
+        let data = try encoder.encode(original)
+
+        let decoder = JSONDecoder()
+        let decoded = try decoder.decode(MetricType.self, from: data)
+
+        #expect(decoded == original)
+    }
+
+    // MARK: - Mock Data Tests
+
+    #if DEBUG
+    @Test("Mock metrics have 4 items")
+    func mockMetricsExist() {
+        let metrics = MockData.mockMetrics
+        #expect(metrics.count == 4)
+    }
+
+    @Test("Mock metrics contain all metric types")
+    func mockMetricsTypes() {
+        let metrics = MockData.mockMetrics
+        let types = metrics.map { $0.type }
+
+        #expect(types.contains(.recovery))
+        #expect(types.contains(.sleep))
+        #expect(types.contains(.energy))
+        #expect(types.contains(.stress))
+    }
+
+    @Test("Mock metrics have valid scores (0-100)")
+    func mockMetricsScoresAreValid() {
+        let metrics = MockData.mockMetrics
+
+        for metric in metrics {
+            #expect(metric.score >= 0)
+            #expect(metric.score <= 100)
+        }
+    }
+
+    @Test("Mock additional advice has content")
+    func mockAdditionalAdviceExists() {
+        let advice = MockData.mockAdditionalAdvice
+        #expect(!advice.message.isEmpty)
+        #expect(!advice.greeting.isEmpty)
+    }
+    #endif
 }

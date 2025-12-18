@@ -1,17 +1,19 @@
-import XCTest
+import Testing
 
 @testable import TempoAI
 
-final class TempoAITests: XCTestCase {
+struct TempoAITests {
 
-  func testAppInitialization() throws {
-    // Test that the app initializes without crashing
-    XCTAssertNotNil(TempoAIApp(), "TempoAI app should initialize properly")
-  }
+    @Test("TempoAI app initializes without crashing")
+    func appInitialization() {
+        // Verifies app can be instantiated without crashing
+        let app = TempoAIApp()
+        #expect(type(of: app) == TempoAIApp.self)
+    }
 
-  func testContentViewCreation() throws {
-    // Test that ContentView can be created
-    let contentView = ContentView()
-    XCTAssertNotNil(contentView, "ContentView should be created successfully")
-  }
+    @Test("ContentView can be created successfully")
+    func contentViewCreation() {
+        let contentView = ContentView()
+        #expect(type(of: contentView) == ContentView.self)
+    }
 }

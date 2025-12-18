@@ -17,7 +17,7 @@ import Foundation
  * - Background request support
  */
 @MainActor
-final class APIClient: ObservableObject {
+final class APIClient: ObservableObject, APIClientProtocol {
     
     // MARK: - Properties
     

@@ -4,6 +4,7 @@
 
 **IMPORTANT**: Always consult these coding standards before implementation:
 
+- **Product Specification**: [Product Spec](docs/specs/product-spec.md) - プロダクトの全体像・機能要件（必読）
 - **Swift Development**: [Swift Coding Standards](.claude/swift-coding-standards.md)
 - **TypeScript + Hono**: [TypeScript Hono Standards](.claude/typescript-hono-standards.md)
 - **UX Design Principles**: [UX Concepts & Principles](.claude/ux_concepts.md)

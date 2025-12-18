@@ -76,6 +76,7 @@ struct LocationManagerTests {
             _ = try await manager.requestCurrentLocation()
             Issue.record("Expected location request to throw")
         } catch {
+            #expect(error is LocationError)
             #expect(manager.requestCurrentLocationCallCount == 1)
         }
     }

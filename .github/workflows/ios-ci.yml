@@ -195,17 +195,20 @@ jobs:
       - name: Generate coverage report
         run: |
           echo "📊 Code Coverage Summary:"
-          xcrun xccov view --report TestResults.xcresult | head -50 || echo "Coverage report generation skipped"
+          if ! xcrun xccov view --report TestResults.xcresult | head -50; then
+            echo "⚠️ Warning: Coverage report generation failed or xcresult bundle is invalid"
+          fi
 
       # カバレッジ閾値チェック
       - name: Check coverage threshold
         run: |
-          # カバレッジを取得（エラーの場合はスキップ）
+          # カバレッジを取得（エラーの場合は警告）
           COVERAGE=$(xcrun xccov view --report TestResults.xcresult 2>/dev/null | grep "TempoAI.app" | awk '{print $NF}' | tr -d '%' || echo "0")
 
           if [ -z "$COVERAGE" ] || [ "$COVERAGE" = "0" ]; then
-            echo "⚠️ Could not extract coverage percentage, skipping threshold check"
-            exit 0
+            echo "::warning::Could not extract coverage percentage from xcresult bundle"
+            echo "⚠️ Coverage extraction failed - this may indicate a tooling issue"
+            exit 1
           fi
 
           echo "📈 Total coverage: ${COVERAGE}%"

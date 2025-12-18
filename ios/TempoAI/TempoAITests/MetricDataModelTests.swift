@@ -45,7 +45,6 @@ struct MetricDataModelTests {
         #expect(metric.type == .recovery)
         #expect(metric.score == 78)
         #expect(metric.displayValue == "78")
-        #expect(metric.id != UUID())
     }
 
     @Test("Different MetricData instances have different IDs")

@@ -8,7 +8,7 @@ struct CacheManagerTests {
 
     // MARK: - Helper
 
-    /// Creates a unique test key prefix to avoid test pollution
+    /// Cleans up test data to avoid test pollution
     private func cleanupTestData() {
         let cacheManager = CacheManager.shared
         cacheManager.deleteUserProfile()
@@ -19,6 +19,8 @@ struct CacheManagerTests {
 
     @Test("Save and load user profile round-trip")
     func saveAndLoadUserProfile() throws {
+        cleanupTestData()
+
         let cacheManager = CacheManager.shared
         let profile = UserProfile.sampleData
 
@@ -30,24 +32,25 @@ struct CacheManagerTests {
         #expect(loaded?.age == profile.age)
         #expect(loaded?.gender == profile.gender)
 
-        // Cleanup
-        cacheManager.deleteUserProfile()
+        cleanupTestData()
     }
 
     @Test("Load returns nil when no profile exists")
     func loadUserProfileWhenEmpty() throws {
+        cleanupTestData()
+
         let cacheManager = CacheManager.shared
-
-        // Ensure clean state
-        cacheManager.deleteUserProfile()
-
         let loaded = try cacheManager.loadUserProfile()
 
         #expect(loaded == nil)
+
+        cleanupTestData()
     }
 
     @Test("Delete user profile removes stored data")
     func deleteUserProfile() throws {
+        cleanupTestData()
+
         let cacheManager = CacheManager.shared
         let profile = UserProfile.sampleData
 
@@ -61,12 +64,16 @@ struct CacheManagerTests {
         let afterDelete = try cacheManager.loadUserProfile()
 
         #expect(afterDelete == nil)
+
+        cleanupTestData()
     }
 
     // MARK: - Onboarding State Tests
 
     @Test("Save and check onboarding completed state")
     func onboardingStatePersistence() {
+        cleanupTestData()
+
         let cacheManager = CacheManager.shared
 
         // Set completed
@@ -76,10 +83,14 @@ struct CacheManagerTests {
         // Set not completed
         cacheManager.saveOnboardingCompleted(false)
         #expect(cacheManager.isOnboardingCompleted() == false)
+
+        cleanupTestData()
     }
 
     @Test("Reset onboarding state clears completion flag")
     func resetOnboardingState() {
+        cleanupTestData()
+
         let cacheManager = CacheManager.shared
 
         cacheManager.saveOnboardingCompleted(true)
@@ -87,12 +98,16 @@ struct CacheManagerTests {
 
         cacheManager.resetOnboardingState()
         #expect(cacheManager.isOnboardingCompleted() == false)
+
+        cleanupTestData()
     }
 
     // MARK: - Advice Cache Tests
 
     @Test("Save and load advice for specific date")
     func saveAndLoadAdvice() throws {
+        cleanupTestData()
+
         let cacheManager = CacheManager.shared
         let testDate = Date()
         let advice = DailyAdvice.createMock()
@@ -103,10 +118,14 @@ struct CacheManagerTests {
         #expect(loaded != nil)
         #expect(loaded?.greeting == advice.greeting)
         #expect(loaded?.timeSlot == advice.timeSlot)
+
+        cleanupTestData()
     }
 
     @Test("Check if advice is cached for date")
     func isAdviceCached() throws {
+        cleanupTestData()
+
         let cacheManager = CacheManager.shared
         let testDate = Date()
         let advice = DailyAdvice.createMock()
@@ -118,15 +137,21 @@ struct CacheManagerTests {
         // After caching
         try cacheManager.saveAdvice(advice, for: testDate)
         #expect(cacheManager.isAdviceCached(for: testDate) == true)
+
+        cleanupTestData()
     }
 
     @Test("Load advice returns nil for uncached date")
     func loadAdviceForUncachedDate() throws {
+        cleanupTestData()
+
         let cacheManager = CacheManager.shared
         let futureDate = Calendar.current.date(byAdding: .year, value: 10, to: Date())!
 
         let loaded: DailyAdvice? = try cacheManager.loadAdvice(for: futureDate, type: DailyAdvice.self)
 
         #expect(loaded == nil)
+
+        cleanupTestData()
     }
 }

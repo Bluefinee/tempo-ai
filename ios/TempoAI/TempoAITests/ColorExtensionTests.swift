@@ -10,35 +10,47 @@ struct ColorExtensionTests {
     @Test("Brand colors are accessible at runtime")
     func brandColorsExist() {
         // Verify brand colors defined in Color+Extensions are accessible at runtime
-        #expect(Color.tempoSageGreen != nil)
-        #expect(Color.tempoWarmBeige != nil)
-        #expect(Color.tempoSoftCoral != nil)
-        #expect(Color.tempoLightCream != nil)
+        let brandColors: [Color] = [
+            .tempoSageGreen,
+            .tempoWarmBeige,
+            .tempoSoftCoral,
+            .tempoLightCream
+        ]
+        #expect(brandColors.count == 4)
     }
 
     @Test("Text colors are accessible at runtime")
     func textColorsExist() {
-        #expect(Color.tempoPrimaryText != nil)
-        #expect(Color.tempoSecondaryText != nil)
-        #expect(Color.tempoBackground != nil)
+        let textColors: [Color] = [
+            .tempoPrimaryText,
+            .tempoSecondaryText,
+            .tempoBackground
+        ]
+        #expect(textColors.count == 3)
     }
 
     @Test("Semantic colors are accessible at runtime")
     func semanticColorsExist() {
-        #expect(Color.tempoSuccess != nil)
-        #expect(Color.tempoWarning != nil)
-        #expect(Color.tempoError != nil)
-        #expect(Color.tempoInfo != nil)
+        let semanticColors: [Color] = [
+            .tempoSuccess,
+            .tempoWarning,
+            .tempoError,
+            .tempoInfo
+        ]
+        #expect(semanticColors.count == 4)
     }
 
     @Test("Interest category colors are accessible at runtime")
     func interestCategoryColorsExist() {
-        #expect(Color.tempoBeauty != nil)
-        #expect(Color.tempoFitness != nil)
-        #expect(Color.tempoMentalHealth != nil)
-        #expect(Color.tempoWorkPerformance != nil)
-        #expect(Color.tempoNutrition != nil)
-        #expect(Color.tempoSleep != nil)
+        let interestColors: [Color] = [
+            .tempoBeauty,
+            .tempoFitness,
+            .tempoMentalHealth,
+            .tempoWorkPerformance,
+            .tempoNutrition,
+            .tempoSleep
+        ]
+        #expect(interestColors.count == 6)
     }
 
     // MARK: - Interest Color Mapping Tests
@@ -56,16 +68,12 @@ struct ColorExtensionTests {
     @Test("All interests have color mappings")
     func allInterestsHaveColorMapping() {
         let allInterests = UserProfile.Interest.allCases
+        #expect(!allInterests.isEmpty, "Interest enum should have cases")
 
         for interest in allInterests {
-            let color = Color.colorForInterest(interest)
-            #expect(color != nil)
+            // Accessing colorForInterest verifies the mapping exists
+            _ = Color.colorForInterest(interest)
         }
-
-        #expect(allInterests.count > 0)
-
-        let colorMappings = allInterests.map { Color.colorForInterest($0) }
-        #expect(colorMappings.count == allInterests.count)
     }
 
     // MARK: - Color Distinction Tests

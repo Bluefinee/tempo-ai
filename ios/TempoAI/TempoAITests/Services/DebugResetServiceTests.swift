@@ -44,15 +44,14 @@ struct DebugResetServiceTests {
         ) { _ in
             notificationReceived = true
         }
+        defer { NotificationCenter.default.removeObserver(observer) }
 
         service.performLightReset()
 
-        // Give notification time to propagate
-        try? await Task.sleep(nanoseconds: 100_000_000)
+        // Yield to allow main queue to process
+        await Task.yield()
 
         #expect(notificationReceived)
-
-        NotificationCenter.default.removeObserver(observer)
     }
 
     // MARK: - performCompleteReset Tests
@@ -92,15 +91,14 @@ struct DebugResetServiceTests {
         ) { _ in
             notificationReceived = true
         }
+        defer { NotificationCenter.default.removeObserver(observer) }
 
         service.performCompleteReset()
 
-        // Give notification time to propagate
-        try? await Task.sleep(nanoseconds: 100_000_000)
+        // Yield to allow main queue to process
+        await Task.yield()
 
         #expect(notificationReceived)
-
-        NotificationCenter.default.removeObserver(observer)
     }
 }
 #endif

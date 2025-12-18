@@ -132,13 +132,13 @@ struct HomeComponentsTests {
     @Test("MainTabView can be created with sample data")
     func mainTabViewCreation() {
         let tabView = MainTabView(userProfile: UserProfile.sampleData)
-        #expect(tabView != nil)
+        #expect(type(of: tabView) == MainTabView.self)
     }
 
     @Test("HomeView can be created with sample data")
     func homeViewCreation() {
         let homeView = HomeView(userProfile: UserProfile.sampleData)
-        #expect(homeView != nil)
+        #expect(type(of: homeView) == HomeView.self)
     }
 
     @Test("AdviceSummaryCard can be created with mock advice")
@@ -147,19 +147,19 @@ struct HomeComponentsTests {
         let card = AdviceSummaryCard(advice: mockAdvice) {
             // Empty action for test
         }
-        #expect(card != nil)
+        #expect(type(of: card) == AdviceSummaryCard.self)
     }
 
     @Test("HomeHeaderView can be created with sample profile")
     func homeHeaderViewCreation() {
         let headerView = HomeHeaderView(userProfile: UserProfile.sampleData)
-        #expect(headerView != nil)
+        #expect(type(of: headerView) == HomeHeaderView.self)
     }
 
     @Test("SettingsPlaceholderView can be created")
     func settingsPlaceholderViewCreation() {
         let settingsView = SettingsPlaceholderView()
-        #expect(settingsView != nil)
+        #expect(type(of: settingsView) == SettingsPlaceholderView.self)
     }
 
     // MARK: - Phase 3 Component Tests
@@ -169,14 +169,14 @@ struct HomeComponentsTests {
     func metricCardCreation() {
         let metric = MockData.mockMetrics[0]
         let card = MetricCard(metric: metric)
-        #expect(card != nil)
+        #expect(type(of: card) == MetricCard.self)
     }
 
     @Test("MetricsGridView can be created with mock metrics")
     func metricsGridViewCreation() {
         let metrics = MockData.mockMetrics
         let gridView = MetricsGridView(metrics: metrics)
-        #expect(gridView != nil)
+        #expect(type(of: gridView) == MetricsGridView.self)
     }
 
     @Test("Mock metrics has exactly 4 items for grid layout")

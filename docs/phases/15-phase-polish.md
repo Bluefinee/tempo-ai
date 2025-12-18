@@ -1,112 +1,324 @@
-# Phase 15: ポリッシュ設計書
+# Phase 15: エラー処理・ポリッシュ設計書
 
-**フェーズ**: 15 / 15
-**Part**: D（仕上げ）
-**前提フェーズ**: Phase 11〜14（結合・エラーハンドリング完了後）
+**フェーズ**: 15 / 15  
+**Part**: F（仕上げ）  
+**前提フェーズ**: Phase 14（UI結合・キャッシュ）
 
 ---
 
 ## ⚠️ 実装前必読ドキュメント
 
-**実装を開始する前に、以下のドキュメントを必ず確認してください：**
-
 ### 📋 必須参考資料
-- **[CLAUDE.md](../../CLAUDE.md)** - 開発ガイドライン・基本原則
-- **[AI Prompt Design](../ai-prompt-design.md)** - AI設計指針
-- **[UI Specification](../ui-spec.md)** - UI設計仕様書
-- **[Technical Specification](../technical-spec.md)** - 技術仕様書
+- **[Product Spec v4.2](../product-spec.md)** - プロダクト仕様書セクション8「エラーハンドリング」
+- **[UI Spec v3.2](../ui-spec.md)** - UI設計仕様書セクション10「特殊状態」
 
-### 📱 Swift/iOS専用資料
-- **[UX Concepts & Principles](../../.claude/ux_concepts.md)** - UX設計原則
+### 🔧 iOS専用資料
 - **[Swift Coding Standards](../../.claude/swift-coding-standards.md)** - Swift開発標準
-
-### 🔧 Backend専用資料
-- **[TypeScript Hono Standards](../../.claude/typescript-hono-standards.md)** - TypeScript + Hono 開発標準
+- **[UX Concepts & Principles](../../.claude/ux_concepts.md)** - UX設計原則
 
 ### ✅ 実装完了後の必須作業
-実装完了後は必ず以下を実行してください：
-
-**iOS側**:
 ```bash
-# リント・フォーマット確認
 swiftlint
 swift-format --lint --recursive ios/
-
-# テスト実行
 swift test
-```
-
-**Backend側**:
-```bash
-# TypeScript型チェック
-npm run typecheck
-
-# リント・フォーマット確認
-npm run lint
-
-# テスト実行
-npm test
 ```
 
 ---
 
 ## このフェーズで実現すること
 
-1. **ローディング表示**（Doherty Threshold: 0.4秒ルール適用）
-2. **タップフィードバック**（視覚的反応）
-3. **画面遷移アニメーション**の調整
-4. **マイクロインタラクション**の追加
-5. **最終調整**（余白、カラー、フォント）
+エッジケース対応とUXの仕上げを行い、MVPを完成させます。
+
+1. **エラーハンドリング**: 各種エラー画面の実装
+2. **ローディング表示**: 0.4秒ルール（Doherty Threshold）対応
+3. **アニメーション**: 画面遷移・マイクロインタラクション
+4. **最終調整**: パフォーマンス最適化、アクセシビリティ対応
 
 ---
 
 ## 完了条件
 
-- [ ] 0.4秒以内の応答ではローディングが表示されない
-- [ ] 0.4秒を超える処理ではローディングが表示される
-- [ ] 全てのボタン・カードにタップフィードバックがある
-- [ ] 画面遷移がスムーズにアニメーションする
-- [ ] 追加アドバイスが柔らかくフェードイン/アウトする
-- [ ] UI仕様書のチェックリストを全てパスする
+- [ ] HealthKitデータ不足画面が表示される
+- [ ] 位置情報取得失敗時に都市選択ダイアログが表示される
+- [ ] オフライン画面が適切に表示される
+- [ ] ローディングインジケーターが0.4秒ルールに従う
+- [ ] 画面遷移アニメーションが滑らか
+- [ ] カードタップ時のフィードバックがある
+- [ ] VoiceOverで全画面がナビゲート可能
+- [ ] メモリリークがない
 
 ---
 
-## ローディング表示
+## ═══════════════════════════════════════
+## MVP 完成ライン
+## ═══════════════════════════════════════
 
-### Doherty Thresholdの適用
+---
 
-**原則**: 0.4秒（400ms）以内に応答があればローディングは表示しない。
+## 1. エラーハンドリング
+
+### 1.1 HealthKitデータ不足画面
 
 ```swift
+// Features/Error/Views/HealthKitDataMissingView.swift
+struct HealthKitDataMissingView: View {
+    let onOpenSettings: () -> Void
+    
+    var body: some View {
+        VStack(spacing: 24) {
+            Spacer()
+            
+            // アイコン
+            Image(systemName: "applewatch")
+                .font(.system(size: 64))
+                .foregroundColor(.secondary)
+            
+            // タイトル
+            Text("ヘルスケアデータが不足しています")
+                .font(.title3)
+                .fontWeight(.semibold)
+                .multilineTextAlignment(.center)
+            
+            // 説明
+            Text("Apple Watchを装着して、数日間データを記録してください。より精度の高いアドバイスをお届けできるようになります。")
+                .font(.body)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 32)
+            
+            Spacer()
+            
+            // ボタン
+            Button(action: onOpenSettings) {
+                Text("設定を確認する")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background(Color.primary)
+                    .cornerRadius(12)
+            }
+            .padding(.horizontal, 24)
+            .padding(.bottom, 32)
+        }
+        .background(Color(.systemGroupedBackground))
+    }
+}
+```
+
+### 1.2 位置情報取得失敗画面
+
+```swift
+// Features/Error/Views/LocationErrorView.swift
+struct LocationErrorView: View {
+    @State private var selectedCity: String = ""
+    let cities = ["東京", "大阪", "名古屋", "福岡", "札幌", "仙台", "広島", "京都"]
+    let onCitySelected: (String) -> Void
+    
+    var body: some View {
+        VStack(spacing: 24) {
+            // アイコン
+            Image(systemName: "location.slash")
+                .font(.system(size: 48))
+                .foregroundColor(.secondary)
+            
+            // タイトル
+            Text("位置情報を取得できませんでした")
+                .font(.headline)
+            
+            // 説明
+            Text("天気情報を取得するため、お住まいの都市を選択してください。")
+                .font(.body)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 24)
+            
+            // 都市選択
+            Picker("都市を選択", selection: $selectedCity) {
+                Text("選択してください").tag("")
+                ForEach(cities, id: \.self) { city in
+                    Text(city).tag(city)
+                }
+            }
+            .pickerStyle(.menu)
+            .padding(.horizontal, 24)
+            
+            // 確定ボタン
+            Button(action: {
+                if !selectedCity.isEmpty {
+                    onCitySelected(selectedCity)
+                }
+            }) {
+                Text("設定")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background(selectedCity.isEmpty ? Color.gray : Color.primary)
+                    .cornerRadius(12)
+            }
+            .disabled(selectedCity.isEmpty)
+            .padding(.horizontal, 24)
+        }
+        .padding(.vertical, 32)
+        .background(Color(.systemBackground))
+        .cornerRadius(16)
+        .shadow(radius: 10)
+        .padding(.horizontal, 24)
+    }
+}
+```
+
+### 1.3 オフライン画面
+
+```swift
+// Features/Error/Views/OfflineView.swift
+struct OfflineView: View {
+    let cachedAdvice: DailyAdvice?
+    let onRetry: () -> Void
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            // バナー
+            HStack {
+                Image(systemName: "wifi.slash")
+                Text("インターネット接続がありません")
+                    .font(.subheadline)
+                Spacer()
+                Button("再試行", action: onRetry)
+                    .font(.subheadline)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(Color.white.opacity(0.2))
+                    .cornerRadius(8)
+            }
+            .foregroundColor(.white)
+            .padding(12)
+            .background(Color.orange)
+            
+            if let advice = cachedAdvice {
+                // 前日のアドバイスを表示
+                ScrollView {
+                    VStack(spacing: 16) {
+                        Text("前日のアドバイスを表示しています")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .padding(.top, 8)
+                        
+                        // 既存のアドバイス表示
+                        AdviceSummaryCard(advice: advice, onTap: {})
+                    }
+                    .padding()
+                }
+            } else {
+                // キャッシュなし
+                VStack(spacing: 16) {
+                    Spacer()
+                    Image(systemName: "icloud.slash")
+                        .font(.system(size: 48))
+                        .foregroundColor(.secondary)
+                    Text("キャッシュされたデータがありません")
+                        .font(.headline)
+                    Text("インターネットに接続して、アドバイスを取得してください。")
+                        .font(.body)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                    Spacer()
+                }
+                .padding()
+            }
+        }
+    }
+}
+```
+
+### 1.4 一般エラー画面
+
+```swift
+// Features/Error/Views/GeneralErrorView.swift
+struct GeneralErrorView: View {
+    let message: String
+    let onRetry: () -> Void
+    
+    var body: some View {
+        VStack(spacing: 24) {
+            Spacer()
+            
+            Image(systemName: "exclamationmark.triangle")
+                .font(.system(size: 48))
+                .foregroundColor(.orange)
+            
+            Text("エラーが発生しました")
+                .font(.headline)
+            
+            Text(message)
+                .font(.body)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 32)
+            
+            Button(action: onRetry) {
+                Text("再試行")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 32)
+                    .padding(.vertical, 12)
+                    .background(Color.primary)
+                    .cornerRadius(12)
+            }
+            
+            Spacer()
+        }
+    }
+}
+```
+
+---
+
+## 2. ローディング表示
+
+### 2.1 Doherty Threshold（0.4秒ルール）
+
+```swift
+// Shared/Components/DelayedLoadingView.swift
 struct DelayedLoadingView<Content: View>: View {
     let isLoading: Bool
-    let delay: TimeInterval = 0.4
+    let delay: TimeInterval
     let content: () -> Content
     
     @State private var showLoading = false
     
+    init(
+        isLoading: Bool,
+        delay: TimeInterval = 0.4,
+        @ViewBuilder content: @escaping () -> Content
+    ) {
+        self.isLoading = isLoading
+        self.delay = delay
+        self.content = content
+    }
+    
     var body: some View {
         ZStack {
             content()
+                .opacity(showLoading ? 0.5 : 1.0)
             
             if showLoading {
-                LoadingOverlay()
-                    .transition(.opacity)
+                LoadingIndicatorView()
             }
         }
-        .onChange(of: isLoading) { _, newValue in
+        .onChange(of: isLoading) { newValue in
             if newValue {
                 // 0.4秒後にローディング表示
                 DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
                     if isLoading {
-                        withAnimation(.easeIn(duration: 0.2)) {
+                        withAnimation(.easeInOut(duration: 0.2)) {
                             showLoading = true
                         }
                     }
                 }
             } else {
-                // 即座に非表示
-                withAnimation(.easeOut(duration: 0.15)) {
+                withAnimation(.easeInOut(duration: 0.2)) {
                     showLoading = false
                 }
             }
@@ -115,69 +327,145 @@ struct DelayedLoadingView<Content: View>: View {
 }
 ```
 
-### ローディング表示のデザイン
-
-```
-┌─────────────────────────────────────┐
-│                                     │
-│                                     │
-│           [スピナー]                │
-│        （回転アニメーション）        │
-│                                     │
-│      アドバイスを生成中...          │
-│                                     │
-│                                     │
-└─────────────────────────────────────┘
-```
-
-**スタイル**:
-- スピナー: Primary Color
-- メッセージ: Secondary Text、小さめの文字
-- 背景: 半透明のオーバーレイ（既存コンテンツを薄暗く）
-
-### 適用箇所
-
-| 画面/処理 | ローディング表示 |
-|----------|-----------------|
-| アドバイス生成 | 「アドバイスを生成中...」 |
-| オンボーディング画面7 | 「データを準備中...」（Labor Illusion適用） |
-| 設定保存 | 表示なし（即座に完了する想定） |
-| 詳細画面遷移 | 表示なし（ローカルデータなので即座） |
-
----
-
-## タップフィードバック
-
-### ボタンのフィードバック
-
-**視覚的変化**:
-- タップダウン時: 少し縮む（scale: 0.96）+ 色が少し濃くなる
-- タップアップ時: 元に戻る
+### 2.2 ローディングインジケーター
 
 ```swift
-struct ScaleButtonStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .scaleEffect(configuration.isPressed ? 0.96 : 1.0)
-            .opacity(configuration.isPressed ? 0.9 : 1.0)
-            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
+// Shared/Components/LoadingIndicatorView.swift
+struct LoadingIndicatorView: View {
+    let message: String
+    
+    init(message: String = "読み込み中...") {
+        self.message = message
+    }
+    
+    var body: some View {
+        VStack(spacing: 16) {
+            ProgressView()
+                .progressViewStyle(CircularProgressViewStyle())
+                .scaleEffect(1.2)
+            
+            Text(message)
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+        }
+        .padding(24)
+        .background(Color(.systemBackground))
+        .cornerRadius(16)
+        .shadow(radius: 10)
     }
 }
 
-// 使用例
-Button("次へ") {
-    // action
+// アドバイス生成時の特別なローディング
+struct AdviceGeneratingView: View {
+    @State private var dots = ""
+    
+    var body: some View {
+        VStack(spacing: 20) {
+            // アニメーションするアイコン
+            Image(systemName: "sparkles")
+                .font(.system(size: 40))
+                .foregroundColor(.primary)
+                .symbolEffect(.pulse)
+            
+            Text("あなた専用のアドバイスを準備中\(dots)")
+                .font(.headline)
+                .foregroundColor(.primary)
+            
+            Text("HealthKitデータと天気情報を分析しています")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+        }
+        .onAppear {
+            animateDots()
+        }
+    }
+    
+    private func animateDots() {
+        Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
+            dots = dots.count >= 3 ? "" : dots + "."
+        }
+    }
 }
-.buttonStyle(ScaleButtonStyle())
 ```
 
-### カードのフィードバック
-
-**視覚的変化**:
-- タップダウン時: 少し縮む（scale: 0.98）+ 背景色が少し暗くなる
-- タップアップ時: 元に戻る
+### 2.3 スケルトンスクリーン
 
 ```swift
+// Shared/Components/SkeletonView.swift
+struct SkeletonView: View {
+    @State private var isAnimating = false
+    
+    var body: some View {
+        Rectangle()
+            .fill(Color.gray.opacity(0.2))
+            .overlay(
+                Rectangle()
+                    .fill(
+                        LinearGradient(
+                            gradient: Gradient(colors: [.clear, .white.opacity(0.5), .clear]),
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                    .offset(x: isAnimating ? 200 : -200)
+            )
+            .clipped()
+            .onAppear {
+                withAnimation(.linear(duration: 1.5).repeatForever(autoreverses: false)) {
+                    isAnimating = true
+                }
+            }
+    }
+}
+
+// スケルトンカード
+struct SkeletonCardView: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            SkeletonView()
+                .frame(height: 24)
+                .cornerRadius(4)
+            
+            SkeletonView()
+                .frame(height: 16)
+                .cornerRadius(4)
+            
+            SkeletonView()
+                .frame(width: 200, height: 16)
+                .cornerRadius(4)
+        }
+        .padding(16)
+        .background(Color(.systemBackground))
+        .cornerRadius(12)
+    }
+}
+```
+
+---
+
+## 3. アニメーション
+
+### 3.1 画面遷移
+
+```swift
+// 詳細画面への遷移（右からスライドイン）
+.navigationDestination(isPresented: $showDetail) {
+    DetailView()
+        .transition(.move(edge: .trailing))
+}
+
+// モーダル表示（下からスライドアップ）
+.sheet(isPresented: $showModal) {
+    ModalView()
+        .presentationDetents([.medium, .large])
+        .presentationDragIndicator(.visible)
+}
+```
+
+### 3.2 カードタップフィードバック
+
+```swift
+// Shared/Components/TappableCard.swift
 struct TappableCard<Content: View>: View {
     let action: () -> Void
     let content: () -> Content
@@ -185,181 +473,61 @@ struct TappableCard<Content: View>: View {
     @State private var isPressed = false
     
     var body: some View {
-        content()
-            .scaleEffect(isPressed ? 0.98 : 1.0)
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.cardBackground)
-                    .brightness(isPressed ? -0.03 : 0)
-            )
-            .animation(.easeInOut(duration: 0.1), value: isPressed)
-            .gesture(
-                DragGesture(minimumDistance: 0)
-                    .onChanged { _ in isPressed = true }
-                    .onEnded { _ in
-                        isPressed = false
-                        action()
-                    }
-            )
+        Button(action: action) {
+            content()
+        }
+        .buttonStyle(CardButtonStyle())
+    }
+}
+
+struct CardButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.97 : 1.0)
+            .opacity(configuration.isPressed ? 0.9 : 1.0)
+            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
     }
 }
 ```
 
-### 適用箇所
-
-| 要素 | フィードバック |
-|------|---------------|
-| プライマリボタン（「次へ」「保存」等） | scale + opacity |
-| セカンダリボタン（「スキップ」等） | opacity のみ |
-| アドバイスサマリーカード | scale + brightness |
-| メトリクスカード | scale + brightness |
-| 今日のトライカード | scale + brightness |
-| 今週のトライカード | scale + brightness |
-| 設定項目の行 | 背景色変化 |
-| 関心ごとタグ | scale + border強調 |
-
----
-
-## 画面遷移アニメーション
-
-### Push遷移（詳細画面へ）
-
-**アニメーション**: 右からスライドイン
+### 3.3 マイクロインタラクション
 
 ```swift
-.navigationTransition(.slide)
-
-// または カスタム実装
-struct SlideTransition: ViewModifier {
-    let isActive: Bool
-    
-    func body(content: Content) -> some View {
-        content
-            .offset(x: isActive ? 0 : UIScreen.main.bounds.width)
-            .animation(.easeOut(duration: 0.3), value: isActive)
-    }
-}
-```
-
-**タイミング**:
-- Duration: 0.3秒
-- Easing: easeOut
-
-### Pop遷移（戻る）
-
-**アニメーション**: 左へスライドアウト
-
-**タイミング**:
-- Duration: 0.25秒
-- Easing: easeIn
-
-### タブ切り替え
-
-**アニメーション**: クロスフェード（フワッと切り替わる）
-
-```swift
-TabView(selection: $selectedTab) {
-    HomeView()
-        .tag(Tab.home)
-    SettingsView()
-        .tag(Tab.settings)
-}
-.animation(.easeInOut(duration: 0.2), value: selectedTab)
-```
-
----
-
-## マイクロインタラクション
-
-### 追加アドバイスのポップアップ
-
-**表示アニメーション**:
-- 下からスライドイン + フェードイン
-- Duration: 0.35秒
-- Easing: spring（軽いバウンス）
-
-```swift
-struct AdditionalAdvicePopup: View {
-    @Binding var isVisible: Bool
-    let advice: AdditionalAdvice
-    let onDismiss: () -> Void
+// スコア表示のアニメーション
+struct AnimatedScoreView: View {
+    let score: Int
+    @State private var animatedScore: Int = 0
     
     var body: some View {
-        VStack { /* content */ }
-            .offset(y: isVisible ? 0 : 100)
-            .opacity(isVisible ? 1 : 0)
-            .animation(
-                .spring(response: 0.35, dampingFraction: 0.8),
-                value: isVisible
-            )
-            .gesture(
-                DragGesture()
-                    .onEnded { gesture in
-                        if gesture.translation.height < -50 {
-                            // 上スワイプで閉じる
-                            withAnimation {
-                                isVisible = false
-                            }
-                            onDismiss()
-                        }
-                    }
-            )
-    }
-}
-```
-
-**非表示アニメーション**:
-- 上へスライドアウト + フェードアウト（上スワイプ時）
-- または フェードアウトのみ（×ボタン時）
-
-### メトリクスカードの数値変化
-
-数値が更新された際に、数値がカウントアップするようなアニメーション（将来的な拡張）:
-
-```swift
-// v1.1以降で検討
-struct AnimatedNumber: View {
-    let value: Int
-    
-    @State private var displayedValue: Int = 0
-    
-    var body: some View {
-        Text("\(displayedValue)%")
+        Text("\(animatedScore)")
+            .font(.system(size: 48, weight: .bold, design: .rounded))
             .onAppear {
-                withAnimation(.easeOut(duration: 0.5)) {
-                    displayedValue = value
+                withAnimation(.easeOut(duration: 0.8)) {
+                    animatedScore = score
                 }
             }
     }
 }
-```
 
-### プログレスバーのアニメーション
-
-メトリクスカードのプログレスバーが滑らかに伸びる:
-
-```swift
+// プログレスバーのアニメーション
 struct AnimatedProgressBar: View {
-    let progress: Double // 0.0 - 1.0
-    
+    let progress: Double
     @State private var animatedProgress: Double = 0
     
     var body: some View {
         GeometryReader { geometry in
             ZStack(alignment: .leading) {
-                // 背景
                 RoundedRectangle(cornerRadius: 4)
-                    .fill(Color.gray.opacity(0.2))
+                    .fill(Color.secondary.opacity(0.2))
                 
-                // 進捗
                 RoundedRectangle(cornerRadius: 4)
-                    .fill(Color.primaryColor)
+                    .fill(Color.primary)
                     .frame(width: geometry.size.width * animatedProgress)
             }
         }
         .frame(height: 8)
         .onAppear {
-            withAnimation(.easeOut(duration: 0.6).delay(0.1)) {
+            withAnimation(.easeOut(duration: 0.6).delay(0.2)) {
                 animatedProgress = progress
             }
         }
@@ -367,168 +535,223 @@ struct AnimatedProgressBar: View {
 }
 ```
 
-### オンボーディング進捗表示
+---
 
-進捗インジケーター（1/7 → 2/7）のドットが滑らかに移動:
+## 4. アクセシビリティ対応
+
+### 4.1 VoiceOver対応
 
 ```swift
-struct OnboardingProgressIndicator: View {
-    let currentStep: Int
-    let totalSteps: Int
-    
-    var body: some View {
-        HStack(spacing: 8) {
-            ForEach(1...totalSteps, id: \.self) { step in
-                Circle()
-                    .fill(step <= currentStep ? Color.primaryColor : Color.gray.opacity(0.3))
-                    .frame(width: step == currentStep ? 10 : 8, height: step == currentStep ? 10 : 8)
-                    .animation(.easeInOut(duration: 0.2), value: currentStep)
-            }
-        }
-    }
+// ラベルとヒントの追加
+CircadianCircleView(data: data)
+    .accessibilityLabel("24時間サーカディアンサークル")
+    .accessibilityValue("HRV \(Int(data.hrv.currentValue))ミリ秒、7日平均より\(data.hrv.differenceText)")
+    .accessibilityHint("ダブルタップで詳細を表示")
+
+// グループ化
+VStack {
+    Text("睡眠")
+    Text("7.2時間")
+    Text("回復に貢献")
+}
+.accessibilityElement(children: .combine)
+.accessibilityLabel("睡眠 7.2時間、回復に貢献")
+```
+
+### 4.2 Dynamic Type対応
+
+```swift
+// スケーラブルフォント
+Text(advice.greeting)
+    .font(.title2)
+    .minimumScaleFactor(0.7)
+    .lineLimit(2)
+
+// 固定サイズが必要な場合
+Text("HRV")
+    .font(.system(size: 14, design: .rounded))
+    .environment(\.sizeCategory, .medium)  // サイズ固定
+```
+
+### 4.3 カラーコントラスト
+
+```swift
+// コントラスト比を確保
+Text(status)
+    .foregroundColor(Color.primary)  // 常に十分なコントラスト
+    .background(Color(.systemBackground))
+
+// ステータス色は背景とセットで使用
+HStack {
+    Circle()
+        .fill(statusColor)
+        .frame(width: 8, height: 8)
+    Text(statusText)
+        .foregroundColor(.primary)  // テキストは常にプライマリ
 }
 ```
 
 ---
 
-## 最終調整
+## 5. パフォーマンス最適化
 
-### 余白の確認
+### 5.1 メモリリーク対策
 
-| 要素 | 確認ポイント |
-|------|-------------|
-| 画面端のパディング | 左右に十分な余白（16-20pt程度） |
-| カード間のスペース | 適度な間隔（12-16pt程度） |
-| カード内のパディング | 内容が窮屈でないか（16pt程度） |
-| セクション間のスペース | 区切りが明確か（24-32pt程度） |
-| ボタンの内部余白 | タップしやすいサイズか |
+```swift
+// 弱参照の使用
+class ConditionViewModel: ObservableObject {
+    private var cancellables = Set<AnyCancellable>()
+    
+    deinit {
+        cancellables.forEach { $0.cancel() }
+    }
+}
 
-### カラーの確認
+// Task のキャンセル
+struct HomeView: View {
+    @State private var loadTask: Task<Void, Never>?
+    
+    var body: some View {
+        // ...
+    }
+    .onAppear {
+        loadTask = Task { await viewModel.loadAdvice() }
+    }
+    .onDisappear {
+        loadTask?.cancel()
+    }
+}
+```
 
-| 確認項目 | 詳細 |
-|---------|------|
-| Primary Color一貫性 | 全画面でSoft Sage Greenが使われているか |
-| テキストカラー階層 | Primary/Secondary/Tertiaryが適切に使い分けられているか |
-| 背景色の統一 | Primary Background / Card Backgroundの使い分け |
-| アクセントカラー | CTAボタンにSoft Coralが使われているか |
-| コントラスト | 読みやすいコントラストが確保されているか |
+### 5.2 画像の最適化
 
-### フォントの確認
+```swift
+// 非同期画像読み込み
+AsyncImage(url: imageURL) { phase in
+    switch phase {
+    case .empty:
+        SkeletonView()
+    case .success(let image):
+        image.resizable().scaledToFit()
+    case .failure:
+        Image(systemName: "photo")
+    @unknown default:
+        EmptyView()
+    }
+}
 
-| 確認項目 | 詳細 |
-|---------|------|
-| 階層の明確さ | 見出し(大) > 見出し(中) > 見出し(小) > 本文 > キャプション |
-| 太さの使い分け | 見出しは太字、本文はレギュラー |
-| 行間 | 本文は読みやすい行間（1.4〜1.6倍程度） |
-| 日本語フォント | システムフォント（ヒラギノ）で問題ないか |
+// 画像キャッシュ
+let cache = URLCache(
+    memoryCapacity: 50_000_000,  // 50MB
+    diskCapacity: 100_000_000    // 100MB
+)
+```
 
----
+### 5.3 リスト最適化
 
-## UI仕様書チェックリストの確認
+```swift
+// LazyVStack の使用
+ScrollView {
+    LazyVStack(spacing: 16) {
+        ForEach(items) { item in
+            ItemView(item: item)
+        }
+    }
+}
 
-Phase 14完了時に、以下のチェックリストを全てパスすること:
-
-### 全般
-
-- [ ] カラーは統一されているか
-- [ ] 余白は十分にあるか
-- [ ] 文字サイズの階層は明確か
-
-### ホーム画面
-
-- [ ] 時間帯別の挨拶が正しく表示されるか
-- [ ] 追加アドバイスが13:00/18:00以降に正しく表示されるか
-- [ ] メトリクスカードが4つ表示されるか
-- [ ] 今週のトライが月曜のみ目立つ表示になっているか
-
-### 詳細画面
-
-- [ ] 戻るボタンが左上にあるか
-- [ ] スクロール可能か
-- [ ] ナビゲーションバーは固定されているか
-
-### オンボーディング
-
-- [ ] 進捗表示が正しく表示されるか
-- [ ] 入力検証が動作するか
-- [ ] 権限リクエストが正しく動作するか
-
-### インタラクション
-
-- [ ] ボタンのタップ時に視覚的フィードバックがあるか
-- [ ] 画面遷移のアニメーションはスムーズか
-- [ ] ローディングは0.4秒後に表示されるか
-
-### トーン
-
-- [ ] ニックネームで呼びかけているか
-- [ ] 語尾は優しいトーンか
-- [ ] データに言及しているか
-
-### エラーハンドリング
-
-- [ ] HealthKitデータ不足時のエラー画面が表示されるか
-- [ ] オフライン時のフォールバック動作が正しいか
-- [ ] 位置情報取得失敗時に手動選択ができるか
+// ID による差分更新
+ForEach(factors, id: \.type) { factor in
+    FactorRowView(factor: factor)
+}
+```
 
 ---
 
-## パフォーマンス確認
+## 6. 最終チェックリスト
 
-### アニメーションのパフォーマンス
+### UI/UX確認
 
-- [ ] 60fpsで滑らかに動作するか
-- [ ] 古いデバイス（iPhone SE等）でもカクつかないか
-- [ ] メモリリークがないか
+- [ ] 全画面がUI Spec v3.2に準拠
+- [ ] カラーがデザインシステムに準拠
+- [ ] 余白とスペーシングが統一
+- [ ] フォントサイズの階層が明確
+- [ ] タップターゲットが44pt以上
 
-### 起動時間
+### 機能確認
 
-- [ ] コールドスタート: 2秒以内に初期画面表示
-- [ ] ウォームスタート: 0.5秒以内に復帰
+- [ ] オンボーディングが完了する
+- [ ] アドバイスが生成・表示される
+- [ ] コンディション画面が表示される
+- [ ] 詳細画面への遷移が動作する
+- [ ] 設定画面が動作する
 
-### バッテリー消費
+### エラーケース確認
 
-- [ ] アニメーションが過度にバッテリーを消費していないか
-- [ ] バックグラウンドで不要な処理が動いていないか
+- [ ] オフライン時の動作
+- [ ] HealthKitデータ不足時の動作
+- [ ] 位置情報取得失敗時の動作
+- [ ] APIエラー時の動作
 
----
+### パフォーマンス確認
 
-## 最終確認項目
+- [ ] 起動時間が3秒以内
+- [ ] 画面遷移が滑らか
+- [ ] メモリ使用量が適切
+- [ ] バッテリー消費が適切
 
-### デバイス別確認
+### アクセシビリティ確認
 
-| デバイス | 確認ポイント |
-|---------|-------------|
-| iPhone SE（小画面） | レイアウト崩れがないか |
-| iPhone 15 Pro（標準） | 基準動作の確認 |
-| iPhone 15 Pro Max（大画面） | 余白が適切か |
-
-### ダークモード対応（将来）
-
-MVP段階ではライトモードのみ。v1.1以降でダークモード対応を検討。
-
-### アクセシビリティ（将来）
-
-- VoiceOver対応
-- Dynamic Type対応
-- コントラスト調整
+- [ ] VoiceOverで全画面ナビゲート可能
+- [ ] Dynamic Typeで崩れない
+- [ ] カラーコントラスト比が適切
 
 ---
 
-## 成果物
+## ディレクトリ構造（追加分）
 
-Phase 14完了時の成果物:
+```
+ios/TempoAI/
+├── Features/
+│   └── Error/
+│       └── Views/
+│           ├── HealthKitDataMissingView.swift
+│           ├── LocationErrorView.swift
+│           ├── OfflineView.swift
+│           └── GeneralErrorView.swift
+└── Shared/
+    └── Components/
+        ├── DelayedLoadingView.swift
+        ├── LoadingIndicatorView.swift
+        ├── SkeletonView.swift
+        └── TappableCard.swift
+```
 
-1. **MVP品質のアプリ** - 全機能が動作し、UIがポリッシュされた状態
-2. **チェックリスト結果** - UI仕様書のチェックリストの確認結果
-3. **既知の課題リスト** - v1.1以降で対応する項目のリスト
+---
+
+## MVP完成後の次のステップ
+
+Phase 15完了後、以下の手順でリリース準備を進めます：
+
+1. **TestFlight配布**
+   - 内部テスター向けビルド
+   - フィードバック収集
+
+2. **App Store申請準備**
+   - スクリーンショット作成
+   - App Store説明文作成
+   - プライバシーポリシー準備
+   - HealthKit使用理由の説明文
+
+3. **App Store申請**
+   - レビューガイドライン確認
+   - 申請・審査対応
 
 ---
 
 ## 関連ドキュメント
 
-- `ui-spec.md` - 全セクション（特にセクション10, 11）
-- `product-spec.md` - 付録B「チェックリスト」
+- `ui-spec.md` - セクション10「特殊状態」、セクション12「インタラクションと動線」
+- `product-spec.md` - セクション8「エラーハンドリング」
 
 ---
 
@@ -536,4 +759,10 @@ Phase 14完了時の成果物:
 
 | バージョン | 日付 | 変更内容 |
 |-----------|------|---------|
-| 1.0 | 2025-12-10 | 初版作成 |
+| 1.0 | 2025-12-19 | 初版作成 |
+
+---
+
+## ═══════════════════════════════════════
+## 🎉 MVP 完成
+## ═══════════════════════════════════════

@@ -93,4 +93,3 @@ export const buildSystemPrompt = (): ClaudePromptLayer => ({
 ${buildOutputSchemaPrompt().text}`,
   cache_control: { type: 'ephemeral' },
 });
-

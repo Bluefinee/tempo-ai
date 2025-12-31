@@ -25,6 +25,7 @@ xcuserdata/
 DerivedData/
 *.hmap
 *.ipa
+*.xcresult
 
 # iOS
 *.dSYM.zip

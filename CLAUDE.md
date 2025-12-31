@@ -239,3 +239,48 @@ When multiple valid approaches exist:
 - Keep comments minimal and purposeful
 - Commit working code incrementally
 - Stop after 3 failed attempts and reassess
+
+## Context Engineering Principles
+
+> Reference: [Agent-Skills-for-Context-Engineering](https://github.com/muratcankoylan/Agent-Skills-for-Context-Engineering)
+
+### Token Budget (Claude API)
+
+| Layer | Estimated Tokens | Cached |
+|-------|-----------------|--------|
+| System Prompt Core | 500-800 | Yes |
+| Examples (1-2 categories) | 1,500-2,500 | Yes |
+| Output Schema | 400-600 | Yes |
+| User Data | 800-1,200 | No |
+| **Total** | **3,200-5,100** | - |
+
+**Target cache hit rate**: 70%+
+
+### Information Placement
+
+LLM attention concentrates at **START** and **END** of context (U-shaped curve).
+
+- Place critical constraints at START (role, prohibitions)
+- Place output schema at END (high attention)
+- Dynamic user data in MIDDLE (acceptable lower attention)
+
+### Prompt Caching Optimization
+
+- Stable content at the beginning
+- Variable content toward the end
+- Maintain identical prefixes for cache reuse
+
+### Compression Triggers
+
+When context exceeds 70% capacity, compress in this priority:
+
+1. Tool outputs → Replace with summaries
+2. Old conversation history → Summarize
+3. Retrieved documents → Keep only latest
+4. System prompt → **Never compress**
+
+### Implementation Files
+
+- `backend/src/prompts/system.ts`: `buildSystemPromptCore()` + `buildOutputSchemaPrompt()`
+- `backend/src/utils/prompt.ts`: `getExamplesForInterest()`
+- See: [ai-prompt-spec.md](docs/specs/ai-prompt-spec.md) Section 9

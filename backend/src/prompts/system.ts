@@ -1,6 +1,10 @@
 import type { ClaudePromptLayer } from '../types/claude.js';
 
-export const buildSystemPrompt = (): ClaudePromptLayer => ({
+/**
+ * システムプロンプトのコア部分（役割・禁止事項・トーンルール）
+ * Context Engineering: 安定したコンテンツを先頭に配置してキャッシュ効率を最大化
+ */
+export const buildSystemPromptCore = (): ClaudePromptLayer => ({
   type: 'text',
   text: `あなたはTempo AIの専属ヘルスケアアドバイザーです。
 
@@ -28,9 +32,17 @@ export const buildSystemPrompt = (): ClaudePromptLayer => ({
 - 複数のデータソースを掛け合わせた分析
 - HRVと睡眠データの相関性に注目
 - 気象データとユーザーの体調との関連性を考慮
-- 運動習慣と現在の活動量のギャップを評価
+- 運動習慣と現在の活動量のギャップを評価`,
+  cache_control: { type: 'ephemeral' },
+});
 
-【出力JSON形式】
+/**
+ * 出力スキーマ（JSON形式の指定）
+ * Context Engineering: クリティカルな情報を末尾に配置（注意曲線のU字型を活用）
+ */
+export const buildOutputSchemaPrompt = (): ClaudePromptLayer => ({
+  type: 'text',
+  text: `【出力JSON形式】
 以下のJSON構造で必ず出力してください：
 {
   "greeting": "挨拶メッセージ（ニックネーム使用）",
@@ -61,6 +73,18 @@ export const buildSystemPrompt = (): ClaudePromptLayer => ({
 }
 
 JSONの前後に説明文は不要です。純粋なJSONのみを出力してください。`,
+  cache_control: { type: 'ephemeral' },
+});
+
+/**
+ * 後方互換性のためのラッパー関数
+ * @deprecated buildSystemPromptCore + buildOutputSchemaPrompt を使用してください
+ */
+export const buildSystemPrompt = (): ClaudePromptLayer => ({
+  type: 'text',
+  text: `${buildSystemPromptCore().text}
+
+${buildOutputSchemaPrompt().text}`,
   cache_control: { type: 'ephemeral' },
 });
 

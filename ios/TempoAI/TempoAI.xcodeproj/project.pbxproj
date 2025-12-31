@@ -45,6 +45,7 @@
 		AAAA0001000000000000006 /* HealthKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAA0002000000000000006 /* HealthKitManager.swift */; };
 		AAAA0001000000000000007 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAA0002000000000000007 /* LocationManager.swift */; };
 		AAAA0001000000000000008 /* DebugResetService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAA0002000000000000008 /* DebugResetService.swift */; };
+		BBBB0001000000000000001 /* CircadianRhythmPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBBB0002000000000000001 /* CircadianRhythmPlaceholderView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -99,6 +100,7 @@
 		AAAA0002000000000000006 /* HealthKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitManager.swift; sourceTree = "<group>"; };
 		AAAA0002000000000000007 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
 		AAAA0002000000000000008 /* DebugResetService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugResetService.swift; sourceTree = "<group>"; };
+		BBBB0002000000000000001 /* CircadianRhythmPlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircadianRhythmPlaceholderView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -161,10 +163,27 @@
 		6978C77A2EE96C5E00FCDC58 /* Features */ = {
 			isa = PBXGroup;
 			children = (
+				BBBB0003000000000000001 /* CircadianRhythm */,
 				3B10E21D85B64C78A75D885B /* Home */,
 				6978C7792EE96C5E00FCDC58 /* Onboarding */,
 			);
 			path = Features;
+			sourceTree = "<group>";
+		};
+		BBBB0003000000000000001 /* CircadianRhythm */ = {
+			isa = PBXGroup;
+			children = (
+				BBBB0004000000000000001 /* Views */,
+			);
+			path = CircadianRhythm;
+			sourceTree = "<group>";
+		};
+		BBBB0004000000000000001 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				BBBB0002000000000000001 /* CircadianRhythmPlaceholderView.swift */,
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 		6978C77C2EE96C5E00FCDC58 /* Services */ = {
@@ -426,6 +445,7 @@
 				AAAA0001000000000000006 /* HealthKitManager.swift in Sources */,
 				AAAA0001000000000000007 /* LocationManager.swift in Sources */,
 				AAAA0001000000000000008 /* DebugResetService.swift in Sources */,
+				BBBB0001000000000000001 /* CircadianRhythmPlaceholderView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -12,12 +12,19 @@ struct MainTabView: View {
         }
         .tag(0)
 
+      CircadianRhythmPlaceholderView()
+        .tabItem {
+          Image(systemName: "clock.arrow.2.circlepath")
+          Text("リズム")
+        }
+        .tag(1)
+
       SettingsPlaceholderView()
         .tabItem {
           Image(systemName: "gearshape.fill")
           Text("設定")
         }
-        .tag(1)
+        .tag(2)
     }
     .accentColor(.tempoSageGreen)
   }
@@ -28,4 +35,3 @@ struct MainTabView: View {
   MainTabView(userProfile: UserProfile.sampleData)
 }
 #endif
-

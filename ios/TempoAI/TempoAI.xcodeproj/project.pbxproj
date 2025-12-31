@@ -45,13 +45,17 @@
 		AAAA0001000000000000006 /* HealthKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAA0002000000000000006 /* HealthKitManager.swift */; };
 		AAAA0001000000000000007 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAA0002000000000000007 /* LocationManager.swift */; };
 		AAAA0001000000000000008 /* DebugResetService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAA0002000000000000008 /* DebugResetService.swift */; };
-		BBBB0001000000000000001 /* CircadianRhythmPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBBB0002000000000000001 /* CircadianRhythmPlaceholderView.swift */; };
-		CCCC0001000000000000001 /* CircadianData.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCCC0002000000000000001 /* CircadianData.swift */; };
-		CCCC0001000000000000002 /* CircadianCircleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCCC0002000000000000002 /* CircadianCircleView.swift */; };
-		CCCC0001000000000000003 /* RhythmStabilityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCCC0002000000000000003 /* RhythmStabilityView.swift */; };
-		CCCC0001000000000000004 /* MetricsTriangleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCCC0002000000000000004 /* MetricsTriangleView.swift */; };
 		CCCC0001000000000000005 /* InsightCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCCC0002000000000000005 /* InsightCardView.swift */; };
 		CCCC0001000000000000006 /* CircadianRhythmView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCCC0002000000000000006 /* CircadianRhythmView.swift */; };
+		DDDD0001000000000000001 /* HRVMetric.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDDD0002000000000000001 /* HRVMetric.swift */; };
+		DDDD0001000000000000002 /* SleepMetric.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDDD0002000000000000002 /* SleepMetric.swift */; };
+		DDDD0001000000000000003 /* StepsMetric.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDDD0002000000000000003 /* StepsMetric.swift */; };
+		DDDD0001000000000000004 /* DaylightMetric.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDDD0002000000000000004 /* DaylightMetric.swift */; };
+		DDDD0001000000000000005 /* TemperatureMetric.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDDD0002000000000000005 /* TemperatureMetric.swift */; };
+		DDDD0001000000000000006 /* RhythmMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDDD0002000000000000006 /* RhythmMetrics.swift */; };
+		DDDD0001000000000000007 /* FiveStageGaugeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDDD0002000000000000007 /* FiveStageGaugeView.swift */; };
+		DDDD0001000000000000008 /* SolarSyncCircleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDDD0002000000000000008 /* SolarSyncCircleView.swift */; };
+		DDDD0001000000000000009 /* RhythmMetricRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDDD0002000000000000009 /* RhythmMetricRowView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -106,13 +110,17 @@
 		AAAA0002000000000000006 /* HealthKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitManager.swift; sourceTree = "<group>"; };
 		AAAA0002000000000000007 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
 		AAAA0002000000000000008 /* DebugResetService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugResetService.swift; sourceTree = "<group>"; };
-		BBBB0002000000000000001 /* CircadianRhythmPlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircadianRhythmPlaceholderView.swift; sourceTree = "<group>"; };
-		CCCC0002000000000000001 /* CircadianData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircadianData.swift; sourceTree = "<group>"; };
-		CCCC0002000000000000002 /* CircadianCircleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircadianCircleView.swift; sourceTree = "<group>"; };
-		CCCC0002000000000000003 /* RhythmStabilityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RhythmStabilityView.swift; sourceTree = "<group>"; };
-		CCCC0002000000000000004 /* MetricsTriangleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricsTriangleView.swift; sourceTree = "<group>"; };
 		CCCC0002000000000000005 /* InsightCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightCardView.swift; sourceTree = "<group>"; };
 		CCCC0002000000000000006 /* CircadianRhythmView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircadianRhythmView.swift; sourceTree = "<group>"; };
+		DDDD0002000000000000001 /* HRVMetric.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HRVMetric.swift; sourceTree = "<group>"; };
+		DDDD0002000000000000002 /* SleepMetric.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepMetric.swift; sourceTree = "<group>"; };
+		DDDD0002000000000000003 /* StepsMetric.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepsMetric.swift; sourceTree = "<group>"; };
+		DDDD0002000000000000004 /* DaylightMetric.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DaylightMetric.swift; sourceTree = "<group>"; };
+		DDDD0002000000000000005 /* TemperatureMetric.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemperatureMetric.swift; sourceTree = "<group>"; };
+		DDDD0002000000000000006 /* RhythmMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RhythmMetrics.swift; sourceTree = "<group>"; };
+		DDDD0002000000000000007 /* FiveStageGaugeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiveStageGaugeView.swift; sourceTree = "<group>"; };
+		DDDD0002000000000000008 /* SolarSyncCircleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolarSyncCircleView.swift; sourceTree = "<group>"; };
+		DDDD0002000000000000009 /* RhythmMetricRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RhythmMetricRowView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -185,29 +193,18 @@
 		BBBB0003000000000000001 /* CircadianRhythm */ = {
 			isa = PBXGroup;
 			children = (
-				CCCC0003000000000000001 /* Models */,
 				BBBB0004000000000000001 /* Views */,
 			);
 			path = CircadianRhythm;
 			sourceTree = "<group>";
 		};
-		CCCC0003000000000000001 /* Models */ = {
-			isa = PBXGroup;
-			children = (
-				CCCC0002000000000000001 /* CircadianData.swift */,
-			);
-			path = Models;
-			sourceTree = "<group>";
-		};
 		BBBB0004000000000000001 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				CCCC0002000000000000002 /* CircadianCircleView.swift */,
-				BBBB0002000000000000001 /* CircadianRhythmPlaceholderView.swift */,
 				CCCC0002000000000000006 /* CircadianRhythmView.swift */,
 				CCCC0002000000000000005 /* InsightCardView.swift */,
-				CCCC0002000000000000004 /* MetricsTriangleView.swift */,
-				CCCC0002000000000000003 /* RhythmStabilityView.swift */,
+				DDDD0002000000000000009 /* RhythmMetricRowView.swift */,
+				DDDD0002000000000000008 /* SolarSyncCircleView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -246,10 +243,19 @@
 		6978C7812EE96C5E00FCDC58 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				DDDD0003000000000000001 /* Components */,
 				6978C77E2EE96C5E00FCDC58 /* Extensions */,
 				6978C7802EE96C5E00FCDC58 /* Models */,
 			);
 			path = Shared;
+			sourceTree = "<group>";
+		};
+		DDDD0003000000000000001 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				DDDD0002000000000000007 /* FiveStageGaugeView.swift */,
+			);
+			path = Components;
 			sourceTree = "<group>";
 		};
 		AAAA0003000000000000001 /* Protocols */ = {
@@ -309,6 +315,7 @@
 			children = (
 				69D700C92EE83ADD00FBC56D /* TempoAI.entitlements */,
 				A1000020295A8F3E00000001 /* App */,
+				DDDD0004000000000000001 /* Domain */,
 				6978C77A2EE96C5E00FCDC58 /* Features */,
 				AAAA0003000000000000001 /* Protocols */,
 				6978C77C2EE96C5E00FCDC58 /* Services */,
@@ -316,6 +323,27 @@
 				6978C78E2EE96CB900FCDC58 /* Resources */,
 			);
 			path = TempoAI;
+			sourceTree = "<group>";
+		};
+		DDDD0004000000000000001 /* Domain */ = {
+			isa = PBXGroup;
+			children = (
+				DDDD0005000000000000001 /* Models */,
+			);
+			path = Domain;
+			sourceTree = "<group>";
+		};
+		DDDD0005000000000000001 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				DDDD0002000000000000004 /* DaylightMetric.swift */,
+				DDDD0002000000000000001 /* HRVMetric.swift */,
+				DDDD0002000000000000006 /* RhythmMetrics.swift */,
+				DDDD0002000000000000002 /* SleepMetric.swift */,
+				DDDD0002000000000000003 /* StepsMetric.swift */,
+				DDDD0002000000000000005 /* TemperatureMetric.swift */,
+			);
+			path = Models;
 			sourceTree = "<group>";
 		};
 		A1000010295A8F3F00000001 /* TempoAITests */ = {
@@ -471,13 +499,17 @@
 				AAAA0001000000000000006 /* HealthKitManager.swift in Sources */,
 				AAAA0001000000000000007 /* LocationManager.swift in Sources */,
 				AAAA0001000000000000008 /* DebugResetService.swift in Sources */,
-				BBBB0001000000000000001 /* CircadianRhythmPlaceholderView.swift in Sources */,
-				CCCC0001000000000000001 /* CircadianData.swift in Sources */,
-				CCCC0001000000000000002 /* CircadianCircleView.swift in Sources */,
-				CCCC0001000000000000003 /* RhythmStabilityView.swift in Sources */,
-				CCCC0001000000000000004 /* MetricsTriangleView.swift in Sources */,
 				CCCC0001000000000000005 /* InsightCardView.swift in Sources */,
 				CCCC0001000000000000006 /* CircadianRhythmView.swift in Sources */,
+				DDDD0001000000000000001 /* HRVMetric.swift in Sources */,
+				DDDD0001000000000000002 /* SleepMetric.swift in Sources */,
+				DDDD0001000000000000003 /* StepsMetric.swift in Sources */,
+				DDDD0001000000000000004 /* DaylightMetric.swift in Sources */,
+				DDDD0001000000000000005 /* TemperatureMetric.swift in Sources */,
+				DDDD0001000000000000006 /* RhythmMetrics.swift in Sources */,
+				DDDD0001000000000000007 /* FiveStageGaugeView.swift in Sources */,
+				DDDD0001000000000000008 /* SolarSyncCircleView.swift in Sources */,
+				DDDD0001000000000000009 /* RhythmMetricRowView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

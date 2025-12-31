@@ -122,6 +122,115 @@ final class HealthKitManager: ObservableObject, HealthKitManaging {
         #endif
     }
 
+    // MARK: - Phase 12.5: リズム指標
+
+    /// 手首皮膚温が利用可能か確認
+    func isWristTemperatureAvailable() -> Bool {
+        #if targetEnvironment(simulator)
+        return true
+        #else
+        if #available(iOS 16.0, *) {
+            let temperatureType = HKQuantityType(.appleSleepingWristTemperature)
+            return healthStore.authorizationStatus(for: temperatureType) != .notDetermined
+        }
+        return false
+        #endif
+    }
+
+    /// 日光浴時間を取得
+    func fetchTimeInDaylight(for date: Date) async throws -> (total: Int, morning: Int) {
+        #if DEBUG
+        // シミュレータ用モックデータ
+        return (total: Int.random(in: 10...45), morning: Int.random(in: 5...25))
+        #else
+        guard #available(iOS 17.0, *) else {
+            return (0, 0)
+        }
+
+        let daylightType = HKQuantityType(.timeInDaylight)
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: date)
+        guard let noon = calendar.date(byAdding: .hour, value: 12, to: startOfDay),
+              let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) else {
+            return (0, 0)
+        }
+
+        async let morningMinutes = fetchDaylightMinutes(
+            type: daylightType,
+            start: startOfDay,
+            end: noon
+        )
+        async let totalMinutes = fetchDaylightMinutes(
+            type: daylightType,
+            start: startOfDay,
+            end: endOfDay
+        )
+
+        return try await (total: totalMinutes, morning: morningMinutes)
+        #endif
+    }
+
+    @available(iOS 17.0, *)
+    private func fetchDaylightMinutes(
+        type: HKQuantityType,
+        start: Date,
+        end: Date
+    ) async throws -> Int {
+        let predicate = HKQuery.predicateForSamples(
+            withStart: start,
+            end: end,
+            options: .strictStartDate
+        )
+
+        return try await withCheckedThrowingContinuation { continuation in
+            let query = HKStatisticsQuery(
+                quantityType: type,
+                quantitySamplePredicate: predicate,
+                options: .cumulativeSum
+            ) { _, statistics, error in
+                if let error {
+                    continuation.resume(throwing: error)
+                    return
+                }
+                let minutes = statistics?.sumQuantity()?.doubleValue(for: .minute()) ?? 0
+                continuation.resume(returning: Int(minutes))
+            }
+            healthStore.execute(query)
+        }
+    }
+
+    /// 手首皮膚温データを取得
+    func fetchWristTemperature() async throws -> TemperatureMetric? {
+        guard isWristTemperatureAvailable() else {
+            return nil
+        }
+
+        #if DEBUG
+        // シミュレータ用モックデータ
+        return TemperatureMetric(
+            phaseShiftHours: Double.random(in: -1.0...1.0),
+            isAvailable: true,
+            nightsOfData: Int.random(in: 3...10)
+        )
+        #else
+        // TODO: Phase 2で実装
+        // HKQuantityType(.appleSleepingWristTemperature)からデータを取得
+        // 体温リズムから位相ズレを算出
+        return nil
+        #endif
+    }
+
+    /// 全リズム指標を一括取得
+    func fetchRhythmMetrics(for date: Date) async throws -> RhythmMetrics {
+        #if DEBUG
+        return RhythmMetrics.mock
+        #else
+        // TODO: Phase 2で完全実装
+        // 各指標を並行取得してRhythmMetricsを構築
+        throw HealthKitError.dataFetchFailed("Not implemented yet")
+        #endif
+    }
+
     /// テストデータを生成（シミュレータ用）
     static func generateMockData() -> HealthData {
         let calendar = Calendar.current

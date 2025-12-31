@@ -92,8 +92,17 @@ final class HealthKitManager: ObservableObject {
         HKQuantityType(.stepCount),
         HKCategoryType(.sleepAnalysis)
     ]
-    
+
+    // 補助データ（対応機種のみ）
+    private let optionalTypes: Set<HKObjectType> = [
+        HKQuantityType(.timeInDaylight),                    // watchOS 10+
+        HKQuantityType(.appleSleepingWristTemperature)      // Series 8+/Ultra
+    ]
+
     func requestAuthorization() async throws { }
+    func fetchAuxiliaryData() async -> AuxiliaryData? {
+        // 対応機種でない場合はnilを返す
+    }
     func fetchTodayHealthData() async throws -> HealthData { }
     func fetchWeekTrends() async throws -> WeekTrends { }
 }
@@ -161,6 +170,34 @@ struct Scores: Codable {
 struct RhythmStability: Codable {
     let status: String
     let consecutiveStableDays: Int
+}
+
+struct AuxiliaryData: Codable {
+    let daylight: DaylightData?
+    let wristTemperature: WristTemperatureData?
+}
+
+struct DaylightData: Codable {
+    let minutesYesterday: Int
+    let status: DaylightStatus  // sufficient, slightlyInsufficient, insufficient
+    let avg7dMinutes: Int?
+}
+
+struct WristTemperatureData: Codable {
+    let deviation: Double       // 基準値からの偏差（℃）
+    let status: TemperatureStatus  // stable, slightlyVariable, variable
+}
+
+enum DaylightStatus: String, Codable {
+    case sufficient = "十分"
+    case slightlyInsufficient = "やや不足"
+    case insufficient = "不足"
+}
+
+enum TemperatureStatus: String, Codable {
+    case stable = "安定"
+    case slightlyVariable = "やや変動"
+    case variable = "変動大"
 }
 ```
 
@@ -369,7 +406,27 @@ wrangler secret put ANTHROPIC_API_KEY
 
 ---
 
-## 9. モニタリング
+## 9. データ要件
+
+### 9.1 必須HealthKitデータ
+
+| メトリクス | HealthKit Type | 用途 |
+|-----------|---------------|------|
+| HRV | HKQuantityType(.heartRateVariabilitySDNN) | 自律神経評価 |
+| 安静時心拍数 | HKQuantityType(.restingHeartRate) | 回復度評価 |
+| 歩数 | HKQuantityType(.stepCount) | 活動量評価 |
+| 睡眠 | HKCategoryType(.sleepAnalysis) | 睡眠パターン分析 |
+
+### 9.2 補助HealthKitデータ（任意）
+
+| メトリクス | HealthKit Type | 対応機種 |
+|-----------|---------------|----------|
+| 日光浴時間 | HKQuantityType(.timeInDaylight) | watchOS 10+ |
+| 皮膚温 | HKQuantityType(.appleSleepingWristTemperature) | Series 8+/Ultra |
+
+---
+
+## 10. モニタリング
 
 | メトリクス | 目標値 |
 |-----------|--------|

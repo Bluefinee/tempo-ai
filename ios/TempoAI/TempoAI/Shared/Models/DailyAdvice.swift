@@ -15,32 +15,95 @@ struct AdviceResponse: Codable {
 
 struct AdviceResponseData: Codable {
     let mainAdvice: DailyAdvice
-    let additionalAdvice: AdditionalAdvice?
+}
+
+// MARK: - Health Scores
+
+/**
+ * Health scores for HRV, sleep, rhythm, and activity
+ * Each score is 0-100
+ */
+struct HealthScores: Codable, Hashable {
+    let hrv: Int
+    let sleep: Int
+    let rhythm: Int
+    let activity: Int
+
+    /// Energy level based on HRV score (primary indicator)
+    var energyLevel: EnergyLevel {
+        EnergyLevel(hrvScore: hrv)
+    }
+}
+
+// MARK: - Energy Level
+
+enum EnergyLevel {
+    case excellent    // 80-100
+    case good         // 60-79
+    case moderate     // 40-59
+    case low          // 20-39
+    case veryLow      // 0-19
+
+    init(hrvScore: Int) {
+        switch hrvScore {
+        case 80...100: self = .excellent
+        case 60..<80: self = .good
+        case 40..<60: self = .moderate
+        case 20..<40: self = .low
+        default: self = .veryLow
+        }
+    }
+
+    var color: String {
+        switch self {
+        case .excellent, .good: return "Primary"
+        case .moderate: return "Yellow"
+        case .low: return "Orange"
+        case .veryLow: return "Red"
+        }
+    }
+
+    var percentage: Double {
+        switch self {
+        case .excellent: return 0.9
+        case .good: return 0.7
+        case .moderate: return 0.5
+        case .low: return 0.3
+        case .veryLow: return 0.15
+        }
+    }
 }
 
 // MARK: - Daily Advice
 
 /**
  * Core daily advice model containing all information for the home screen
- * and detail views
+ * and detail views (Phase 10 format)
  */
 struct DailyAdvice: Codable, Identifiable, Hashable {
     /// Note: id is intentionally excluded from CodingKeys.
     /// A new UUID is generated on each decode to ensure unique identity for SwiftUI views.
     let id: UUID = UUID()
     let greeting: String
+    let energyComment: String
     let condition: Condition
-    let actionSuggestions: [ActionSuggestion]
-    let closingMessage: String
+    let insight: String
     let dailyTry: TryContent
-    let weeklyTry: TryContent?
+    let closingMessage: String
+    let scores: HealthScores
     let generatedAt: Date
     let timeSlot: TimeSlot
 
     private enum CodingKeys: String, CodingKey {
-        case greeting, condition, actionSuggestions
-        case closingMessage, dailyTry, weeklyTry
-        case generatedAt, timeSlot
+        case greeting
+        case energyComment
+        case condition
+        case insight
+        case dailyTry
+        case closingMessage
+        case scores
+        case generatedAt
+        case timeSlot
     }
 
     static func == (lhs: DailyAdvice, rhs: DailyAdvice) -> Bool {
@@ -54,65 +117,9 @@ struct DailyAdvice: Codable, Identifiable, Hashable {
 
 // MARK: - Condition
 
-struct Condition: Codable {
+struct Condition: Codable, Hashable {
     let summary: String    // For home screen display
     let detail: String     // For detail view
-}
-
-// MARK: - Action Suggestion
-
-struct ActionSuggestion: Codable, Identifiable {
-    let id = UUID()
-    let icon: IconType
-    let title: String
-    let detail: String
-    
-    private enum CodingKeys: String, CodingKey {
-        case icon, title, detail
-    }
-}
-
-enum IconType: String, Codable {
-    case fitness = "fitness"
-    case stretch = "stretch"
-    case nutrition = "nutrition"
-    case hydration = "hydration"
-    case rest = "rest"
-    case work = "work"
-    case sleep = "sleep"
-    case mental = "mental"
-    case beauty = "beauty"
-    case outdoor = "outdoor"
-    
-    var systemImageName: String {
-        switch self {
-        case .fitness: return "figure.strengthtraining.functional"
-        case .stretch: return "figure.yoga"
-        case .nutrition: return "fork.knife"
-        case .hydration: return "drop.fill"
-        case .rest: return "bed.double.fill"
-        case .work: return "laptopcomputer"
-        case .sleep: return "moon.stars.fill"
-        case .mental: return "brain.head.profile"
-        case .beauty: return "sparkles"
-        case .outdoor: return "tree.fill"
-        }
-    }
-    
-    var displayName: String {
-        switch self {
-        case .fitness: return "フィットネス"
-        case .stretch: return "ストレッチ"
-        case .nutrition: return "栄養"
-        case .hydration: return "水分補給"
-        case .rest: return "休息"
-        case .work: return "仕事"
-        case .sleep: return "睡眠"
-        case .mental: return "メンタル"
-        case .beauty: return "美容"
-        case .outdoor: return "アウトドア"
-        }
-    }
 }
 
 // MARK: - Try Content
@@ -122,12 +129,11 @@ struct TryContent: Codable, Identifiable, Hashable {
     /// A new UUID is generated on each decode to ensure unique identity for SwiftUI views.
     /// This is by design as TryContent is embedded in DailyAdvice and doesn't need persistent identity.
     let id: UUID = UUID()
-    let title: String      // For card title
-    let summary: String    // For card subtitle
+    let title: String      // For card title (15 chars max)
     let detail: String     // For detail view
 
     private enum CodingKeys: String, CodingKey {
-        case title, summary, detail
+        case title, detail
     }
 
     static func == (lhs: TryContent, rhs: TryContent) -> Bool {
@@ -145,7 +151,7 @@ enum TimeSlot: String, Codable {
     case morning = "morning"
     case afternoon = "afternoon"
     case evening = "evening"
-    
+
     var displayName: String {
         switch self {
         case .morning: return "朝"
@@ -153,7 +159,7 @@ enum TimeSlot: String, Codable {
         case .evening: return "夜"
         }
     }
-    
+
     var greeting: String {
         switch self {
         case .morning: return "おはようございます"
@@ -163,62 +169,40 @@ enum TimeSlot: String, Codable {
     }
 }
 
-// MARK: - Additional Advice
-
-/**
- * Additional advice for afternoon/evening notifications
- */
-struct AdditionalAdvice: Codable, Identifiable {
-    let id = UUID()
-    let timeSlot: TimeSlot
-    let greeting: String
-    let message: String
-    let generatedAt: Date
-    
-    private enum CodingKeys: String, CodingKey {
-        case timeSlot, greeting, message, generatedAt
-    }
-}
-
 // MARK: - Mock Data Extensions
 
 extension DailyAdvice {
     /**
      * Creates mock daily advice for testing and development
-     * Phase 7: Used for UI development before backend integration
+     * Phase 10: Updated format with energyComment, insight, and scores
      */
-    static func createMock(timeSlot: TimeSlot = .morning) -> DailyAdvice {
+    static func createMock(timeSlot: TimeSlot = .morning, scores: HealthScores? = nil) -> DailyAdvice {
+        let mockScores = scores ?? HealthScores(hrv: 85, sleep: 82, rhythm: 78, activity: 70)
+
         return DailyAdvice(
             greeting: "テストユーザーさん、\(timeSlot.greeting)",
+            energyComment: "今日は絶好調ですね",
             condition: Condition(
                 summary: "昨夜は7時間の良質な睡眠が取れましたね。今朝のHRVは72msと高く、体の回復が十分に進んでいます。",
                 detail: "昨夜は7時間の良質な睡眠が取れましたね。深い睡眠が1時間45分と、筋肉の回復に理想的な状態です。\n\n今朝のHRVは72msと、過去7日平均の68msを上回っています。体の回復が十分に進んでいます。"
             ),
-            actionSuggestions: [
-                ActionSuggestion(
-                    icon: .fitness,
-                    title: "午前中に高強度トレーニング",
-                    detail: "HRVが高く、睡眠の質も良いため、パフォーマンスを最大限発揮できる状態です。"
-                ),
-                ActionSuggestion(
-                    icon: .nutrition,
-                    title: "トレーニング後の栄養補給",
-                    detail: "30分以内にプロテインと炭水化物を一緒に摂ることで、筋グリコーゲンの回復が早まります。"
-                )
-            ],
-            closingMessage: "今日は心身ともに最高のコンディションです。ぜひ全力でチャレンジしてください。",
+            insight: "昨夜は就寝が30分早かったため、HRVが+9%改善しました。3日連続でリズムが安定しているため、回復効率がアップしています。",
             dailyTry: TryContent(
                 title: "ドロップセット法に挑戦",
-                summary: "トレーニングの最後に、普段と違う刺激を筋肉に与えてみませんか？",
                 detail: "今日のトレーニングで、最後のセットにドロップセット法を取り入れてみませんか？通常の重量でできる限界まで行った後、重量を20-30%下げてさらに限界まで続けます。"
             ),
-            weeklyTry: timeSlot == .morning ? TryContent(
-                title: "今週の瞑想チャレンジ",
-                summary: "毎日5分の瞑想でストレス軽減",
-                detail: "今週は毎日5分間の瞑想にチャレンジしてみましょう。朝起きた時や寝る前など、決まった時間に行うのがコツです。"
-            ) : nil,
+            closingMessage: "今日は心身ともに最高のコンディションです。ぜひ全力でチャレンジしてください。",
+            scores: mockScores,
             generatedAt: Date(),
             timeSlot: timeSlot
         )
+    }
+
+    /**
+     * Creates mock daily advice with specific HRV score for testing energy levels
+     */
+    static func createMock(withHrvScore hrvScore: Int) -> DailyAdvice {
+        let scores = HealthScores(hrv: hrvScore, sleep: 70, rhythm: 70, activity: 70)
+        return createMock(scores: scores)
     }
 }

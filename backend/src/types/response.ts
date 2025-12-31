@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { AdditionalAdviceSchema, DailyAdviceSchema } from './domain.js';
+import { DailyAdviceSchema } from './domain.js';
 
 // =============================================================================
 // Health Check Response
@@ -54,7 +54,6 @@ export interface ApiResponse<T> {
 
 export const AdviceResponseDataSchema = z.object({
   mainAdvice: DailyAdviceSchema,
-  additionalAdvice: AdditionalAdviceSchema.optional(),
 });
 
 export const AdviceResponseSchema = z.object({
@@ -66,19 +65,6 @@ export const AdviceResponseSchema = z.object({
 
 export type AdviceResponseData = z.infer<typeof AdviceResponseDataSchema>;
 export type AdviceResponse = z.infer<typeof AdviceResponseSchema>;
-
-// =============================================================================
-// Additional Advice Response
-// =============================================================================
-
-export const AdditionalAdviceResponseSchema = z.object({
-  success: z.boolean(),
-  data: AdditionalAdviceSchema.optional(),
-  error: z.string().optional(),
-  code: z.string().optional(),
-});
-
-export type AdditionalAdviceResponse = z.infer<typeof AdditionalAdviceResponseSchema>;
 
 // =============================================================================
 // Error Response Types

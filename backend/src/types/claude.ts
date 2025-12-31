@@ -1,10 +1,4 @@
-import type {
-  UserProfile,
-  HealthData,
-  WeatherData,
-  AirQualityData,
-  DailyAdvice,
-} from './domain.js';
+import type { UserProfile, HealthData, WeatherData, AirQualityData } from './domain.js';
 
 export interface GenerateAdviceParams {
   userProfile: UserProfile;
@@ -12,13 +6,6 @@ export interface GenerateAdviceParams {
   weatherData?: WeatherData | undefined;
   airQualityData?: AirQualityData | undefined;
   context: RequestContext;
-  apiKey: string;
-}
-
-export interface AdditionalAdviceParams {
-  mainAdvice: DailyAdvice;
-  timeSlot: 'midday' | 'evening';
-  userProfile: UserProfile;
   apiKey: string;
 }
 
@@ -34,16 +21,4 @@ export interface RequestContext {
   isMonday: boolean;
   recentDailyTries: string[];
   lastWeeklyTry: string | null;
-}
-
-export interface AdditionalAdvice {
-  greeting: string;
-  message: string;
-  actionSuggestion?: {
-    icon: 'hydration' | 'movement' | 'rest' | 'nutrition' | 'mindfulness';
-    title: string;
-    detail: string;
-  };
-  generatedAt: string;
-  timeSlot: 'midday' | 'evening';
 }

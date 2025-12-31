@@ -76,12 +76,33 @@ export const WeekTrendsSchema = z.object({
   totalWorkoutHours: z.number().nonnegative().optional(),
 });
 
+/**
+ * 健康スコア（0-100）
+ * HRV、睡眠、リズム、活動量の4つのメトリクスで構成
+ */
+export const HealthScoresSchema = z.object({
+  hrv: z.number().int().min(0).max(100),
+  sleep: z.number().int().min(0).max(100),
+  rhythm: z.number().int().min(0).max(100),
+  activity: z.number().int().min(0).max(100),
+});
+
+/**
+ * リズム安定性
+ */
+export const RhythmStabilitySchema = z.object({
+  status: z.enum(['良好', '普通', '不安定']),
+  consecutiveStableDays: z.number().int().nonnegative(),
+});
+
 export const HealthDataSchema = z.object({
   date: z.string(), // ISO 8601
   sleep: SleepDataSchema.optional(),
   morningVitals: MorningVitalsSchema.optional(),
   yesterdayActivity: ActivityDataSchema.optional(),
   weekTrends: WeekTrendsSchema.optional(),
+  scores: HealthScoresSchema, // iOS側で計算されたスコア
+  rhythmStability: RhythmStabilitySchema.optional(),
 });
 
 // =============================================================================
@@ -120,28 +141,8 @@ export const RequestContextSchema = z.object({
 // Response Types
 // =============================================================================
 
-const IconTypeSchema = z.enum([
-  'fitness',
-  'stretch',
-  'nutrition',
-  'hydration',
-  'rest',
-  'work',
-  'sleep',
-  'mental',
-  'beauty',
-  'outdoor',
-]);
-
-export const ActionSuggestionSchema = z.object({
-  icon: IconTypeSchema,
-  title: z.string().min(1),
-  detail: z.string().min(1),
-});
-
 export const TryContentSchema = z.object({
   title: z.string().min(1),
-  summary: z.string().min(1),
   detail: z.string().min(1),
 });
 
@@ -149,23 +150,17 @@ const TimeSlotSchema = z.enum(['morning', 'afternoon', 'evening']);
 
 export const DailyAdviceSchema = z.object({
   greeting: z.string().min(1),
+  energyComment: z.string().min(1), // エネルギーレベルに応じたAIコメント
   condition: z.object({
     summary: z.string().min(1),
     detail: z.string().min(1),
   }),
-  actionSuggestions: z.array(ActionSuggestionSchema).min(1).max(5),
-  closingMessage: z.string().min(1),
+  insight: z.string().min(1), // 因果関係を明示したAIの見立て
   dailyTry: TryContentSchema,
-  weeklyTry: TryContentSchema.optional(),
+  closingMessage: z.string().min(1),
+  scores: HealthScoresSchema, // 必須
   generatedAt: z.string(), // ISO 8601
   timeSlot: TimeSlotSchema,
-});
-
-export const AdditionalAdviceSchema = z.object({
-  timeSlot: z.enum(['afternoon', 'evening']),
-  greeting: z.string().min(1),
-  message: z.string().min(1),
-  generatedAt: z.string(), // ISO 8601
 });
 
 // =============================================================================
@@ -179,7 +174,6 @@ export type ExerciseFrequency = z.infer<typeof ExerciseFrequencySchema>;
 export type AlcoholFrequency = z.infer<typeof AlcoholFrequencySchema>;
 export type Interest = z.infer<typeof InterestSchema>;
 export type DayOfWeek = z.infer<typeof DayOfWeekSchema>;
-export type IconType = z.infer<typeof IconTypeSchema>;
 export type TimeSlot = z.infer<typeof TimeSlotSchema>;
 
 export type UserProfile = z.infer<typeof UserProfileSchema>;
@@ -190,10 +184,10 @@ export type WeekTrends = z.infer<typeof WeekTrendsSchema>;
 export type HealthData = z.infer<typeof HealthDataSchema>;
 export type LocationData = z.infer<typeof LocationDataSchema>;
 export type RequestContext = z.infer<typeof RequestContextSchema>;
-export type ActionSuggestion = z.infer<typeof ActionSuggestionSchema>;
 export type TryContent = z.infer<typeof TryContentSchema>;
+export type HealthScores = z.infer<typeof HealthScoresSchema>;
+export type RhythmStability = z.infer<typeof RhythmStabilitySchema>;
 export type DailyAdvice = z.infer<typeof DailyAdviceSchema>;
-export type AdditionalAdvice = z.infer<typeof AdditionalAdviceSchema>;
 
 // =============================================================================
 // Weather Data Types

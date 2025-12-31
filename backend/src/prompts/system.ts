@@ -45,32 +45,38 @@ export const buildOutputSchemaPrompt = (): ClaudePromptLayer => ({
   text: `【出力JSON形式】
 以下のJSON構造で必ず出力してください：
 {
-  "greeting": "挨拶メッセージ（ニックネーム使用）",
+  "greeting": "〇〇さん、おはようございます（ニックネーム + 時間帯別挨拶）",
+  "energy_comment": "HRVスコアに応じた一言コメント（10-20文字）",
   "condition": {
-    "summary": "今日の体調・状況の要約（1-2文）",
-    "detail": "詳細分析（健康データと環境の掛け合わせ）"
+    "summary": "今日の体調・状況の要約（3-4文、ホーム画面用）",
+    "detail": "詳細分析（8-12文、行動提案含む）"
   },
-  "actionSuggestions": [
-    {
-      "icon": "hydration|movement|rest|nutrition|mindfulness",
-      "title": "提案タイトル（15文字以内）",
-      "detail": "詳細説明（50文字以内）"
-    }
-  ],
-  "closingMessage": "締めの励ましメッセージ",
-  "dailyTry": {
-    "title": "今日のトライタイトル（20文字以内）",
-    "summary": "概要説明（30文字以内）",
-    "detail": "具体的な実践方法（100文字以内）"
+  "insight": "サーカディアンリズム画面用の見立て（3-5文、因果関係を明示）",
+  "daily_try": {
+    "title": "今日のトライタイトル（15文字以内）",
+    "detail": "具体的な実践方法（3-5文、なぜ今日これなのか含む）"
   },
-  "weeklyTry": null | {
-    "title": "今週のトライタイトル（20文字以内）",
-    "summary": "概要説明（30文字以内）",
-    "detail": "具体的な実践方法（150文字以内）"
-  },
-  "generatedAt": "現在のISO時刻",
-  "timeSlot": "morning"
+  "closing_message": "締めの励ましメッセージ（1-2文）"
 }
+
+【energy_comment生成ガイドライン】
+HRVスコアに応じてコメントを生成してください：
+- 80-100: 「今日は絶好調ですね」「最高のコンディションです」
+- 60-79: 「いいコンディションです」「調子は良さそうですね」
+- 40-59: 「無理せずペース配分を」「今日は程よく休憩を」
+- 20-39: 「今日は休息を優先しましょう」「回復を意識した1日に」
+- 0-19: 「しっかり休んでくださいね」「まずは休養が大切です」
+
+【insight生成ガイドライン】
+insightは「なぜ今日の状態がこうなのか」を因果関係で明示することが重要です：
+- 「昨夜は就寝が30分早かったため、HRVが+9%改善しました」（行動→結果）
+- 「睡眠時間が6時間と短めだったため、回復が十分でない可能性があります」（原因→影響）
+- 「3日連続でリズムが安定しているため、回復効率がアップしています」（継続→効果）
+
+【時間帯別挨拶】
+- 6-12時: おはようございます
+- 13-18時: こんにちは
+- 18時以降: お疲れさまです
 
 JSONの前後に説明文は不要です。純粋なJSONのみを出力してください。`,
   cache_control: { type: 'ephemeral' },
@@ -87,32 +93,3 @@ export const buildSystemPrompt = (): ClaudePromptLayer => ({
 ${buildOutputSchemaPrompt().text}`,
   cache_control: { type: 'ephemeral' },
 });
-
-export const buildAdditionalAdviceSystemPrompt = (): string => {
-  return `あなたはTempo AIの専属ヘルスケアアドバイザーです。
-
-【役割】
-- 朝のメインアドバイスを補完する追加アドバイスを提供
-- 時間帯に応じた適切なアドバイス（昼間・夕方）
-- 短く実践的な提案
-
-【トーンルール】
-- 敬語ベースの丁寧語
-- 親しみやすく励ましのある表現
-- 簡潔で分かりやすい
-
-【出力JSON形式】
-{
-  "greeting": "時間帯に応じた挨拶",
-  "message": "追加アドバイスメッセージ（100文字以内）",
-  "actionSuggestion": {
-    "icon": "hydration|movement|rest|nutrition|mindfulness",
-    "title": "提案タイトル（15文字以内）",
-    "detail": "詳細説明（50文字以内）"
-  },
-  "generatedAt": "現在のISO時刻",
-  "timeSlot": "midday|evening"
-}
-
-JSONの前後に説明文は不要です。純粋なJSONのみを出力してください。`;
-};

@@ -3,10 +3,23 @@ import SwiftUI
 /**
  * Card displaying today's try (daily challenge)
  * Prominently displayed on the home screen
+ * Phase 10: Updated to show detail preview instead of summary
  */
 struct DailyTryCard: View {
     let tryContent: TryContent
     let onTapAction: () -> Void
+
+    /// Preview of detail text (first 60 characters)
+    private var detailPreview: String {
+        if tryContent.detail.count <= 60 {
+            return tryContent.detail
+        }
+        let index = tryContent.detail.index(
+            tryContent.detail.startIndex,
+            offsetBy: 60
+        )
+        return String(tryContent.detail[..<index]) + "..."
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -33,8 +46,8 @@ struct DailyTryCard: View {
                 .fontWeight(.semibold)
                 .foregroundColor(.tempoPrimaryText)
 
-            // Try summary
-            Text(tryContent.summary)
+            // Try detail preview (Phase 10: replaced summary with detail preview)
+            Text(detailPreview)
                 .font(.subheadline)
                 .foregroundColor(.tempoSecondaryText)
                 .lineLimit(3)
@@ -79,8 +92,7 @@ struct DailyTryCard: View {
     DailyTryCard(
         tryContent: TryContent(
             title: "ドロップセット法に挑戦",
-            summary: "トレーニングの最後に、普段と違う刺激を筋肉に与えてみませんか？",
-            detail: "詳細はタップで表示"
+            detail: "トレーニングの最後に、普段と違う刺激を筋肉に与えてみませんか？通常の重量でできる限界まで行った後、重量を20-30%下げてさらに限界まで続けます。"
         )
     ) {
         // Navigation handled in production
@@ -93,8 +105,7 @@ struct DailyTryCard: View {
     DailyTryCard(
         tryContent: TryContent(
             title: "4-7-8呼吸法で眠りを整える",
-            summary: "今夜、就寝前に5分だけ「4-7-8呼吸法」を試してみてください。この呼吸法は副交感神経を活性化し、移動で高ぶった交感神経を鎮める効果があります。",
-            detail: "詳細はタップで表示"
+            detail: "今夜、就寝前に5分だけ「4-7-8呼吸法」を試してみてください。この呼吸法は副交感神経を活性化し、移動で高ぶった交感神経を鎮める効果があります。鼻から4秒かけて吸い、7秒間息を止め、8秒かけてゆっくり吐き出します。"
         )
     ) {
         // Navigation handled in production

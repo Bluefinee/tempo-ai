@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { Mock } from 'vitest';
 import Anthropic from '@anthropic-ai/sdk';
-import { generateMainAdvice, generateAdditionalAdvice, createFallbackAdvice } from './claude.js';
-import type { GenerateAdviceParams, AdditionalAdviceParams } from '../types/claude.js';
+import { generateMainAdvice, createFallbackAdvice } from './claude.js';
+import type { GenerateAdviceParams } from '../types/claude.js';
 import type { UserProfile, HealthData, WeatherData, AirQualityData } from '../types/domain.js';
 import { ClaudeApiError } from '../utils/errors.js';
 
@@ -43,6 +43,13 @@ describe('Claude API Service', () => {
     exerciseFrequency: 'three_to_four',
   };
 
+  const mockScores = {
+    hrv: 85,
+    sleep: 82,
+    rhythm: 78,
+    activity: 70,
+  };
+
   const mockHealthData: HealthData = {
     date: '2025-12-11T07:00:00.000Z',
     sleep: {
@@ -60,6 +67,7 @@ describe('Claude API Service', () => {
       steps: 8500,
       workoutType: 'ヨガ',
     },
+    scores: mockScores,
   };
 
   const mockWeatherData: WeatherData = {
@@ -97,32 +105,20 @@ describe('Claude API Service', () => {
 
   describe('generateMainAdvice', () => {
     it('should generate valid main advice with Claude Sonnet', async () => {
+      // Mock response in new snake_case format (as Claude returns it)
       const mockAdviceResponse = {
         greeting: 'テストユーザーさん、おはようございます',
+        energy_comment: '今日は絶好調ですね',
         condition: {
           summary: 'とても良い状態です。',
           detail: '8時間の睡眠とHRV45msで体調良好です。',
         },
-        actionSuggestions: [
-          {
-            icon: 'fitness',
-            title: '今日も軽い運動を',
-            detail: '昨日のヨガの効果で体調が良いので継続しましょう。',
-          },
-        ],
-        closingMessage: '今日も良い一日をお過ごしください。',
-        dailyTry: {
+        insight: '昨夜の良質な睡眠が、今日のコンディション向上に貢献しています。',
+        daily_try: {
           title: '朝のストレッチ',
-          summary: '目覚めを良くする軽いストレッチ',
           detail: '起床後5分間、軽く体を伸ばしてみてください。',
         },
-        weeklyTry: {
-          title: '新しい運動に挑戦',
-          summary: 'ヨガ以外の運動を試してみる',
-          detail: 'ピラティスやダンスなど新しい運動を一つ試してみませんか。',
-        },
-        generatedAt: '2025-12-11T07:00:00.000Z',
-        timeSlot: 'morning',
+        closing_message: '今日も良い一日をお過ごしください。',
       };
 
       const mockClaudeResponse = {
@@ -157,8 +153,12 @@ describe('Claude API Service', () => {
       });
 
       expect(result.greeting).toBe(mockAdviceResponse.greeting);
+      expect(result.energyComment).toBe(mockAdviceResponse.energy_comment);
       expect(result.condition.summary).toBe(mockAdviceResponse.condition.summary);
-      expect(result.actionSuggestions).toHaveLength(1);
+      expect(result.insight).toBe(mockAdviceResponse.insight);
+      expect(result.dailyTry.title).toBe(mockAdviceResponse.daily_try.title);
+      expect(result.closingMessage).toBe(mockAdviceResponse.closing_message);
+      expect(result.scores).toEqual(mockScores);
       expect(result.timeSlot).toBe('morning');
       expect(result.generatedAt).toBeTruthy();
     });
@@ -166,12 +166,11 @@ describe('Claude API Service', () => {
     it('should handle JSON response wrapped in code blocks', async () => {
       const mockAdviceResponse = {
         greeting: 'テストユーザーさん、おはようございます',
+        energy_comment: 'いいコンディションです',
         condition: { summary: 'test', detail: 'test' },
-        actionSuggestions: [{ icon: 'fitness', title: 'test', detail: 'test' }],
-        closingMessage: 'test',
-        dailyTry: { title: 'test', summary: 'test', detail: 'test' },
-        generatedAt: '2025-12-11T07:00:00.000Z',
-        timeSlot: 'morning',
+        insight: 'テストの洞察です。',
+        daily_try: { title: 'test', detail: 'test' },
+        closing_message: 'test',
       };
 
       const wrappedResponse = `\`\`\`json
@@ -187,6 +186,7 @@ ${JSON.stringify(mockAdviceResponse, null, 2)}
       const result = await generateMainAdvice(mockGenerateAdviceParams);
 
       expect(result.greeting).toBe(mockAdviceResponse.greeting);
+      expect(result.energyComment).toBe(mockAdviceResponse.energy_comment);
     });
 
     it('should handle Claude API errors gracefully', async () => {
@@ -208,6 +208,7 @@ ${JSON.stringify(mockAdviceResponse, null, 2)}
       // Should return fallback advice
       expect(result.greeting).toContain('テストユーザーさん');
       expect(result.condition.summary).toContain('あなたのペースで');
+      expect(result.scores).toEqual(mockScores);
     });
 
     it('should handle missing text content in response', async () => {
@@ -236,84 +237,70 @@ ${JSON.stringify(mockAdviceResponse, null, 2)}
 
       // Should fallback due to validation error
       expect(result.greeting).toContain('テストユーザーさん');
-    });
-  });
-
-  describe('generateAdditionalAdvice', () => {
-    const mockMainAdvice = {
-      greeting: 'テストユーザーさん、おはようございます',
-      condition: { summary: 'test', detail: 'test' },
-      actionSuggestions: [{ icon: 'fitness' as const, title: 'test', detail: 'test' }],
-      closingMessage: 'test',
-      dailyTry: { title: 'test', summary: 'test', detail: 'test' },
-      generatedAt: '2025-12-11T07:00:00.000Z',
-      timeSlot: 'morning' as const,
-    };
-
-    const mockAdditionalAdviceParams: AdditionalAdviceParams = {
-      mainAdvice: mockMainAdvice,
-      timeSlot: 'midday',
-      userProfile: mockUserProfile,
-      apiKey: 'test-api-key',
-    };
-
-    it('should generate valid additional advice with Claude Haiku', async () => {
-      const mockAdditionalResponse = {
-        greeting: 'テストユーザーさん、お疲れ様です',
-        message: '午後も頑張っていきましょう。',
-        actionSuggestion: {
-          icon: 'hydration',
-          title: '水分補給',
-          detail: 'こまめに水分を取りましょう。',
-        },
-        generatedAt: '2025-12-11T12:00:00.000Z',
-        timeSlot: 'midday',
-      };
-
-      const mockClaudeResponse = {
-        content: [{ type: 'text', text: JSON.stringify(mockAdditionalResponse) }],
-      };
-
-      mockClient.messages.create.mockResolvedValue(mockClaudeResponse);
-
-      const result = await generateAdditionalAdvice(mockAdditionalAdviceParams);
-
-      expect(mockClient.messages.create).toHaveBeenCalledWith({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 1024,
-        system: expect.any(String),
-        messages: [
-          {
-            role: 'user',
-            content: expect.stringContaining('テストユーザー'),
-          },
-        ],
-      });
-
-      expect(result.greeting).toBe(mockAdditionalResponse.greeting);
-      expect(result.timeSlot).toBe('midday');
-    });
-
-    it('should handle additional advice API errors with fallback', async () => {
-      mockClient.messages.create.mockRejectedValue(new Error('API Error'));
-
-      await expect(generateAdditionalAdvice(mockAdditionalAdviceParams)).rejects.toThrow(
-        ClaudeApiError,
-      );
+      expect(result.scores).toEqual(mockScores);
     });
   });
 
   describe('createFallbackAdvice', () => {
-    it('should create valid fallback advice', () => {
+    it('should create valid fallback advice for morning', () => {
       const nickname = 'テストユーザー';
-      const fallback = createFallbackAdvice(nickname);
+      const morningTime = '2025-12-11T07:00:00.000Z'; // 7AM
+      const fallback = createFallbackAdvice(nickname, mockScores, morningTime);
 
       expect(fallback.greeting).toContain(nickname);
+      expect(fallback.greeting).toContain('おはようございます');
+      expect(fallback.energyComment).toBeTruthy();
       expect(fallback.condition.summary).toBeTruthy();
-      expect(fallback.actionSuggestions).toHaveLength(2);
+      expect(fallback.insight).toBeTruthy();
       expect(fallback.dailyTry).toBeTruthy();
+      expect(fallback.closingMessage).toBeTruthy();
+      expect(fallback.scores).toEqual(mockScores);
       expect(fallback.timeSlot).toBe('morning');
       expect(fallback.generatedAt).toBeTruthy();
+    });
+
+    it('should create fallback advice with correct timeSlot based on currentTime', () => {
+      const nickname = 'テスト';
+
+      // Morning (0-11時)
+      const morning = createFallbackAdvice(nickname, mockScores, '2025-12-11T08:00:00.000Z');
+      expect(morning.timeSlot).toBe('morning');
+      expect(morning.greeting).toContain('おはようございます');
+
+      // Afternoon (12-17時)
+      const afternoon = createFallbackAdvice(nickname, mockScores, '2025-12-11T14:00:00.000Z');
+      expect(afternoon.timeSlot).toBe('afternoon');
+      expect(afternoon.greeting).toContain('お疲れさまです');
+
+      // Evening (18-23時)
+      const evening = createFallbackAdvice(nickname, mockScores, '2025-12-11T20:00:00.000Z');
+      expect(evening.timeSlot).toBe('evening');
+      expect(evening.greeting).toContain('お疲れさまでした');
+    });
+
+    it('should generate appropriate energy comment based on HRV score', () => {
+      const nickname = 'テスト';
+      const morningTime = '2025-12-11T07:00:00.000Z';
+
+      // High HRV (80-100): excellent comments
+      const highHrv = createFallbackAdvice(nickname, { ...mockScores, hrv: 85 }, morningTime);
+      expect(highHrv.energyComment).toBeTruthy();
+      expect(highHrv.energyComment.length).toBeGreaterThan(0);
+
+      // Medium HRV (60-79): good comments
+      const mediumHrv = createFallbackAdvice(nickname, { ...mockScores, hrv: 65 }, morningTime);
+      expect(mediumHrv.energyComment).toBeTruthy();
+      expect(mediumHrv.energyComment.length).toBeGreaterThan(0);
+
+      // Low HRV (20-39): low comments
+      const lowHrv = createFallbackAdvice(nickname, { ...mockScores, hrv: 35 }, morningTime);
+      expect(lowHrv.energyComment).toBeTruthy();
+      expect(lowHrv.energyComment.length).toBeGreaterThan(0);
+
+      // Very low HRV (0-19): veryLow comments
+      const veryLowHrv = createFallbackAdvice(nickname, { ...mockScores, hrv: 15 }, morningTime);
+      expect(veryLowHrv.energyComment).toBeTruthy();
+      expect(veryLowHrv.energyComment.length).toBeGreaterThan(0);
     });
   });
 

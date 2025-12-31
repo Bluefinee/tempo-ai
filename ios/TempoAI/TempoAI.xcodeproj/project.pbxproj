@@ -12,8 +12,8 @@
 		1B2C5887B3474D7299C4546C /* DailyAdviceModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B2C5887B3474D7299C4546D /* DailyAdviceModelTests.swift */; };
 		260F5F4924A94689AB55B534 /* UserProfileValidationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 260F5F4924A94689AB55B535 /* UserProfileValidationTests.swift */; };
 		4FB9C1F4B10E40BD9881662D /* HomeComponentsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FB9C1F4B10E40BD9881662E /* HomeComponentsTests.swift */; };
-		6907E5142EEBB6130064B2DD /* ActionSuggestionCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6907E5102EEBB6130064B2DD /* ActionSuggestionCard.swift */; };
 		6907E5152EEBB6130064B2DD /* AdviceDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6907E5112EEBB6130064B2DD /* AdviceDetailView.swift */; };
+		6907E5172EEBB6130064B2DD /* EnergyBatteryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6907E5132EEBB6130064B2DD /* EnergyBatteryView.swift */; };
 		6907E5162EEBB6130064B2DD /* DailyTryDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6907E5122EEBB6130064B2DD /* DailyTryDetailView.swift */; };
 		6978C7822EE96C5E00FCDC58 /* OnboardingState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6978C76F2EE96C5E00FCDC58 /* OnboardingState.swift */; };
 		6978C7832EE96C5E00FCDC58 /* LifestyleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6978C7732EE96C5E00FCDC58 /* LifestyleView.swift */; };
@@ -63,8 +63,8 @@
 		1B2C5887B3474D7299C4546D /* DailyAdviceModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyAdviceModelTests.swift; sourceTree = "<group>"; };
 		260F5F4924A94689AB55B535 /* UserProfileValidationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileValidationTests.swift; sourceTree = "<group>"; };
 		4FB9C1F4B10E40BD9881662E /* HomeComponentsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeComponentsTests.swift; sourceTree = "<group>"; };
-		6907E5102EEBB6130064B2DD /* ActionSuggestionCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionSuggestionCard.swift; sourceTree = "<group>"; };
 		6907E5112EEBB6130064B2DD /* AdviceDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdviceDetailView.swift; sourceTree = "<group>"; };
+		6907E5132EEBB6130064B2DD /* EnergyBatteryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnergyBatteryView.swift; sourceTree = "<group>"; };
 		6907E5122EEBB6130064B2DD /* DailyTryDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyTryDetailView.swift; sourceTree = "<group>"; };
 		6978C76F2EE96C5E00FCDC58 /* OnboardingState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingState.swift; sourceTree = "<group>"; };
 		6978C7712EE96C5E00FCDC58 /* BasicInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BasicInfoView.swift; sourceTree = "<group>"; };
@@ -228,9 +228,9 @@
 		719E2608701640429846F6E1 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				6907E5102EEBB6130064B2DD /* ActionSuggestionCard.swift */,
 				6907E5112EEBB6130064B2DD /* AdviceDetailView.swift */,
 				6907E5122EEBB6130064B2DD /* DailyTryDetailView.swift */,
+				6907E5132EEBB6130064B2DD /* EnergyBatteryView.swift */,
 				6978C7D32EEB141B00FCDC58 /* DailyTryCard.swift */,
 				DCE68EB664CE485388FCCD82 /* AdviceSummaryCard.swift */,
 				07F599A263CC446DBC079101 /* HomeHeaderView.swift */,
@@ -401,8 +401,8 @@
 				6978C7852EE96C5E00FCDC58 /* Color+Extensions.swift in Sources */,
 				6978C7862EE96C5E00FCDC58 /* CacheManager.swift in Sources */,
 				6978C7872EE96C5E00FCDC58 /* InterestsView.swift in Sources */,
-				6907E5142EEBB6130064B2DD /* ActionSuggestionCard.swift in Sources */,
 				6907E5152EEBB6130064B2DD /* AdviceDetailView.swift in Sources */,
+				6907E5172EEBB6130064B2DD /* EnergyBatteryView.swift in Sources */,
 				6907E5162EEBB6130064B2DD /* DailyTryDetailView.swift in Sources */,
 				6978C7DB2EEB141B00FCDC58 /* DailyTryCard.swift in Sources */,
 				6978C7882EE96C5E00FCDC58 /* OnboardingContainerView.swift in Sources */,

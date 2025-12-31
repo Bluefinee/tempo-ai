@@ -12,11 +12,14 @@ struct DailyAdviceModelTests {
         let advice = DailyAdvice.createMock()
 
         #expect(!advice.greeting.isEmpty)
+        #expect(!advice.energyComment.isEmpty)
         #expect(!advice.condition.summary.isEmpty)
         #expect(!advice.condition.detail.isEmpty)
-        #expect(advice.actionSuggestions.count > 0)
+        #expect(!advice.insight.isEmpty)
         #expect(!advice.closingMessage.isEmpty)
         #expect(!advice.dailyTry.title.isEmpty)
+        #expect(!advice.dailyTry.detail.isEmpty)
+        #expect(advice.scores.hrv >= 0 && advice.scores.hrv <= 100)
     }
 
     @Test("DailyAdvice respects time slot parameter")
@@ -28,11 +31,52 @@ struct DailyAdviceModelTests {
         #expect(morningAdvice.timeSlot == .morning)
         #expect(afternoonAdvice.timeSlot == .afternoon)
         #expect(eveningAdvice.timeSlot == .evening)
+    }
 
-        // Morning should have weekly try, others should not
-        #expect(morningAdvice.weeklyTry != nil)
-        #expect(afternoonAdvice.weeklyTry == nil)
-        #expect(eveningAdvice.weeklyTry == nil)
+    @Test("DailyAdvice respects custom scores parameter")
+    func dailyAdviceCustomScores() {
+        let customScores = HealthScores(hrv: 50, sleep: 60, rhythm: 70, activity: 80)
+        let advice = DailyAdvice.createMock(scores: customScores)
+
+        #expect(advice.scores.hrv == 50)
+        #expect(advice.scores.sleep == 60)
+        #expect(advice.scores.rhythm == 70)
+        #expect(advice.scores.activity == 80)
+    }
+
+    @Test("DailyAdvice.createMock(withHrvScore:) sets correct HRV")
+    func dailyAdviceWithHrvScore() {
+        let advice = DailyAdvice.createMock(withHrvScore: 35)
+
+        #expect(advice.scores.hrv == 35)
+    }
+
+    // MARK: - HealthScores Tests
+
+    @Test("HealthScores energyLevel returns correct level for various HRV scores")
+    func healthScoresEnergyLevel() {
+        let excellent = HealthScores(hrv: 85, sleep: 80, rhythm: 75, activity: 70)
+        let good = HealthScores(hrv: 70, sleep: 70, rhythm: 70, activity: 70)
+        let moderate = HealthScores(hrv: 50, sleep: 50, rhythm: 50, activity: 50)
+        let low = HealthScores(hrv: 30, sleep: 30, rhythm: 30, activity: 30)
+        let veryLow = HealthScores(hrv: 10, sleep: 10, rhythm: 10, activity: 10)
+
+        #expect(excellent.energyLevel == .excellent)
+        #expect(good.energyLevel == .good)
+        #expect(moderate.energyLevel == .moderate)
+        #expect(low.energyLevel == .low)
+        #expect(veryLow.energyLevel == .veryLow)
+    }
+
+    // MARK: - EnergyLevel Tests
+
+    @Test("EnergyLevel color returns correct values")
+    func energyLevelColors() {
+        #expect(EnergyLevel.excellent.color == "Primary")
+        #expect(EnergyLevel.good.color == "Primary")
+        #expect(EnergyLevel.moderate.color == "Yellow")
+        #expect(EnergyLevel.low.color == "Orange")
+        #expect(EnergyLevel.veryLow.color == "Red")
     }
 
     // MARK: - TimeSlot Tests
@@ -51,20 +95,17 @@ struct DailyAdviceModelTests {
         #expect(TimeSlot.evening.greeting == "お疲れさまでした")
     }
 
-    // MARK: - IconType Tests
+    // MARK: - TryContent Tests
 
-    @Test("IconType system images are correct")
-    func iconTypeSystemImages() {
-        #expect(IconType.fitness.systemImageName == "figure.strengthtraining.functional")
-        #expect(IconType.nutrition.systemImageName == "fork.knife")
-        #expect(IconType.sleep.systemImageName == "moon.stars.fill")
-    }
+    @Test("TryContent has required fields")
+    func tryContentFields() {
+        let tryContent = TryContent(
+            title: "テストタイトル",
+            detail: "テスト詳細"
+        )
 
-    @Test("IconType display names are correctly localized")
-    func iconTypeDisplayNames() {
-        #expect(IconType.fitness.displayName == "フィットネス")
-        #expect(IconType.nutrition.displayName == "栄養")
-        #expect(IconType.sleep.displayName == "睡眠")
+        #expect(tryContent.title == "テストタイトル")
+        #expect(tryContent.detail == "テスト詳細")
     }
 
     // MARK: - Codable Tests
@@ -79,8 +120,26 @@ struct DailyAdviceModelTests {
         let decodedAdvice = try JSONDecoder().decode(DailyAdvice.self, from: encodedData)
 
         #expect(decodedAdvice.greeting == advice.greeting)
+        #expect(decodedAdvice.energyComment == advice.energyComment)
         #expect(decodedAdvice.condition.summary == advice.condition.summary)
+        #expect(decodedAdvice.insight == advice.insight)
+        #expect(decodedAdvice.scores.hrv == advice.scores.hrv)
         #expect(decodedAdvice.timeSlot == advice.timeSlot)
+    }
+
+    @Test("HealthScores can be encoded and decoded")
+    func healthScoresCodable() throws {
+        let scores = HealthScores(hrv: 75, sleep: 80, rhythm: 70, activity: 65)
+
+        let encodedData = try JSONEncoder().encode(scores)
+        #expect(encodedData.count > 0)
+
+        let decodedScores = try JSONDecoder().decode(HealthScores.self, from: encodedData)
+
+        #expect(decodedScores.hrv == 75)
+        #expect(decodedScores.sleep == 80)
+        #expect(decodedScores.rhythm == 70)
+        #expect(decodedScores.activity == 65)
     }
 
     // MARK: - MockData Tests

@@ -94,12 +94,14 @@ struct HomeComponentsTests {
         let mockAdvice = DailyAdvice.createMock()
 
         #expect(!mockAdvice.greeting.isEmpty)
+        #expect(!mockAdvice.energyComment.isEmpty)
         #expect(!mockAdvice.condition.summary.isEmpty)
-        #expect(mockAdvice.actionSuggestions.count > 0)
+        #expect(!mockAdvice.insight.isEmpty)
         #expect(!mockAdvice.dailyTry.title.isEmpty)
+        #expect(mockAdvice.scores.hrv >= 0)
     }
 
-    @Test("DailyAdvice time slots affect weekly try availability")
+    @Test("DailyAdvice time slots work correctly")
     func dailyAdviceTimeSlotLogic() {
         let morningAdvice = DailyAdvice.createMock(timeSlot: .morning)
         let afternoonAdvice = DailyAdvice.createMock(timeSlot: .afternoon)
@@ -108,11 +110,29 @@ struct HomeComponentsTests {
         #expect(morningAdvice.timeSlot == .morning)
         #expect(afternoonAdvice.timeSlot == .afternoon)
         #expect(eveningAdvice.timeSlot == .evening)
+    }
 
-        // Morning advice should have weekly try, others should not
-        #expect(morningAdvice.weeklyTry != nil)
-        #expect(afternoonAdvice.weeklyTry == nil)
-        #expect(eveningAdvice.weeklyTry == nil)
+    // MARK: - HealthScores Tests
+
+    @Test("HealthScores energy level is determined by HRV score")
+    func healthScoresEnergyLevel() {
+        let highScores = HealthScores(hrv: 85, sleep: 80, rhythm: 75, activity: 70)
+        let lowScores = HealthScores(hrv: 25, sleep: 30, rhythm: 25, activity: 20)
+
+        #expect(highScores.energyLevel == .excellent)
+        #expect(lowScores.energyLevel == .low)
+    }
+
+    // MARK: - EnergyBatteryView Tests
+
+    @Test("EnergyBatteryView can be created with mock data")
+    func energyBatteryViewCreation() {
+        let scores = HealthScores(hrv: 75, sleep: 70, rhythm: 65, activity: 60)
+        let view = EnergyBatteryView(
+            scores: scores,
+            energyComment: "いいコンディションです"
+        )
+        #expect(type(of: view) == EnergyBatteryView.self)
     }
 
     // MARK: - UserProfile Tests
@@ -160,5 +180,24 @@ struct HomeComponentsTests {
     func settingsPlaceholderViewCreation() {
         let settingsView = SettingsPlaceholderView()
         #expect(type(of: settingsView) == SettingsPlaceholderView.self)
+    }
+
+    @Test("AdviceDetailView can be created with mock advice")
+    func adviceDetailViewCreation() {
+        let mockAdvice = DailyAdvice.createMock()
+        let view = AdviceDetailView(advice: mockAdvice)
+        #expect(type(of: view) == AdviceDetailView.self)
+    }
+
+    @Test("DailyTryCard can be created with mock try content")
+    func dailyTryCardCreation() {
+        let tryContent = TryContent(
+            title: "テストトライ",
+            detail: "テスト詳細説明"
+        )
+        let card = DailyTryCard(tryContent: tryContent) {
+            // Empty action for test
+        }
+        #expect(type(of: card) == DailyTryCard.self)
     }
 }

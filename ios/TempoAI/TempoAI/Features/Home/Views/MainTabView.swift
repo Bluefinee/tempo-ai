@@ -12,7 +12,7 @@ struct MainTabView: View {
         }
         .tag(0)
 
-      CircadianRhythmPlaceholderView()
+      CircadianRhythmView(data: .mock)
         .tabItem {
           Image(systemName: "clock.arrow.2.circlepath")
           Text("リズム")

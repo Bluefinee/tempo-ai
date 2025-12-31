@@ -59,6 +59,15 @@ extension Color {
   /// Sleep: Night Blue
   static let tempoSleep: Color = Color(red: 0.46, green: 0.58, blue: 0.78)  // #7594C7
 
+  // MARK: - Circadian Rhythm Colors
+
+  /// Sleep Zone: Dark Gray for sleep time visualization
+  static let tempoSleepZone: Color = Color(red: 0.29, green: 0.29, blue: 0.29)  // #4A4A4A
+
+  /// Focus Zone: Uses Primary (Sage Green) with opacity in views
+
+  /// Rest Zone: Uses Secondary (Warm Beige) with opacity in views
+
   // MARK: - Component Colors
 
   /// Input Field Background

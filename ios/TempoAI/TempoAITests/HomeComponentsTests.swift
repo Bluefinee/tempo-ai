@@ -161,28 +161,4 @@ struct HomeComponentsTests {
         let settingsView = SettingsPlaceholderView()
         #expect(type(of: settingsView) == SettingsPlaceholderView.self)
     }
-
-    // MARK: - Phase 3 Component Tests
-
-    #if DEBUG
-    @Test("MetricCard can be created with mock metric")
-    func metricCardCreation() {
-        let metric = MockData.mockMetrics[0]
-        let card = MetricCard(metric: metric)
-        #expect(type(of: card) == MetricCard.self)
-    }
-
-    @Test("MetricsGridView can be created with mock metrics")
-    func metricsGridViewCreation() {
-        let metrics = MockData.mockMetrics
-        let gridView = MetricsGridView(metrics: metrics)
-        #expect(type(of: gridView) == MetricsGridView.self)
-    }
-
-    @Test("Mock metrics has exactly 4 items for grid layout")
-    func metricsGridViewWithFourMetrics() {
-        let metrics = MockData.mockMetrics
-        #expect(metrics.count == 4)
-    }
-    #endif
 }

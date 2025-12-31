@@ -9,11 +9,14 @@ interface TestAdviceResponse {
   data?: {
     greeting: string;
     timeSlot: string;
-    actionSuggestions: Array<{
-      icon: string;
-      title: string;
-      detail: string;
-    }>;
+    energyComment: string;
+    insight: string;
+    scores: {
+      hrv: number;
+      sleep: number;
+      rhythm: number;
+      activity: number;
+    };
   };
 }
 
@@ -28,32 +31,26 @@ describe('Tempo AI Backend', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Mock successful Claude API response
+    // Mock successful Claude API response (Phase 10 format)
     const mockAdviceResponse = {
       greeting: 'テストユーザーさん、おはようございます',
+      energyComment: '今日は絶好調ですね！',
       condition: {
         summary: '良好な状態です。',
         detail: 'テスト用のアドバイスです。',
       },
-      actionSuggestions: [
-        {
-          icon: 'fitness' as const,
-          title: '軽い運動',
-          detail: '今日も元気に過ごしましょう。',
-        },
-        {
-          icon: 'hydration' as const,
-          title: '水分補給',
-          detail: 'こまめに水分を取りましょう。',
-        },
-      ],
-      closingMessage: '今日も良い一日をお過ごしください。',
+      insight: '良質な睡眠がHRV向上に貢献しています。',
       dailyTry: {
         title: 'テスト用トライ',
-        summary: 'テスト用の概要',
         detail: 'テスト用の詳細説明です。',
       },
-      weeklyTry: undefined,
+      closingMessage: '今日も良い一日をお過ごしください。',
+      scores: {
+        hrv: 85,
+        sleep: 82,
+        rhythm: 78,
+        activity: 70,
+      },
       generatedAt: new Date().toISOString(),
       timeSlot: 'morning' as const,
     };
@@ -104,7 +101,10 @@ describe('Tempo AI Backend', () => {
       },
       body: JSON.stringify({
         userProfile: { nickname: 'test' },
-        healthData: { date: '2025-12-10T07:00:00.000Z' },
+        healthData: {
+          date: '2025-12-10T07:00:00.000Z',
+          scores: { hrv: 85, sleep: 82, rhythm: 78, activity: 70 },
+        },
         location: { latitude: 35.6762, longitude: 139.6503 },
         context: {
           currentTime: '2025-12-10T07:00:00.000Z',
@@ -144,6 +144,7 @@ describe('Tempo AI Backend', () => {
         },
         healthData: {
           date: '2025-12-10T07:00:00.000Z',
+          scores: { hrv: 85, sleep: 82, rhythm: 78, activity: 70 },
           sleep: { durationHours: 7.5, awakenings: 2 },
           morningVitals: { restingHeartRate: 62 },
           yesterdayActivity: { steps: 8520 },
@@ -178,7 +179,9 @@ describe('Tempo AI Backend', () => {
     if (json.data) {
       expect(json.data.greeting).toContain('テストユーザーさん');
       expect(json.data.timeSlot).toBeTruthy();
-      expect(json.data.actionSuggestions).toHaveLength(2);
+      expect(json.data.energyComment).toBeTruthy();
+      expect(json.data.insight).toBeTruthy();
+      expect(json.data.scores).toBeTruthy();
     }
   });
 

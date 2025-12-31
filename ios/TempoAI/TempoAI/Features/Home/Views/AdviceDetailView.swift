@@ -1,6 +1,7 @@
 import SwiftUI
 
-/// Advice detail screen showing full condition details, action suggestions, and closing message
+/// Advice detail screen showing full condition details, insight, and closing message
+/// Phase 10: Replaced action suggestions with insight section
 struct AdviceDetailView: View {
     let advice: DailyAdvice
 
@@ -22,19 +23,30 @@ struct AdviceDetailView: View {
                         .fixedSize(horizontal: false, vertical: true)
                 }
 
-                // MARK: - Today's Actions Section
+                // MARK: - Insight Section (Phase 10: replaces action suggestions)
 
                 VStack(alignment: .leading, spacing: 16) {
-                    Text("今日のアクション")
-                        .font(.title3)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.tempoPrimaryText)
+                    HStack(spacing: 8) {
+                        Image(systemName: "lightbulb.fill")
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundStyle(Color.tempoSoftCoral)
 
-                    VStack(spacing: 12) {
-                        ForEach(advice.actionSuggestions) { suggestion in
-                            ActionSuggestionCard(suggestion: suggestion)
-                        }
+                        Text("AIの見立て")
+                            .font(.title3)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.tempoPrimaryText)
                     }
+
+                    Text(advice.insight)
+                        .font(.body)
+                        .foregroundColor(.tempoPrimaryText)
+                        .lineSpacing(8)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(16)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.tempoSoftCoral.opacity(0.08))
+                        )
                 }
 
                 // MARK: - Closing Message

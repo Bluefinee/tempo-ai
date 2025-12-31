@@ -1,16 +1,8 @@
 import Anthropic from '@anthropic-ai/sdk';
 import type { DailyAdvice } from '../types/domain.js';
-import type {
-  GenerateAdviceParams,
-  AdditionalAdviceParams,
-  AdditionalAdvice,
-} from '../types/claude.js';
-import { buildSystemPrompt, buildAdditionalAdviceSystemPrompt } from '../prompts/system.js';
-import {
-  getExamplesForInterest,
-  buildUserDataPrompt,
-  buildAdditionalAdviceUserPrompt,
-} from '../utils/prompt.js';
+import type { GenerateAdviceParams } from '../types/claude.js';
+import { buildSystemPrompt } from '../prompts/system.js';
+import { getExamplesForInterest, buildUserDataPrompt } from '../utils/prompt.js';
 import { ValidationError, ClaudeApiError } from '../utils/errors.js';
 
 /**
@@ -79,69 +71,6 @@ export const generateMainAdvice = async (params: GenerateAdviceParams): Promise<
   }
 };
 
-/**
- * Claude Haiku を用いて追加アドバイス（昼間・夕方）を生成します
- *
- * 朝のメインアドバイスを補完する短文のアドバイスを低コストで生成し、
- * 時間帯に応じた適切なメッセージを提供します。
- *
- * @param params - 追加アドバイス生成パラメータ
- * @param params.mainAdvice - 朝に生成されたメインアドバイス（文脈として使用）
- * @param params.timeSlot - 対象時間帯（"midday": 昼間、"evening": 夕方）
- * @param params.userProfile - ユーザープロフィール（ニックネーム等）
- * @param params.apiKey - Claude API認証キー
- * @returns 時間帯に適した `AdditionalAdvice` オブジェクト（短文メッセージ）
- * @throws {ClaudeApiError} Claude Haiku API呼び出し失敗、ネットワークエラー時
- * @throws {ValidationError} JSONパース失敗時（自動的にフォールバック処理）
- *
- * @example
- * ```typescript
- * const additionalAdvice = await generateAdditionalAdvice({
- *   mainAdvice: morningAdvice,
- *   timeSlot: 'midday',
- *   userProfile: { nickname: '田中', ... },
- *   apiKey: 'claude-api-key'
- * });
- * console.log(additionalAdvice.greeting); // "田中さん、お疲れ様です"
- * ```
- */
-export const generateAdditionalAdvice = async (
-  params: AdditionalAdviceParams,
-): Promise<AdditionalAdvice> => {
-  const client = new Anthropic({ apiKey: params.apiKey });
-
-  try {
-    const systemPrompt = buildAdditionalAdviceSystemPrompt();
-    const userPrompt = buildAdditionalAdviceUserPrompt(params);
-
-    const response = await client.messages.create({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 1024,
-      system: systemPrompt,
-      messages: [
-        {
-          role: 'user',
-          content: userPrompt,
-        },
-      ],
-    });
-
-    return parseAdditionalAdviceResponse(response, params);
-  } catch (error) {
-    console.error('[Claude] Additional advice generation failed:', error);
-
-    if (error instanceof ClaudeApiError || error instanceof ValidationError) {
-      throw error;
-    }
-
-    if (error instanceof Error) {
-      throw new ClaudeApiError(`Claude API request failed: ${error.message}`, 500, error);
-    }
-
-    throw new ClaudeApiError('Unknown error occurred while generating additional advice');
-  }
-};
-
 const parseAdviceResponse = (
   response: Anthropic.Message,
   params: GenerateAdviceParams,
@@ -165,10 +94,21 @@ const parseAdviceResponse = (
     const parsed = JSON.parse(jsonString);
     validateDailyAdvice(parsed);
 
-    // 自動的に現在時刻とタイムスロットを設定
-    const advice = parsed as DailyAdvice;
-    advice.generatedAt = new Date().toISOString();
-    advice.timeSlot = 'morning';
+    // スネークケースからキャメルケースへ変換
+    const advice: DailyAdvice = {
+      greeting: parsed.greeting,
+      energyComment: parsed.energy_comment,
+      condition: parsed.condition,
+      insight: parsed.insight,
+      dailyTry: {
+        title: parsed.daily_try.title,
+        detail: parsed.daily_try.detail,
+      },
+      closingMessage: parsed.closing_message,
+      scores: params.healthData.scores, // スコアはリクエストから取得
+      generatedAt: new Date().toISOString(),
+      timeSlot: 'morning',
+    };
 
     return advice;
   } catch (parseError) {
@@ -176,41 +116,7 @@ const parseAdviceResponse = (
     console.error('[Claude] Raw response:', jsonString);
 
     // パースに失敗した場合はフォールバック
-    return createFallbackAdvice(params.userProfile.nickname);
-  }
-};
-
-const parseAdditionalAdviceResponse = (
-  response: Anthropic.Message,
-  params: AdditionalAdviceParams,
-): AdditionalAdvice => {
-  const textContent = response.content.find(
-    (c): c is Extract<typeof c, { type: 'text' }> => c.type === 'text',
-  );
-  if (!textContent) {
-    throw new ClaudeApiError('No text content in Claude response');
-  }
-
-  let jsonString = textContent.text.trim();
-
-  const jsonMatch = jsonString.match(/```json\s*([\s\S]*?)\s*```/);
-  if (jsonMatch?.[1]) {
-    jsonString = jsonMatch[1].trim();
-  }
-
-  try {
-    const parsed = JSON.parse(jsonString);
-    validateAdditionalAdvice(parsed);
-
-    const advice = parsed as AdditionalAdvice;
-    advice.generatedAt = new Date().toISOString();
-    advice.timeSlot = params.timeSlot;
-
-    return advice;
-  } catch (parseError) {
-    console.error('[Claude] Additional advice JSON parse failed:', parseError);
-
-    return createFallbackAdditionalAdvice(params.userProfile.nickname, params.timeSlot);
+    return createFallbackAdvice(params.userProfile.nickname, params.healthData.scores);
   }
 };
 
@@ -225,6 +131,14 @@ const validateDailyAdvice = (data: unknown): void => {
     throw new ValidationError('Missing or invalid greeting', 'greeting', advice['greeting']);
   }
 
+  if (typeof advice['energy_comment'] !== 'string') {
+    throw new ValidationError(
+      'Missing or invalid energy_comment',
+      'energy_comment',
+      advice['energy_comment'],
+    );
+  }
+
   if (typeof advice['condition'] !== 'object' || advice['condition'] === null) {
     throw new ValidationError('Missing or invalid condition', 'condition', advice['condition']);
   }
@@ -234,49 +148,25 @@ const validateDailyAdvice = (data: unknown): void => {
     throw new ValidationError('Invalid condition structure', 'condition', condition);
   }
 
-  if (!Array.isArray(advice['actionSuggestions'])) {
+  if (typeof advice['insight'] !== 'string') {
+    throw new ValidationError('Missing or invalid insight', 'insight', advice['insight']);
+  }
+
+  if (typeof advice['daily_try'] !== 'object' || advice['daily_try'] === null) {
+    throw new ValidationError('Missing or invalid daily_try', 'daily_try', advice['daily_try']);
+  }
+
+  const dailyTry = advice['daily_try'] as Record<string, unknown>;
+  if (typeof dailyTry['title'] !== 'string' || typeof dailyTry['detail'] !== 'string') {
+    throw new ValidationError('Invalid daily_try structure', 'daily_try', dailyTry);
+  }
+
+  if (typeof advice['closing_message'] !== 'string') {
     throw new ValidationError(
-      'Missing or invalid actionSuggestions',
-      'actionSuggestions',
-      advice['actionSuggestions'],
+      'Missing or invalid closing_message',
+      'closing_message',
+      advice['closing_message'],
     );
-  }
-
-  if (typeof advice['closingMessage'] !== 'string') {
-    throw new ValidationError(
-      'Missing or invalid closingMessage',
-      'closingMessage',
-      advice['closingMessage'],
-    );
-  }
-
-  if (typeof advice['dailyTry'] !== 'object' || advice['dailyTry'] === null) {
-    throw new ValidationError('Missing or invalid dailyTry', 'dailyTry', advice['dailyTry']);
-  }
-
-  const dailyTry = advice['dailyTry'] as Record<string, unknown>;
-  if (
-    typeof dailyTry['title'] !== 'string' ||
-    typeof dailyTry['summary'] !== 'string' ||
-    typeof dailyTry['detail'] !== 'string'
-  ) {
-    throw new ValidationError('Invalid dailyTry structure', 'dailyTry', dailyTry);
-  }
-};
-
-const validateAdditionalAdvice = (data: unknown): void => {
-  if (typeof data !== 'object' || data === null) {
-    throw new ValidationError('Invalid additional advice: not an object', 'root', data);
-  }
-
-  const advice = data as Record<string, unknown>;
-
-  if (typeof advice['greeting'] !== 'string') {
-    throw new ValidationError('Missing or invalid greeting', 'greeting', advice['greeting']);
-  }
-
-  if (typeof advice['message'] !== 'string') {
-    throw new ValidationError('Missing or invalid message', 'message', advice['message']);
   }
 };
 
@@ -287,98 +177,104 @@ const validateAdditionalAdvice = (data: unknown): void => {
  * サービスの継続性とユーザー体験を確保します。固定コンテンツで安全性を保証します。
  *
  * @param nickname - ユーザーのニックネーム（挨拶のパーソナライズに使用）
+ * @param scores - 健康スコア（HRV、睡眠、リズム、活動量）
  * @returns 汎用的な `DailyAdvice` オブジェクト
- * @returns {string} returns.greeting - パーソナライズされた挨拶
- * @returns {object} returns.condition - 汎用的な体調メッセージ
- * @returns {Array} returns.actionSuggestions - 基本的な健康行動提案（水分補給、深呼吸）
- * @returns {string} returns.closingMessage - 励ましのメッセージ
- * @returns {object} returns.dailyTry - 基本的な実践提案（深呼吸）
- * @returns {undefined} returns.weeklyTry - フォールバック時は週次提案なし
  *
  * @example
  * ```typescript
  * try {
  *   const advice = await generateMainAdvice(params);
  * } catch (error) {
- *   const fallback = createFallbackAdvice('田中');
+ *   const fallback = createFallbackAdvice('田中', { hrv: 70, sleep: 75, rhythm: 80, activity: 60 });
  *   console.log(fallback.greeting); // "田中さん、おはようございます"
  * }
  * ```
  */
-export const createFallbackAdvice = (nickname: string): DailyAdvice => ({
-  greeting: `${nickname}さん、おはようございます`,
-  condition: {
-    summary: '今日も一日、あなたのペースで過ごしていきましょう。',
-    detail:
-      '本日のアドバイスを生成できませんでした。ヘルスケアデータと環境情報を確認して、また後でお試しください。',
-  },
-  actionSuggestions: [
-    {
-      icon: 'hydration',
-      title: 'こまめな水分補給を',
-      detail: '1日を通して、こまめに水分を補給しましょう。',
-    },
-    {
-      icon: 'mental',
-      title: '深呼吸でリラックス',
-      detail: 'ゆっくりと深呼吸をして、心を落ち着けてみませんか？',
-    },
-  ],
-  closingMessage: '今日も良い一日をお過ごしください。',
-  dailyTry: {
-    title: '深呼吸を3回',
-    summary: 'ゆっくりと深呼吸をして、心を落ち着けてみませんか？',
-    detail: '鼻から4秒で吸って、7秒間息を止め、口から8秒でゆっくり吐き出してみてください。',
-  },
-  weeklyTry: undefined,
-  generatedAt: new Date().toISOString(),
-  timeSlot: 'morning',
-});
-
-/**
- * 追加アドバイス生成失敗時に使用するフォールバックを生成します
- *
- * Claude Haiku API の障害、タイムアウト、JSONパースエラー時に時間帯に適した
- * 基本的なメッセージを提供し、追加アドバイス機能の継続性を確保します。
- *
- * @param nickname - ユーザーのニックネーム（挨拶のパーソナライズに使用）
- * @param timeSlot - 対象時間帯（"midday": 昼間、"evening": 夕方）
- * @returns 基本的なメッセージを含む `AdditionalAdvice` オブジェクト
- * @returns {string} returns.greeting - 時間帯に適したパーソナライズ挨拶
- * @returns {string} returns.message - 時間帯に応じた励ましメッセージ
- * @returns {object} returns.actionSuggestion - 基本的な水分補給提案
- * @returns {string} returns.generatedAt - フォールバック生成時刻
- * @returns {string} returns.timeSlot - リクエストされた時間帯
- *
- * @example
- * ```typescript
- * try {
- *   const advice = await generateAdditionalAdvice(params);
- * } catch (error) {
- *   const fallback = createFallbackAdditionalAdvice('田中', 'midday');
- *   console.log(fallback.greeting); // "田中さん、お疲れ様です"
- * }
- * ```
- */
-export const createFallbackAdditionalAdvice = (
+export const createFallbackAdvice = (
   nickname: string,
-  timeSlot: 'midday' | 'evening',
-): AdditionalAdvice => {
-  const timeText = timeSlot === 'midday' ? 'お疲れ様です' : 'お疲れ様でした';
-  const message =
-    timeSlot === 'midday'
-      ? '午後も無理をせず、ご自分のペースで進めてくださいね。'
-      : '今日も一日お疲れ様でした。ゆっくりと休息をお取りください。';
+  scores: { hrv: number; sleep: number; rhythm: number; activity: number },
+): DailyAdvice => {
+  // HRVスコアに応じたエネルギーコメントを生成（優しいお姉さんのトーン）
+  const energyComments = {
+    excellent: [
+      '今日は絶好調ですね',
+      'エネルギー満タン、何でもできそう',
+      '体が軽く感じる日ですね',
+      'いい感じに整ってますよ',
+      'やりたいことに挑戦できる日',
+      '調子いいですね、素敵です',
+      'パワフルな1日になりそう',
+    ],
+    good: [
+      'いい感じですね',
+      '安定したコンディションです',
+      '順調な滑り出しですよ',
+      'いつも通りのあなたで大丈夫',
+      'バランス取れてますね',
+      '落ち着いた調子ですね',
+    ],
+    moderate: [
+      '今日はマイペースでいきましょ',
+      '大事なことに絞っていこうね',
+      'ちょっと省エネモードかな',
+      '焦らず、ゆっくりでいいですよ',
+      '優先順位をつけて進めましょ',
+      'できる範囲で大丈夫ですよ',
+    ],
+    low: [
+      '今日はゆるめに過ごしましょ',
+      '体が休みたがってるみたい',
+      '自分を甘やかしていい日ですよ',
+      '無理しないでね',
+      'のんびりいきましょ',
+      '頑張りすぎなくて大丈夫',
+    ],
+    veryLow: [
+      'ゆっくり休んでくださいね',
+      '今日はお休みモードで',
+      '体を休めることも大切ですよ',
+      '充電の日にしましょ',
+      '何もしなくていい日ですよ',
+      'あなたの体を労わってあげて',
+    ],
+  };
+
+  const getEnergyComment = (hrvScore: number): string => {
+    let comments: readonly string[];
+    if (hrvScore >= 80) {
+      comments = energyComments.excellent;
+    } else if (hrvScore >= 60) {
+      comments = energyComments.good;
+    } else if (hrvScore >= 40) {
+      comments = energyComments.moderate;
+    } else if (hrvScore >= 20) {
+      comments = energyComments.low;
+    } else {
+      comments = energyComments.veryLow;
+    }
+    const index = Math.floor(Math.random() * comments.length);
+    return comments[index] ?? 'いい感じですね';
+  };
 
   return {
-    greeting: `${nickname}さん、${timeText}`,
-    message,
-    actionSuggestion: {
-      icon: 'hydration',
-      title: '水分補給を忘れずに',
-      detail: 'こまめな水分補給で体調を維持しましょう。',
+    greeting: `${nickname}さん、おはようございます`,
+    energyComment: getEnergyComment(scores.hrv),
+    condition: {
+      summary:
+        '今日も一日、あなたのペースで過ごしていきましょう。体調に合わせて無理なく過ごしてくださいね。',
+      detail:
+        '本日のアドバイスを生成できませんでした。ヘルスケアデータと環境情報を確認して、また後でお試しください。基本的な水分補給とこまめな休憩を心がけて、リラックスした1日をお過ごしください。',
     },
+    insight:
+      'アドバイスの生成中に問題が発生しました。ヘルスケアデータは正常に取得できていますので、しばらくしてから再度お試しください。',
+    dailyTry: {
+      title: '深呼吸を3回',
+      detail:
+        '鼻から4秒で吸って、7秒間息を止め、口から8秒でゆっくり吐き出してみてください。気持ちを落ち着けるのに効果的です。',
+    },
+    closingMessage: '今日も良い一日をお過ごしください。',
+    scores,
     generatedAt: new Date().toISOString(),
-    timeSlot,
+    timeSlot: 'morning',
   };
 };

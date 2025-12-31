@@ -16,6 +16,12 @@ describe('Request Validation', () => {
     },
     healthData: {
       date: '2025-12-11T07:00:00.000Z',
+      scores: {
+        hrv: 85,
+        sleep: 82,
+        rhythm: 78,
+        activity: 70,
+      },
       sleep: {
         bedtime: '2025-12-10T23:00:00.000Z',
         wakeTime: '2025-12-11T07:00:00.000Z',
@@ -171,7 +177,13 @@ describe('Request Validation', () => {
         ...validRequestData,
         healthData: {
           date: '2025-12-11T07:00:00.000Z',
-          // Only required field
+          scores: {
+            hrv: 70,
+            sleep: 70,
+            rhythm: 70,
+            activity: 70,
+          },
+          // Only required fields
         },
       };
 

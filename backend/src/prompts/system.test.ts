@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildSystemPrompt, buildAdditionalAdviceSystemPrompt } from './system.js';
+import { buildSystemPrompt } from './system.js';
 
 describe('System Prompts', () => {
   describe('buildSystemPrompt', () => {
@@ -56,28 +56,19 @@ describe('System Prompts', () => {
     it('should contain complete JSON output format specification', () => {
       const result = buildSystemPrompt();
 
-      // Check all required JSON fields are specified
+      // Check all required JSON fields are specified (Phase 10 format)
       expect(result.text).toContain('出力JSON形式');
       expect(result.text).toContain('greeting');
+      expect(result.text).toContain('energy_comment');
       expect(result.text).toContain('condition');
       expect(result.text).toContain('summary');
       expect(result.text).toContain('detail');
-      expect(result.text).toContain('actionSuggestions');
-      expect(result.text).toContain('closingMessage');
-      expect(result.text).toContain('dailyTry');
-      expect(result.text).toContain('weeklyTry');
-      expect(result.text).toContain('generatedAt');
-      expect(result.text).toContain('timeSlot');
-
-      // Check icon types are specified
-      expect(result.text).toContain('hydration|movement|rest|nutrition|mindfulness');
+      expect(result.text).toContain('insight');
+      expect(result.text).toContain('closing_message');
+      expect(result.text).toContain('daily_try');
 
       // Check field constraints
       expect(result.text).toContain('15文字以内');
-      expect(result.text).toContain('50文字以内');
-      expect(result.text).toContain('20文字以内');
-      expect(result.text).toContain('30文字以内');
-      expect(result.text).toContain('100文字以内');
     });
 
     it('should specify JSON-only output requirement', () => {
@@ -88,59 +79,6 @@ describe('System Prompts', () => {
     });
   });
 
-  describe('buildAdditionalAdviceSystemPrompt', () => {
-    it('should build additional advice system prompt', () => {
-      const result = buildAdditionalAdviceSystemPrompt();
-
-      expect(typeof result).toBe('string');
-      expect(result).toBeTruthy();
-    });
-
-    it('should contain role definition for additional advice', () => {
-      const result = buildAdditionalAdviceSystemPrompt();
-
-      expect(result).toContain('Tempo AIの専属ヘルスケアアドバイザー');
-      expect(result).toContain('朝のメインアドバイスを補完する追加アドバイス');
-      expect(result).toContain('時間帯に応じた適切なアドバイス');
-    });
-
-    it('should contain tone guidelines for additional advice', () => {
-      const result = buildAdditionalAdviceSystemPrompt();
-
-      expect(result).toContain('トーンルール');
-      expect(result).toContain('敬語ベースの丁寧語');
-      expect(result).toContain('親しみやすく励ましのある表現');
-      expect(result).toContain('簡潔で分かりやすい');
-    });
-
-    it('should contain additional advice JSON format specification', () => {
-      const result = buildAdditionalAdviceSystemPrompt();
-
-      // Check required fields for additional advice
-      expect(result).toContain('出力JSON形式');
-      expect(result).toContain('greeting');
-      expect(result).toContain('message');
-      expect(result).toContain('actionSuggestion');
-      expect(result).toContain('generatedAt');
-      expect(result).toContain('timeSlot');
-
-      // Check time slot values
-      expect(result).toContain('midday|evening');
-
-      // Check field constraints
-      expect(result).toContain('100文字以内');
-      expect(result).toContain('15文字以内');
-      expect(result).toContain('50文字以内');
-    });
-
-    it('should specify JSON-only output requirement for additional advice', () => {
-      const result = buildAdditionalAdviceSystemPrompt();
-
-      expect(result).toContain('JSONの前後に説明文は不要');
-      expect(result).toContain('純粋なJSONのみを出力');
-    });
-  });
-
   describe('System Prompt Content Quality', () => {
     it('should have appropriate length for system prompt', () => {
       const result = buildSystemPrompt();
@@ -148,14 +86,6 @@ describe('System Prompts', () => {
       // Should be substantial but not excessive (roughly 1,500 tokens as specified in design)
       expect(result.text.length).toBeGreaterThan(1000);
       expect(result.text.length).toBeLessThan(4000);
-    });
-
-    it('should have appropriate length for additional advice prompt', () => {
-      const result = buildAdditionalAdviceSystemPrompt();
-
-      // Should be shorter than main system prompt
-      expect(result.length).toBeGreaterThan(400);
-      expect(result.length).toBeLessThan(2000);
     });
 
     it('should contain structured sections in system prompt', () => {
@@ -187,14 +117,13 @@ describe('System Prompts', () => {
       expect(result.text).toContain('}');
     });
 
-    it('should include all required icon types', () => {
+    it('should include energy comment guidelines', () => {
       const result = buildSystemPrompt();
 
-      const iconTypes = ['hydration', 'movement', 'rest', 'nutrition', 'mindfulness'];
-
-      for (const iconType of iconTypes) {
-        expect(result.text).toContain(iconType);
-      }
+      // Phase 10: Check for energy_comment and insight guidelines
+      expect(result.text).toContain('energy_comment');
+      expect(result.text).toContain('insight');
+      expect(result.text).toContain('HRVスコア');
     });
 
     it('should include cache control configuration', () => {

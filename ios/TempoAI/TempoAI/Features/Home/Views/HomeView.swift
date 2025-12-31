@@ -9,6 +9,15 @@ enum HomeNavigationDestination: Hashable {
 
 // MARK: - HomeView
 
+/**
+ * Main home screen displaying daily health advice
+ * Phase 10: Added EnergyBatteryView at the top of scrollable content
+ *
+ * Layout (from ui-spec.md):
+ * - Header → Energy Battery (16pt)
+ * - Energy Battery → Advice Summary (20pt)
+ * - Advice Summary → Daily Try (24pt)
+ */
 struct HomeView: View {
     let userProfile: UserProfile
     @State private var mockAdvice: DailyAdvice = DailyAdvice.createMock()
@@ -27,13 +36,21 @@ struct HomeView: View {
 
                     // Scrollable content
                     ScrollView {
-                        VStack(spacing: 20) {
+                        VStack(spacing: 0) {
+                            // Energy Battery View (Phase 10)
+                            EnergyBatteryView(
+                                scores: mockAdvice.scores,
+                                energyComment: mockAdvice.energyComment
+                            )
+                            .padding(.horizontal, 24)
+                            .padding(.top, 16)  // 16pt from header
+
                             // Advice summary card
                             AdviceSummaryCard(advice: mockAdvice) {
                                 navigationPath.append(HomeNavigationDestination.adviceDetail(mockAdvice))
                             }
                             .padding(.horizontal, 24)
-                            .padding(.top, 8)
+                            .padding(.top, 20)  // 20pt from energy battery
 
                             // Daily try card
                             DailyTryCard(tryContent: mockAdvice.dailyTry) {
@@ -42,6 +59,7 @@ struct HomeView: View {
                                 )
                             }
                             .padding(.horizontal, 24)
+                            .padding(.top, 24)  // 24pt from advice card
 
                             // Space for tab bar
                             Spacer()
@@ -65,6 +83,13 @@ struct HomeView: View {
 
 #if DEBUG
 #Preview {
-  HomeView(userProfile: UserProfile.sampleData)
+    HomeView(userProfile: UserProfile.sampleData)
+}
+
+#Preview("Low Energy") {
+    let lowEnergyAdvice = DailyAdvice.createMock(
+        withHrvScore: 35
+    )
+    return HomeView(userProfile: UserProfile.sampleData)
 }
 #endif

@@ -63,7 +63,6 @@ struct DailyTryDetailView: View {
         DailyTryDetailView(
             tryContent: TryContent(
                 title: "ドロップセット法に挑戦",
-                summary: "トレーニングの最後に、普段と違う刺激を筋肉に与えてみませんか？",
                 detail: """
                 今日のトレーニングで、最後のセットにドロップセット法を取り入れてみませんか？
 
@@ -85,7 +84,6 @@ struct DailyTryDetailView: View {
         DailyTryDetailView(
             tryContent: TryContent(
                 title: "4-7-8呼吸法で眠りを整える",
-                summary: "今夜、就寝前に5分だけ試してみませんか？",
                 detail: """
                 今夜、就寝前に5分だけ「4-7-8呼吸法」を試してみてください。
 

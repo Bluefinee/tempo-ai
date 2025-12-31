@@ -1,8 +1,4 @@
-import type {
-  GenerateAdviceParams,
-  AdditionalAdviceParams,
-  ClaudePromptLayer,
-} from '../types/claude.js';
+import type { GenerateAdviceParams, ClaudePromptLayer } from '../types/claude.js';
 import type {
   Interest,
   Gender,
@@ -125,6 +121,20 @@ export const buildUserDataPrompt = (params: GenerateAdviceParams): string => {
     - 平均睡眠時間: ${healthData.weekTrends?.avgSleepHours ?? '不明'}時間
     - 平均HRV: ${healthData.weekTrends?.avgHrv ?? '不明'}ms
     - 平均歩数: ${healthData.weekTrends?.avgSteps ?? '不明'}歩
+
+    スコア:
+    - HRVスコア: ${healthData.scores.hrv}
+    - 睡眠スコア: ${healthData.scores.sleep}
+    - リズムスコア: ${healthData.scores.rhythm}
+    - 活動量スコア: ${healthData.scores.activity}
+    ${
+      healthData.rhythmStability
+        ? `
+    リズム安定性:
+    - 状態: ${healthData.rhythmStability.status}
+    - 連続安定日数: ${healthData.rhythmStability.consecutiveStableDays}日`
+        : ''
+    }
   </health_data>
 
   <environment>
@@ -161,27 +171,4 @@ export const buildUserDataPrompt = (params: GenerateAdviceParams): string => {
 </user_data>
 
 上記のデータに基づいて、今日のアドバイスをJSON形式で生成してください。`;
-};
-
-export const buildAdditionalAdviceUserPrompt = (params: AdditionalAdviceParams): string => {
-  const { mainAdvice, timeSlot, userProfile } = params;
-
-  const timeSlotText = timeSlot === 'midday' ? '昼間' : '夕方';
-  const greeting = timeSlot === 'midday' ? 'お疲れ様です' : 'お疲れ様でした';
-
-  return `
-<context>
-  時間帯: ${timeSlotText}
-  ユーザー: ${userProfile.nickname}さん
-  
-  朝のメインアドバイス:
-  - 挨拶: ${mainAdvice.greeting}
-  - 体調要約: ${mainAdvice.condition.summary}
-  - 今日のトライ: ${mainAdvice.dailyTry.title}
-</context>
-
-${userProfile.nickname}さんに向けて、${timeSlotText}の追加アドバイスをJSON形式で生成してください。
-朝のアドバイスを踏まえ、この時間帯に適したアドバイスをお願いします。
-
-挨拶は「${userProfile.nickname}さん、${greeting}」で始めてください。`;
 };

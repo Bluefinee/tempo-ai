@@ -5,26 +5,28 @@ import { fetchWeatherData } from '../services/weather.js';
 import { fetchAirQualityData } from '../services/airQuality.js';
 import { clearRateLimiter } from '../middleware/auth.js';
 
-// Type-safe response interfaces for testing
+// Type-safe response interfaces for testing (Phase 10 format)
 interface TestAdviceResponse {
   success: boolean;
   data?: {
     greeting: string;
+    energyComment: string;
     timeSlot: 'morning' | 'afternoon' | 'evening';
-    actionSuggestions: Array<{
-      icon: string;
-      title: string;
-      detail: string;
-    }>;
     condition: {
       summary: string;
       detail: string;
     };
-    closingMessage: string;
+    insight: string;
     dailyTry: {
       title: string;
-      summary: string;
       detail: string;
+    };
+    closingMessage: string;
+    scores: {
+      hrv: number;
+      sleep: number;
+      rhythm: number;
+      activity: number;
     };
     generatedAt: string;
   };
@@ -91,6 +93,12 @@ describe('Advice Routes - Claude API Integration', () => {
     },
     healthData: {
       date: '2025-12-11T07:00:00.000Z',
+      scores: {
+        hrv: 85,
+        sleep: 82,
+        rhythm: 78,
+        activity: 70,
+      },
       sleep: {
         bedtime: '2025-12-10T23:00:00.000Z',
         wakeTime: '2025-12-11T07:00:00.000Z',
@@ -120,29 +128,25 @@ describe('Advice Routes - Claude API Integration', () => {
     },
   };
 
+  // Phase 10 format: mockAdviceResponse
   const mockAdviceResponse = {
     greeting: 'テストユーザーさん、おはようございます',
+    energyComment: '今日は絶好調ですね！',
     condition: {
       summary: '良好な状態です。',
       detail: 'HRVが45msと良好で、8時間の睡眠も確保できています。',
     },
-    actionSuggestions: [
-      {
-        icon: 'fitness' as const,
-        title: '今日も軽い運動を',
-        detail: '昨日のヨガの効果で体調が良いので継続しましょう。',
-      },
-    ],
-    closingMessage: '今日も良い一日をお過ごしください。',
+    insight: '昨夜の良質な睡眠とヨガが、今日のコンディション向上に貢献しています。',
     dailyTry: {
       title: '朝のストレッチ',
-      summary: '目覚めを良くする軽いストレッチ',
       detail: '起床後5分間、軽く体を伸ばしてみてください。',
     },
-    weeklyTry: {
-      title: '新しい運動に挑戦',
-      summary: 'ヨガ以外の運動を試してみる',
-      detail: 'ピラティスやダンスなど新しい運動を一つ試してみませんか。',
+    closingMessage: '今日も良い一日をお過ごしください。',
+    scores: {
+      hrv: 85,
+      sleep: 82,
+      rhythm: 78,
+      activity: 70,
     },
     generatedAt: '2025-12-11T07:00:00.000Z',
     timeSlot: 'morning' as const,

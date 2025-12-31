@@ -19,7 +19,9 @@ describe('Mock Data Utilities', () => {
         expect(result.data.mainAdvice.condition).toBeTruthy();
         expect(result.data.mainAdvice.condition.summary).toBeTruthy();
         expect(result.data.mainAdvice.condition.detail).toBeTruthy();
-        expect(result.data.mainAdvice.actionSuggestions).toHaveLength(2);
+        expect(result.data.mainAdvice.energyComment).toBeTruthy();
+        expect(result.data.mainAdvice.insight).toBeTruthy();
+        expect(result.data.mainAdvice.scores).toBeTruthy();
         expect(result.data.mainAdvice.closingMessage).toBeTruthy();
         expect(result.data.mainAdvice.dailyTry).toBeTruthy();
         expect(result.data.mainAdvice.generatedAt).toBeTruthy();
@@ -38,7 +40,7 @@ describe('Mock Data Utilities', () => {
         expect(result.data.mainAdvice.greeting).toContain('お疲れさま');
         expect(result.data.mainAdvice.timeSlot).toBe('afternoon');
         expect(result.data.mainAdvice.condition).toBeTruthy();
-        expect(result.data.mainAdvice.actionSuggestions).toHaveLength(2);
+        expect(result.data.mainAdvice.energyComment).toBeTruthy();
         expect(result.data.mainAdvice.dailyTry).toBeTruthy();
       }
     });
@@ -55,7 +57,7 @@ describe('Mock Data Utilities', () => {
         expect(result.data.mainAdvice.greeting).toContain('お疲れさま');
         expect(result.data.mainAdvice.timeSlot).toBe('evening');
         expect(result.data.mainAdvice.condition).toBeTruthy();
-        expect(result.data.mainAdvice.actionSuggestions).toHaveLength(2);
+        expect(result.data.mainAdvice.energyComment).toBeTruthy();
         expect(result.data.mainAdvice.dailyTry).toBeTruthy();
       }
     });
@@ -99,18 +101,17 @@ describe('Mock Data Utilities', () => {
     });
 
     describe('Response Structure Validation', () => {
-      it('should have valid action suggestions structure', () => {
+      it('should have valid scores structure', () => {
         const result = createMockAdviceForTimeSlot(testNickname, 'morning');
 
         if (result.data?.mainAdvice) {
-          for (const action of result.data.mainAdvice.actionSuggestions) {
-            expect(action.icon).toBeTruthy();
-            expect(action.title).toBeTruthy();
-            expect(action.detail).toBeTruthy();
-            expect(typeof action.icon).toBe('string');
-            expect(typeof action.title).toBe('string');
-            expect(typeof action.detail).toBe('string');
-          }
+          const { scores } = result.data.mainAdvice;
+          expect(typeof scores.hrv).toBe('number');
+          expect(typeof scores.sleep).toBe('number');
+          expect(typeof scores.rhythm).toBe('number');
+          expect(typeof scores.activity).toBe('number');
+          expect(scores.hrv).toBeGreaterThanOrEqual(0);
+          expect(scores.hrv).toBeLessThanOrEqual(100);
         }
       });
 
@@ -120,10 +121,8 @@ describe('Mock Data Utilities', () => {
         if (result.data?.mainAdvice) {
           const { dailyTry } = result.data.mainAdvice;
           expect(dailyTry.title).toBeTruthy();
-          expect(dailyTry.summary).toBeTruthy();
           expect(dailyTry.detail).toBeTruthy();
           expect(typeof dailyTry.title).toBe('string');
-          expect(typeof dailyTry.summary).toBe('string');
           expect(typeof dailyTry.detail).toBe('string');
         }
       });
@@ -137,21 +136,14 @@ describe('Mock Data Utilities', () => {
         }
       });
 
-      it('should have appropriate weeklyTry for morning only', () => {
-        const morningResult = createMockAdviceForTimeSlot(testNickname, 'morning');
-        const afternoonResult = createMockAdviceForTimeSlot(testNickname, 'afternoon');
-        const eveningResult = createMockAdviceForTimeSlot(testNickname, 'evening');
+      it('should have energyComment and insight fields', () => {
+        const result = createMockAdviceForTimeSlot(testNickname, 'morning');
 
-        if (morningResult.data?.mainAdvice) {
-          expect(morningResult.data.mainAdvice.weeklyTry).toBeFalsy(); // Phase 7 では undefined
-        }
-
-        if (afternoonResult.data?.mainAdvice) {
-          expect(afternoonResult.data.mainAdvice.weeklyTry).toBeFalsy();
-        }
-
-        if (eveningResult.data?.mainAdvice) {
-          expect(eveningResult.data.mainAdvice.weeklyTry).toBeFalsy();
+        if (result.data?.mainAdvice) {
+          expect(result.data.mainAdvice.energyComment).toBeTruthy();
+          expect(typeof result.data.mainAdvice.energyComment).toBe('string');
+          expect(result.data.mainAdvice.insight).toBeTruthy();
+          expect(typeof result.data.mainAdvice.insight).toBe('string');
         }
       });
     });
@@ -170,44 +162,15 @@ describe('Mock Data Utilities', () => {
         expect(afternoon.data?.mainAdvice.greeting).not.toBe(evening.data?.mainAdvice.greeting);
       });
 
-      it('should have appropriate action suggestions for each time slot', () => {
+      it('should have consistent scores across time slots', () => {
         const morning = createMockAdviceForTimeSlot(testNickname, 'morning');
         const afternoon = createMockAdviceForTimeSlot(testNickname, 'afternoon');
         const evening = createMockAdviceForTimeSlot(testNickname, 'evening');
 
-        // All should have exactly 2 action suggestions
-        expect(morning.data?.mainAdvice.actionSuggestions).toHaveLength(2);
-        expect(afternoon.data?.mainAdvice.actionSuggestions).toHaveLength(2);
-        expect(evening.data?.mainAdvice.actionSuggestions).toHaveLength(2);
-
-        // In current implementation, action suggestions are the same (only greeting changes)
-        const morningTitles = morning.data?.mainAdvice.actionSuggestions.map((a) => a.title) || [];
-        const afternoonTitles =
-          afternoon.data?.mainAdvice.actionSuggestions.map((a) => a.title) || [];
-        const eveningTitles = evening.data?.mainAdvice.actionSuggestions.map((a) => a.title) || [];
-
-        // Current implementation uses same content, only greeting differs
-        expect(morningTitles).toEqual(afternoonTitles);
-        expect(afternoonTitles).toEqual(eveningTitles);
-      });
-
-      it('should have time-appropriate daily try suggestions', () => {
-        const morning = createMockAdviceForTimeSlot(testNickname, 'morning');
-        const afternoon = createMockAdviceForTimeSlot(testNickname, 'afternoon');
-        const evening = createMockAdviceForTimeSlot(testNickname, 'evening');
-
-        // All should have daily try
-        expect(morning.data?.mainAdvice.dailyTry).toBeTruthy();
-        expect(afternoon.data?.mainAdvice.dailyTry).toBeTruthy();
-        expect(evening.data?.mainAdvice.dailyTry).toBeTruthy();
-
-        // Current implementation uses same dailyTry content (only greeting differs)
-        expect(morning.data?.mainAdvice.dailyTry.title).toBe(
-          afternoon.data?.mainAdvice.dailyTry.title,
-        );
-        expect(afternoon.data?.mainAdvice.dailyTry.title).toBe(
-          evening.data?.mainAdvice.dailyTry.title,
-        );
+        // All should have scores
+        expect(morning.data?.mainAdvice.scores).toBeTruthy();
+        expect(afternoon.data?.mainAdvice.scores).toBeTruthy();
+        expect(evening.data?.mainAdvice.scores).toBeTruthy();
       });
     });
 

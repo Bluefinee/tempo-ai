@@ -5,6 +5,22 @@ import { buildSystemPrompt } from '../prompts/system.js';
 import { getExamplesForInterest, buildUserDataPrompt } from '../utils/prompt.js';
 import { ValidationError, ClaudeApiError } from '../utils/errors.js';
 
+type TimeSlot = 'morning' | 'afternoon' | 'evening';
+
+/**
+ * ISO時刻文字列から時間帯を導出します
+ * 注: 時刻はUTCとして解釈され、そのまま時間帯を判定します
+ *
+ * @param isoTime - ISO 8601形式の時刻文字列
+ * @returns 'morning' (0-11時), 'afternoon' (12-17時), 'evening' (18-23時)
+ */
+const getTimeSlotFromTime = (isoTime: string): TimeSlot => {
+  const hour = new Date(isoTime).getUTCHours();
+  if (hour < 12) return 'morning';
+  if (hour < 18) return 'afternoon';
+  return 'evening';
+};
+
 /**
  * Claude Sonnet を用いてメインの朝アドバイスを生成します
  *
@@ -107,7 +123,7 @@ const parseAdviceResponse = (
       closingMessage: parsed.closing_message,
       scores: params.healthData.scores, // スコアはリクエストから取得
       generatedAt: new Date().toISOString(),
-      timeSlot: 'morning',
+      timeSlot: getTimeSlotFromTime(params.context.currentTime),
     };
 
     return advice;
@@ -116,7 +132,11 @@ const parseAdviceResponse = (
     console.error('[Claude] Raw response:', jsonString);
 
     // パースに失敗した場合はフォールバック
-    return createFallbackAdvice(params.userProfile.nickname, params.healthData.scores);
+    return createFallbackAdvice(
+      params.userProfile.nickname,
+      params.healthData.scores,
+      params.context.currentTime,
+    );
   }
 };
 
@@ -193,7 +213,21 @@ const validateDailyAdvice = (data: unknown): void => {
 export const createFallbackAdvice = (
   nickname: string,
   scores: { hrv: number; sleep: number; rhythm: number; activity: number },
+  currentTime: string = new Date().toISOString(),
 ): DailyAdvice => {
+  const timeSlot = getTimeSlotFromTime(currentTime);
+
+  // 時間帯に応じた挨拶
+  const getGreeting = (slot: TimeSlot): string => {
+    switch (slot) {
+      case 'morning':
+        return 'おはようございます';
+      case 'afternoon':
+        return 'お疲れさまです';
+      case 'evening':
+        return 'お疲れさまでした';
+    }
+  };
   // HRVスコアに応じたエネルギーコメントを生成（優しいお姉さんのトーン）
   const energyComments = {
     excellent: [
@@ -257,7 +291,7 @@ export const createFallbackAdvice = (
   };
 
   return {
-    greeting: `${nickname}さん、おはようございます`,
+    greeting: `${nickname}さん、${getGreeting(timeSlot)}`,
     energyComment: getEnergyComment(scores.hrv),
     condition: {
       summary:
@@ -275,6 +309,6 @@ export const createFallbackAdvice = (
     closingMessage: '今日も良い一日をお過ごしください。',
     scores,
     generatedAt: new Date().toISOString(),
-    timeSlot: 'morning',
+    timeSlot,
   };
 };

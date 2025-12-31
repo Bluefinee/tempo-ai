@@ -34,7 +34,7 @@ describe('Tempo AI Backend', () => {
     // Mock successful Claude API response (Phase 10 format)
     const mockAdviceResponse = {
       greeting: 'テストユーザーさん、おはようございます',
-      energyComment: '今日は絶好調ですね！',
+      energyComment: '今日は絶好調ですね',
       condition: {
         summary: '良好な状態です。',
         detail: 'テスト用のアドバイスです。',

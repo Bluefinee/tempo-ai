@@ -108,7 +108,7 @@ describe('Claude API Service', () => {
       // Mock response in new snake_case format (as Claude returns it)
       const mockAdviceResponse = {
         greeting: 'テストユーザーさん、おはようございます',
-        energy_comment: '今日は絶好調ですね！',
+        energy_comment: '今日は絶好調ですね',
         condition: {
           summary: 'とても良い状態です。',
           detail: '8時間の睡眠とHRV45msで体調良好です。',
@@ -242,11 +242,13 @@ ${JSON.stringify(mockAdviceResponse, null, 2)}
   });
 
   describe('createFallbackAdvice', () => {
-    it('should create valid fallback advice', () => {
+    it('should create valid fallback advice for morning', () => {
       const nickname = 'テストユーザー';
-      const fallback = createFallbackAdvice(nickname, mockScores);
+      const morningTime = '2025-12-11T07:00:00.000Z'; // 7AM
+      const fallback = createFallbackAdvice(nickname, mockScores, morningTime);
 
       expect(fallback.greeting).toContain(nickname);
+      expect(fallback.greeting).toContain('おはようございます');
       expect(fallback.energyComment).toBeTruthy();
       expect(fallback.condition.summary).toBeTruthy();
       expect(fallback.insight).toBeTruthy();
@@ -257,26 +259,46 @@ ${JSON.stringify(mockAdviceResponse, null, 2)}
       expect(fallback.generatedAt).toBeTruthy();
     });
 
-    it('should generate appropriate energy comment based on HRV score', () => {
+    it('should create fallback advice with correct timeSlot based on currentTime', () => {
       const nickname = 'テスト';
 
+      // Morning (0-11時)
+      const morning = createFallbackAdvice(nickname, mockScores, '2025-12-11T08:00:00.000Z');
+      expect(morning.timeSlot).toBe('morning');
+      expect(morning.greeting).toContain('おはようございます');
+
+      // Afternoon (12-17時)
+      const afternoon = createFallbackAdvice(nickname, mockScores, '2025-12-11T14:00:00.000Z');
+      expect(afternoon.timeSlot).toBe('afternoon');
+      expect(afternoon.greeting).toContain('お疲れさまです');
+
+      // Evening (18-23時)
+      const evening = createFallbackAdvice(nickname, mockScores, '2025-12-11T20:00:00.000Z');
+      expect(evening.timeSlot).toBe('evening');
+      expect(evening.greeting).toContain('お疲れさまでした');
+    });
+
+    it('should generate appropriate energy comment based on HRV score', () => {
+      const nickname = 'テスト';
+      const morningTime = '2025-12-11T07:00:00.000Z';
+
       // High HRV (80-100): excellent comments
-      const highHrv = createFallbackAdvice(nickname, { ...mockScores, hrv: 85 });
+      const highHrv = createFallbackAdvice(nickname, { ...mockScores, hrv: 85 }, morningTime);
       expect(highHrv.energyComment).toBeTruthy();
       expect(highHrv.energyComment.length).toBeGreaterThan(0);
 
       // Medium HRV (60-79): good comments
-      const mediumHrv = createFallbackAdvice(nickname, { ...mockScores, hrv: 65 });
+      const mediumHrv = createFallbackAdvice(nickname, { ...mockScores, hrv: 65 }, morningTime);
       expect(mediumHrv.energyComment).toBeTruthy();
       expect(mediumHrv.energyComment.length).toBeGreaterThan(0);
 
       // Low HRV (20-39): low comments
-      const lowHrv = createFallbackAdvice(nickname, { ...mockScores, hrv: 35 });
+      const lowHrv = createFallbackAdvice(nickname, { ...mockScores, hrv: 35 }, morningTime);
       expect(lowHrv.energyComment).toBeTruthy();
       expect(lowHrv.energyComment.length).toBeGreaterThan(0);
 
       // Very low HRV (0-19): veryLow comments
-      const veryLowHrv = createFallbackAdvice(nickname, { ...mockScores, hrv: 15 });
+      const veryLowHrv = createFallbackAdvice(nickname, { ...mockScores, hrv: 15 }, morningTime);
       expect(veryLowHrv.energyComment).toBeTruthy();
       expect(veryLowHrv.energyComment.length).toBeGreaterThan(0);
     });

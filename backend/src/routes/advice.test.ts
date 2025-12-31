@@ -131,7 +131,7 @@ describe('Advice Routes - Claude API Integration', () => {
   // Phase 10 format: mockAdviceResponse
   const mockAdviceResponse = {
     greeting: 'テストユーザーさん、おはようございます',
-    energyComment: '今日は絶好調ですね！',
+    energyComment: '今日は絶好調ですね',
     condition: {
       summary: '良好な状態です。',
       detail: 'HRVが45msと良好で、8時間の睡眠も確保できています。',

@@ -33,7 +33,7 @@ export const createMockAdviceResponse = (
 ): AdviceResponse => {
   const mockAdvice: DailyAdvice = {
     greeting: '〇〇さん、おはようございます',
-    energyComment: '今日は絶好調ですね！',
+    energyComment: '今日は絶好調ですね',
     condition: {
       summary:
         '昨夜は7時間の良質な睡眠が取れましたね。今朝のHRVは72msと高く、体の回復が十分に進んでいます。今日はトレーニングに最適なコンディションですよ。',

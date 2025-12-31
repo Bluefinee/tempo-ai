@@ -181,7 +181,7 @@ extension DailyAdvice {
 
         return DailyAdvice(
             greeting: "テストユーザーさん、\(timeSlot.greeting)",
-            energyComment: "今日は絶好調ですね!",
+            energyComment: "今日は絶好調ですね",
             condition: Condition(
                 summary: "昨夜は7時間の良質な睡眠が取れましたね。今朝のHRVは72msと高く、体の回復が十分に進んでいます。",
                 detail: "昨夜は7時間の良質な睡眠が取れましたね。深い睡眠が1時間45分と、筋肉の回復に理想的な状態です。\n\n今朝のHRVは72msと、過去7日平均の68msを上回っています。体の回復が十分に進んでいます。"

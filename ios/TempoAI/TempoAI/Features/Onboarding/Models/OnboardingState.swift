@@ -7,7 +7,7 @@ final class OnboardingState {
 
   // MARK: - Properties
 
-  /// 現在のステップ（1〜7）
+  /// 現在のステップ（1〜6）
   var currentStep: Int = 1
 
   /// ニックネーム
@@ -18,9 +18,6 @@ final class OnboardingState {
 
   /// ライフスタイル情報
   var lifestyle: Lifestyle?
-
-  /// 関心ごとタグ
-  var interests: [UserProfile.Interest] = []
 
   /// HealthKit認証済みフラグ
   var healthKitAuthorized: Bool = false
@@ -41,13 +38,13 @@ final class OnboardingState {
 
   /// 進捗割合（0.0〜1.0）
   var progress: Double {
-    return Double(currentStep - 1) / 6.0  // 画面2〜7で進捗表示（6ステップ）
+    return Double(currentStep - 1) / 5.0  // 画面2〜6で進捗表示（5ステップ）
   }
 
-  /// 進捗表示用テキスト（例: "2/7"）
+  /// 進捗表示用テキスト（例: "2/6"）
   var progressText: String {
-    guard currentStep > 1 && currentStep <= 6 else { return "" }
-    return "\(currentStep - 1)/7"
+    guard currentStep > 1 && currentStep <= 5 else { return "" }
+    return "\(currentStep - 1)/6"
   }
 
   /// 現在のステップで「次へ」ボタンが活性化可能か
@@ -62,10 +59,8 @@ final class OnboardingState {
     case 4:
       return true  // ライフスタイル画面は任意なのでスキップ可能
     case 5:
-      return interests.count >= 1 && interests.count <= 3
-    case 6:
       return true  // 権限リクエスト画面では常に進行可能
-    case 7:
+    case 6:
       return isCompleted  // データ取得完了まで待機
     default:
       return false
@@ -85,7 +80,7 @@ final class OnboardingState {
   func proceedToNext() {
     guard canProceedToNext else { return }
 
-    if currentStep < 7 {
+    if currentStep < 6 {
       currentStep += 1
     }
   }
@@ -99,7 +94,7 @@ final class OnboardingState {
 
   /// 特定のステップにジャンプ
   func jumpToStep(_ step: Int) {
-    guard (1...7).contains(step) else { return }
+    guard (1...6).contains(step) else { return }
     currentStep = step
   }
 
@@ -135,27 +130,6 @@ final class OnboardingState {
     )
   }
 
-  /// 関心ごとタグを追加
-  func addInterest(_ interest: UserProfile.Interest, maxCount: Int = 3) {
-    if !interests.contains(interest) && interests.count < maxCount {
-      interests.append(interest)
-    }
-  }
-
-  /// 関心ごとタグを削除
-  func removeInterest(_ interest: UserProfile.Interest) {
-    interests.removeAll { $0 == interest }
-  }
-
-  /// 関心ごとタグの選択状態をトグル
-  func toggleInterest(_ interest: UserProfile.Interest, maxCount: Int = 3) {
-    if interests.contains(interest) {
-      removeInterest(interest)
-    } else if interests.count < maxCount {
-      interests.append(interest)
-    }
-  }
-
   /// 権限状態を更新
   func updateAuthorizationStatus(healthKit: Bool, location: Bool) {
     healthKitAuthorized = healthKit
@@ -180,14 +154,13 @@ final class OnboardingState {
   /// オンボーディング完了を設定
   func completeOnboarding() {
     isCompleted = true
-    currentStep = 7
+    currentStep = 6
   }
 
   /// 完成されたUserProfileを生成
   func createUserProfile() -> UserProfile? {
     guard let basicInfo = basicInfo,
-      !nickname.isEmpty,
-      !interests.isEmpty
+      !nickname.isEmpty
     else {
       return nil
     }
@@ -201,8 +174,7 @@ final class OnboardingState {
       occupation: lifestyle?.occupation,
       lifestyleRhythm: lifestyle?.lifestyleRhythm,
       exerciseFrequency: lifestyle?.exerciseFrequency,
-      alcoholFrequency: lifestyle?.alcoholFrequency,
-      interests: interests
+      alcoholFrequency: lifestyle?.alcoholFrequency
     )
   }
 
@@ -212,7 +184,6 @@ final class OnboardingState {
     nickname = ""
     basicInfo = nil
     lifestyle = nil
-    interests = []
     healthKitAuthorized = false
     locationAuthorized = false
     isCompleted = false
@@ -255,7 +226,6 @@ extension OnboardingState {
         weightKg: 52.0,
         heightCm: 158.0
       )
-      state.interests = [.beauty, .sleep]
       return state
     }()
   }

@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// オンボーディング全体を管理するコンテナビュー
-/// 7画面の遷移と状態管理を担当
+/// 6画面の遷移と状態管理を担当
 struct OnboardingContainerView: View {
 
   // MARK: - Properties
@@ -38,10 +38,8 @@ struct OnboardingContainerView: View {
             case 4:
               LifestyleView(onboardingState: onboardingState)
             case 5:
-              InterestsView(onboardingState: onboardingState)
-            case 6:
               PermissionsView(onboardingState: onboardingState)
-            case 7:
+            case 6:
               OnboardingLoadingView(
                 onboardingState: onboardingState, onComplete: handleOnboardingComplete)
             default:
@@ -322,7 +320,7 @@ private struct FeatureRow: View {
 
 struct ProgressHeader: View {
   let currentStep: Int
-  let totalSteps: Int = 7
+  let totalSteps: Int = 6
   let title: String
   let onBack: () -> Void
 
@@ -345,18 +343,18 @@ struct ProgressHeader: View {
         Spacer()
       }
 
-      // プログレス表示（画面2-6のみ）
-      if currentStep > 1 && currentStep <= 6 {
+      // プログレス表示（画面2-5のみ）
+      if currentStep > 1 && currentStep <= 5 {
         VStack(spacing: 8) {
           HStack {
-            Text("\(currentStep - 1)/7")
+            Text("\(currentStep - 1)/5")
               .font(.caption)
               .foregroundColor(.tempoSecondaryText)
 
             Spacer()
           }
 
-          ProgressView(value: Double(currentStep - 1), total: 7.0)
+          ProgressView(value: Double(currentStep - 1), total: 5.0)
             .progressViewStyle(LinearProgressViewStyle(tint: Color.tempoSageGreen))
             .background(Color.tempoProgressBackground)
         }

@@ -122,7 +122,14 @@
       "Bash(docs/phases/17-phase-location-management.md )",
       "Bash(docs/phases/18-phase-travel-mode-ui.md )",
       "Bash(docs/phases/19-phase-travel-mode-ai.md)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(ios/TempoAI/TempoAI/Features/Onboarding/Models/OnboardingState.swift )",
+      "Bash(ios/TempoAI/TempoAI/Features/Onboarding/Views/BasicInfoView.swift )",
+      "Bash(ios/TempoAI/TempoAI/Features/Onboarding/Views/LifestyleView.swift )",
+      "Bash(ios/TempoAI/TempoAI/Features/Onboarding/Views/NicknameInputView.swift )",
+      "Bash(ios/TempoAI/TempoAI/Features/Onboarding/Views/OnboardingContainerView.swift )",
+      "Bash(ios/TempoAI/TempoAI/Features/Onboarding/Views/OnboardingLoadingView.swift )",
+      "Bash(ios/TempoAI/TempoAI/Features/Onboarding/Views/PermissionsView.swift)"
     ],
     "deny": [],
     "ask": [],

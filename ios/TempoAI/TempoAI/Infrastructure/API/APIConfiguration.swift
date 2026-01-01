@@ -23,26 +23,10 @@ enum APIConfiguration {
     /// リクエストタイムアウト（秒）
     static let timeout: TimeInterval = 30.0
 
-    /// リトライ回数
-    static let maxRetries: Int = 2
-
-    /// リトライ待機時間（秒）
-    static let retryDelay: TimeInterval = 1.0
-
     // MARK: - Endpoints
 
     /// アドバイスエンドポイント
     static var adviceEndpoint: URL {
         baseURL.appendingPathComponent("api/advice")
-    }
-
-    /// 天気エンドポイント
-    static var weatherEndpoint: URL {
-        baseURL.appendingPathComponent("api/weather")
-    }
-
-    /// ヘルスチェックエンドポイント
-    static var healthEndpoint: URL {
-        baseURL.appendingPathComponent("health")
     }
 }

@@ -83,7 +83,9 @@ describe('AdviceService', () => {
       await service.generateAdvice(createValidRequest());
 
       expect(mockGenerateAdvice).toHaveBeenCalledTimes(1);
-      const [systemPrompt, userDataXml] = mockGenerateAdvice.mock.calls[0];
+      const calls = mockGenerateAdvice.mock.calls;
+      expect(calls.length).toBeGreaterThan(0);
+      const [systemPrompt, userDataXml] = calls[0] as [string, string];
 
       // System promptにはroleタグが含まれる
       expect(systemPrompt).toContain('<role>');
@@ -271,8 +273,10 @@ describe('AdviceService', () => {
 
       expect(result.ok).toBe(true);
 
-      const [, userDataXml] = mockGenerateAdvice.mock.calls[0];
-      expect(userDataXml).toContain('<today_mode>challenge</today_mode>');
+      const challengeCalls = mockGenerateAdvice.mock.calls;
+      expect(challengeCalls.length).toBeGreaterThan(0);
+      const [, challengeUserDataXml] = challengeCalls[0] as [string, string];
+      expect(challengeUserDataXml).toContain('<today_mode>challenge</today_mode>');
     });
 
     it('should handle holiday mode', async () => {
@@ -291,8 +295,10 @@ describe('AdviceService', () => {
 
       expect(result.ok).toBe(true);
 
-      const [, userDataXml] = mockGenerateAdvice.mock.calls[0];
-      expect(userDataXml).toContain('<today_mode>holiday</today_mode>');
+      const holidayCalls = mockGenerateAdvice.mock.calls;
+      expect(holidayCalls.length).toBeGreaterThan(0);
+      const [, holidayUserDataXml] = holidayCalls[0] as [string, string];
+      expect(holidayUserDataXml).toContain('<today_mode>holiday</today_mode>');
     });
   });
 });

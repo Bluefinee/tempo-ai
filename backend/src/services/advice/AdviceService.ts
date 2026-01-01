@@ -1,4 +1,4 @@
-import { type Result, err, ok } from '../../utils/result';
+import { type Result, err } from '../../utils/result';
 import { AnthropicClient } from './AnthropicClient';
 import { PromptBuilder } from './PromptBuilder';
 import {

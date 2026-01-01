@@ -11,6 +11,7 @@ enum APIError: Error, Equatable, Sendable {
     case rateLimitExceeded
     case decodingError(String)
     case unknownError(String)
+    case apiLogicError(String)
 }
 
 // MARK: - LocalizedError
@@ -33,6 +34,8 @@ extension APIError: LocalizedError {
             return "データ解析エラー: \(message)"
         case .unknownError(let message):
             return "不明なエラー: \(message)"
+        case .apiLogicError(let message):
+            return "APIロジックエラー: \(message)"
         }
     }
 }

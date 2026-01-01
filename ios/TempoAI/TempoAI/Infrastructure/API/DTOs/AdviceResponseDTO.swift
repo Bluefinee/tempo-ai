@@ -16,14 +16,6 @@ struct AdviceDataDTO: Codable, Equatable, Sendable {
     let summary: String
     let fullInsight: String
     let recommendedAction: RecommendedActionDTO
-
-    // MARK: - CodingKeys
-
-    private enum CodingKeys: String, CodingKey {
-        case summary
-        case fullInsight
-        case recommendedAction
-    }
 }
 
 // MARK: - RecommendedActionDTO
@@ -44,23 +36,7 @@ extension AdviceResponseDTO {
         guard success, let data = data else {
             return nil
         }
-
-        guard let actionType = RecommendedAction.ActionType(rawValue: data.recommendedAction.type) else {
-            return nil
-        }
-
-        let action: RecommendedAction = RecommendedAction(
-            type: actionType,
-            message: data.recommendedAction.message
-        )
-
-        return DailyAdvice(
-            summary: data.summary,
-            fullInsight: data.fullInsight,
-            recommendedAction: action,
-            generatedAt: Date(),
-            isOfflineFallback: false
-        )
+        return data.toDomain()
     }
 }
 

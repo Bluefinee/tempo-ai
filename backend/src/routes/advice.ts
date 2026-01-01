@@ -25,7 +25,7 @@ const getStatusCode = (errorCode: AdviceErrorCode): ContentfulStatusCode => {
  * POST /api/advice
  * AI Daily Insightを生成
  */
-adviceRoutes.post('/', async (c) => {
+adviceRoutes.post('/', async (c): Promise<Response> => {
   const apiKey = c.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     return c.json({ success: false, error: 'ANTHROPIC_API_KEY is not configured' }, 500);

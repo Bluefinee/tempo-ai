@@ -4,25 +4,17 @@ import os.log
 // MARK: - AdviceAPIClient
 
 /// アドバイスAPI通信クライアント
-final class AdviceAPIClient: APIClientProtocol, @unchecked Sendable {
+final class AdviceAPIClient: APIClientProtocol, Sendable {
 
     // MARK: - Properties
 
     private let session: NetworkSession
-    private let encoder: JSONEncoder
-    private let decoder: JSONDecoder
     private static let logger: Logger = Logger(subsystem: "com.tempoai", category: "AdviceAPIClient")
 
     // MARK: - Initialization
 
-    init(
-        session: NetworkSession = URLSession.shared,
-        encoder: JSONEncoder = JSONEncoder(),
-        decoder: JSONDecoder = JSONDecoder()
-    ) {
+    init(session: NetworkSession = URLSession.shared) {
         self.session = session
-        self.encoder = encoder
-        self.decoder = decoder
     }
 
     // MARK: - APIClientProtocol
@@ -37,6 +29,7 @@ final class AdviceAPIClient: APIClientProtocol, @unchecked Sendable {
         urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
         urlRequest.timeoutInterval = APIConfiguration.timeout
 
+        let encoder: JSONEncoder = JSONEncoder()
         do {
             urlRequest.httpBody = try encoder.encode(request)
         } catch {
@@ -80,13 +73,14 @@ final class AdviceAPIClient: APIClientProtocol, @unchecked Sendable {
             throw APIError.fromHTTPStatus(httpResponse.statusCode, message: errorMessage)
         }
 
+        let decoder: JSONDecoder = JSONDecoder()
         do {
             let responseDTO: AdviceResponseDTO = try decoder.decode(AdviceResponseDTO.self, from: data)
 
             if !responseDTO.success {
                 let errorMessage: String = responseDTO.error ?? "Unknown API error"
                 Self.logger.error("API returned error: \(errorMessage)")
-                throw APIError.serverError(httpResponse.statusCode, errorMessage)
+                throw APIError.apiLogicError(errorMessage)
             }
 
             Self.logger.debug("Successfully decoded advice response")
@@ -111,6 +105,7 @@ final class AdviceAPIClient: APIClientProtocol, @unchecked Sendable {
             let message: String?
         }
 
+        let decoder: JSONDecoder = JSONDecoder()
         guard let errorResponse = try? decoder.decode(ErrorResponse.self, from: data) else {
             return nil
         }

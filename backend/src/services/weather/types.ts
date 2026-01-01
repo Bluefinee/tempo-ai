@@ -8,28 +8,32 @@ export const WeatherRequestSchema = z.object({
 
 export type WeatherRequest = z.infer<typeof WeatherRequestSchema>;
 
-// Open-Meteo Weather API response
-export interface OpenMeteoWeatherResponse {
-  current: {
-    temperature_2m: number;
-    relative_humidity_2m: number;
-    pressure_msl: number;
-    weather_code: number;
-  };
-  daily: {
-    uv_index_max: number[];
-    sunrise: string[];
-    sunset: string[];
-  };
-}
+// Open-Meteo Weather API response schema
+export const OpenMeteoWeatherResponseSchema = z.object({
+  current: z.object({
+    temperature_2m: z.number(),
+    relative_humidity_2m: z.number(),
+    pressure_msl: z.number(),
+    weather_code: z.number(),
+  }),
+  daily: z.object({
+    uv_index_max: z.array(z.number()),
+    sunrise: z.array(z.string()),
+    sunset: z.array(z.string()),
+  }),
+});
 
-// Open-Meteo Air Quality API response
-export interface OpenMeteoAirQualityResponse {
-  current: {
-    pm2_5: number;
-    us_aqi: number;
-  };
-}
+export type OpenMeteoWeatherResponse = z.infer<typeof OpenMeteoWeatherResponseSchema>;
+
+// Open-Meteo Air Quality API response schema
+export const OpenMeteoAirQualityResponseSchema = z.object({
+  current: z.object({
+    pm2_5: z.number(),
+    us_aqi: z.number(),
+  }),
+});
+
+export type OpenMeteoAirQualityResponse = z.infer<typeof OpenMeteoAirQualityResponseSchema>;
 
 // Unified weather data for the app
 export interface WeatherData {

@@ -3,6 +3,35 @@ import { isErr, isOk } from '../../utils/result';
 import { OpenMeteoClient } from './OpenMeteoClient';
 import type { OpenMeteoAirQualityResponse, OpenMeteoWeatherResponse } from './types';
 
+/** Valid mock weather response matching the Zod schema */
+const createMockWeatherResponse = (
+  overrides?: Partial<OpenMeteoWeatherResponse>,
+): OpenMeteoWeatherResponse => ({
+  current: {
+    temperature_2m: 20,
+    relative_humidity_2m: 60,
+    pressure_msl: 1013,
+    weather_code: 0,
+  },
+  daily: {
+    uv_index_max: [5],
+    sunrise: ['2025-01-01T06:00'],
+    sunset: ['2025-01-01T17:00'],
+  },
+  ...overrides,
+});
+
+/** Valid mock air quality response matching the Zod schema */
+const createMockAirResponse = (
+  overrides?: Partial<OpenMeteoAirQualityResponse>,
+): OpenMeteoAirQualityResponse => ({
+  current: {
+    pm2_5: 10,
+    us_aqi: 25,
+  },
+  ...overrides,
+});
+
 describe('OpenMeteoClient', () => {
   const client = new OpenMeteoClient();
 
@@ -48,26 +77,8 @@ describe('OpenMeteoClient', () => {
     });
 
     it('should return WeatherData on success', async () => {
-      const mockWeatherResponse: OpenMeteoWeatherResponse = {
-        current: {
-          temperature_2m: 20,
-          relative_humidity_2m: 60,
-          pressure_msl: 1013,
-          weather_code: 0,
-        },
-        daily: {
-          uv_index_max: [5],
-          sunrise: ['2025-01-01T06:00'],
-          sunset: ['2025-01-01T17:00'],
-        },
-      };
-
-      const mockAirResponse: OpenMeteoAirQualityResponse = {
-        current: {
-          pm2_5: 10,
-          us_aqi: 25,
-        },
-      };
+      const mockWeatherResponse = createMockWeatherResponse();
+      const mockAirResponse = createMockAirResponse();
 
       globalThis.fetch = vi
         .fn()
@@ -112,19 +123,7 @@ describe('OpenMeteoClient', () => {
     });
 
     it('should return error on Air Quality API failure', async () => {
-      const mockWeatherResponse: OpenMeteoWeatherResponse = {
-        current: {
-          temperature_2m: 20,
-          relative_humidity_2m: 60,
-          pressure_msl: 1013,
-          weather_code: 0,
-        },
-        daily: {
-          uv_index_max: [5],
-          sunrise: ['2025-01-01T06:00'],
-          sunset: ['2025-01-01T17:00'],
-        },
-      };
+      const mockWeatherResponse = createMockWeatherResponse();
 
       globalThis.fetch = vi
         .fn()
@@ -158,26 +157,14 @@ describe('OpenMeteoClient', () => {
     });
 
     it('should handle empty daily arrays gracefully', async () => {
-      const mockWeatherResponse: OpenMeteoWeatherResponse = {
-        current: {
-          temperature_2m: 20,
-          relative_humidity_2m: 60,
-          pressure_msl: 1013,
-          weather_code: 0,
-        },
+      const mockWeatherResponse = createMockWeatherResponse({
         daily: {
           uv_index_max: [],
           sunrise: [],
           sunset: [],
         },
-      };
-
-      const mockAirResponse: OpenMeteoAirQualityResponse = {
-        current: {
-          pm2_5: 10,
-          us_aqi: 25,
-        },
-      };
+      });
+      const mockAirResponse = createMockAirResponse();
 
       globalThis.fetch = vi
         .fn()
@@ -197,6 +184,117 @@ describe('OpenMeteoClient', () => {
         expect(result.data.uvIndexMax).toBe(0);
         expect(result.data.sunrise).toBe('');
         expect(result.data.sunset).toBe('');
+      }
+    });
+
+    it('should return PARSE_ERROR when JSON parsing fails', async () => {
+      globalThis.fetch = vi
+        .fn()
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.reject(new Error('Invalid JSON')),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve(createMockAirResponse()),
+        });
+
+      const result = await client.fetchWeather(35.6762, 139.6503);
+
+      expect(isErr(result)).toBe(true);
+      if (isErr(result)) {
+        expect(result.error.code).toBe('PARSE_ERROR');
+        expect(result.error.message).toContain('parse');
+      }
+    });
+
+    it('should return PARSE_ERROR when weather response schema validation fails', async () => {
+      const invalidWeatherResponse = {
+        current: {
+          temperature_2m: 'not a number', // Invalid: should be number
+          relative_humidity_2m: 60,
+          pressure_msl: 1013,
+          weather_code: 0,
+        },
+        daily: {
+          uv_index_max: [5],
+          sunrise: ['2025-01-01T06:00'],
+          sunset: ['2025-01-01T17:00'],
+        },
+      };
+
+      globalThis.fetch = vi
+        .fn()
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve(invalidWeatherResponse),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve(createMockAirResponse()),
+        });
+
+      const result = await client.fetchWeather(35.6762, 139.6503);
+
+      expect(isErr(result)).toBe(true);
+      if (isErr(result)) {
+        expect(result.error.code).toBe('PARSE_ERROR');
+        expect(result.error.message).toContain('Weather API response validation failed');
+      }
+    });
+
+    it('should return PARSE_ERROR when air quality response schema validation fails', async () => {
+      const invalidAirResponse = {
+        current: {
+          pm2_5: 'invalid', // Invalid: should be number
+          us_aqi: 25,
+        },
+      };
+
+      globalThis.fetch = vi
+        .fn()
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve(createMockWeatherResponse()),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve(invalidAirResponse),
+        });
+
+      const result = await client.fetchWeather(35.6762, 139.6503);
+
+      expect(isErr(result)).toBe(true);
+      if (isErr(result)) {
+        expect(result.error.code).toBe('PARSE_ERROR');
+        expect(result.error.message).toContain('Air Quality API response validation failed');
+      }
+    });
+
+    it('should return PARSE_ERROR when response is missing required fields', async () => {
+      const incompleteWeatherResponse = {
+        current: {
+          temperature_2m: 20,
+          // Missing other required fields
+        },
+      };
+
+      globalThis.fetch = vi
+        .fn()
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve(incompleteWeatherResponse),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve(createMockAirResponse()),
+        });
+
+      const result = await client.fetchWeather(35.6762, 139.6503);
+
+      expect(isErr(result)).toBe(true);
+      if (isErr(result)) {
+        expect(result.error.code).toBe('PARSE_ERROR');
       }
     });
   });

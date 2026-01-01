@@ -1,9 +1,9 @@
 import { type Result, err, ok } from '../../utils/result';
-import type {
-  OpenMeteoAirQualityResponse,
-  OpenMeteoWeatherResponse,
-  WeatherData,
-  WeatherError,
+import {
+  OpenMeteoAirQualityResponseSchema,
+  OpenMeteoWeatherResponseSchema,
+  type WeatherData,
+  type WeatherError,
 } from './types';
 
 const WEATHER_BASE_URL = 'https://api.open-meteo.com/v1/forecast';
@@ -64,8 +64,40 @@ export class OpenMeteoClient {
         });
       }
 
-      const weatherData = (await weatherRes.json()) as OpenMeteoWeatherResponse;
-      const airData = (await airQualityRes.json()) as OpenMeteoAirQualityResponse;
+      // Parse JSON responses
+      let weatherJson: unknown;
+      let airJson: unknown;
+      try {
+        [weatherJson, airJson] = await Promise.all([weatherRes.json(), airQualityRes.json()]);
+      } catch (parseError) {
+        return err({
+          code: 'PARSE_ERROR',
+          message: 'Failed to parse API response as JSON',
+          details: parseError instanceof Error ? parseError.message : String(parseError),
+        });
+      }
+
+      // Validate with Zod schemas
+      const weatherResult = OpenMeteoWeatherResponseSchema.safeParse(weatherJson);
+      if (!weatherResult.success) {
+        return err({
+          code: 'PARSE_ERROR',
+          message: 'Weather API response validation failed',
+          details: weatherResult.error.format(),
+        });
+      }
+
+      const airResult = OpenMeteoAirQualityResponseSchema.safeParse(airJson);
+      if (!airResult.success) {
+        return err({
+          code: 'PARSE_ERROR',
+          message: 'Air Quality API response validation failed',
+          details: airResult.error.format(),
+        });
+      }
+
+      const weatherData = weatherResult.data;
+      const airData = airResult.data;
 
       return ok({
         temperature: weatherData.current.temperature_2m,

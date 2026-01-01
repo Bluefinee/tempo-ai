@@ -26,6 +26,6 @@ export class WeatherService {
     }
 
     const { latitude, longitude } = validation.data;
-    return this.client.fetchWeather(latitude, longitude);
+    return await this.client.fetchWeather(latitude, longitude);
   };
 }

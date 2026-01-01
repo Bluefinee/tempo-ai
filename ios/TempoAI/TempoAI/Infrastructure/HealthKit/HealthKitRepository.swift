@@ -1,20 +1,24 @@
 import Foundation
 import HealthKit
+import os.log
 
 // MARK: - HealthKitRepository
 
 /// HealthKitからのデータ取得を担当するリポジトリ
+/// @unchecked Sendable: HKHealthStore is documented as thread-safe per Apple documentation
 final class HealthKitRepository: HealthKitRepositoryProtocol, @unchecked Sendable {
 
     // MARK: - Properties
 
     private let healthStore: HKHealthStore
+    private static let logger: Logger = Logger(subsystem: "com.tempoai", category: "HealthKit")
 
     /// 必須のHealthKitデータタイプ
     private let requiredReadTypes: Set<HKObjectType> = [
         HKQuantityType(.heartRateVariabilitySDNN),
         HKQuantityType(.restingHeartRate),
         HKQuantityType(.stepCount),
+        HKQuantityType(.appleExerciseTime),
         HKCategoryType(.sleepAnalysis)
     ]
 
@@ -48,18 +52,72 @@ final class HealthKitRepository: HealthKitRepositoryProtocol, @unchecked Sendabl
     func fetchTodayMetrics() async throws -> HealthMetrics {
         let today: Date = Date()
 
-        async let sleepData = fetchLatestSleep()
-        async let hrvData = fetchLatestHRV()
-        async let activityData = fetchYesterdayActivity()
-        async let auxiliaryData = fetchAuxiliaryMetrics()
+        async let sleepTask = fetchLatestSleepSafe()
+        async let hrvTask = fetchLatestHRVSafe()
+        async let activityTask = fetchYesterdayActivitySafe()
+        async let auxiliaryTask = fetchAuxiliaryMetricsSafe()
+
+        let (sleep, sleepError) = await sleepTask
+        let (hrv, hrvError) = await hrvTask
+        let (activity, activityError) = await activityTask
+        let (auxiliary, auxiliaryError) = await auxiliaryTask
+
+        #if DEBUG
+        if let error = sleepError {
+            Self.logger.debug("Sleep fetch failed: \(error.localizedDescription)")
+        }
+        if let error = hrvError {
+            Self.logger.debug("HRV fetch failed: \(error.localizedDescription)")
+        }
+        if let error = activityError {
+            Self.logger.debug("Activity fetch failed: \(error.localizedDescription)")
+        }
+        if let error = auxiliaryError {
+            Self.logger.debug("Auxiliary fetch failed: \(error.localizedDescription)")
+        }
+        #endif
 
         return HealthMetrics(
             date: today,
-            sleep: try? await sleepData,
-            hrv: try? await hrvData,
-            activity: try? await activityData,
-            auxiliary: try? await auxiliaryData
+            sleep: sleep,
+            hrv: hrv,
+            activity: activity,
+            auxiliary: auxiliary
         )
+    }
+
+    // MARK: - Safe Fetch Methods (for parallel execution with error logging)
+
+    private func fetchLatestSleepSafe() async -> (SleepMetrics?, Error?) {
+        do {
+            return (try await fetchLatestSleep(), nil)
+        } catch {
+            return (nil, error)
+        }
+    }
+
+    private func fetchLatestHRVSafe() async -> (HRVMetrics?, Error?) {
+        do {
+            return (try await fetchLatestHRV(), nil)
+        } catch {
+            return (nil, error)
+        }
+    }
+
+    private func fetchYesterdayActivitySafe() async -> (ActivityMetrics?, Error?) {
+        do {
+            return (try await fetchYesterdayActivity(), nil)
+        } catch {
+            return (nil, error)
+        }
+    }
+
+    private func fetchAuxiliaryMetricsSafe() async -> (AuxiliaryMetrics?, Error?) {
+        do {
+            return (try await fetchAuxiliaryMetrics(), nil)
+        } catch {
+            return (nil, error)
+        }
     }
 
     func fetchSleepHistory(days: Int) async throws -> [SleepMetrics] {
@@ -92,7 +150,10 @@ final class HealthKitRepository: HealthKitRepositoryProtocol, @unchecked Sendabl
             healthStore.execute(query)
         }
 
-        return groupSamplesIntoSleepMetrics(samples)
+        if let metrics = aggregateSleepSamples(samples) {
+            return [metrics]
+        }
+        return []
     }
 
     func fetchHRVBaseline(days: Int) async throws -> Double {
@@ -168,8 +229,7 @@ final class HealthKitRepository: HealthKitRepositoryProtocol, @unchecked Sendabl
             healthStore.execute(query)
         }
 
-        let sleepMetricsList: [SleepMetrics] = groupSamplesIntoSleepMetrics(samples)
-        guard let latestSleep = sleepMetricsList.first else {
+        guard let latestSleep = aggregateSleepSamples(samples) else {
             throw HealthKitError.dataUnavailable
         }
 
@@ -224,13 +284,14 @@ final class HealthKitRepository: HealthKitRepositoryProtocol, @unchecked Sendabl
             throw HealthKitError.dataUnavailable
         }
 
-        let stepType: HKQuantityType = HKQuantityType(.stepCount)
         let predicate: NSPredicate = HKQuery.predicateForSamples(
             withStart: yesterdayStart,
             end: yesterdayEnd,
             options: .strictStartDate
         )
 
+        // Fetch steps
+        let stepType: HKQuantityType = HKQuantityType(.stepCount)
         let steps: Double = try await withCheckedThrowingContinuation { continuation in
             let query: HKStatisticsQuery = HKStatisticsQuery(
                 quantityType: stepType,
@@ -247,7 +308,29 @@ final class HealthKitRepository: HealthKitRepositoryProtocol, @unchecked Sendabl
             healthStore.execute(query)
         }
 
-        return ActivityMetrics(stepsYesterday: Int(steps), activeMinutesYesterday: 0)
+        // Fetch active minutes (exercise time)
+        let exerciseType: HKQuantityType = HKQuantityType(.appleExerciseTime)
+        let activeMinutes: Double = try await withCheckedThrowingContinuation { continuation in
+            let query: HKStatisticsQuery = HKStatisticsQuery(
+                quantityType: exerciseType,
+                quantitySamplePredicate: predicate,
+                options: .cumulativeSum
+            ) { _, statistics, error in
+                if let error = error {
+                    // Exercise time may not be available, return 0 instead of failing
+                    #if DEBUG
+                    Self.logger.debug("Exercise time query failed: \(error.localizedDescription)")
+                    #endif
+                    continuation.resume(returning: 0)
+                    return
+                }
+                let sum: Double = statistics?.sumQuantity()?.doubleValue(for: HKUnit.minute()) ?? 0
+                continuation.resume(returning: sum)
+            }
+            healthStore.execute(query)
+        }
+
+        return ActivityMetrics(stepsYesterday: Int(steps), activeMinutesYesterday: Int(activeMinutes))
     }
 
     private func fetchAuxiliaryMetrics() async throws -> AuxiliaryMetrics {
@@ -329,8 +412,9 @@ final class HealthKitRepository: HealthKitRepositoryProtocol, @unchecked Sendabl
         return WristTemperatureMetrics(deviation: deviation)
     }
 
-    private func groupSamplesIntoSleepMetrics(_ samples: [HKCategorySample]) -> [SleepMetrics] {
-        guard !samples.isEmpty else { return [] }
+    /// Aggregates sleep samples into a single SleepMetrics
+    private func aggregateSleepSamples(_ samples: [HKCategorySample]) -> SleepMetrics? {
+        guard !samples.isEmpty else { return nil }
 
         var deepSleepMinutes: Int = 0
         var remSleepMinutes: Int = 0
@@ -364,16 +448,14 @@ final class HealthKitRepository: HealthKitRepositoryProtocol, @unchecked Sendabl
             }
         }
 
-        guard totalMinutes > 0 else { return [] }
+        guard totalMinutes > 0 else { return nil }
 
-        let sleepMetrics: SleepMetrics = SleepMetrics(
+        return SleepMetrics(
             bedtime: bedtime,
             wakeTime: wakeTime,
             durationMinutes: totalMinutes,
             deepSleepMinutes: deepSleepMinutes,
             remSleepMinutes: remSleepMinutes
         )
-
-        return [sleepMetrics]
     }
 }

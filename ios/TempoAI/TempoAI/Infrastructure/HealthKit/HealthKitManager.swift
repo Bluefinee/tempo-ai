@@ -90,9 +90,15 @@ final class HealthKitManager: ObservableObject {
 
     /// HRVベースラインを取得
     func fetchHRVBaseline(days: Int = 30) async -> Double? {
+        lastError = nil
+
         do {
             return try await repository.fetchHRVBaseline(days: days)
+        } catch let error as HealthKitError {
+            lastError = error
+            return nil
         } catch {
+            lastError = .queryFailed(error)
             return nil
         }
     }

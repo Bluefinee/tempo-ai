@@ -12,7 +12,13 @@ struct ContentView: View {
     // MARK: - Properties
 
     @State private var hasCompletedOnboarding: Bool = false
-    private let localStorage: LocalStorageProtocol = LocalStorage()
+    private let localStorage: LocalStorageProtocol
+
+    // MARK: - Initialization
+
+    init(localStorage: LocalStorageProtocol = LocalStorage()) {
+        self.localStorage = localStorage
+    }
 
     // MARK: - Body
 

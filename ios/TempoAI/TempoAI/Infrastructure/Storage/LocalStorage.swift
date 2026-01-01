@@ -1,4 +1,5 @@
 import Foundation
+import os.log
 
 // MARK: - LocalStorage
 
@@ -10,6 +11,7 @@ final class LocalStorage: LocalStorageProtocol, @unchecked Sendable {
     private let defaults: UserDefaults
     private let encoder: JSONEncoder
     private let decoder: JSONDecoder
+    private static let logger: Logger = Logger(subsystem: "com.tempoai", category: "LocalStorage")
 
     // MARK: - Initialization
 
@@ -30,7 +32,10 @@ final class LocalStorage: LocalStorageProtocol, @unchecked Sendable {
             let data: Data = try encoder.encode(value)
             defaults.set(data, forKey: key)
         } catch {
-            print("LocalStorage: Failed to save \(key): \(error.localizedDescription)")
+            Self.logger.error("Failed to encode \(key): \(error.localizedDescription)")
+            #if DEBUG
+            assertionFailure("LocalStorage encoding failed for key: \(key)")
+            #endif
         }
     }
 
@@ -42,7 +47,10 @@ final class LocalStorage: LocalStorageProtocol, @unchecked Sendable {
         do {
             return try decoder.decode(T.self, from: data)
         } catch {
-            print("LocalStorage: Failed to load \(key): \(error.localizedDescription)")
+            Self.logger.error("Failed to decode \(key): \(error.localizedDescription)")
+            #if DEBUG
+            assertionFailure("LocalStorage decoding failed for key: \(key)")
+            #endif
             return nil
         }
     }

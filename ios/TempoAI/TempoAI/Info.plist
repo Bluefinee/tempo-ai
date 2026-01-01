@@ -4,5 +4,11 @@
 <dict>
 	<key>UIBackgroundModes</key>
 	<array/>
+	<key>NSHealthShareUsageDescription</key>
+	<string>TempoAIはあなたの健康データを分析し、パーソナライズされたアドバイスを提供します。</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>TempoAIはあなたの健康目標の達成を記録します。</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>TempoAIは天気情報に基づいたアドバイスを提供するために位置情報を使用します。</string>
 </dict>
 </plist>

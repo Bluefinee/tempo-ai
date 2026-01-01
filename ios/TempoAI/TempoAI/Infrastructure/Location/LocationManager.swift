@@ -1,6 +1,7 @@
 import Combine
 import CoreLocation
 import Foundation
+import os.log
 
 // MARK: - LocationManager
 
@@ -21,6 +22,9 @@ final class LocationManager: NSObject, ObservableObject {
     private let locationManager: CLLocationManager
     private let geocoder: CLGeocoder
     private var locationContinuation: CheckedContinuation<CLLocation, Error>?
+    private var timeoutTask: Task<Void, Never>?
+    private static let logger: Logger = Logger(subsystem: "com.tempoai", category: "Location")
+    private static let locationTimeoutSeconds: UInt64 = 30
 
     // MARK: - Initialization
 
@@ -40,14 +44,29 @@ final class LocationManager: NSObject, ObservableObject {
         locationManager.requestWhenInUseAuthorization()
     }
 
-    /// 現在の位置情報を取得
+    /// 現在の位置情報を取得（30秒タイムアウト付き）
     func requestCurrentLocation() async throws -> CLLocation {
         isLoading = true
         lastError = nil
 
         return try await withCheckedThrowingContinuation { continuation in
             self.locationContinuation = continuation
-            locationManager.requestLocation()
+            self.locationManager.requestLocation()
+
+            // タイムアウト処理
+            self.timeoutTask = Task {
+                try? await Task.sleep(nanoseconds: Self.locationTimeoutSeconds * 1_000_000_000)
+                guard !Task.isCancelled else { return }
+
+                await MainActor.run {
+                    if self.locationContinuation != nil {
+                        self.isLoading = false
+                        self.lastError = .timeout
+                        self.locationContinuation?.resume(throwing: LocationError.timeout)
+                        self.locationContinuation = nil
+                    }
+                }
+            }
         }
     }
 
@@ -57,6 +76,9 @@ final class LocationManager: NSObject, ObservableObject {
             let placemarks: [CLPlacemark] = try await geocoder.reverseGeocodeLocation(location)
             return placemarks.first?.locality ?? placemarks.first?.administrativeArea
         } catch {
+            #if DEBUG
+            Self.logger.debug("Geocoding failed: \(error.localizedDescription)")
+            #endif
             return nil
         }
     }
@@ -95,6 +117,8 @@ extension LocationManager: CLLocationManagerDelegate {
         guard let location = locations.last else { return }
 
         Task { @MainActor in
+            self.timeoutTask?.cancel()
+            self.timeoutTask = nil
             self.currentLocation = location
             self.isLoading = false
 
@@ -112,6 +136,8 @@ extension LocationManager: CLLocationManagerDelegate {
         didFailWithError error: Error
     ) {
         Task { @MainActor in
+            self.timeoutTask?.cancel()
+            self.timeoutTask = nil
             self.isLoading = false
             self.lastError = .locationFailed(error)
             self.locationContinuation?.resume(throwing: LocationError.locationFailed(error))
@@ -132,15 +158,30 @@ enum LocationError: Error, LocalizedError, Sendable {
     case notAuthorized
     case locationFailed(Error)
     case geocodingFailed
+    case timeout
 
     var errorDescription: String? {
         switch self {
         case .notAuthorized:
-            return "位置情報へのアクセスが許可されていません"
+            return String(
+                localized: "位置情報へのアクセスが許可されていません",
+                comment: "Location access not authorized error"
+            )
         case .locationFailed(let error):
-            return "位置情報の取得に失敗しました: \(error.localizedDescription)"
+            return String(
+                localized: "位置情報の取得に失敗しました: \(error.localizedDescription)",
+                comment: "Location fetch failed error"
+            )
         case .geocodingFailed:
-            return "住所の取得に失敗しました"
+            return String(
+                localized: "住所の取得に失敗しました",
+                comment: "Geocoding failed error"
+            )
+        case .timeout:
+            return String(
+                localized: "位置情報の取得がタイムアウトしました",
+                comment: "Location fetch timeout error"
+            )
         }
     }
 }

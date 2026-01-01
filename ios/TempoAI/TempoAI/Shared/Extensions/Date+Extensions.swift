@@ -71,26 +71,38 @@ extension Date {
 
     // MARK: - Formatting
 
+    private static let timeFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm"
+        return formatter
+    }()
+
+    private static let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "M月d日"
+        return formatter
+    }()
+
+    private static let weekdayFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "E"
+        formatter.locale = Locale(identifier: "ja_JP")
+        return formatter
+    }()
+
     /// 時刻のみ表示（例: "23:30"）
     var timeString: String {
-        let formatter: DateFormatter = DateFormatter()
-        formatter.dateFormat = "HH:mm"
-        return formatter.string(from: self)
+        Self.timeFormatter.string(from: self)
     }
 
     /// 日付のみ表示（例: "1月1日"）
     var dateString: String {
-        let formatter: DateFormatter = DateFormatter()
-        formatter.dateFormat = "M月d日"
-        return formatter.string(from: self)
+        Self.dateFormatter.string(from: self)
     }
 
     /// 曜日表示（例: "月"）
     var weekdayString: String {
-        let formatter: DateFormatter = DateFormatter()
-        formatter.dateFormat = "E"
-        formatter.locale = Locale(identifier: "ja_JP")
-        return formatter.string(from: self)
+        Self.weekdayFormatter.string(from: self)
     }
 
     /// 相対的な日付表示（例: "今日", "昨日", "1月1日"）

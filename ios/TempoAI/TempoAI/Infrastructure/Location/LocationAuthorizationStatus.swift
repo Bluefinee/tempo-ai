@@ -13,15 +13,15 @@ enum LocationAuthorizationStatus: Sendable {
     var displayText: String {
         switch self {
         case .notDetermined:
-            return "未設定"
+            return String(localized: "未設定", comment: "Location authorization not determined")
         case .authorized:
-            return "常に許可"
+            return String(localized: "常に許可", comment: "Location always authorized")
         case .authorizedWhenInUse:
-            return "使用中のみ許可"
+            return String(localized: "使用中のみ許可", comment: "Location authorized when in use")
         case .denied:
-            return "拒否"
+            return String(localized: "拒否", comment: "Location authorization denied")
         case .restricted:
-            return "制限あり"
+            return String(localized: "制限あり", comment: "Location authorization restricted")
         }
     }
 

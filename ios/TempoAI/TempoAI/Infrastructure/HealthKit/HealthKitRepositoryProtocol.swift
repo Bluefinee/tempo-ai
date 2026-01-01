@@ -1,5 +1,3 @@
-import Foundation
-
 // MARK: - HealthKitRepositoryProtocol
 
 /// HealthKitデータアクセス層のプロトコル

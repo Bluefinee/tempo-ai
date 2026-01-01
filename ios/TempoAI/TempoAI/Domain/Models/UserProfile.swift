@@ -93,19 +93,21 @@ enum AlcoholFrequency: String, Codable, Sendable, CaseIterable {
 struct CalibrationState: Codable, Equatable, Sendable {
     let startDate: Date
     var daysCompleted: Int
-    var isComplete: Bool
 
     static let requiredDays: Int = 7
+
+    /// キャリブレーション完了状態（computed property）
+    var isComplete: Bool {
+        daysCompleted >= Self.requiredDays
+    }
 
     init(startDate: Date = Date(), daysCompleted: Int = 0) {
         self.startDate = startDate
         self.daysCompleted = daysCompleted
-        self.isComplete = daysCompleted >= Self.requiredDays
     }
 
     mutating func updateProgress(healthDataDays: Int) {
         daysCompleted = min(healthDataDays, Self.requiredDays)
-        isComplete = daysCompleted >= Self.requiredDays
     }
 
     /// 進捗率（0.0 - 1.0）
@@ -116,5 +118,12 @@ struct CalibrationState: Codable, Equatable, Sendable {
     /// 残り日数
     var remainingDays: Int {
         max(0, Self.requiredDays - daysCompleted)
+    }
+
+    // MARK: - Codable
+
+    private enum CodingKeys: String, CodingKey {
+        case startDate
+        case daysCompleted
     }
 }

@@ -6,26 +6,25 @@
 
 ### Specifications (docs/specs/)
 
-| Document | Path | Description |
-|----------|------|-------------|
-| Product Spec | [docs/specs/product-spec.md](docs/specs/product-spec.md) | プロダクトの全体像・機能要件（必読） |
-| Technical Spec | [docs/specs/technical-spec.md](docs/specs/technical-spec.md) | 技術仕様・アーキテクチャ設計 |
-| UI Spec | [docs/specs/ui-spec.md](docs/specs/ui-spec.md) | UI/UXデザイン仕様 |
-| AI Prompt Spec | [docs/specs/ai-prompt-spec.md](docs/specs/ai-prompt-spec.md) | AIプロンプト設計・トークン最適化 |
-| Metrics Spec | [docs/specs/metrics-spec.md](docs/specs/metrics-spec.md) | メトリクス・スコアリング仕様 |
+| Document       | Path                                                         | Description                          |
+| -------------- | ------------------------------------------------------------ | ------------------------------------ |
+| Product Spec   | [docs/specs/product-spec.md](docs/specs/product-spec.md)     | プロダクトの全体像・機能要件（必読） |
+| Technical Spec | [docs/specs/technical-spec.md](docs/specs/technical-spec.md) | 技術仕様・アーキテクチャ設計         |
+| UI Spec        | [docs/specs/ui-spec.md](docs/specs/ui-spec.md)               | UI/UX デザイン仕様                   |
+| AI Prompt Spec | [docs/specs/ai-prompt-spec.md](docs/specs/ai-prompt-spec.md) | AI プロンプト設計・トークン最適化    |
 
 ### Coding Standards (.claude/)
 
-| Document | Path | Description |
-|----------|------|-------------|
-| Swift Standards | [.claude/swift-coding-standards.md](.claude/swift-coding-standards.md) | Swift開発規約・パターン |
-| TypeScript + Hono | [.claude/typescript-hono-standards.md](.claude/typescript-hono-standards.md) | バックエンド開発規約 |
-| UX Concepts | [.claude/ux_concepts.md](.claude/ux_concepts.md) | UXデザイン原則・コンセプト |
+| Document          | Path                                                                         | Description                 |
+| ----------------- | ---------------------------------------------------------------------------- | --------------------------- |
+| Swift Standards   | [.claude/swift-coding-standards.md](.claude/swift-coding-standards.md)       | Swift 開発規約・パターン    |
+| TypeScript + Hono | [.claude/typescript-hono-standards.md](.claude/typescript-hono-standards.md) | バックエンド開発規約        |
+| UX Concepts       | [.claude/ux_concepts.md](.claude/ux_concepts.md)                             | UX デザイン原則・コンセプト |
 
 ### Project Management (docs/)
 
-| Document | Path | Description |
-|----------|------|-------------|
+| Document        | Path                                           | Description                |
+| --------------- | ---------------------------------------------- | -------------------------- |
 | Phases Overview | [docs/phases/phases.md](docs/phases/phases.md) | 開発フェーズ・ロードマップ |
 
 These documents contain project-specific best practices, naming conventions, architecture patterns, UX guidelines, and quality requirements. Reference them during every implementation task.

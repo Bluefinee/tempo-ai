@@ -3,7 +3,7 @@ import Foundation
 // MARK: - APIError
 
 /// API通信エラー
-enum APIError: Error, Equatable, Sendable {
+public enum APIError: Error, Equatable, Sendable {
     case invalidURL
     case invalidRequest(String)
     case networkError(String)
@@ -18,7 +18,7 @@ enum APIError: Error, Equatable, Sendable {
 
 extension APIError: LocalizedError {
 
-    var errorDescription: String? {
+    public var errorDescription: String? {
         switch self {
         case .invalidURL:
             return "無効なURLです"
@@ -49,7 +49,7 @@ extension APIError {
     ///   - statusCode: HTTPステータスコード
     ///   - message: エラーメッセージ
     /// - Returns: 対応するAPIError
-    static func fromHTTPStatus(_ statusCode: Int, message: String) -> APIError {
+    public static func fromHTTPStatus(_ statusCode: Int, message: String) -> APIError {
         switch statusCode {
         case 400:
             return .invalidRequest(message)

@@ -72,11 +72,16 @@ enum StorageKeys {
     static let calibrationState: String = "calibration_state"
     static let onboardingCompleted: String = "onboarding_completed"
 
+    /// キャッシュされたISO8601DateFormatter
+    private static let isoFormatter: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withFullDate]
+        return formatter
+    }()
+
     /// 日付ベースのアドバイスキー
     static func advice(for date: Date) -> String {
-        let formatter: ISO8601DateFormatter = ISO8601DateFormatter()
-        formatter.formatOptions = [.withFullDate]
-        return "advice_\(formatter.string(from: date))"
+        "advice_\(isoFormatter.string(from: date))"
     }
 
     /// 気分ログキー

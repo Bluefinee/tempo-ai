@@ -168,10 +168,11 @@ enum LocationError: Error, LocalizedError, Sendable {
                 comment: "Location access not authorized error"
             )
         case .locationFailed(let error):
-            return String(
-                localized: "位置情報の取得に失敗しました: \(error.localizedDescription)",
-                comment: "Location fetch failed error"
+            let format = String(
+                localized: "位置情報の取得に失敗しました: %@",
+                comment: "Location fetch failed error with underlying error"
             )
+            return String(format: format, error.localizedDescription)
         case .geocodingFailed:
             return String(
                 localized: "住所の取得に失敗しました",

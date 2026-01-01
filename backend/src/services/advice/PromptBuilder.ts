@@ -20,7 +20,8 @@ const escapeXml = (str: string): string => {
  * 日付をYYYY-MM-DD形式にフォーマット
  */
 const formatDate = (date: Date): string => {
-  return date.toISOString().split('T')[0];
+  const parts = date.toISOString().split('T');
+  return parts[0] ?? date.toISOString().slice(0, 10);
 };
 
 /**

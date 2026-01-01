@@ -1,4 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
+import type { PromptCachingBetaMessage } from '@anthropic-ai/sdk/resources/beta/prompt-caching/messages';
 import { type Result, err, ok } from '../../utils/result';
 import type { AdviceError, AdviceResponse, RecommendedActionType } from './types';
 
@@ -30,7 +31,7 @@ export class AnthropicClient {
     userDataXml: string,
   ): Promise<Result<AdviceResponse, AdviceError>> => {
     try {
-      const response = await this.client.messages.create({
+      const response = await this.client.beta.promptCaching.messages.create({
         model: this.model,
         max_tokens: this.maxTokens,
         system: [
@@ -52,7 +53,9 @@ export class AnthropicClient {
   /**
    * APIレスポンスをパース
    */
-  private parseResponse = (response: Anthropic.Message): Result<AdviceResponse, AdviceError> => {
+  private parseResponse = (
+    response: PromptCachingBetaMessage,
+  ): Result<AdviceResponse, AdviceError> => {
     const textBlock = response.content.find(
       (block): block is Anthropic.TextBlock => block.type === 'text',
     );

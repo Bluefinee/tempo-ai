@@ -1,21 +1,32 @@
 import Anthropic from '@anthropic-ai/sdk';
+import type { PromptCachingBetaMessage } from '@anthropic-ai/sdk/resources/beta/prompt-caching/messages';
 import { describe, expect, it, vi } from 'vitest';
 import { AnthropicClient } from './AnthropicClient';
 
 // Anthropic SDKをモック
 vi.mock('@anthropic-ai/sdk', () => {
-  const MockAnthropic = vi.fn();
-  MockAnthropic.prototype.messages = {
-    create: vi.fn(),
-  };
-  MockAnthropic.APIError = class APIError extends Error {
+  // MockAPIErrorをvi.mock内で定義（ホイスティング対応）
+  class MockAPIError extends Error {
     status: number;
     constructor(status: number, message: string) {
       super(message);
       this.name = 'APIError';
       this.status = status;
     }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const MockAnthropic: any = function (this: unknown) {
+    return this;
   };
+  MockAnthropic.prototype.beta = {
+    promptCaching: {
+      messages: {
+        create: vi.fn(),
+      },
+    },
+  };
+  MockAnthropic.APIError = MockAPIError;
   return { default: MockAnthropic };
 });
 
@@ -23,7 +34,7 @@ describe('AnthropicClient', () => {
   const systemPrompt = '<role>Test system prompt</role>';
   const userDataXml = '<user_data><profile><nickname>テスト</nickname></profile></user_data>';
 
-  const createMockResponse = (text: string): Anthropic.Message => ({
+  const createMockResponse = (text: string): PromptCachingBetaMessage => ({
     id: 'msg_test',
     type: 'message',
     role: 'assistant',
@@ -31,7 +42,12 @@ describe('AnthropicClient', () => {
     model: 'claude-sonnet-4-20250514',
     stop_reason: 'end_turn',
     stop_sequence: null,
-    usage: { input_tokens: 100, output_tokens: 200 },
+    usage: {
+      input_tokens: 100,
+      output_tokens: 200,
+      cache_creation_input_tokens: null,
+      cache_read_input_tokens: null,
+    },
   });
 
   const validJsonResponse = JSON.stringify({
@@ -48,7 +64,7 @@ describe('AnthropicClient', () => {
     it('should return parsed advice on successful response', async () => {
       const client = new AnthropicClient('test-api-key');
       const mockCreate = vi.fn().mockResolvedValue(createMockResponse(validJsonResponse));
-      client['client'].messages.create = mockCreate;
+      client['client'].beta.promptCaching.messages.create = mockCreate;
 
       const result = await client.generateAdvice(systemPrompt, userDataXml);
 
@@ -64,7 +80,7 @@ describe('AnthropicClient', () => {
     it('should send request with cache_control for system prompt', async () => {
       const client = new AnthropicClient('test-api-key');
       const mockCreate = vi.fn().mockResolvedValue(createMockResponse(validJsonResponse));
-      client['client'].messages.create = mockCreate;
+      client['client'].beta.promptCaching.messages.create = mockCreate;
 
       await client.generateAdvice(systemPrompt, userDataXml);
 
@@ -86,7 +102,7 @@ describe('AnthropicClient', () => {
       const client = new AnthropicClient('test-api-key');
       const responseWithText = `Here is the advice:\n\n${validJsonResponse}\n\nI hope this helps!`;
       const mockCreate = vi.fn().mockResolvedValue(createMockResponse(responseWithText));
-      client['client'].messages.create = mockCreate;
+      client['client'].beta.promptCaching.messages.create = mockCreate;
 
       const result = await client.generateAdvice(systemPrompt, userDataXml);
 
@@ -106,9 +122,14 @@ describe('AnthropicClient', () => {
         model: 'claude-sonnet-4-20250514',
         stop_reason: 'end_turn',
         stop_sequence: null,
-        usage: { input_tokens: 100, output_tokens: 0 },
+        usage: {
+          input_tokens: 100,
+          output_tokens: 0,
+          cache_creation_input_tokens: null,
+          cache_read_input_tokens: null,
+        },
       });
-      client['client'].messages.create = mockCreate;
+      client['client'].beta.promptCaching.messages.create = mockCreate;
 
       const result = await client.generateAdvice(systemPrompt, userDataXml);
 
@@ -124,7 +145,7 @@ describe('AnthropicClient', () => {
       const mockCreate = vi
         .fn()
         .mockResolvedValue(createMockResponse('This is just plain text without JSON'));
-      client['client'].messages.create = mockCreate;
+      client['client'].beta.promptCaching.messages.create = mockCreate;
 
       const result = await client.generateAdvice(systemPrompt, userDataXml);
 
@@ -138,7 +159,7 @@ describe('AnthropicClient', () => {
     it('should return PARSE_ERROR when JSON is invalid', async () => {
       const client = new AnthropicClient('test-api-key');
       const mockCreate = vi.fn().mockResolvedValue(createMockResponse('{ invalid json }'));
-      client['client'].messages.create = mockCreate;
+      client['client'].beta.promptCaching.messages.create = mockCreate;
 
       const result = await client.generateAdvice(systemPrompt, userDataXml);
 
@@ -159,7 +180,7 @@ describe('AnthropicClient', () => {
           }),
         ),
       );
-      client['client'].messages.create = mockCreate;
+      client['client'].beta.promptCaching.messages.create = mockCreate;
 
       const result = await client.generateAdvice(systemPrompt, userDataXml);
 
@@ -180,7 +201,7 @@ describe('AnthropicClient', () => {
           }),
         ),
       );
-      client['client'].messages.create = mockCreate;
+      client['client'].beta.promptCaching.messages.create = mockCreate;
 
       const result = await client.generateAdvice(systemPrompt, userDataXml);
 
@@ -201,7 +222,7 @@ describe('AnthropicClient', () => {
           }),
         ),
       );
-      client['client'].messages.create = mockCreate;
+      client['client'].beta.promptCaching.messages.create = mockCreate;
 
       const result = await client.generateAdvice(systemPrompt, userDataXml);
 
@@ -223,7 +244,7 @@ describe('AnthropicClient', () => {
           }),
         ),
       );
-      client['client'].messages.create = mockCreate;
+      client['client'].beta.promptCaching.messages.create = mockCreate;
 
       const result = await client.generateAdvice(systemPrompt, userDataXml);
 
@@ -245,7 +266,7 @@ describe('AnthropicClient', () => {
           }),
         ),
       );
-      client['client'].messages.create = mockCreate;
+      client['client'].beta.promptCaching.messages.create = mockCreate;
 
       const result = await client.generateAdvice(systemPrompt, userDataXml);
 
@@ -270,7 +291,7 @@ describe('AnthropicClient', () => {
             }),
           ),
         );
-        client['client'].messages.create = mockCreate;
+        client['client'].beta.promptCaching.messages.create = mockCreate;
 
         const result = await client.generateAdvice(systemPrompt, userDataXml);
 
@@ -285,14 +306,14 @@ describe('AnthropicClient', () => {
   describe('error handling', () => {
     it('should return RATE_LIMIT_ERROR on 429 status', async () => {
       const client = new AnthropicClient('test-api-key');
-      const apiError = new (
-        Anthropic.APIError as unknown as new (
-          status: number,
-          message: string,
-        ) => Anthropic.APIError
-      )(429, 'Rate limit exceeded');
+      // モックされたAnthropic.APIErrorを使用
+      const ApiErrorClass = Anthropic.APIError as unknown as new (
+        status: number,
+        message: string,
+      ) => Error & { status: number };
+      const apiError = new ApiErrorClass(429, 'Rate limit exceeded');
       const mockCreate = vi.fn().mockRejectedValue(apiError);
-      client['client'].messages.create = mockCreate;
+      client['client'].beta.promptCaching.messages.create = mockCreate;
 
       const result = await client.generateAdvice(systemPrompt, userDataXml);
 
@@ -305,14 +326,14 @@ describe('AnthropicClient', () => {
 
     it('should return AI_API_ERROR on other API errors', async () => {
       const client = new AnthropicClient('test-api-key');
-      const apiError = new (
-        Anthropic.APIError as unknown as new (
-          status: number,
-          message: string,
-        ) => Anthropic.APIError
-      )(500, 'Internal server error');
+      // モックされたAnthropic.APIErrorを使用
+      const ApiErrorClass = Anthropic.APIError as unknown as new (
+        status: number,
+        message: string,
+      ) => Error & { status: number };
+      const apiError = new ApiErrorClass(500, 'Internal server error');
       const mockCreate = vi.fn().mockRejectedValue(apiError);
-      client['client'].messages.create = mockCreate;
+      client['client'].beta.promptCaching.messages.create = mockCreate;
 
       const result = await client.generateAdvice(systemPrompt, userDataXml);
 
@@ -327,7 +348,7 @@ describe('AnthropicClient', () => {
       const client = new AnthropicClient('test-api-key');
       const networkError = new Error('fetch failed: ECONNREFUSED');
       const mockCreate = vi.fn().mockRejectedValue(networkError);
-      client['client'].messages.create = mockCreate;
+      client['client'].beta.promptCaching.messages.create = mockCreate;
 
       const result = await client.generateAdvice(systemPrompt, userDataXml);
 
@@ -342,7 +363,7 @@ describe('AnthropicClient', () => {
       const client = new AnthropicClient('test-api-key');
       const unknownError = new Error('Something went wrong');
       const mockCreate = vi.fn().mockRejectedValue(unknownError);
-      client['client'].messages.create = mockCreate;
+      client['client'].beta.promptCaching.messages.create = mockCreate;
 
       const result = await client.generateAdvice(systemPrompt, userDataXml);
 
@@ -356,7 +377,7 @@ describe('AnthropicClient', () => {
     it('should handle non-Error objects', async () => {
       const client = new AnthropicClient('test-api-key');
       const mockCreate = vi.fn().mockRejectedValue('string error');
-      client['client'].messages.create = mockCreate;
+      client['client'].beta.promptCaching.messages.create = mockCreate;
 
       const result = await client.generateAdvice(systemPrompt, userDataXml);
 

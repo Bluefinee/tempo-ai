@@ -129,7 +129,14 @@
       "Bash(ios/TempoAI/TempoAI/Features/Onboarding/Views/NicknameInputView.swift )",
       "Bash(ios/TempoAI/TempoAI/Features/Onboarding/Views/OnboardingContainerView.swift )",
       "Bash(ios/TempoAI/TempoAI/Features/Onboarding/Views/OnboardingLoadingView.swift )",
-      "Bash(ios/TempoAI/TempoAI/Features/Onboarding/Views/PermissionsView.swift)"
+      "Bash(ios/TempoAI/TempoAI/Features/Onboarding/Views/PermissionsView.swift)",
+      "Bash(test:*)",
+      "Bash(ls:*)",
+      "Bash(git -C /Users/masakazuiwahara/Development/tempo-ai show --stat 129cd77)",
+      "Bash(git -C /Users/masakazuiwahara/Development/tempo-ai diff 129cd77^..129cd77 --name-only)",
+      "Bash(git -C /Users/masakazuiwahara/Development/tempo-ai log --all --oneline -- backend/src)",
+      "Bash(git -C /Users/masakazuiwahara/Development/tempo-ai show 4a6d7ef^:backend/src/index.ts)",
+      "Bash(wc:*)"
     ],
     "deny": [],
     "ask": [],

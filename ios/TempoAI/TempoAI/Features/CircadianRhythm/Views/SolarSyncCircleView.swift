@@ -38,11 +38,11 @@ struct SolarSyncCircleView: View {
                 .frame(width: outerRadius * 2, height: outerRadius * 2)
 
                 // 内周: 体内時計（体温データがある場合のみ）
-                if phaseShiftHours != nil {
+                if let shift = phaseShiftHours {
                     Circle()
                         .stroke(Color.tempoSageGreen.opacity(0.5), lineWidth: innerRingWidth)
                         .frame(width: innerRadius * 2, height: innerRadius * 2)
-                        .rotationEffect(.degrees((phaseShiftHours ?? 0) * 15))
+                        .rotationEffect(.degrees(shift * 15))
                 }
 
                 // 時刻目盛り
@@ -116,10 +116,14 @@ struct SolarSyncCircleView: View {
         }
     }
 
-    private var currentTimeText: String {
+    private static let timeFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "H:mm"
-        return formatter.string(from: currentTime)
+        return formatter
+    }()
+
+    private var currentTimeText: String {
+        Self.timeFormatter.string(from: currentTime)
     }
 
     private var statusMessage: String {

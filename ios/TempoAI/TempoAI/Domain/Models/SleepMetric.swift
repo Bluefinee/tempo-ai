@@ -87,7 +87,9 @@ extension SleepMetric {
         let calendar = Calendar.current
         let now = Date()
         var bedtimeComponents = calendar.dateComponents([.year, .month, .day], from: now)
-        bedtimeComponents.day! -= 1
+        if let day = bedtimeComponents.day {
+            bedtimeComponents.day = day - 1
+        }
         bedtimeComponents.hour = 23
         bedtimeComponents.minute = 0
         let bedtime = calendar.date(from: bedtimeComponents) ?? now

@@ -131,7 +131,7 @@ final class HealthKitManager: ObservableObject, HealthKitManaging {
         #else
         if #available(iOS 16.0, *) {
             let temperatureType = HKQuantityType(.appleSleepingWristTemperature)
-            return healthStore.authorizationStatus(for: temperatureType) != .notDetermined
+            return healthStore.authorizationStatus(for: temperatureType) == .sharingAuthorized
         }
         return false
         #endif

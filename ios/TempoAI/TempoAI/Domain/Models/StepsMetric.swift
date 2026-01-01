@@ -41,11 +41,15 @@ struct StepsMetric {
         RhythmMetrics.scoreToGauge(score)
     }
 
-    /// 表示用値（カンマ区切り）
-    var displayValue: String {
+    private static let stepsFormatter: NumberFormatter = {
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
-        return formatter.string(from: NSNumber(value: todaySteps)) ?? "\(todaySteps)"
+        return formatter
+    }()
+
+    /// 表示用値（カンマ区切り）
+    var displayValue: String {
+        Self.stepsFormatter.string(from: NSNumber(value: todaySteps)) ?? "\(todaySteps)"
     }
 }
 

@@ -6,12 +6,14 @@
 
 ### Specifications (docs/specs/)
 
-| Document       | Path                                                         | Description                          |
-| -------------- | ------------------------------------------------------------ | ------------------------------------ |
-| Product Spec   | [docs/specs/product-spec.md](docs/specs/product-spec.md)     | プロダクトの全体像・機能要件（必読） |
-| Technical Spec | [docs/specs/technical-spec.md](docs/specs/technical-spec.md) | 技術仕様・アーキテクチャ設計         |
-| UI Spec        | [docs/specs/ui-spec.md](docs/specs/ui-spec.md)               | UI/UX デザイン仕様                   |
-| AI Prompt Spec | [docs/specs/ai-prompt-spec.md](docs/specs/ai-prompt-spec.md) | AI プロンプト設計・トークン最適化    |
+| Document       | Path                                                         | Description                      |
+| -------------- | ------------------------------------------------------------ | -------------------------------- |
+| Product Spec   | [docs/specs/product-spec.md](docs/specs/product-spec.md)     | プロダクト仕様・画面構成（必読） |
+| Technical Spec | [docs/specs/technical-spec.md](docs/specs/technical-spec.md) | 技術仕様・ドメインモデル設計     |
+| Metrics Spec   | [docs/specs/metrics-spec.md](docs/specs/metrics-spec.md)     | スコア算出アルゴリズム           |
+| AI Prompt Spec | [docs/specs/ai-prompt-spec.md](docs/specs/ai-prompt-spec.md) | AI プロンプト設計                |
+| UI Spec        | [docs/specs/ui-spec.md](docs/specs/ui-spec.md)               | UI/UX デザイン仕様               |
+| Knowledge Base | [docs/specs/knowledge-base.md](docs/specs/knowledge-base.md) | 科学的根拠・ナレッジベース       |
 
 ### Coding Standards (.claude/)
 
@@ -20,12 +22,6 @@
 | Swift Standards   | [.claude/swift-coding-standards.md](.claude/swift-coding-standards.md)       | Swift 開発規約・パターン    |
 | TypeScript + Hono | [.claude/typescript-hono-standards.md](.claude/typescript-hono-standards.md) | バックエンド開発規約        |
 | UX Concepts       | [.claude/ux_concepts.md](.claude/ux_concepts.md)                             | UX デザイン原則・コンセプト |
-
-### Project Management (docs/)
-
-| Document        | Path                                           | Description                |
-| --------------- | ---------------------------------------------- | -------------------------- |
-| Phases Overview | [docs/phases/phases.md](docs/phases/phases.md) | 開発フェーズ・ロードマップ |
 
 These documents contain project-specific best practices, naming conventions, architecture patterns, UX guidelines, and quality requirements. Reference them during every implementation task.
 
@@ -74,7 +70,20 @@ Break complex work into 3-5 stages. Document in `IMPLEMENTATION_PLAN.md`:
 
 ## Technical Standards
 
-### Architecture Principles (SOLID)
+### Architecture Principles
+
+**Domain-Driven Design**
+
+ビジネスロジックはドメインモデルに凝集させ、変更容易性・テスト容易性を高める。
+
+```
+Presentation → Application → Domain → Infrastructure
+                               ↓
+                         ビジネスロジック集約
+                         （スコア計算、リズム分析）
+```
+
+**SOLID Principles**
 
 - **Single Responsibility** - One reason to change
 - **Open/Closed** - Open for extension, closed for modification
@@ -121,18 +130,6 @@ export const processUser = (user: User): ProcessedUser => {
 - Single source of truth for constants/types
 - Centralize validation and business rules
 
-```typescript
-// ❌ Bad - Repeated validation
-const validateEmail = (email: string): boolean =>
-  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-const validateUserEmail = (email: string): boolean =>
-  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-
-// ✅ Good - Single implementation
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-export const isValidEmail = (email: string): boolean => EMAIL_REGEX.test(email);
-```
-
 ### Comments Policy
 
 **ONLY comment when**:
@@ -146,47 +143,6 @@ export const isValidEmail = (email: string): boolean => EMAIL_REGEX.test(email);
 - Self-explanatory code
 - Commented-out code (delete it)
 - Obvious operations
-
-```typescript
-// ❌ Bad
-// Get user by ID
-const getUser = (id: string) => users.find((u) => u.id === id);
-
-// ✅ Good - Self-documenting
-const getUserById = (id: string): User | undefined =>
-  users.find((user) => user.id === id);
-
-// ✅ Good - Explains "why"
-/**
- * Retry logic for flaky external API
- * Note: 3 retries needed due to rate limiting (see issue #123)
- */
-const fetchWithRetry = async <T>(
-  fetcher: () => Promise<T>,
-  maxRetries = 3
-): Promise<T> => {
-  /* ... */
-};
-```
-
-### JSDoc for Public APIs
-
-```typescript
-/**
- * Processes health data from multiple sources
- *
- * @param userId - Unique identifier for the user
- * @param options - Configuration options
- * @returns Promise resolving to health report
- * @throws {ValidationError} If user data is incomplete
- */
-export const generateHealthReport = async (
-  userId: string,
-  options: ReportOptions
-): Promise<HealthReport> => {
-  // Implementation
-};
-```
 
 ### Error Handling
 
@@ -257,47 +213,23 @@ When multiple valid approaches exist:
 - Commit working code incrementally
 - Stop after 3 failed attempts and reassess
 
-## Context Engineering Principles
+## Context Engineering (Claude API)
 
-> Reference: [Agent-Skills-for-Context-Engineering](https://github.com/muratcankoylan/Agent-Skills-for-Context-Engineering)
+### Token Budget
 
-### Token Budget (Claude API)
+| Layer         | Estimated Tokens | Cached |
+| ------------- | ---------------- | ------ |
+| System Prompt | ~2,000           | Yes    |
+| User Data     | ~1,500           | No     |
+| Output        | ~1,500           | -      |
+| **Total**     | ~5,000           | -      |
 
-| Layer                     | Estimated Tokens | Cached |
-| ------------------------- | ---------------- | ------ |
-| System Prompt Core        | 500-800          | Yes    |
-| Examples (1-2 categories) | 1,500-2,500      | Yes    |
-| Output Schema             | 400-600          | Yes    |
-| User Data                 | 800-1,200        | No     |
-| **Total**                 | **3,200-5,100**  | -      |
+**Cost**: ~$0.03/request → ~$0.90/user/month (1 request/day)
 
-**Target cache hit rate**: 70%+
+### Prompt Caching
 
-### Information Placement
-
-LLM attention concentrates at **START** and **END** of context (U-shaped curve).
-
-- Place critical constraints at START (role, prohibitions)
-- Place output schema at END (high attention)
-- Dynamic user data in MIDDLE (acceptable lower attention)
-
-### Prompt Caching Optimization
-
-- Stable content at the beginning
-- Variable content toward the end
+- Stable content (system prompt) at the beginning
+- Variable content (user data) toward the end
 - Maintain identical prefixes for cache reuse
 
-### Compression Triggers
-
-When context exceeds 70% capacity, compress in this priority:
-
-1. Tool outputs → Replace with summaries
-2. Old conversation history → Summarize
-3. Retrieved documents → Keep only latest
-4. System prompt → **Never compress**
-
-### Implementation Files
-
-- `backend/src/prompts/system.ts`: `buildSystemPromptCore()` + `buildOutputSchemaPrompt()`
-- `backend/src/utils/prompt.ts`: `getExamplesForInterest()`
-- See: [ai-prompt-spec.md](docs/specs/ai-prompt-spec.md) Section 9
+See: [ai-prompt-spec.md](docs/specs/ai-prompt-spec.md) for details.

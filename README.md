@@ -1,19 +1,29 @@
-# Tempo AI
+# TempoAI
 
-**「自分のテンポで、健やかな毎日を」**
+**"Tune Your Rhythm"**
 
-HealthKit データと環境データを AI が分析し、その日の過ごし方をパーソナライズしてアドバイスするヘルスケアアプリ。
+サーカディアンリズム（体内時計）と自律神経を整え、日々のパフォーマンスを最適化するAIパートナーアプリ。
+
+---
+
+## コンセプト
+
+HealthKitデータと気象データをAIが分析し、あなた固有の「テンポ」に合わせたパーソナライズされたアドバイスを毎朝お届けします。
+
+**設計思想**: データベースレス × HealthKit × 生成AI
+- プライバシー重視: ヘルスケアデータは端末内完結
+- 軽量設計: サーバーはAI連携のプロキシのみ
 
 ---
 
 ## 技術スタック
 
-| レイヤー | 技術                                       |
-| -------- | ------------------------------------------ |
-| iOS      | SwiftUI (iOS 17+), HealthKit, CoreLocation |
-| Backend  | Cloudflare Workers, Hono, TypeScript       |
-| AI       | Claude Sonnet 4                            |
-| 外部 API | Open-Meteo (Weather / Air Quality)         |
+| レイヤー | 技術 |
+|---------|------|
+| iOS | SwiftUI (iOS 17+), HealthKit, CoreLocation |
+| Backend | Cloudflare Workers, Hono, TypeScript |
+| AI | Claude Sonnet 4 |
+| Weather | Open-Meteo (Weather / Air Quality) |
 
 ---
 
@@ -36,7 +46,7 @@ open TempoAI.xcodeproj
 # Xcode: Signing設定 → ⌘+R で実行
 ```
 
-> HealthKit のデータ取得には実機が必要です。
+> HealthKitのデータ取得には実機が必要です。
 
 ---
 
@@ -53,11 +63,11 @@ pnpm test         # テスト実行
 
 ### iOS
 
-| 操作           | ショートカット |
-| -------------- | -------------- |
-| ビルド＆実行   | `⌘+R`          |
-| テスト         | `⌘+U`          |
-| クリーンビルド | `⌘+Shift+K`    |
+| 操作 | ショートカット |
+|------|--------------|
+| ビルド＆実行 | `⌘+R` |
+| テスト | `⌘+U` |
+| クリーンビルド | `⌘+Shift+K` |
 
 ---
 
@@ -68,15 +78,17 @@ tempo-ai/
 ├── backend/              # Cloudflare Workers API
 │   └── src/
 ├── ios/TempoAI/          # SwiftUI アプリ
+│   ├── App/
 │   ├── Features/
 │   │   ├── Onboarding/
 │   │   ├── Home/
-│   │   ├── CircadianRhythm/
+│   │   ├── Analytics/
 │   │   └── Settings/
-│   └── Services/
+│   ├── Domain/           # ドメインモデル・サービス
+│   ├── Infrastructure/   # HealthKit, API, Cache
+│   └── Shared/
 ├── docs/                 # ドキュメント
-│   ├── specs/            # 仕様書
-│   └── phases/           # 開発フェーズ
+│   └── specs/            # 仕様書
 └── .claude/              # 開発ガイドライン
 ```
 
@@ -84,14 +96,14 @@ tempo-ai/
 
 ## ドキュメント
 
-| ドキュメント                   | 内容          |
-| ------------------------------ | ------------- |
-| `docs/specs/product-spec.md`   | 機能要件      |
-| `docs/specs/ui-spec.md`        | UI/UX 設計    |
-| `docs/specs/metrics-spec.md`   | スコア算出    |
-| `docs/specs/ai-prompt-spec.md` | AI プロンプト |
-| `docs/specs/technical-spec.md` | 技術仕様      |
-| `docs/phases/phases.md`        | 開発フェーズ  |
+| ドキュメント | 内容 |
+|-------------|------|
+| `docs/specs/product-spec.md` | プロダクト仕様・画面構成 |
+| `docs/specs/technical-spec.md` | 技術仕様・アーキテクチャ |
+| `docs/specs/metrics-spec.md` | スコア算出アルゴリズム |
+| `docs/specs/ai-prompt-spec.md` | AIプロンプト仕様 |
+| `docs/specs/ui-spec.md` | UI/UXデザイン仕様 |
+| `docs/specs/knowledge-base.md` | 科学的根拠・ナレッジベース |
 
 ---
 

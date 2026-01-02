@@ -77,15 +77,14 @@ final class CircadianClockViewTests: XCTestCase {
     // MARK: - Current Hour Angle Tests
 
     func testCurrentAngle_CalculatesCorrectly() {
-        // Create a date for 12:00 noon with fixed date to avoid timezone issues
+        // Use current calendar's timezone for consistency with angleForDate implementation
+        let calendar: Calendar = Calendar.current
         var components: DateComponents = DateComponents()
         components.year = 2026
         components.month = 1
         components.day = 1
         components.hour = 12
         components.minute = 0
-        components.timeZone = TimeZone(identifier: "Asia/Tokyo")
-        let calendar: Calendar = Calendar.current
         guard let date = calendar.date(from: components) else {
             XCTFail("Failed to create date")
             return
@@ -97,15 +96,14 @@ final class CircadianClockViewTests: XCTestCase {
     }
 
     func testCurrentAngle_IncludesMinutes() {
-        // 12:30 should be slightly past 12:00 with fixed date
+        // Use current calendar's timezone for consistency with angleForDate implementation
+        let calendar: Calendar = Calendar.current
         var components: DateComponents = DateComponents()
         components.year = 2026
         components.month = 1
         components.day = 1
         components.hour = 12
         components.minute = 30
-        components.timeZone = TimeZone(identifier: "Asia/Tokyo")
-        let calendar: Calendar = Calendar.current
         guard let date = calendar.date(from: components) else {
             XCTFail("Failed to create date")
             return

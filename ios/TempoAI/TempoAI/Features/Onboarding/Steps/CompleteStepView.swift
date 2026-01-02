@@ -122,8 +122,12 @@ struct CompleteStepView: View {
                     isLoading: viewModel.isLoading
                 ) {
                     Task {
-                        await viewModel.completeOnboarding()
-                        onComplete()
+                        let success: Bool = await viewModel.completeOnboarding()
+                        if success {
+                            onComplete()
+                        }
+                        // エラー時はviewModel.showErrorがtrueになり、
+                        // OnboardingContainerViewのalertでエラー表示される
                     }
                 }
                 .padding(.horizontal, TempoSpacing.screenPadding)

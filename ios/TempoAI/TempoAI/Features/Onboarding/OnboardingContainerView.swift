@@ -36,12 +36,10 @@ struct OnboardingContainerView: View {
                 viewModel.dismissError()
             }
         } message: { error in
-            VStack {
+            if let suggestion: String = error.recoverySuggestion {
+                Text("\(error.localizedDescription)\n\n\(suggestion)")
+            } else {
                 Text(error.localizedDescription)
-                if let suggestion: String = error.recoverySuggestion {
-                    Text(suggestion)
-                        .font(.caption)
-                }
             }
         }
     }
@@ -79,13 +77,9 @@ struct OnboardingContainerView: View {
     }
 
     private func stepColor(for step: OnboardingStep) -> Color {
-        if step.rawValue < viewModel.currentStep.rawValue {
-            return TempoColors.primary
-        } else if step == viewModel.currentStep {
-            return TempoColors.primary
-        } else {
-            return TempoColors.progressBackground
-        }
+        step.rawValue <= viewModel.currentStep.rawValue
+            ? TempoColors.primary
+            : TempoColors.progressBackground
     }
 
     // MARK: - Step Content

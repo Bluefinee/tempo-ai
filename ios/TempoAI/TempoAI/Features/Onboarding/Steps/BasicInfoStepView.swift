@@ -34,7 +34,7 @@ struct BasicInfoStepView: View {
                 // Form Fields
                 VStack(spacing: TempoSpacing.lg) {
                     // Age Picker
-                    formRow(label: "年齢") {
+                    FormRowView(label: "年齢") {
                         Picker("年齢", selection: $viewModel.state.age) {
                             ForEach(18...80, id: \.self) { age in
                                 Text("\(age)歳").tag(age)
@@ -45,7 +45,7 @@ struct BasicInfoStepView: View {
                     }
 
                     // Gender Picker
-                    formRow(label: "性別") {
+                    FormRowView(label: "性別") {
                         Picker("性別", selection: $viewModel.state.gender) {
                             ForEach(Gender.allCases, id: \.self) { gender in
                                 Text(gender.rawValue).tag(gender)
@@ -56,7 +56,7 @@ struct BasicInfoStepView: View {
                     }
 
                     // Weight Input
-                    formRow(label: "体重") {
+                    FormRowView(label: "体重") {
                         HStack(spacing: TempoSpacing.xs) {
                             TextField("60.0", text: $weightText)
                                 .keyboardType(.decimalPad)
@@ -73,7 +73,7 @@ struct BasicInfoStepView: View {
                     }
 
                     // Height Input
-                    formRow(label: "身長") {
+                    FormRowView(label: "身長") {
                         HStack(spacing: TempoSpacing.xs) {
                             TextField("170.0", text: $heightText)
                                 .keyboardType(.decimalPad)
@@ -91,7 +91,7 @@ struct BasicInfoStepView: View {
 
                     // BMI Display
                     if viewModel.state.weight > 0 && viewModel.state.height > 0 {
-                        formRow(label: "BMI") {
+                        FormRowView(label: "BMI") {
                             Text(viewModel.state.bmiDisplayText)
                                 .foregroundStyle(TempoColors.textPrimary)
                                 .fontWeight(.medium)
@@ -116,23 +116,6 @@ struct BasicInfoStepView: View {
         .onAppear {
             weightText = String(format: "%.1f", viewModel.state.weight)
             heightText = String(format: "%.1f", viewModel.state.height)
-        }
-    }
-
-    // MARK: - Helper Views
-
-    private func formRow<Content: View>(
-        label: String,
-        @ViewBuilder content: () -> Content
-    ) -> some View {
-        CardView {
-            HStack {
-                Text(label)
-                    .font(TempoTypography.body)
-                    .foregroundStyle(TempoColors.textPrimary)
-                Spacer()
-                content()
-            }
         }
     }
 }

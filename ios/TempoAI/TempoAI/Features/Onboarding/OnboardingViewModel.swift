@@ -90,6 +90,13 @@ final class OnboardingViewModel: ObservableObject {
         isLoading = true
         error = nil
 
+        // HealthKitが利用可能かチェック
+        guard healthKitManager.isHealthDataAvailable else {
+            setError(.healthKitNotAvailable)
+            isLoading = false
+            return
+        }
+
         await healthKitManager.requestAuthorization()
 
         switch healthKitManager.authorizationStatus {
@@ -253,6 +260,16 @@ final class OnboardingViewModel: ObservableObject {
         return calendar.date(from: newComponents) ?? date
     }
 
+    // MARK: - Lifestyle Step (Step 7)
+
+    /// ライフスタイルステップをスキップ（データをクリアして次へ）
+    func skipLifestyleStep() {
+        state.occupation = nil
+        state.exerciseFrequency = nil
+        state.alcoholFrequency = nil
+        nextStep()
+    }
+
     // MARK: - Location Authorization (Step 8)
 
     /// 位置情報認証を要求
@@ -268,7 +285,9 @@ final class OnboardingViewModel: ObservableObject {
     // MARK: - Complete Onboarding (Step 9)
 
     /// オンボーディングを完了
-    func completeOnboarding() async {
+    /// - Returns: 完了が成功したかどうか
+    @discardableResult
+    func completeOnboarding() async -> Bool {
         isLoading = true
         error = nil
 
@@ -283,9 +302,17 @@ final class OnboardingViewModel: ObservableObject {
         // onboardingCompletedをtrueに
         localStorage.save(true, forKey: StorageKeys.onboardingCompleted)
 
+        // 保存確認
+        guard localStorage.exists(forKey: StorageKeys.onboardingCompleted) else {
+            setError(.saveError("データの保存に失敗しました"))
+            isLoading = false
+            return false
+        }
+
         state.locationAuthorized = isLocationAuthorized
 
         isLoading = false
+        return true
     }
 
     // MARK: - Error Handling
@@ -326,12 +353,18 @@ final class OnboardingViewModel: ObservableObject {
         }
     }
 
+    // MARK: - Formatters
+
+    private static let bedtimeFormatter: DateFormatter = {
+        let formatter: DateFormatter = DateFormatter()
+        formatter.dateFormat = "HH:mm"
+        return formatter
+    }()
+
     // MARK: - Formatted Display Values
 
     /// 就寝時刻を表示用にフォーマット
     func formattedBedtime(_ date: Date) -> String {
-        let formatter: DateFormatter = DateFormatter()
-        formatter.dateFormat = "HH:mm"
-        return formatter.string(from: date)
+        Self.bedtimeFormatter.string(from: date)
     }
 }

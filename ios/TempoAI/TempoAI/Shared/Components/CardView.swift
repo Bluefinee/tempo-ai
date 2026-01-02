@@ -54,12 +54,9 @@ struct CardView<Content: View>: View {
             .padding(TempoSpacing.cardPadding)
             .background(backgroundColor)
             .clipShape(RoundedRectangle(cornerRadius: TempoSpacing.cardCornerRadius))
-            .shadow(
-                color: hasShadow ? Color.black.opacity(0.08) : Color.clear,
-                radius: 8,
-                x: 0,
-                y: 4
-            )
+            .if(hasShadow) { view in
+                view.tempoShadow()
+            }
     }
 }
 
@@ -69,8 +66,7 @@ struct CardView<Content: View>: View {
 struct CardButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .scaleEffect(configuration.isPressed ? 0.97 : 1.0)
-            .animation(.easeInOut(duration: 0.15), value: configuration.isPressed)
+            .pressedScale(configuration.isPressed)
     }
 }
 

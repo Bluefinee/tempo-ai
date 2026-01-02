@@ -38,7 +38,7 @@ struct LoadingView: View {
                 .font(TempoTypography.body)
                 .foregroundStyle(TempoColors.textSecondary)
                 .multilineTextAlignment(.center)
-                .animation(.easeInOut(duration: 0.3), value: currentStepIndex)
+                .tempoAnimation(currentStepIndex)
 
             // Progress bar
             ProgressBar(progress: progress)
@@ -129,7 +129,7 @@ struct ProgressBar: View {
                 RoundedRectangle(cornerRadius: 2)
                     .fill(foregroundColor)
                     .frame(width: geometry.size.width * progress)
-                    .animation(.easeInOut(duration: 0.3), value: progress)
+                    .tempoAnimation(progress)
             }
         }
         .accessibilityValue("\(Int(progress * 100))パーセント")

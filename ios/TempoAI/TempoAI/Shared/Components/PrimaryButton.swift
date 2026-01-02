@@ -55,7 +55,7 @@ struct PrimaryButton: View {
                         .font(TempoTypography.headline)
                 }
             }
-            .frame(maxWidth: .infinity)
+            .fillWidth()
             .frame(height: 50)
             .foregroundStyle(.white)
             .background(
@@ -118,7 +118,7 @@ struct AccentButton: View {
                         .font(TempoTypography.headline)
                 }
             }
-            .frame(maxWidth: .infinity)
+            .fillWidth()
             .frame(height: 50)
             .foregroundStyle(.white)
             .background(
@@ -158,5 +158,5 @@ struct AccentButton: View {
         }
     }
     .padding()
-    .background(TempoColors.background)
+    .tempoBackground()
 }

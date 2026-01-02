@@ -26,6 +26,13 @@ final class HealthKitManager: ObservableObject {
         checkAuthorizationStatus()
     }
 
+    // MARK: - Public Properties
+
+    /// HealthKitがこのデバイスで利用可能かどうか
+    var isHealthDataAvailable: Bool {
+        HKHealthStore.isHealthDataAvailable()
+    }
+
     // MARK: - Public Methods
 
     /// HealthKitへの認証を要求

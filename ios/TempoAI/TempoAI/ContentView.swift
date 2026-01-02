@@ -44,31 +44,6 @@ struct ContentView: View {
     }
 }
 
-// MARK: - Placeholder Views
-
-/// ホーム画面のプレースホルダー（Phase 5cで実装予定）
-struct HomeView: View {
-    var body: some View {
-        NavigationStack {
-            VStack(spacing: 20) {
-                Image(systemName: "heart.circle.fill")
-                    .font(.system(size: 60))
-                    .foregroundStyle(TempoColors.primary)
-
-                Text("TempoAI")
-                    .font(TempoTypography.largeTitle)
-                    .foregroundStyle(TempoColors.textPrimary)
-
-                Text("ホーム画面（Phase 5cで実装予定）")
-                    .font(TempoTypography.subheadline)
-                    .foregroundStyle(TempoColors.textSecondary)
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .tempoBackground()
-        }
-    }
-}
-
 #Preview {
     ContentView()
 }

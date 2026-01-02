@@ -27,7 +27,9 @@ struct ContentView: View {
             if hasCompletedOnboarding {
                 HomeView()
             } else {
-                OnboardingView()
+                OnboardingContainerView {
+                    hasCompletedOnboarding = true
+                }
             }
         }
         .onAppear {
@@ -44,50 +46,25 @@ struct ContentView: View {
 
 // MARK: - Placeholder Views
 
-/// ホーム画面のプレースホルダー（Phase 5で実装）
+/// ホーム画面のプレースホルダー（Phase 5cで実装予定）
 struct HomeView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 20) {
                 Image(systemName: "heart.circle.fill")
                     .font(.system(size: 60))
-                    .foregroundStyle(.pink)
+                    .foregroundStyle(TempoColors.primary)
 
                 Text("TempoAI")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
+                    .font(TempoTypography.largeTitle)
+                    .foregroundStyle(TempoColors.textPrimary)
 
-                Text("ホーム画面（Phase 5で実装予定）")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                Text("ホーム画面（Phase 5cで実装予定）")
+                    .font(TempoTypography.subheadline)
+                    .foregroundStyle(TempoColors.textSecondary)
             }
-            .navigationTitle("Home")
-        }
-    }
-}
-
-/// オンボーディング画面のプレースホルダー（Phase 5で実装）
-struct OnboardingView: View {
-    var body: some View {
-        NavigationStack {
-            VStack(spacing: 20) {
-                Image(systemName: "waveform.path.ecg")
-                    .font(.system(size: 60))
-                    .foregroundStyle(.blue)
-
-                Text("TempoAI")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-
-                Text("Tune Your Rhythm")
-                    .font(.title3)
-                    .foregroundStyle(.secondary)
-
-                Text("オンボーディング画面（Phase 5で実装予定）")
-                    .font(.caption)
-                    .foregroundStyle(.tertiary)
-                    .padding(.top, 40)
-            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .tempoBackground()
         }
     }
 }

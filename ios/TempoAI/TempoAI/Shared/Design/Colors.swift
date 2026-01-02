@@ -58,6 +58,31 @@ enum TempoColors {
     /// Red - 要改善（スコア0-19）
     static let danger = Color(hex: "#F44336")
 
+    // MARK: - Consistency Status Colors
+
+    /// 安定 - Green（Primary色）
+    static let good: Color = primary
+
+    /// 回復中 - Yellow
+    static let fair: Color = warning
+
+    /// 乱れ気味 - Orange
+    static let poor: Color = caution
+
+    /// ConsistencyStatusに応じた色を返す
+    /// - Parameter status: ConsistencyStatus
+    /// - Returns: ステータスに応じた Color
+    static func consistencyColor(for status: ConsistencyStatus) -> Color {
+        switch status {
+        case .stable:
+            return good
+        case .recovering:
+            return fair
+        case .unstable:
+            return poor
+        }
+    }
+
     // MARK: - Score Color Function
 
     /// スコア値に応じた色を返す

@@ -14,4 +14,7 @@ protocol HealthKitRepositoryProtocol: Sendable {
 
     /// 過去N日間のHRVベースラインを計算
     func fetchHRVBaseline(days: Int) async throws -> Double
+
+    /// 過去N日間の日別ヘルスメトリクスを取得（Analytics用）
+    func fetchDailyMetrics(days: Int) async throws -> [HealthMetrics]
 }

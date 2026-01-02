@@ -133,4 +133,63 @@ struct RhythmAnalysisTests {
         #expect(unstable.bedtimeConsistencyScore == 25)
         #expect(unstable.wakeTimeConsistencyScore == 25)
     }
+
+    // MARK: - Consistency Status Tests
+
+    @Test("RhythmAnalysis returns stable consistency status for stddev <= 30")
+    func consistencyStatusStable() {
+        let analysis: RhythmAnalysis = RhythmAnalysis(
+            bedtimeStddevMinutes: 25,
+            wakeTimeStddevMinutes: 30,
+            consecutiveStableDays: 5,
+            wristTemperature: nil
+        )
+        #expect(analysis.bedtimeConsistencyStatus == .stable)
+        #expect(analysis.wakeTimeConsistencyStatus == .stable)
+    }
+
+    @Test("RhythmAnalysis returns recovering consistency status for stddev 30-45")
+    func consistencyStatusRecovering() {
+        let analysis: RhythmAnalysis = RhythmAnalysis(
+            bedtimeStddevMinutes: 35,
+            wakeTimeStddevMinutes: 40,
+            consecutiveStableDays: 3,
+            wristTemperature: nil
+        )
+        #expect(analysis.bedtimeConsistencyStatus == .recovering)
+        #expect(analysis.wakeTimeConsistencyStatus == .recovering)
+    }
+
+    @Test("RhythmAnalysis returns unstable consistency status for stddev > 45")
+    func consistencyStatusUnstable() {
+        let analysis: RhythmAnalysis = RhythmAnalysis(
+            bedtimeStddevMinutes: 50,
+            wakeTimeStddevMinutes: 60,
+            consecutiveStableDays: 1,
+            wristTemperature: nil
+        )
+        #expect(analysis.bedtimeConsistencyStatus == .unstable)
+        #expect(analysis.wakeTimeConsistencyStatus == .unstable)
+    }
+
+    @Test("RhythmAnalysis consistency status handles boundary values correctly")
+    func consistencyStatusBoundary() {
+        let atBoundary30: RhythmAnalysis = RhythmAnalysis(
+            bedtimeStddevMinutes: 30,
+            wakeTimeStddevMinutes: 30,
+            consecutiveStableDays: 5,
+            wristTemperature: nil
+        )
+        #expect(atBoundary30.bedtimeConsistencyStatus == .stable)
+        #expect(atBoundary30.wakeTimeConsistencyStatus == .stable)
+
+        let atBoundary45: RhythmAnalysis = RhythmAnalysis(
+            bedtimeStddevMinutes: 44.9,
+            wakeTimeStddevMinutes: 45,
+            consecutiveStableDays: 3,
+            wristTemperature: nil
+        )
+        #expect(atBoundary45.bedtimeConsistencyStatus == .recovering)
+        #expect(atBoundary45.wakeTimeConsistencyStatus == .unstable)
+    }
 }

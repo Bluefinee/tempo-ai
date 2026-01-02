@@ -124,12 +124,10 @@ extension View {
 extension View {
 
     /// アクセシビリティ用のセマンティックラベルを追加
-    /// - Parameters:
-    ///   - icon: アイコン名（SF Symbols）
-    ///   - text: テキスト
+    /// - Parameter text: テキスト
     /// - Returns: ラベル設定済みView
-    func semanticLabel(icon: String, text: String) -> some View {
-        self.accessibilityLabel("\(text)")
+    func semanticLabel(text: String) -> some View {
+        self.accessibilityLabel(text)
     }
 
     /// 読み上げ順序を設定
@@ -145,9 +143,8 @@ extension View {
 extension View {
 
     /// Dynamic Type対応のスケーリングを適用
-    /// - Parameter maxScale: 最大スケール（デフォルト: 1.5）
     /// - Returns: スケーリング設定済みView
-    func dynamicTypeScaling(maxScale: CGFloat = 1.5) -> some View {
+    func dynamicTypeScaling() -> some View {
         self.dynamicTypeSize(...DynamicTypeSize.accessibility3)
     }
 

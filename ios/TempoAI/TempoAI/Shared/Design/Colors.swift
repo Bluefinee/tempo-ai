@@ -65,9 +65,7 @@ enum TempoColors {
     /// - Returns: スコア状態に応じた Color
     static func scoreColor(for value: Int) -> Color {
         switch value {
-        case 80...:
-            return primary
-        case 60..<80:
+        case 60...:
             return primary
         case 40..<60:
             return warning

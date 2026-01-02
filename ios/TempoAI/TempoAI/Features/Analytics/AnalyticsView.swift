@@ -174,6 +174,7 @@ private struct AnalyticsCalibrationView: View {
 
 // MARK: - Preview
 
+#if DEBUG
 #Preview("Analytics View - With Data") {
     AnalyticsView(healthKitManager: HealthKitManager.mock())
 }
@@ -182,3 +183,4 @@ private struct AnalyticsCalibrationView: View {
     AnalyticsCalibrationView(daysCompleted: 3, requiredDays: 7)
         .background(TempoColors.background)
 }
+#endif

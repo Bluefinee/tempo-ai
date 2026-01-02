@@ -18,8 +18,9 @@ struct AboutSection: View {
 
     // MARK: - Private Properties
 
-    private let privacyPolicyURL: String = "https://example.com/privacy"
-    private let termsOfServiceURL: String = "https://example.com/terms"
+    // TODO: Replace with actual URLs when available
+    private let privacyPolicyURL: String = "https://tempoai.app/privacy"
+    private let termsOfServiceURL: String = "https://tempoai.app/terms"
 
     // MARK: - Body
 
@@ -100,7 +101,10 @@ struct AboutSection: View {
     // MARK: - Private Methods
 
     private func openURL(_ urlString: String) {
-        guard let url = URL(string: urlString) else { return }
+        guard let url = URL(string: urlString) else {
+            assertionFailure("Invalid URL: \(urlString)")
+            return
+        }
         UIApplication.shared.open(url)
     }
 }

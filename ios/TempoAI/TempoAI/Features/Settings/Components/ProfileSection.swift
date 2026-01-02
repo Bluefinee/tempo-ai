@@ -212,10 +212,14 @@ struct ProfileSection: View {
 
     // MARK: - Private Helpers
 
-    private var bedtimeTimeString: String {
+    private static let bedtimeFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "HH:mm"
-        return formatter.string(from: targetBedtime)
+        return formatter
+    }()
+
+    private var bedtimeTimeString: String {
+        Self.bedtimeFormatter.string(from: targetBedtime)
     }
 }
 

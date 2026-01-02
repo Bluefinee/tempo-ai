@@ -71,7 +71,7 @@ struct MainTabView: View {
                 }
                 .tag(Tab.analytics)
 
-            SettingsView()
+            SettingsView(healthKitManager: healthKitManager)
                 .tabItem {
                     Label(
                         Tab.settings.rawValue,

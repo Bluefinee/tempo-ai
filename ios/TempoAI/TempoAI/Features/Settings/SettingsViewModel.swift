@@ -7,6 +7,7 @@
 
 import Combine
 import Foundation
+import os.log
 
 // MARK: - SettingsViewModel
 
@@ -41,6 +42,7 @@ final class SettingsViewModel: ObservableObject {
 
     private let localStorage: LocalStorageProtocol
     private var originalProfile: UserProfile?
+    private static let logger = Logger(subsystem: "com.tempoai.app", category: "SettingsViewModel")
 
     // MARK: - Computed Properties
 
@@ -88,6 +90,7 @@ final class SettingsViewModel: ObservableObject {
         defer { isLoading = false }
 
         guard let profile: UserProfile = localStorage.load(forKey: StorageKeys.userProfile) else {
+            Self.logger.warning("Failed to load user profile from storage - profile may not exist yet")
             error = .loadFailed
             return
         }

@@ -16,10 +16,16 @@ struct SettingsView: View {
     // MARK: - Properties
 
     @StateObject private var viewModel: SettingsViewModel = SettingsViewModel()
-    @StateObject private var healthKitManager: HealthKitManager = HealthKitManager()
+    @ObservedObject private var healthKitManager: HealthKitManager
     @State private var locationStatus: CLAuthorizationStatus = .notDetermined
 
     private let locationManager: CLLocationManager = CLLocationManager()
+
+    // MARK: - Initialization
+
+    init(healthKitManager: HealthKitManager) {
+        self.healthKitManager = healthKitManager
+    }
 
     // MARK: - Body
 
@@ -40,12 +46,19 @@ struct SettingsView: View {
             .toolbar {
                 toolbarContent
             }
-            .alert(item: $viewModel.error) { error in
-                Alert(
-                    title: Text("エラー"),
-                    message: Text(error.errorDescription ?? "不明なエラー"),
-                    dismissButton: .default(Text("OK"))
-                )
+            .alert(
+                "エラー",
+                isPresented: Binding(
+                    get: { viewModel.error != nil },
+                    set: { if !$0 { viewModel.error = nil } }
+                ),
+                presenting: viewModel.error
+            ) { _ in
+                Button("OK") {
+                    viewModel.error = nil
+                }
+            } message: { error in
+                Text(error.errorDescription ?? "不明なエラー")
             }
             .onAppear {
                 viewModel.loadProfile()
@@ -111,7 +124,7 @@ struct SettingsView: View {
     // MARK: - Save Button
 
     private var saveButton: some View {
-        PrimaryButton("保存") {
+        PrimaryButton(viewModel.isSaving ? "" : "保存") {
             Task {
                 await viewModel.saveProfile()
             }
@@ -153,6 +166,6 @@ struct SettingsView: View {
 
 #if DEBUG
 #Preview("SettingsView") {
-    SettingsView()
+    SettingsView(healthKitManager: HealthKitManager())
 }
 #endif

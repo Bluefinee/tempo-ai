@@ -74,9 +74,11 @@ final class HomeViewModelTests: XCTestCase {
         XCTAssertTrue(sut.greeting.contains("さん"))
     }
 
-    // TODO: Fix test - MockLocalStorage data not being picked up by HomeViewModel
-    // Issue: When HomeViewModel is recreated with pre-saved data, loadLocalData() doesn't retrieve it
-    // func testGreeting_WithNickname_IncludesNickname() { ... }
+    func testGreeting_WithNickname_IncludesNickname() throws {
+        // TODO: Fix test - MockLocalStorage data not being picked up by HomeViewModel
+        // Issue: When HomeViewModel is recreated with pre-saved data, loadLocalData() doesn't retrieve it
+        throw XCTSkip("MockLocalStorage data not being picked up by HomeViewModel - needs investigation")
+    }
 
     // MARK: - Loading Steps Tests
 
@@ -106,11 +108,15 @@ final class HomeViewModelTests: XCTestCase {
         XCTAssertTrue(sut.isCalibrating)
     }
 
-    // TODO: Fix test - MockLocalStorage data not being picked up by HomeViewModel
-    // func testIsCalibrating_True_WhenCalibrationNotComplete() { ... }
+    func testIsCalibrating_True_WhenCalibrationNotComplete() throws {
+        // TODO: Fix test - MockLocalStorage data not being picked up by HomeViewModel
+        throw XCTSkip("MockLocalStorage data not being picked up by HomeViewModel - needs investigation")
+    }
 
-    // TODO: Fix test - MockLocalStorage data not being picked up by HomeViewModel
-    // func testIsCalibrating_False_WhenCalibrationComplete() { ... }
+    func testIsCalibrating_False_WhenCalibrationComplete() throws {
+        // TODO: Fix test - MockLocalStorage data not being picked up by HomeViewModel
+        throw XCTSkip("MockLocalStorage data not being picked up by HomeViewModel - needs investigation")
+    }
 
     // MARK: - Morning Check-in Tests
 

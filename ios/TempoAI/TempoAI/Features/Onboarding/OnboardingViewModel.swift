@@ -291,16 +291,22 @@ final class OnboardingViewModel: ObservableObject {
         isLoading = true
         error = nil
 
-        // UserProfileを保存
-        let userProfile: UserProfile = state.toUserProfile()
-        localStorage.save(userProfile, forKey: StorageKeys.userProfile)
+        do {
+            // UserProfileを保存
+            let userProfile: UserProfile = state.toUserProfile()
+            try localStorage.save(userProfile, forKey: StorageKeys.userProfile)
 
-        // CalibrationStateを初期化
-        let calibrationState: CalibrationState = CalibrationState()
-        localStorage.save(calibrationState, forKey: StorageKeys.calibrationState)
+            // CalibrationStateを初期化
+            let calibrationState: CalibrationState = CalibrationState()
+            try localStorage.save(calibrationState, forKey: StorageKeys.calibrationState)
 
-        // onboardingCompletedをtrueに
-        localStorage.save(true, forKey: StorageKeys.onboardingCompleted)
+            // onboardingCompletedをtrueに
+            try localStorage.save(true, forKey: StorageKeys.onboardingCompleted)
+        } catch {
+            setError(.saveError("データの保存に失敗しました"))
+            isLoading = false
+            return false
+        }
 
         // 保存確認
         guard localStorage.exists(forKey: StorageKeys.onboardingCompleted) else {

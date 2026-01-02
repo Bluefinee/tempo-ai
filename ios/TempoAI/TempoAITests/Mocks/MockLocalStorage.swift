@@ -14,10 +14,9 @@ final class MockLocalStorage: LocalStorageProtocol, @unchecked Sendable {
     private let encoder: JSONEncoder = JSONEncoder()
     private let decoder: JSONDecoder = JSONDecoder()
 
-    func save<T: Codable>(_ value: T, forKey key: String) {
-        if let data: Data = try? encoder.encode(value) {
-            storage[key] = data
-        }
+    func save<T: Codable>(_ value: T, forKey key: String) throws {
+        let data: Data = try encoder.encode(value)
+        storage[key] = data
     }
 
     func load<T: Codable>(forKey key: String) -> T? {

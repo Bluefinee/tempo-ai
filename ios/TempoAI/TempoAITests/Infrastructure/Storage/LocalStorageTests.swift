@@ -20,7 +20,7 @@ struct LocalStorageTests {
     // MARK: - Basic Operations Tests
 
     @Test("LocalStorage saves and loads data correctly")
-    func saveAndLoadRoundtrip() {
+    func saveAndLoadRoundtrip() throws {
         let storage: LocalStorage = makeTestStorage()
         let original: UserProfile = UserProfile(
             nickname: "テスト",
@@ -35,7 +35,7 @@ struct LocalStorageTests {
             targetBedtime: Date()
         )
 
-        storage.save(original, forKey: "test_profile")
+        try storage.save(original, forKey: "test_profile")
         let loaded: UserProfile? = storage.load(forKey: "test_profile")
 
         #expect(loaded != nil)
@@ -51,9 +51,9 @@ struct LocalStorageTests {
     }
 
     @Test("LocalStorage removes data correctly")
-    func removeDeletesData() {
+    func removeDeletesData() throws {
         let storage: LocalStorage = makeTestStorage()
-        storage.save("test value", forKey: "test_key")
+        try storage.save("test value", forKey: "test_key")
 
         #expect(storage.exists(forKey: "test_key") == true)
 
@@ -65,48 +65,48 @@ struct LocalStorageTests {
     }
 
     @Test("LocalStorage overwrites existing data")
-    func saveOverwritesExistingData() {
+    func saveOverwritesExistingData() throws {
         let storage: LocalStorage = makeTestStorage()
 
-        storage.save("first value", forKey: "test_key")
+        try storage.save("first value", forKey: "test_key")
         let first: String? = storage.load(forKey: "test_key")
         #expect(first == "first value")
 
-        storage.save("second value", forKey: "test_key")
+        try storage.save("second value", forKey: "test_key")
         let second: String? = storage.load(forKey: "test_key")
         #expect(second == "second value")
     }
 
     @Test("LocalStorage exists returns correct values")
-    func existsReturnsCorrectly() {
+    func existsReturnsCorrectly() throws {
         let storage: LocalStorage = makeTestStorage()
 
         #expect(storage.exists(forKey: "nonexistent") == false)
 
-        storage.save("value", forKey: "existing_key")
+        try storage.save("value", forKey: "existing_key")
         #expect(storage.exists(forKey: "existing_key") == true)
     }
 
     // MARK: - Complex Types Tests
 
     @Test("LocalStorage handles arrays correctly")
-    func handlesArrays() {
+    func handlesArrays() throws {
         let storage: LocalStorage = makeTestStorage()
         let original: [Int] = [1, 2, 3, 4, 5]
 
-        storage.save(original, forKey: "test_array")
+        try storage.save(original, forKey: "test_array")
         let loaded: [Int]? = storage.load(forKey: "test_array")
 
         #expect(loaded == original)
     }
 
     @Test("LocalStorage handles CalibrationState correctly")
-    func handlesCalibrationState() {
+    func handlesCalibrationState() throws {
         let storage: LocalStorage = makeTestStorage()
         var original: CalibrationState = CalibrationState()
         original.updateProgress(healthDataDays: 3)
 
-        storage.save(original, forKey: StorageKeys.calibrationState)
+        try storage.save(original, forKey: StorageKeys.calibrationState)
         let loaded: CalibrationState? = storage.load(forKey: StorageKeys.calibrationState)
 
         #expect(loaded != nil)

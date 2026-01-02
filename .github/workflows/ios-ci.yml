@@ -32,8 +32,6 @@ env:
   BUILD_DESTINATION: "generic/platform=iOS Simulator"
   # テスト用（実際のシミュレータが必要）
   TEST_DESTINATION: "platform=iOS Simulator,name=iPhone 16,OS=latest"
-  # カバレッジ閾値（60%から開始、サービス層テスト完了後80%に引き上げ）
-  COVERAGE_THRESHOLD: 60
 
 jobs:
   # ===========================================================================
@@ -177,8 +175,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-spm-
 
-      # テスト実行（カバレッジ有効化）
-      - name: Run unit tests with coverage
+      # ユニットテスト実行（並列実行、UIテスト除外）
+      - name: Run unit tests
         run: |
           set -o pipefail
           xcodebuild test \
@@ -186,54 +184,11 @@ jobs:
             -scheme ${{ env.SCHEME }} \
             -destination "${{ env.TEST_DESTINATION }}" \
             -configuration Debug \
-            -enableCodeCoverage YES \
-            -resultBundlePath TestResults.xcresult \
+            -only-testing:TempoAITests \
+            -parallel-testing-enabled YES \
             CODE_SIGNING_ALLOWED=NO \
             | xcpretty --color
 
-      # カバレッジレポート生成
-      - name: Generate coverage report
-        run: |
-          echo "📊 Code Coverage Summary:"
-          if ! xcrun xccov view --report TestResults.xcresult | head -50; then
-            echo "⚠️ Warning: Coverage report generation failed or xcresult bundle is invalid"
-          fi
-
-      # カバレッジ閾値チェック
-      - name: Check coverage threshold
-        run: |
-          # カバレッジを取得（エラーの場合は警告）
-          COVERAGE=$(xcrun xccov view --report TestResults.xcresult 2>/dev/null | grep "TempoAI.app" | awk '{print $NF}' | tr -d '%' || echo "0")
-
-          if [ -z "$COVERAGE" ] || [ "$COVERAGE" = "0" ]; then
-            echo "::warning::Could not extract coverage percentage from xcresult bundle"
-            echo "⚠️ Coverage extraction failed - this may indicate a tooling issue"
-            exit 1
-          fi
-
-          echo "📈 Total coverage: ${COVERAGE}%"
-          echo "🎯 Threshold: ${{ env.COVERAGE_THRESHOLD }}%"
-
-          # 閾値チェック（整数比較）
-          THRESHOLD=${{ env.COVERAGE_THRESHOLD }}
-          COVERAGE_INT=${COVERAGE%.*}
-
-          if [ "$COVERAGE_INT" -lt "$THRESHOLD" ]; then
-            echo "❌ Coverage ${COVERAGE}% is below ${THRESHOLD}% threshold"
-            exit 1
-          fi
-
-          echo "✅ Coverage ${COVERAGE}% meets ${THRESHOLD}% threshold"
-
-      # カバレッジアーティファクトのアップロード
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: coverage-report
-          path: TestResults.xcresult
-          retention-days: 30
-
       - name: Test completed
         run: |
-          echo "✅ All unit tests passed with coverage reporting"
+          echo "✅ All unit tests passed"

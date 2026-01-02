@@ -13,7 +13,7 @@ final class MockLocalStorageForAnalytics: LocalStorageProtocol, @unchecked Senda
     var storage: [String: Any] = [:]
     var calibrationState: CalibrationState?
 
-    func save<T: Codable>(_ value: T, forKey key: String) {
+    func save<T: Codable>(_ value: T, forKey key: String) throws {
         storage[key] = value
     }
 

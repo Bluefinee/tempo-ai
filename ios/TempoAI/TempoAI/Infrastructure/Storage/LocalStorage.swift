@@ -27,15 +27,13 @@ final class LocalStorage: LocalStorageProtocol, @unchecked Sendable {
 
     // MARK: - Public Methods
 
-    func save<T: Codable>(_ value: T, forKey key: String) {
+    func save<T: Codable>(_ value: T, forKey key: String) throws {
         do {
             let data: Data = try encoder.encode(value)
             defaults.set(data, forKey: key)
         } catch {
             Self.logger.error("Failed to encode \(key): \(error.localizedDescription)")
-            #if DEBUG
-            assertionFailure("LocalStorage encoding failed for key: \(key)")
-            #endif
+            throw LocalStorageError.encodingFailed(key)
         }
     }
 

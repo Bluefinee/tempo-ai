@@ -124,13 +124,18 @@ final class SettingsViewModel: ObservableObject {
             targetBedtime: targetBedtime
         )
 
-        localStorage.save(updatedProfile, forKey: StorageKeys.userProfile)
-        originalProfile = updatedProfile
-        showSaveSuccess = true
+        do {
+            try localStorage.save(updatedProfile, forKey: StorageKeys.userProfile)
+            originalProfile = updatedProfile
+            showSaveSuccess = true
 
-        // 成功メッセージを3秒後に非表示
-        try? await Task.sleep(nanoseconds: 3_000_000_000)
-        showSaveSuccess = false
+            // 成功メッセージを3秒後に非表示
+            try? await Task.sleep(nanoseconds: 3_000_000_000)
+            showSaveSuccess = false
+        } catch {
+            Self.logger.error("Failed to save profile: \(error.localizedDescription)")
+            self.error = .saveFailed
+        }
     }
 
     /// 変更を元に戻す

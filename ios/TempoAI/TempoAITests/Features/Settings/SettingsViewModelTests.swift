@@ -15,7 +15,7 @@ final class MockLocalStorageForSettings: LocalStorageProtocol, @unchecked Sendab
     var saveCallCount: Int = 0
     var lastSavedProfile: UserProfile?
 
-    func save<T: Codable>(_ value: T, forKey key: String) {
+    func save<T: Codable>(_ value: T, forKey key: String) throws {
         storage[key] = value
         saveCallCount += 1
         if key == StorageKeys.userProfile, let profile = value as? UserProfile {

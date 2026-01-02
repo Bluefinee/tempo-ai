@@ -300,7 +300,7 @@ final class HomeViewModel: ObservableObject {
             let response: AdviceResponseDTO = try await adviceAPIClient.fetchAdvice(request)
             if let advice = response.toDomain() {
                 dailyAdvice = advice
-                localStorage.save(advice, forKey: adviceKey)
+                try? localStorage.save(advice, forKey: adviceKey)
             } else {
                 #if DEBUG
                 print("[HomeViewModel] Advice response parse failed")
@@ -338,7 +338,7 @@ final class HomeViewModel: ObservableObject {
         var state: CalibrationState = calibrationState ?? CalibrationState()
         state.updateProgress(healthDataDays: healthDataDays)
         calibrationState = state
-        localStorage.save(state, forKey: StorageKeys.calibrationState)
+        try? localStorage.save(state, forKey: StorageKeys.calibrationState)
     }
 
     private func saveMoodLog() {
@@ -356,7 +356,7 @@ final class HomeViewModel: ObservableObject {
 
         // 最新30日分のみ保持
         logs = Array(logs.suffix(30))
-        localStorage.save(logs, forKey: StorageKeys.moodLogs)
+        try? localStorage.save(logs, forKey: StorageKeys.moodLogs)
     }
 
     private func saveTodayModeLog() {
@@ -372,13 +372,13 @@ final class HomeViewModel: ObservableObject {
         }
 
         logs = Array(logs.suffix(30))
-        localStorage.save(logs, forKey: StorageKeys.todayModeLogs)
+        try? localStorage.save(logs, forKey: StorageKeys.todayModeLogs)
     }
 
     private func saveFeedbackLog(_ feedback: FeedbackLog) {
         var logs: [FeedbackLog] = localStorage.load(forKey: StorageKeys.feedbackLogs) ?? []
         logs.append(feedback)
         logs = Array(logs.suffix(30))
-        localStorage.save(logs, forKey: StorageKeys.feedbackLogs)
+        try? localStorage.save(logs, forKey: StorageKeys.feedbackLogs)
     }
 }

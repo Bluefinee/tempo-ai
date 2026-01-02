@@ -107,18 +107,16 @@ final class HealthKitManager: ObservableObject {
     func fetchDailyMetrics(days: Int = 7) async -> [HealthMetrics] {
         isLoading = true
         lastError = nil
+        defer { isLoading = false }
 
         do {
             let metrics: [HealthMetrics] = try await repository.fetchDailyMetrics(days: days)
-            isLoading = false
             return metrics
         } catch let error as HealthKitError {
             lastError = error
-            isLoading = false
             return []
         } catch {
             lastError = .queryFailed(error)
-            isLoading = false
             return []
         }
     }

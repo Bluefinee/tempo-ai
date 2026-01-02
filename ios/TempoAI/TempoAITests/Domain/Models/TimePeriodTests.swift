@@ -11,7 +11,7 @@ struct TimePeriodTests {
     // MARK: - Days Tests
 
     @Test("Weekly returns 7 days")
-    func weeklyReturnsSeveDays() {
+    func weeklyReturnsSevenDays() {
         #expect(TimePeriod.weekly.days == 7)
     }
 

@@ -11,7 +11,7 @@ import SwiftUI
 // MARK: - ScoreType for Chart
 
 /// グラフ用のスコアタイプ
-enum ChartScoreType: String, CaseIterable {
+private enum ChartScoreType: String, CaseIterable {
     case autonomic = "自律神経"
     case sleep = "睡眠"
     case rhythm = "リズム"
@@ -47,7 +47,7 @@ enum ChartScoreType: String, CaseIterable {
 // MARK: - ChartDataPoint
 
 /// グラフ表示用データポイント
-struct ChartDataPoint: Identifiable {
+private struct ChartDataPoint: Identifiable {
     let id: UUID = UUID()
     let date: Date
     let scoreType: ChartScoreType
@@ -106,10 +106,10 @@ struct ScoreTrendsChart: View {
                 .interpolationMethod(.catmullRom)
             }
             .chartForegroundStyleScale([
-                ChartScoreType.autonomic.rawValue: TempoColors.primary,
-                ChartScoreType.sleep.rawValue: Color.blue,
-                ChartScoreType.rhythm.rawValue: Color.orange,
-                ChartScoreType.activity.rawValue: Color.purple
+                ChartScoreType.autonomic.rawValue: ChartScoreType.autonomic.color,
+                ChartScoreType.sleep.rawValue: ChartScoreType.sleep.color,
+                ChartScoreType.rhythm.rawValue: ChartScoreType.rhythm.color,
+                ChartScoreType.activity.rawValue: ChartScoreType.activity.color
             ])
             .chartYScale(domain: 0...100)
             .chartXAxis {
@@ -138,7 +138,8 @@ struct ScoreTrendsChart: View {
                         .gesture(
                             DragGesture(minimumDistance: 0)
                                 .onEnded { value in
-                                    let x: CGFloat = value.location.x - geometry[proxy.plotFrame!].origin.x
+                                    guard let plotFrame = proxy.plotFrame else { return }
+                                    let x: CGFloat = value.location.x - geometry[plotFrame].origin.x
                                     if let date: Date = proxy.value(atX: x, as: Date.self) {
                                         selectedDate = date
                                     }
@@ -170,10 +171,14 @@ struct ScoreTrendsChart: View {
 private struct SelectedSnapshotView: View {
     let snapshot: DailyScoreSnapshot
 
-    private var formattedDate: String {
+    private static let dateFormatter: DateFormatter = {
         let formatter: DateFormatter = DateFormatter()
         formatter.dateFormat = "M月d日"
-        return formatter.string(from: snapshot.date)
+        return formatter
+    }()
+
+    private var formattedDate: String {
+        Self.dateFormatter.string(from: snapshot.date)
     }
 
     var body: some View {

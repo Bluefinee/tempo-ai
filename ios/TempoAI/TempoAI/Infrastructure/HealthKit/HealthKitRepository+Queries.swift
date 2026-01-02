@@ -281,6 +281,9 @@ extension HealthKitRepository {
         let calendar: Calendar = Calendar.current
         let today: Date = calendar.startOfDay(for: Date())
 
+        // HRVベースラインを1回だけ取得（パフォーマンス最適化）
+        let hrvBaseline: Double = (try? await fetchHRVBaseline(days: 30)) ?? 50.0
+
         var dailyMetrics: [HealthMetrics] = []
 
         for dayOffset in (0..<days).reversed() {
@@ -288,7 +291,7 @@ extension HealthKitRepository {
                 continue
             }
 
-            let metrics: HealthMetrics = await fetchMetricsForDate(targetDate)
+            let metrics: HealthMetrics = await fetchMetricsForDate(targetDate, hrvBaseline: hrvBaseline)
             dailyMetrics.append(metrics)
         }
 
@@ -296,14 +299,14 @@ extension HealthKitRepository {
     }
 
     /// 特定日のHealthMetricsを取得
-    private func fetchMetricsForDate(_ date: Date) async -> HealthMetrics {
+    private func fetchMetricsForDate(_ date: Date, hrvBaseline: Double) async -> HealthMetrics {
         let calendar: Calendar = Calendar.current
         guard let nextDay = calendar.date(byAdding: .day, value: 1, to: date) else {
             return HealthMetrics(date: date, sleep: nil, hrv: nil, activity: nil, auxiliary: nil)
         }
 
         async let sleepTask = fetchSleepForDateRangeSafe(start: date, end: nextDay)
-        async let hrvTask = fetchHRVForDateRangeSafe(start: date, end: nextDay)
+        async let hrvTask = fetchHRVForDateRangeSafe(start: date, end: nextDay, baseline: hrvBaseline)
         async let activityTask = fetchActivityForDateRangeSafe(start: date, end: nextDay)
 
         let sleep: SleepMetrics? = await sleepTask
@@ -349,7 +352,7 @@ extension HealthKitRepository {
         }
     }
 
-    private func fetchHRVForDateRangeSafe(start: Date, end: Date) async -> HRVMetrics? {
+    private func fetchHRVForDateRangeSafe(start: Date, end: Date, baseline: Double) async -> HRVMetrics? {
         let hrvType: HKQuantityType = HKQuantityType(.heartRateVariabilitySDNN)
         let predicate: NSPredicate = HKQuery.predicateForSamples(
             withStart: start,
@@ -381,7 +384,6 @@ extension HealthKitRepository {
                 sum + sample.quantity.doubleValue(for: HKUnit.secondUnit(with: .milli))
             }
             let average: Double = total / Double(samples.count)
-            let baseline: Double = (try? await fetchHRVBaseline(days: 30)) ?? 50.0
 
             return HRVMetrics(value: average, baseline30d: baseline)
         } catch {

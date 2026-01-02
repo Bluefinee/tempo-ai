@@ -64,7 +64,7 @@ struct RhythmConsistencyCard: View {
 // MARK: - ConsistencyRow
 
 /// 一貫性行コンポーネント
-struct ConsistencyRow: View {
+private struct ConsistencyRow: View {
 
     // MARK: - Properties
 
@@ -99,7 +99,7 @@ struct ConsistencyRow: View {
 // MARK: - StatusBadge
 
 /// ステータスバッジコンポーネント
-struct StatusBadge: View {
+private struct StatusBadge: View {
 
     // MARK: - Properties
 

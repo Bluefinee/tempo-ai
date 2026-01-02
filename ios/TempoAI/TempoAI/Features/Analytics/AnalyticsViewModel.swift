@@ -235,7 +235,7 @@ final class AnalyticsViewModel: ObservableObject {
             }
         }
 
-        // 最低3つのインサイトを確保
+        // 生成がなければデフォルトメッセージを追加
         if generatedInsights.isEmpty {
             generatedInsights.append("データを分析中です。継続して記録を続けてください")
         }

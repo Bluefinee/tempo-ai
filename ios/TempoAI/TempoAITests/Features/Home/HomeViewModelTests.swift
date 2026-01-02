@@ -319,4 +319,11 @@ private final class MockHealthKitRepository: HealthKitRepositoryProtocol, @unche
         }
         return mockHRVBaseline
     }
+
+    func fetchDailyMetrics(days: Int) async throws -> [HealthMetrics] {
+        if let error = mockError {
+            throw error
+        }
+        return []
+    }
 }

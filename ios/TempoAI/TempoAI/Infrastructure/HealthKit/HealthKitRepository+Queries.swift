@@ -273,4 +273,157 @@ extension HealthKitRepository {
         let deviation: Double = latestSample.quantity.doubleValue(for: HKUnit.degreeCelsius())
         return WristTemperatureMetrics(deviation: deviation)
     }
+
+    // MARK: - Daily Metrics for Analytics
+
+    /// 過去N日間の日別HealthMetricsを取得
+    func fetchDailyMetrics(days: Int) async throws -> [HealthMetrics] {
+        let calendar: Calendar = Calendar.current
+        let today: Date = calendar.startOfDay(for: Date())
+
+        var dailyMetrics: [HealthMetrics] = []
+
+        for dayOffset in (0..<days).reversed() {
+            guard let targetDate = calendar.date(byAdding: .day, value: -dayOffset, to: today) else {
+                continue
+            }
+
+            let metrics: HealthMetrics = await fetchMetricsForDate(targetDate)
+            dailyMetrics.append(metrics)
+        }
+
+        return dailyMetrics
+    }
+
+    /// 特定日のHealthMetricsを取得
+    private func fetchMetricsForDate(_ date: Date) async -> HealthMetrics {
+        let calendar: Calendar = Calendar.current
+        guard let nextDay = calendar.date(byAdding: .day, value: 1, to: date) else {
+            return HealthMetrics(date: date, sleep: nil, hrv: nil, activity: nil, auxiliary: nil)
+        }
+
+        async let sleepTask = fetchSleepForDateRangeSafe(start: date, end: nextDay)
+        async let hrvTask = fetchHRVForDateRangeSafe(start: date, end: nextDay)
+        async let activityTask = fetchActivityForDateRangeSafe(start: date, end: nextDay)
+
+        let sleep: SleepMetrics? = await sleepTask
+        let hrv: HRVMetrics? = await hrvTask
+        let activity: ActivityMetrics? = await activityTask
+
+        return HealthMetrics(
+            date: date,
+            sleep: sleep,
+            hrv: hrv,
+            activity: activity,
+            auxiliary: nil
+        )
+    }
+
+    private func fetchSleepForDateRangeSafe(start: Date, end: Date) async -> SleepMetrics? {
+        let sleepType: HKCategoryType = HKCategoryType(.sleepAnalysis)
+        let predicate: NSPredicate = HKQuery.predicateForSamples(
+            withStart: start,
+            end: end,
+            options: .strictStartDate
+        )
+
+        do {
+            let samples: [HKCategorySample] = try await withCheckedThrowingContinuation { continuation in
+                let query: HKSampleQuery = HKSampleQuery(
+                    sampleType: sleepType,
+                    predicate: predicate,
+                    limit: HKObjectQueryNoLimit,
+                    sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: true)]
+                ) { _, samples, error in
+                    if let error = error {
+                        continuation.resume(throwing: error)
+                        return
+                    }
+                    continuation.resume(returning: (samples as? [HKCategorySample]) ?? [])
+                }
+                healthStore.execute(query)
+            }
+            return aggregateSleepSamples(samples)
+        } catch {
+            return nil
+        }
+    }
+
+    private func fetchHRVForDateRangeSafe(start: Date, end: Date) async -> HRVMetrics? {
+        let hrvType: HKQuantityType = HKQuantityType(.heartRateVariabilitySDNN)
+        let predicate: NSPredicate = HKQuery.predicateForSamples(
+            withStart: start,
+            end: end,
+            options: .strictStartDate
+        )
+
+        do {
+            let samples: [HKQuantitySample] = try await withCheckedThrowingContinuation { continuation in
+                let query: HKSampleQuery = HKSampleQuery(
+                    sampleType: hrvType,
+                    predicate: predicate,
+                    limit: HKObjectQueryNoLimit,
+                    sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)]
+                ) { _, samples, error in
+                    if let error = error {
+                        continuation.resume(throwing: error)
+                        return
+                    }
+                    continuation.resume(returning: (samples as? [HKQuantitySample]) ?? [])
+                }
+                healthStore.execute(query)
+            }
+
+            guard !samples.isEmpty else { return nil }
+
+            // 日のHRV平均値を計算
+            let total: Double = samples.reduce(0) { sum, sample in
+                sum + sample.quantity.doubleValue(for: HKUnit.secondUnit(with: .milli))
+            }
+            let average: Double = total / Double(samples.count)
+            let baseline: Double = (try? await fetchHRVBaseline(days: 30)) ?? 50.0
+
+            return HRVMetrics(value: average, baseline30d: baseline)
+        } catch {
+            return nil
+        }
+    }
+
+    private func fetchActivityForDateRangeSafe(start: Date, end: Date) async -> ActivityMetrics? {
+        let predicate: NSPredicate = HKQuery.predicateForSamples(
+            withStart: start,
+            end: end,
+            options: .strictStartDate
+        )
+
+        // Fetch steps
+        let stepType: HKQuantityType = HKQuantityType(.stepCount)
+        let steps: Int = await withCheckedContinuation { continuation in
+            let query: HKStatisticsQuery = HKStatisticsQuery(
+                quantityType: stepType,
+                quantitySamplePredicate: predicate,
+                options: .cumulativeSum
+            ) { _, statistics, _ in
+                let sum: Double = statistics?.sumQuantity()?.doubleValue(for: HKUnit.count()) ?? 0
+                continuation.resume(returning: Int(sum))
+            }
+            healthStore.execute(query)
+        }
+
+        // Fetch active minutes
+        let exerciseType: HKQuantityType = HKQuantityType(.appleExerciseTime)
+        let activeMinutes: Int = await withCheckedContinuation { continuation in
+            let query: HKStatisticsQuery = HKStatisticsQuery(
+                quantityType: exerciseType,
+                quantitySamplePredicate: predicate,
+                options: .cumulativeSum
+            ) { _, statistics, _ in
+                let sum: Double = statistics?.sumQuantity()?.doubleValue(for: HKUnit.minute()) ?? 0
+                continuation.resume(returning: Int(sum))
+            }
+            healthStore.execute(query)
+        }
+
+        return ActivityMetrics(stepsYesterday: steps, activeMinutesYesterday: activeMinutes)
+    }
 }

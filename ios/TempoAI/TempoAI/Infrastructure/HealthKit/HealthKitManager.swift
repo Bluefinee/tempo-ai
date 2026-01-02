@@ -103,6 +103,26 @@ final class HealthKitManager: ObservableObject {
         }
     }
 
+    /// 過去N日間の日別ヘルスメトリクスを取得（Analytics用）
+    func fetchDailyMetrics(days: Int = 7) async -> [HealthMetrics] {
+        isLoading = true
+        lastError = nil
+
+        do {
+            let metrics: [HealthMetrics] = try await repository.fetchDailyMetrics(days: days)
+            isLoading = false
+            return metrics
+        } catch let error as HealthKitError {
+            lastError = error
+            isLoading = false
+            return []
+        } catch {
+            lastError = .queryFailed(error)
+            isLoading = false
+            return []
+        }
+    }
+
     // MARK: - Private Methods
 
     private func checkAuthorizationStatus() {
@@ -164,6 +184,31 @@ private final class MockHealthKitRepository: HealthKitRepositoryProtocol, @unche
 
     func fetchHRVBaseline(days: Int) async throws -> Double {
         50.0
+    }
+
+    func fetchDailyMetrics(days: Int) async throws -> [HealthMetrics] {
+        let calendar: Calendar = Calendar.current
+        let today: Date = calendar.startOfDay(for: Date())
+
+        return (0..<days).compactMap { offset -> HealthMetrics? in
+            guard let date = calendar.date(byAdding: .day, value: -offset, to: today) else { return nil }
+            return HealthMetrics(
+                date: date,
+                sleep: SleepMetrics(
+                    bedtime: date.addingTimeInterval(-8 * 3600),
+                    wakeTime: date,
+                    durationMinutes: 420 + Int.random(in: -60...60),
+                    deepSleepMinutes: 70 + Int.random(in: -20...20),
+                    remSleepMinutes: 90 + Int.random(in: -20...20)
+                ),
+                hrv: HRVMetrics(value: Double(45 + Int.random(in: -10...15)), baseline30d: 50),
+                activity: ActivityMetrics(
+                    stepsYesterday: 7000 + Int.random(in: -2000...3000),
+                    activeMinutesYesterday: 30 + Int.random(in: -15...30)
+                ),
+                auxiliary: nil
+            )
+        }.reversed()
     }
 }
 #endif

@@ -45,7 +45,29 @@ struct RhythmAnalysis: Equatable, Codable, Sendable {
         Self.consistencyScore(from: wakeTimeStddevMinutes)
     }
 
+    /// 就寝時刻の一貫性ステータス
+    var bedtimeConsistencyStatus: ConsistencyStatus {
+        Self.consistencyStatus(from: bedtimeStddevMinutes)
+    }
+
+    /// 起床時刻の一貫性ステータス
+    var wakeTimeConsistencyStatus: ConsistencyStatus {
+        Self.consistencyStatus(from: wakeTimeStddevMinutes)
+    }
+
     // MARK: - Private Helpers
+
+    /// 標準偏差からConsistencyStatusを算出
+    private static func consistencyStatus(from stddev: Double) -> ConsistencyStatus {
+        switch stddev {
+        case ...30:
+            return .stable
+        case 30..<45:
+            return .recovering
+        default:
+            return .unstable
+        }
+    }
 
     /// 標準偏差からスコアを算出
     private static func consistencyScore(from stddev: Double) -> Double {
@@ -68,9 +90,22 @@ struct RhythmAnalysis: Equatable, Codable, Sendable {
 
 // MARK: - RhythmStatus
 
-/// リズム安定度ステータス
+/// リズム安定度ステータス（連続安定日数ベース）
 enum RhythmStatus: String, Codable, Sendable {
     case stable = "安定"
     case recovering = "回復中"
+    case unstable = "乱れ気味"
+}
+
+// MARK: - ConsistencyStatus
+
+/// 時刻一貫性ステータス（標準偏差ベース）
+/// - Note: RhythmStatusとは異なり、時刻のばらつきを評価
+enum ConsistencyStatus: String, Codable, Sendable {
+    /// 安定（標準偏差 ≤ 30分）
+    case stable = "安定"
+    /// 回復中（標準偏差 30-45分）
+    case recovering = "回復中"
+    /// 乱れ気味（標準偏差 > 45分）
     case unstable = "乱れ気味"
 }

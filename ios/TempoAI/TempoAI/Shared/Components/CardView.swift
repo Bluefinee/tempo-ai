@@ -133,9 +133,10 @@ struct InfoCard: View {
                 }
             }
         }
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(title)\(subtitle.map { ", \($0)" } ?? "")")
-        .accessibilityHint(showDetailButton ? "詳細を表示するにはダブルタップ" : "")
+        .cardAccessibility(
+            label: "\(title)\(subtitle.map { ", \($0)" } ?? "")",
+            isTappable: showDetailButton
+        )
     }
 }
 
@@ -185,8 +186,7 @@ struct SectionHeader: View {
                 TextButton(actionTitle, icon: "arrow.right", action: onAction)
             }
         }
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(title)
+        .sectionHeaderAccessibility(title)
     }
 }
 

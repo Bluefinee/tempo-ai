@@ -103,10 +103,11 @@ extension View {
         current: Int,
         total: Int
     ) -> some View {
-        self
+        let percentage = total > 0 ? Int(Double(current) / Double(total) * 100) : 0
+        return self
             .accessibilityElement(children: .combine)
             .accessibilityLabel(label)
-            .accessibilityValue("\(current)/\(total)、\(Int(Double(current) / Double(total) * 100))パーセント完了")
+            .accessibilityValue("\(current)/\(total)、\(percentage)パーセント完了")
     }
 
     // MARK: - Hide from Accessibility

@@ -73,8 +73,7 @@ struct ScoreGauge: View {
             }
         }
         .frame(maxWidth: .infinity)
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(accessibilityLabelText)
+        .scoreAccessibility(label: label, value: score, isCalibrating: isCalibrating)
     }
 
     // MARK: - Computed Properties
@@ -84,16 +83,6 @@ struct ScoreGauge: View {
             return TempoColors.textTertiary
         }
         return TempoColors.scoreColor(for: score)
-    }
-
-    private var accessibilityLabelText: String {
-        if isCalibrating {
-            return "\(label)スコア、学習中"
-        } else if let score = score {
-            return "\(label)スコア、\(score)点、\(TempoColors.scoreLabel(for: score))"
-        } else {
-            return "\(label)スコア、データなし"
-        }
     }
 }
 

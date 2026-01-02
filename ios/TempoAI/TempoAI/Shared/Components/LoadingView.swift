@@ -28,10 +28,11 @@ struct LoadingView: View {
 
     var body: some View {
         VStack(spacing: TempoSpacing.lg) {
-            // Spinning indicator
+            // Spinning indicator (decorative, hidden from accessibility)
             ProgressView()
                 .scaleEffect(1.5)
                 .tint(TempoColors.primary)
+                .hideFromAccessibility()
 
             // Current step text
             Text(steps[currentStepIndex])
@@ -81,6 +82,7 @@ struct SimpleLoadingView: View {
             ProgressView()
                 .scaleEffect(1.2)
                 .tint(TempoColors.primary)
+                .hideFromAccessibility()
 
             if let message = message {
                 Text(message)
@@ -194,9 +196,11 @@ struct CalibrationProgressView: View {
                 }
             }
         }
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("キャリブレーション進捗")
-        .accessibilityValue("\(daysCompleted)日完了、あと\(remainingDays)日")
+        .progressAccessibility(
+            label: "キャリブレーション進捗",
+            current: daysCompleted,
+            total: totalDays
+        )
     }
 }
 

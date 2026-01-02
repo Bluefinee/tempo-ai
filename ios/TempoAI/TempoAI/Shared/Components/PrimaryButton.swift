@@ -64,9 +64,7 @@ struct PrimaryButton: View {
             .clipShape(RoundedRectangle(cornerRadius: TempoSpacing.buttonCornerRadius))
         }
         .disabled(!isEnabled || isLoading)
-        .accessibilityLabel(title)
-        .accessibilityHint(isLoading ? "読み込み中" : "")
-        .accessibilityAddTraits(.isButton)
+        .buttonAccessibility(label: title, isLoading: isLoading)
     }
 }
 
@@ -127,9 +125,7 @@ struct AccentButton: View {
             .clipShape(RoundedRectangle(cornerRadius: TempoSpacing.buttonCornerRadius))
         }
         .disabled(!isEnabled || isLoading)
-        .accessibilityLabel(title)
-        .accessibilityHint(isLoading ? "読み込み中" : "")
-        .accessibilityAddTraits(.isButton)
+        .buttonAccessibility(label: title, isLoading: isLoading)
     }
 }
 

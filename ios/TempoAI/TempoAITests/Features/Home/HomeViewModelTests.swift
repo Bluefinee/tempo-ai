@@ -76,7 +76,9 @@ final class HomeViewModelTests: XCTestCase {
 
     func testGreeting_WithNickname_IncludesNickname() {
         let profile: UserProfile = createMockUserProfile(nickname: "テスト太郎")
-        mockStorage.mockData[StorageKeys.userProfile] = try? JSONEncoder().encode(profile)
+        if let data = try? JSONEncoder().encode(profile) {
+            mockStorage.setMockData(data, forKey: StorageKeys.userProfile)
+        }
 
         sut = HomeViewModel(
             adviceAPIClient: mockAPIClient,
@@ -119,7 +121,9 @@ final class HomeViewModelTests: XCTestCase {
 
     func testIsCalibrating_True_WhenCalibrationNotComplete() {
         let state: CalibrationState = CalibrationState(startDate: Date(), daysCompleted: 3)
-        mockStorage.mockData[StorageKeys.calibrationState] = try? JSONEncoder().encode(state)
+        if let data = try? JSONEncoder().encode(state) {
+            mockStorage.setMockData(data, forKey: StorageKeys.calibrationState)
+        }
 
         // Reload to pick up the mock data
         sut = HomeViewModel(
@@ -135,7 +139,9 @@ final class HomeViewModelTests: XCTestCase {
 
     func testIsCalibrating_False_WhenCalibrationComplete() {
         let state: CalibrationState = CalibrationState(startDate: Date(), daysCompleted: 7)
-        mockStorage.mockData[StorageKeys.calibrationState] = try? JSONEncoder().encode(state)
+        if let data = try? JSONEncoder().encode(state) {
+            mockStorage.setMockData(data, forKey: StorageKeys.calibrationState)
+        }
 
         sut = HomeViewModel(
             adviceAPIClient: mockAPIClient,
@@ -251,7 +257,7 @@ final class HomeViewModelTests: XCTestCase {
 
 // MARK: - Mock Classes
 
-final class MockAPIClient: APIClientProtocol, @unchecked Sendable {
+private final class MockAPIClient: APIClientProtocol, @unchecked Sendable {
     var mockResponse: AdviceResponseDTO?
     var mockError: Error?
 
@@ -263,7 +269,7 @@ final class MockAPIClient: APIClientProtocol, @unchecked Sendable {
     }
 }
 
-final class MockWeatherAPIClient: WeatherAPIClientProtocol, @unchecked Sendable {
+private final class MockWeatherAPIClient: WeatherAPIClientProtocol, @unchecked Sendable {
     var mockWeather: WeatherData?
     var mockError: Error?
 
@@ -275,28 +281,7 @@ final class MockWeatherAPIClient: WeatherAPIClientProtocol, @unchecked Sendable 
     }
 }
 
-final class MockLocalStorage: LocalStorageProtocol, @unchecked Sendable {
-    var mockData: [String: Data] = [:]
-
-    func save<T: Codable>(_ value: T, forKey key: String) {
-        mockData[key] = try? JSONEncoder().encode(value)
-    }
-
-    func load<T: Codable>(forKey key: String) -> T? {
-        guard let data = mockData[key] else { return nil }
-        return try? JSONDecoder().decode(T.self, from: data)
-    }
-
-    func remove(forKey key: String) {
-        mockData.removeValue(forKey: key)
-    }
-
-    func exists(forKey key: String) -> Bool {
-        mockData[key] != nil
-    }
-}
-
-final class MockHealthKitRepository: HealthKitRepositoryProtocol, @unchecked Sendable {
+private final class MockHealthKitRepository: HealthKitRepositoryProtocol, @unchecked Sendable {
     var mockMetrics: HealthMetrics?
     var mockSleepHistory: [SleepMetrics] = []
     var mockHRVBaseline: Double = 50

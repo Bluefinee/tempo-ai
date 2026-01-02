@@ -77,10 +77,14 @@ final class CircadianClockViewTests: XCTestCase {
     // MARK: - Current Hour Angle Tests
 
     func testCurrentAngle_CalculatesCorrectly() {
-        // Create a date for 12:00 noon
+        // Create a date for 12:00 noon with fixed date to avoid timezone issues
         var components: DateComponents = DateComponents()
+        components.year = 2026
+        components.month = 1
+        components.day = 1
         components.hour = 12
         components.minute = 0
+        components.timeZone = TimeZone(identifier: "Asia/Tokyo")
         let calendar: Calendar = Calendar.current
         guard let date = calendar.date(from: components) else {
             XCTFail("Failed to create date")
@@ -93,10 +97,14 @@ final class CircadianClockViewTests: XCTestCase {
     }
 
     func testCurrentAngle_IncludesMinutes() {
-        // 12:30 should be slightly past 12:00
+        // 12:30 should be slightly past 12:00 with fixed date
         var components: DateComponents = DateComponents()
+        components.year = 2026
+        components.month = 1
+        components.day = 1
         components.hour = 12
         components.minute = 30
+        components.timeZone = TimeZone(identifier: "Asia/Tokyo")
         let calendar: Calendar = Calendar.current
         guard let date = calendar.date(from: components) else {
             XCTFail("Failed to create date")
@@ -164,9 +172,9 @@ final class CircadianClockViewTests: XCTestCase {
         XCTAssertFalse(result)
     }
 
-    func testIsInActivityZone_Evening_22PM_ReturnsTrue() {
-        // Evening type: 10-22, so 22 is the end but still considered active
-        // Let's check 21 to be safe
+    func testIsInActivityZone_Evening_21PM_ReturnsTrue() {
+        // Evening type: 10-22, but the range is hour >= start && hour < end
+        // So 21 is the last hour that returns true
         let result: Bool = CircadianClockCalculations.isInActivityZone(
             hour: 21,
             chronotype: .evening

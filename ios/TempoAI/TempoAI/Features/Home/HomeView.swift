@@ -61,6 +61,8 @@ struct HomeView: View {
                             }
                         }
                     )
+                } else {
+                    ProgressView("読み込み中...")
                 }
             }
             .task {

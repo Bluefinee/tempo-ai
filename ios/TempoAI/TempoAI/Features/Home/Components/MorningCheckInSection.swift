@@ -111,7 +111,7 @@ struct MorningCheckInSection: View {
                 mood: $mood,
                 todayMode: $todayMode,
                 isCompleted: false,
-                onComplete: { print("Completed") }
+                onComplete: {}
             )
             .padding()
             .background(TempoColors.background)

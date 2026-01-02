@@ -121,6 +121,8 @@ enum UVLevel: String, Sendable {
 
     init(uvIndex: Int) {
         switch uvIndex {
+        case ..<0:
+            self = .low
         case 0...2:
             self = .low
         case 3...5:

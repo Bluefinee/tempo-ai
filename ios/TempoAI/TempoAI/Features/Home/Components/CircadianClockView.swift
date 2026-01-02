@@ -120,7 +120,7 @@ struct CircadianClockView: View {
 
             let text: Text = Text(labels[index])
                 .font(.system(size: 12, weight: .medium))
-                .foregroundColor(TempoColors.textSecondary)
+                .foregroundStyle(TempoColors.textSecondary)
 
             context.draw(
                 text,

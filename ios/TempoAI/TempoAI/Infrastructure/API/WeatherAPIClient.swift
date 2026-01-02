@@ -45,7 +45,16 @@ final class WeatherAPIClient: WeatherAPIClientProtocol, Sendable {
         request.httpMethod = "GET"
         request.timeoutInterval = 30
 
-        let (data, response): (Data, URLResponse) = try await session.data(for: request)
+        let data: Data
+        let response: URLResponse
+
+        do {
+            (data, response) = try await session.data(for: request)
+        } catch let error as WeatherAPIError {
+            throw error
+        } catch {
+            throw WeatherAPIError.networkError(error.localizedDescription)
+        }
 
         guard let httpResponse = response as? HTTPURLResponse else {
             throw WeatherAPIError.invalidResponse
@@ -72,12 +81,16 @@ final class WeatherAPIClient: WeatherAPIClientProtocol, Sendable {
 
     private func buildURL(latitude: Double, longitude: Double) throws -> URL {
         var components: URLComponents? = URLComponents(string: baseURL)
+
+        // デバイスのタイムゾーンを使用してAPI応答とローカル時刻を一致させる
+        let timezone: String = TimeZone.current.identifier
+
         components?.queryItems = [
             URLQueryItem(name: "latitude", value: String(latitude)),
             URLQueryItem(name: "longitude", value: String(longitude)),
             URLQueryItem(name: "current", value: "temperature_2m,relative_humidity_2m,weather_code,surface_pressure"),
             URLQueryItem(name: "hourly", value: "surface_pressure,uv_index"),
-            URLQueryItem(name: "timezone", value: "Asia/Tokyo"),
+            URLQueryItem(name: "timezone", value: timezone),
             URLQueryItem(name: "forecast_days", value: "1")
         ]
 
@@ -93,13 +106,16 @@ final class WeatherAPIClient: WeatherAPIClientProtocol, Sendable {
             throw WeatherAPIError.missingData("current")
         }
 
+        let hourlyTimes: [String] = response.hourly?.time ?? []
+
         let pressureTrend: PressureTrend = calculatePressureTrend(
-            hourlyPressures: response.hourly?.surfacePressure ?? []
+            hourlyPressures: response.hourly?.surfacePressure ?? [],
+            hourlyTimes: hourlyTimes
         )
 
         let uvIndex: Int = getCurrentUVIndex(
             hourlyUV: response.hourly?.uvIndex ?? [],
-            hourlyTimes: response.hourly?.time ?? []
+            hourlyTimes: hourlyTimes
         )
 
         return WeatherData(
@@ -113,20 +129,46 @@ final class WeatherAPIClient: WeatherAPIClientProtocol, Sendable {
         )
     }
 
+    /// 現在時刻に最も近いインデックスを取得
+    private func findCurrentHourIndex(in hourlyTimes: [String]) -> Int? {
+        guard !hourlyTimes.isEmpty else { return nil }
+
+        let now: Date = Date()
+        let formatter: ISO8601DateFormatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withFullDate, .withTime, .withDashSeparatorInDate, .withColonSeparatorInTime]
+
+        // hourlyTimesをDateに変換して現在時刻に最も近いインデックスを探す
+        var closestIndex: Int = 0
+        var smallestDiff: TimeInterval = .greatestFiniteMagnitude
+
+        for (index, timeString) in hourlyTimes.enumerated() {
+            if let date: Date = formatter.date(from: timeString) {
+                let diff: TimeInterval = abs(now.timeIntervalSince(date))
+                if diff < smallestDiff {
+                    smallestDiff = diff
+                    closestIndex = index
+                }
+            }
+        }
+
+        return closestIndex
+    }
+
     /// 気圧トレンドを計算（過去3時間の変化から）
-    private func calculatePressureTrend(hourlyPressures: [Double]) -> PressureTrend {
+    private func calculatePressureTrend(hourlyPressures: [Double], hourlyTimes: [String]) -> PressureTrend {
         guard hourlyPressures.count >= 4 else {
             return .stable
         }
 
-        let calendar: Calendar = Calendar.current
-        let currentHour: Int = calendar.component(.hour, from: Date())
+        // hourlyTimesから現在時刻に最も近いインデックスを取得
+        guard let currentIndex: Int = findCurrentHourIndex(in: hourlyTimes),
+              currentIndex < hourlyPressures.count else {
+            return .stable
+        }
 
-        // 現在時刻と3時間前のインデックスを取得
-        let currentIndex: Int = min(currentHour, hourlyPressures.count - 1)
         let pastIndex: Int = max(0, currentIndex - 3)
 
-        guard currentIndex < hourlyPressures.count, pastIndex < hourlyPressures.count else {
+        guard pastIndex < hourlyPressures.count else {
             return .stable
         }
 
@@ -146,14 +188,15 @@ final class WeatherAPIClient: WeatherAPIClientProtocol, Sendable {
 
     /// 現在時刻のUV指数を取得
     private func getCurrentUVIndex(hourlyUV: [Double], hourlyTimes: [String]) -> Int {
-        let calendar: Calendar = Calendar.current
-        let currentHour: Int = calendar.component(.hour, from: Date())
+        guard !hourlyUV.isEmpty else { return 0 }
 
-        guard currentHour < hourlyUV.count else {
+        // hourlyTimesから現在時刻に最も近いインデックスを取得
+        guard let currentIndex: Int = findCurrentHourIndex(in: hourlyTimes),
+              currentIndex < hourlyUV.count else {
             return hourlyUV.last.map { Int($0) } ?? 0
         }
 
-        return Int(hourlyUV[currentHour])
+        return Int(hourlyUV[currentIndex])
     }
 }
 

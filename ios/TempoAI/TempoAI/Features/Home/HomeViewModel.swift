@@ -268,7 +268,10 @@ final class HomeViewModel: ObservableObject {
                 longitude: location.coordinate.longitude
             )
         } catch {
-            // 天気データの取得失敗は致命的ではないので無視
+            // 天気データの取得失敗は致命的ではないのでログ出力のみ
+            #if DEBUG
+            print("[HomeViewModel] Weather fetch failed: \(error.localizedDescription)")
+            #endif
         }
     }
 
@@ -299,9 +302,15 @@ final class HomeViewModel: ObservableObject {
                 dailyAdvice = advice
                 localStorage.save(advice, forKey: adviceKey)
             } else {
+                #if DEBUG
+                print("[HomeViewModel] Advice response parse failed")
+                #endif
                 dailyAdvice = .fallback()
             }
         } catch {
+            #if DEBUG
+            print("[HomeViewModel] Advice fetch failed: \(error.localizedDescription)")
+            #endif
             dailyAdvice = .fallback()
         }
     }
@@ -311,130 +320,18 @@ final class HomeViewModel: ObservableObject {
         healthMetrics: HealthMetrics?,
         rhythmAnalysis: RhythmAnalysis
     ) -> AdviceRequestDTO {
-        let profileDTO: ProfileDTO = ProfileDTO.from(profile)
-
-        let scoresDTO: ScoresDTO = ScoresDTO(
-            autonomic: conditionAssessment?.autonomicScore.value ?? 50,
-            sleep: conditionAssessment?.sleepScore.value ?? 50,
-            rhythm: conditionAssessment?.rhythmScore.value ?? 50,
-            activity: conditionAssessment?.activityScore.value ?? 50
+        let builder: AdviceRequestBuilder = AdviceRequestBuilder(
+            profile: profile,
+            conditionAssessment: conditionAssessment,
+            rhythmAnalysis: rhythmAnalysis,
+            healthMetrics: healthMetrics,
+            weather: weather,
+            location: currentLocation,
+            city: currentCity,
+            todayMode: todayMode,
+            mood: mood
         )
-
-        let rhythmAnalysisDTO: RhythmAnalysisDTO = RhythmAnalysisDTO.from(rhythmAnalysis)
-
-        var sleepDTO: SleepDTO?
-        if let sleep = healthMetrics?.sleep {
-            sleepDTO = SleepDTO.from(sleep)
-        }
-
-        var hrvDTO: HRVDTO?
-        if let hrv = healthMetrics?.hrv {
-            hrvDTO = HRVDTO.from(hrv)
-        }
-
-        var activityDTO: ActivityDTO?
-        if let activity = healthMetrics?.activity {
-            activityDTO = ActivityDTO.from(activity)
-        }
-
-        var auxiliaryDTO: AuxiliaryDTO?
-        if let auxiliary = healthMetrics?.auxiliary {
-            auxiliaryDTO = AuxiliaryDTO.from(auxiliary)
-        }
-
-        let healthDataDTO: HealthDataDTO = HealthDataDTO(
-            scores: scoresDTO,
-            rhythmAnalysis: rhythmAnalysisDTO,
-            sleep: sleepDTO,
-            hrv: hrvDTO,
-            activity: activityDTO,
-            auxiliary: auxiliaryDTO
-        )
-
-        let formatter: DateFormatter = DateFormatter()
-        formatter.dateFormat = "HH:mm"
-        let currentTime: String = formatter.string(from: Date())
-
-        let weekdaySymbols: [String] = ["", "日", "月", "火", "水", "木", "金", "土"]
-        let weekday: Int = Calendar.current.component(.weekday, from: Date())
-        let dayOfWeek: String = weekdaySymbols[weekday]
-
-        let contextDTO: ContextDTO = ContextDTO(
-            currentTime: currentTime,
-            dayOfWeek: dayOfWeek,
-            todayMode: (todayMode ?? .normal).rawValue,
-            mood: mood?.rawValue
-        )
-
-        let locationDTO: LocationDTO
-        if let location = currentLocation {
-            locationDTO = LocationDTO(
-                latitude: location.coordinate.latitude,
-                longitude: location.coordinate.longitude,
-                city: currentCity ?? "不明"
-            )
-        } else {
-            // デフォルト値（東京）
-            locationDTO = LocationDTO(
-                latitude: 35.6762,
-                longitude: 139.6503,
-                city: "東京"
-            )
-        }
-
-        var weatherDTO: WeatherDTO?
-        if let w = weather {
-            weatherDTO = WeatherDTO(
-                temperature: w.temperature,
-                humidity: Double(w.humidity),
-                pressure: w.pressure,
-                weatherCode: w.weatherCode,
-                uvIndexMax: Double(w.uvIndex)
-            )
-        }
-
-        return AdviceRequestDTO(
-            profile: profileDTO,
-            healthData: healthDataDTO,
-            location: locationDTO,
-            context: contextDTO,
-            weather: weatherDTO
-        )
-    }
-
-    private func calculateRhythmAnalysis(from sleepHistory: [SleepMetrics]) -> RhythmAnalysis {
-        guard sleepHistory.count >= 2 else {
-            return RhythmAnalysis(
-                bedtimeStddevMinutes: 60,
-                wakeTimeStddevMinutes: 60,
-                consecutiveStableDays: 0,
-                wristTemperature: nil
-            )
-        }
-
-        // 就寝時刻の標準偏差を計算
-        let bedtimes: [Double] = sleepHistory.map { $0.bedtime.timeIntervalSince1970 }
-        let wakeTimes: [Double] = sleepHistory.map { $0.wakeTime.timeIntervalSince1970 }
-
-        let bedtimeStddev: Double = standardDeviation(bedtimes) / 60 // 秒→分
-        let wakeTimeStddev: Double = standardDeviation(wakeTimes) / 60
-
-        // 連続安定日数（stddev <= 30分）
-        let stableDays: Int = bedtimeStddev <= 30 && wakeTimeStddev <= 30 ? sleepHistory.count : 0
-
-        return RhythmAnalysis(
-            bedtimeStddevMinutes: bedtimeStddev,
-            wakeTimeStddevMinutes: wakeTimeStddev,
-            consecutiveStableDays: stableDays,
-            wristTemperature: nil
-        )
-    }
-
-    private func standardDeviation(_ values: [Double]) -> Double {
-        guard values.count > 1 else { return 0 }
-        let mean: Double = values.reduce(0, +) / Double(values.count)
-        let squaredDiffs: Double = values.reduce(0) { $0 + pow($1 - mean, 2) }
-        return sqrt(squaredDiffs / Double(values.count - 1))
+        return builder.build()
     }
 
     private func updateCalibrationState(healthDataDays: Int) {
@@ -484,48 +381,4 @@ final class HomeViewModel: ObservableObject {
         logs = Array(logs.suffix(30))
         localStorage.save(logs, forKey: StorageKeys.feedbackLogs)
     }
-}
-
-// MARK: - HomeError
-
-/// Home画面のエラー
-enum HomeError: Error, LocalizedError, Sendable {
-    case dataLoadFailed
-    case apiError(String)
-    case healthKitError(String)
-    case offlineMode
-
-    var errorDescription: String? {
-        switch self {
-        case .dataLoadFailed:
-            return "データの読み込みに失敗しました"
-        case .apiError(let message):
-            return "API エラー: \(message)"
-        case .healthKitError(let message):
-            return "HealthKit エラー: \(message)"
-        case .offlineMode:
-            return "オフラインモードです"
-        }
-    }
-}
-
-// MARK: - Log Models
-
-/// 気分ログ
-struct MoodLog: Codable, Sendable {
-    let date: Date
-    let mood: Mood
-}
-
-/// 今日のモードログ
-struct TodayModeLog: Codable, Sendable {
-    let date: Date
-    let mode: TodayMode
-}
-
-/// フィードバックログ
-struct FeedbackLog: Codable, Sendable {
-    let date: Date
-    let isHelpful: Bool
-    let adviceSummary: String?
 }

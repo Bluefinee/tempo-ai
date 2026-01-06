@@ -7,14 +7,18 @@
 .github/ @Bluefinee
 scripts/ @Bluefinee
 
-# Security and dependency files
-package.json @Bluefinee
-pnpm-lock.yaml @Bluefinee
-*.xcodeproj @Bluefinee
-Podfile @Bluefinee
-Podfile.lock @Bluefinee
+# Backend
+backend/ @Bluefinee
+backend/package.json @Bluefinee
+backend/pnpm-lock.yaml @Bluefinee
+
+# Mobile App (React Native / Expo)
+app/ @Bluefinee
+app/package.json @Bluefinee
+app/pnpm-lock.yaml @Bluefinee
 
 # Documentation and guidelines
 CLAUDE.md @Bluefinee
 README.md @Bluefinee
-guidelines/ @Bluefinee
+docs/ @Bluefinee
+.claude/ @Bluefinee

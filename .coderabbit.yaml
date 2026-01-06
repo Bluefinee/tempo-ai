@@ -43,11 +43,10 @@ reviews:
     - "!package-lock.json"
     - "!pnpm-lock.yaml"
 
-    # Xcode関連
-    - "!*.xcworkspace/**"
-    - "!*.xcodeproj/project.xcworkspace/**"
-    - "!*.xcodeproj/xcuserdata/**"
-    - "!DerivedData/**"
+    # Expo / React Native 関連
+    - "!.expo/**"
+    - "!.expo-shared/**"
+    - "!web-build/**"
 
     # ドキュメント・レビューファイル除外
     - "!**/*.md"
@@ -81,15 +80,12 @@ reviews:
 
     # テストフィクスチャ・スナップショット
     - "!**/fixtures/**"
-    - "!**/mocks/**" 
+    - "!**/mocks/**"
     - "!**/__snapshots__/**"
     - "!**/test-data/**"
 
     # その他の不要ファイル
     - "!**/.DS_Store"
-    - "!**/*.tmp"
-    - "!**/*.temp"
-    - "!**/*.cache"
 
   path_instructions:
     # ===========================================
@@ -121,7 +117,7 @@ reviews:
         - エラーメッセージは具体的に
 
     # ===========================================
-    # TypeScript テスト
+    # バックエンド テスト
     # ===========================================
     - path: "backend/**/*.test.ts"
       instructions: |
@@ -134,52 +130,79 @@ reviews:
         - 未使用のテストヘルパー・モックを指摘
 
     # ===========================================
-    # Swift/iOS アプリケーション
+    # React Native / Expo アプリケーション
     # ===========================================
-    - path: "ios/**/*.swift"
+    - path: "app/src/**/*.{ts,tsx}"
       instructions: |
         ## レビュー基準
 
-        ### 1. 基本要件
-        - 明示的型宣言: `var isLoading: Bool = false`
-        - camelCase定数: `let maxRetryCount: Int = 3`
-        - ファイル400行以下（超過時はコンポーネント分割を要求）
+        ### 1. 型安全性
+        - **any型は絶対禁止** → unknown型を使用
+        - 全関数で明示的なreturn型を宣言
+        - const優先、letは再代入が必要な場合のみ
+        - Props は interface で明示的に定義
 
         ### 2. クリーンアップ（重要）
         - **未使用import**: 使われていないimport文を指摘し削除を要求
-        - **未使用変数・関数・プロパティ**: 定義されているが参照されていないものを特定
-        - **未使用protocol/struct/class**: 定義されているが使用されていない型を検出
-        - **未使用extension**: プロジェクト内で使用されていないextensionメソッドを検出
-        - **到達不可能コード**: return/throw後のコード等を特定
+        - **未使用変数・関数**: 定義されているが参照されていないものを特定
+        - **未使用type/interface**: 定義されているが使用されていない型を検出
+        - **到達不可能コード**: return後のコード等を特定
         - **デッドコード**: コメントアウトされたコードは削除を要求
 
-        ### 3. SwiftUI
-        - @StateObject: 作成・所有する場合
-        - @ObservedObject: 親から受け取る場合
-        - @State: ローカルUI状態のみ
-        - View body 120行以下（超過時はコンポーネント抽出）
-        - NavigationStack使用（NavigationView非推奨）
+        ### 3. React Native / Expo パターン
+        - **StyleSheet.create()** でスタイル定義（インラインスタイル禁止）
+        - デザイントークン（Colors, Spacing, Typography）使用
+        - expo-router の正しい使用（useRouter, Link）
+        - Arrow function コンポーネント
+        - ファイル 400 行以下（超過時はコンポーネント分割を要求）
 
-        ### 4. 非同期・メモリ管理
-        - async/await必須（completion handler禁止）
-        - UI更新には@MainActor適用
-        - クロージャでは[weak self]使用
+        ### 4. Zustand ストア
+        - セレクターで必要なプロパティのみ選択（リレンダリング最適化）
+        - persist middleware の適切な使用
+        - ストアの責務分離（user, health, insight）
 
-        ### 5. HealthKit
-        - `HKHealthStore.isHealthDataAvailable()`の事前確認
-        - 全HealthKit操作でasync/await使用
+        ### 5. コンポーネント設計
+        - 単一責任: 1コンポーネント1責務
+        - Props drilling 回避（必要に応じて Context/Store 使用）
+        - memo/useMemo/useCallback の適切な使用
 
-        ### 6. ファイル構成
-        - **単一責任**: 1ファイルに複数のManagerクラスが含まれている場合は分離を要求
-        - **DEBUGコード分離**: #if DEBUGブロックが3箇所以上ある場合、別ファイル（+Preview.swift）への抽出を推奨
-        - **コンポーネント再利用**: 類似UIパターン（トースト、カード等）が複数ファイルにある場合、共通コンポーネント化を推奨
-        - **ネストしたコンポーネント**: 1ファイル内にprivate structが4つ以上ある場合、別ファイルへの抽出を検討
+        ### 6. エラーハンドリング
+        - **サイレントフェイル禁止**: catch内でconsole.logのみは警告
+        - ユーザー通知またはエラー状態の更新を要求
+        - エラーメッセージは具体的に
 
-        ### 7. エラーハンドリング
-        - **サイレントフェイル禁止**: catch内でprint()のみは警告。ユーザー通知またはエラー状態の更新を要求
-        - **DEBUGフォールバック警告**: #if DEBUG内でモックデータを返す場合、本番時の動作が明確か確認
-        - **エラー情報保持**: エラーをラップする際に元の情報が失われていないか確認
-        - **エラーメッセージ**: LocalizedError準拠でユーザーフレンドリーなメッセージを提供
+    # ===========================================
+    # React Native / Expo ページ（expo-router）
+    # ===========================================
+    - path: "app/app/**/*.tsx"
+      instructions: |
+        ## expo-router ページレビュー基準
+
+        ### 1. ルーティング
+        - ファイル名とURLパスの一貫性
+        - _layout.tsx での適切なナビゲーション設定
+        - グループ化（(onboarding), (main)）の適切な使用
+
+        ### 2. 画面構成
+        - Screenコンポーネントは薄く保つ（ロジックは hooks/stores へ）
+        - SafeAreaView の適切な使用
+        - ScrollView vs FlatList の適切な選択
+
+        ### 3. ナビゲーション
+        - useRouter() の適切な使用
+        - router.push vs router.replace の使い分け
+
+    # ===========================================
+    # React Native テスト
+    # ===========================================
+    - path: "app/**/*.test.{ts,tsx}"
+      instructions: |
+        ## テストレビュー基準
+        - **any型使用許可**: テストファイルでは実用性重視でany型の使用を許可
+        - @testing-library/react-native の使用確認
+        - 適切なモック設計
+        - テストケースの網羅性
+        - 未使用のテストヘルパー・モックを指摘
 
     # ===========================================
     # 設定ファイル
@@ -199,6 +222,22 @@ reviews:
         設定ファイルのベストプラクティス準拠を確認
         - Cloudflare Workers設定の適切性
         - 設定の一貫性
+    - path: "app/package.json"
+      instructions: |
+        React Native/Expo 設定ファイルを確認
+        - Expo SDK バージョンの互換性
+        - 依存関係の適切性
+        - scripts の一貫性
+    - path: "app/tsconfig.json"
+      instructions: |
+        TypeScript設定の適切性を確認
+        - strict モードの有効化
+        - パスエイリアスの設定
+    - path: "app/app.json"
+      instructions: |
+        Expo 設定の適切性を確認
+        - バージョン管理
+        - プラグイン設定
 
   # ===========================================
   # ツール設定
@@ -208,9 +247,13 @@ reviews:
     biome:
       enabled: true
 
-    # Swift
-    swiftlint:
+    # ESLint（React Native 用）
+    eslint:
       enabled: true
+
+    # Swift（無効化 - プロジェクトから削除済み）
+    swiftlint:
+      enabled: false
 
     # セキュリティ（APIキー漏洩検出）
     gitleaks:
@@ -232,4 +275,4 @@ reviews:
 # ===========================================
 # トーン設定
 # ===========================================
-tone_instructions: "Professional constructive review. Check unused code, security issues, file size (400-line limit), and silent error handling patterns."
+tone_instructions: "Professional constructive review. Check unused code, security issues, file size (400-line limit), and silent error handling patterns. Focus on React Native/Expo best practices and TypeScript type safety."

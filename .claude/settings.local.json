@@ -136,7 +136,10 @@
       "Bash(git -C /Users/masakazuiwahara/Development/tempo-ai diff 129cd77^..129cd77 --name-only)",
       "Bash(git -C /Users/masakazuiwahara/Development/tempo-ai log --all --oneline -- backend/src)",
       "Bash(git -C /Users/masakazuiwahara/Development/tempo-ai show 4a6d7ef^:backend/src/index.ts)",
-      "Bash(wc:*)"
+      "Bash(wc:*)",
+      "Bash(npx expo install:*)",
+      "Bash(npx expo-doctor:*)",
+      "Bash(jq:*)"
     ],
     "deny": [],
     "ask": [],

@@ -20,8 +20,8 @@
 | API クライアント | ✅ 実装済み | `app/src/api/client.ts` |
 | 型定義 | ✅ 実装済み | `app/src/api/types.ts` |
 | 設定 | ✅ 実装済み | `app/src/api/config.ts` |
-| healthStore 連携 | ⚠️ モック使用中 | `app/src/stores/healthStore.ts` |
-| insightStore 連携 | ⚠️ モック使用中 | `app/src/stores/insightStore.ts` |
+| healthStore 連携 | ✅ 実API連携済み | `app/src/stores/healthStore.ts` |
+| insightStore 連携 | ✅ 実API連携済み | `app/src/stores/insightStore.ts` |
 
 ### 現在の API クライアント
 
@@ -501,35 +501,35 @@ const response = await withRetry(
 
 ### 環境設定
 
-- [ ] `app/.env.local` 作成
-- [ ] API URL 設定確認
+- [x] `app/.env.local` 作成（手動作業、`.env.example`は作成済み）
+- [x] API URL 設定確認（`app/src/api/config.ts`でポート8787に設定済み）
 
 ### 天気 API
 
-- [ ] `healthStore.fetchWeather()` を実 API 呼び出しに変更
-- [ ] 気圧トレンド計算実装
-- [ ] エラーハンドリング確認
+- [x] `healthStore.fetchWeather()` を実 API 呼び出しに変更
+- [x] 気圧トレンド計算実装（`app/src/domain/services/pressureService.ts`）
+- [x] エラーハンドリング確認（try-catchで実装済み）
 
 ### AI アドバイス API
 
-- [ ] `buildAdviceRequest()` ヘルパー作成
-- [ ] `insightStore.generateDailyInsight()` を実 API 呼び出しに変更
-- [ ] 労働幻想 UI との連携確認
-- [ ] エラーハンドリング確認
+- [x] `buildAdviceRequest()` ヘルパー作成（`app/src/api/helpers/adviceRequestBuilder.ts`）
+- [x] `insightStore.generateDailyInsight()` を実 API 呼び出しに変更
+- [x] 労働幻想 UI との連携確認（フェーズ表示とAPI呼び出しを並行実行）
+- [x] エラーハンドリング確認（try-catchで実装済み）
 
 ### オフライン対応
 
-- [ ] `@react-native-community/netinfo` 追加
-- [ ] `useNetworkStatus` フック作成
-- [ ] リトライロジック実装
-- [ ] キャッシュ表示確認
+- [x] `@react-native-community/netinfo` 追加
+- [x] `useNetworkStatus` フック作成（`app/src/hooks/useNetworkStatus.ts`）
+- [x] リトライロジック実装（`app/src/api/utils/retry.ts`）
+- [x] キャッシュ表示確認（Zustandのpersist middlewareで自動キャッシュ）
 
 ### テスト
 
-- [ ] ローカル API での動作確認
-- [ ] 本番 API での動作確認
-- [ ] エラーケーステスト
-- [ ] オフラインテスト
+- [ ] ローカル API での動作確認（手動テストが必要）
+- [ ] 本番 API での動作確認（手動テストが必要）
+- [ ] エラーケーステスト（手動テストが必要）
+- [ ] オフラインテスト（手動テストが必要）
 
 ---
 

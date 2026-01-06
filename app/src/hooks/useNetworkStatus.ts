@@ -5,45 +5,53 @@
 import { useEffect, useState } from 'react';
 import NetInfo, { NetInfoState } from '@react-native-community/netinfo';
 
-/**
- * ネットワークステータス
- */
+/** ネットワーク状態 */
 interface NetworkStatus {
-  /** ネットワーク接続状態 */
+  /** インターネット接続があるか（不明時はfalse） */
   isConnected: boolean;
-  /** インターネット到達可能性（nullの場合は不明） */
+  /** インターネットに到達可能か（不明時はnull） */
   isInternetReachable: boolean | null;
 }
 
 /**
- * ネットワーク状態を監視
- * @returns { isConnected, isInternetReachable }
+ * ネットワーク状態を監視するフック
+ * @returns ネットワーク状態オブジェクト
  */
 export const useNetworkStatus = (): NetworkStatus => {
   const [state, setState] = useState<NetInfoState | null>(null);
 
   useEffect(() => {
-    // 初期状態を取得
-    NetInfo.fetch().then(setState);
+    NetInfo.fetch()
+      .then(setState)
+      .catch((error) => {
+        console.error('Failed to fetch network state:', error);
+        setState({
+          isConnected: false,
+          isInternetReachable: false,
+        } as NetInfoState);
+      });
 
-    // 状態変更を監視
     const unsubscribe = NetInfo.addEventListener(setState);
     return () => unsubscribe();
   }, []);
 
   return {
-    isConnected: state?.isConnected ?? true,
+    isConnected: state?.isConnected ?? false,
     isInternetReachable: state?.isInternetReachable ?? null,
   };
 };
 
 /**
  * ネットワーク接続が利用可能かチェック（非フック版）
- * フックを使用できない場所でネットワーク状態を確認する場合に使用
- * @returns 接続されている場合はtrue、それ以外はfalse
+ * @returns 接続可能な場合true、エラー時はfalse
  */
 export const checkNetworkConnection = async (): Promise<boolean> => {
-  const state = await NetInfo.fetch();
-  return state.isConnected ?? false;
+  try {
+    const state = await NetInfo.fetch();
+    return state.isConnected ?? false;
+  } catch (error) {
+    console.error('Failed to check network connection:', error);
+    return false;
+  }
 };
 

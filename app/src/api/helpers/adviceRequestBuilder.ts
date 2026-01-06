@@ -87,7 +87,9 @@ export const buildAdviceRequest = (): AdviceRequest | null => {
             deepSleepMinutes: sleepMetrics.deepSleepMinutes,
             remSleepMinutes: sleepMetrics.remSleepMinutes,
             deepSleepRatio:
-              sleepMetrics.deepSleepMinutes / sleepMetrics.durationMinutes,
+              sleepMetrics.durationMinutes > 0
+                ? sleepMetrics.deepSleepMinutes / sleepMetrics.durationMinutes
+                : 0,
           }
         : undefined,
       hrv: hrvMetrics
@@ -95,9 +97,11 @@ export const buildAdviceRequest = (): AdviceRequest | null => {
             value: hrvMetrics.value,
             baseline30d: hrvMetrics.baseline30d,
             deviationPercent:
-              ((hrvMetrics.value - hrvMetrics.baseline30d) /
-                hrvMetrics.baseline30d) *
-              100,
+              hrvMetrics.baseline30d > 0
+                ? ((hrvMetrics.value - hrvMetrics.baseline30d) /
+                    hrvMetrics.baseline30d) *
+                  100
+                : 0,
           }
         : undefined,
       activity: activityMetrics
@@ -124,9 +128,9 @@ export const buildAdviceRequest = (): AdviceRequest | null => {
     weather: weather
       ? {
           temperature: weather.temp,
-          humidity: 50, // TODO: APIから取得した値を使用
+          humidity: healthState.weatherHumidity ?? 50,
           pressure: weather.pressure,
-          weatherCode: 0, // TODO: conditionからweatherCodeに逆変換
+          weatherCode: healthState.weatherCode ?? 0,
           uvIndexMax: weather.uv,
         }
       : undefined,

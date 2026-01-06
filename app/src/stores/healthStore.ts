@@ -30,6 +30,8 @@ interface HealthState {
 
   // Weather
   weather: SimpleWeatherData | null;
+  weatherCode: number | null;
+  weatherHumidity: number | null;
 
   // Loading states
   isLoadingMetrics: boolean;
@@ -62,6 +64,8 @@ export const useHealthStore = create<HealthState>()((set, get) => ({
   dailyScores: null,
   rhythmAnalysis: null,
   weather: null,
+  weatherCode: null,
+  weatherHumidity: null,
   isLoadingMetrics: false,
   isLoadingWeather: false,
   metricsError: null,
@@ -106,7 +110,7 @@ export const useHealthStore = create<HealthState>()((set, get) => ({
         throw new Error(response.error || 'Failed to fetch weather');
       }
 
-      const { temperature, pressure, weatherCode, uvIndexMax } = response.data;
+      const { temperature, humidity, pressure, weatherCode, uvIndexMax } = response.data;
 
       // 気圧トレンドを計算
       const pressureTrend = await calculatePressureTrend(pressure);
@@ -123,6 +127,8 @@ export const useHealthStore = create<HealthState>()((set, get) => ({
 
       set({
         weather,
+        weatherCode,
+        weatherHumidity: humidity,
         isLoadingWeather: false,
         lastWeatherUpdate: new Date(),
       });
@@ -184,6 +190,8 @@ export const useHealthStore = create<HealthState>()((set, get) => ({
       dailyScores: null,
       rhythmAnalysis: null,
       weather: null,
+      weatherCode: null,
+      weatherHumidity: null,
       isLoadingMetrics: false,
       isLoadingWeather: false,
       metricsError: null,

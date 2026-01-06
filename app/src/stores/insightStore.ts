@@ -38,7 +38,7 @@ interface InsightState {
   lastInsightUpdate: Date | null;
 
   // Actions
-  generateDailyInsight: (nickname: string) => Promise<void>;
+  generateDailyInsight: () => Promise<void>;
   setMood: (mood: Mood) => void;
   setTodayMode: (mode: TodayMode) => void;
   setInsightFeedback: (feedback: InsightFeedback) => void;
@@ -70,7 +70,7 @@ export const useInsightStore = create<InsightState>()((set) => ({
   insightError: null,
   lastInsightUpdate: null,
 
-  generateDailyInsight: async (_nickname: string) => {
+  generateDailyInsight: async () => {
     set({
       isGeneratingInsight: true,
       generationPhase: 0,

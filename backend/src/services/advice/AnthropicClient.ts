@@ -109,7 +109,15 @@ export class AnthropicClient {
         });
       }
 
-      const insightFields = ['greeting', 'condition', 'sleep', 'rhythm', 'environment', 'advice', 'closing'] as const;
+      const insightFields = [
+        'greeting',
+        'condition',
+        'sleep',
+        'rhythm',
+        'environment',
+        'advice',
+        'closing',
+      ] as const;
       for (const field of insightFields) {
         if (!parsed.insight[field] || typeof parsed.insight[field] !== 'string') {
           return err({

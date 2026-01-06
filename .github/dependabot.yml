@@ -1,6 +1,6 @@
 version: 2
 updates:
-  # TypeScript API dependencies
+  # TypeScript API dependencies (Backend)
   - package-ecosystem: "npm"
     directory: "/backend"
     schedule:
@@ -11,7 +11,7 @@ updates:
     reviewers:
       - "Bluefinee"
     commit-message:
-      prefix: "🔒 security"
+      prefix: "🔒 backend"
       include: "scope"
     groups:
       production-dependencies:
@@ -23,19 +23,46 @@ updates:
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
 
-  # iOS Swift Package Manager dependencies
-  - package-ecosystem: "swift"
-    directory: "/ios"
+  # React Native / Expo App dependencies
+  - package-ecosystem: "npm"
+    directory: "/app"
     schedule:
       interval: "weekly"
       day: "tuesday"
       time: "09:00"
-    open-pull-requests-limit: 3
+    open-pull-requests-limit: 5
     reviewers:
       - "Bluefinee"
     commit-message:
-      prefix: "🔒 security"
+      prefix: "📱 app"
       include: "scope"
+    groups:
+      expo:
+        patterns:
+          - "expo"
+          - "expo-*"
+          - "@expo/*"
+      react:
+        patterns:
+          - "react"
+          - "react-native"
+          - "react-native-*"
+          - "@react-*"
+      zustand:
+        patterns:
+          - "zustand"
+          - "immer"
+      testing:
+        patterns:
+          - "jest"
+          - "@testing-library/*"
+          - "ts-jest"
+      development-dependencies:
+        dependency-type: "development"
+    ignore:
+      # Ignore major version updates (Expo SDK upgrades should be manual)
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
 
   # GitHub Actions dependencies
   - package-ecosystem: "github-actions"

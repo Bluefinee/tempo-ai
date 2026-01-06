@@ -6,22 +6,23 @@
 
 ### Specifications (docs/specs/)
 
-| Document       | Path                                                         | Description                      |
-| -------------- | ------------------------------------------------------------ | -------------------------------- |
-| Product Spec   | [docs/specs/product-spec.md](docs/specs/product-spec.md)     | プロダクト仕様・画面構成（必読） |
-| Technical Spec | [docs/specs/technical-spec.md](docs/specs/technical-spec.md) | 技術仕様・ドメインモデル設計     |
-| Metrics Spec   | [docs/specs/metrics-spec.md](docs/specs/metrics-spec.md)     | スコア算出アルゴリズム           |
-| AI Prompt Spec | [docs/specs/ai-prompt-spec.md](docs/specs/ai-prompt-spec.md) | AI プロンプト設計                |
-| UI Spec        | [docs/specs/ui-spec.md](docs/specs/ui-spec.md)               | UI/UX デザイン仕様               |
-| Knowledge Base | [docs/specs/knowledge-base.md](docs/specs/knowledge-base.md) | 科学的根拠・ナレッジベース       |
+| Document       | Path                                                                                     | Description                      |
+| -------------- | ---------------------------------------------------------------------------------------- | -------------------------------- |
+| Product Spec   | [docs/specs/tempoai_product_spec.md](docs/specs/tempoai_product_spec.md)                 | プロダクト仕様・画面構成（必読） |
+| Technical Spec | [docs/specs/tempoai_technical_spec.md](docs/specs/tempoai_technical_spec.md)             | 技術仕様・ドメインモデル設計     |
+| Metrics Spec   | [docs/specs/tempoai_metrics_spec.md](docs/specs/tempoai_metrics_spec.md)                 | スコア算出アルゴリズム           |
+| AI Prompt Spec | [docs/specs/tempoai_ai_prompt_spec.md](docs/specs/tempoai_ai_prompt_spec.md)             | AI プロンプト設計                |
+| UI Spec        | [docs/specs/ui-spec.md](docs/specs/ui-spec.md)                                           | UI/UX デザイン仕様               |
+| Knowledge Base | [docs/specs/tempoai_knowledge_base.md](docs/specs/tempoai_knowledge_base.md)             | 科学的根拠・ナレッジベース       |
 
 ### Coding Standards (.claude/)
 
-| Document          | Path                                                                         | Description                 |
-| ----------------- | ---------------------------------------------------------------------------- | --------------------------- |
-| Swift Standards   | [.claude/swift-coding-standards.md](.claude/swift-coding-standards.md)       | Swift 開発規約・パターン    |
-| TypeScript + Hono | [.claude/typescript-hono-standards.md](.claude/typescript-hono-standards.md) | バックエンド開発規約        |
-| UX Concepts       | [.claude/ux_concepts.md](.claude/ux_concepts.md)                             | UX デザイン原則・コンセプト |
+| Document            | Path                                                                             | Description                    |
+| ------------------- | -------------------------------------------------------------------------------- | ------------------------------ |
+| React Native        | [.claude/react-native-standards.md](.claude/react-native-standards.md)           | React Native/Expo 開発規約     |
+| TypeScript + Hono   | [.claude/typescript-hono-standards.md](.claude/typescript-hono-standards.md)     | バックエンド開発規約           |
+| UX Concepts         | [.claude/ux_concepts.md](.claude/ux_concepts.md)                                 | UX デザイン原則・コンセプト    |
+| Swift Standards     | [.claude/swift-coding-standards.md](.claude/swift-coding-standards.md)           | Swift 開発規約 (レガシー参照用)|
 
 These documents contain project-specific best practices, naming conventions, architecture patterns, UX guidelines, and quality requirements. Reference them during every implementation task.
 

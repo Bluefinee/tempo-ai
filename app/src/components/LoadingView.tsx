@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { Colors, Spacing, Typography } from '../theme';
+import type { JSX } from 'react';
 
 interface LoadingViewProps {
   message?: string;
@@ -8,11 +9,11 @@ interface LoadingViewProps {
 
 export const LoadingView: React.FC<LoadingViewProps> = ({
   message = '読み込み中...',
-}) => {
+}): JSX.Element => {
   return (
     <View style={styles.container}>
       <ActivityIndicator size="large" color={Colors.primary[500]} />
-      {message && <Text style={styles.message}>{message}</Text>}
+      <Text style={styles.message}>{message}</Text>
     </View>
   );
 };

@@ -1,8 +1,9 @@
 import { Tabs } from 'expo-router';
 import { Home, BarChart3, Settings } from 'lucide-react-native';
 import { Colors } from '../../src/theme';
+import type { JSX } from 'react';
 
-export default function MainLayout() {
+export default function MainLayout(): JSX.Element {
   return (
     <Tabs
       screenOptions={{

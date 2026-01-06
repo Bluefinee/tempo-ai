@@ -17,12 +17,14 @@ import {
 } from '../../src/constants/mockData';
 import { format } from 'date-fns';
 import { ja } from 'date-fns/locale';
+import type { JSX } from 'react';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-export default function AnalyticsScreen() {
+export default function AnalyticsScreen(): JSX.Element {
   const [period, setPeriod] = useState<TimePeriod>('weekly');
-  const scores = MOCK_WEEKLY_SCORES;
+  // TODO: Implement monthly data when real API is connected
+  const scores = MOCK_WEEKLY_SCORES; // Same for now
   const rhythmAnalysis = MOCK_RHYTHM_ANALYSIS;
 
   // Calculate averages
@@ -175,7 +177,7 @@ const SummaryItem: React.FC<{ label: string; value: number; icon: string }> = ({
   label,
   value,
   icon,
-}) => (
+}): JSX.Element => (
   <View style={styles.summaryItem}>
     <Text style={styles.summaryIcon}>{icon}</Text>
     <Text style={styles.summaryValue}>{value}</Text>
@@ -201,7 +203,7 @@ const InsightItem: React.FC<{
   emoji: string;
   text: string;
   type: 'positive' | 'warning';
-}> = ({ emoji, text, type }) => (
+}> = ({ emoji, text, type }): JSX.Element => (
   <View
     style={[
       styles.insightItem,

@@ -135,5 +135,3 @@ export const Typography: Record<string, TextStyle> = {
     letterSpacing: 0.3,
   },
 } as const;
-
-export type TypographyKey = keyof typeof Typography;

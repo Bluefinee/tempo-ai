@@ -6,8 +6,9 @@ import { Colors, Spacing, Typography } from '../../src/theme';
 import { PrimaryButton, ProgressBar } from '../../src/components';
 import { CALIBRATION_PERIOD_DAYS } from '../../src/domain/models';
 import { useUserStore } from '../../src/stores';
+import type { JSX } from 'react';
 
-export default function CompleteScreen() {
+export default function CompleteScreen(): JSX.Element {
   const router = useRouter();
   const completeOnboarding = useUserStore((state) => state.completeOnboarding);
 
@@ -62,7 +63,7 @@ export default function CompleteScreen() {
   );
 }
 
-const TipItem: React.FC<{ emoji: string; text: string }> = ({ emoji, text }) => (
+const TipItem: React.FC<{ emoji: string; text: string }> = ({ emoji, text }): JSX.Element => (
   <View style={styles.tipItem}>
     <Text style={styles.tipEmoji}>{emoji}</Text>
     <Text style={styles.tipText}>{text}</Text>

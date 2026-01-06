@@ -7,6 +7,7 @@ import {
   TextInputProps,
 } from 'react-native';
 import { Colors, BorderRadius, Spacing, Typography } from '../theme';
+import type { ReactElement } from 'react';
 
 interface InputFieldProps extends Omit<TextInputProps, 'style'> {
   label: string;
@@ -19,13 +20,13 @@ export const InputField: React.FC<InputFieldProps> = ({
   suffix,
   error,
   ...textInputProps
-}) => {
+}): ReactElement => {
   return (
     <View style={styles.container}>
       <Text style={styles.label}>{label}</Text>
-      <View style={styles.inputContainer}>
+      <View style={[styles.inputContainer, error && styles.inputError]}>
         <TextInput
-          style={[styles.input, error && styles.inputError]}
+          style={styles.input}
           placeholderTextColor={Colors.slate[300]}
           {...textInputProps}
         />

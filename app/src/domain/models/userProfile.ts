@@ -62,7 +62,7 @@ export const calculateCalibrationState = (
   startDate: Date,
   currentDate: Date = new Date()
 ): CalibrationState => {
-  const diffMs = currentDate.getTime() - startDate.getTime();
+  const diffMs = Math.max(0, currentDate.getTime() - startDate.getTime());
   const daysCompleted = Math.min(
     Math.floor(diffMs / (1000 * 60 * 60 * 24)),
     CALIBRATION_PERIOD_DAYS

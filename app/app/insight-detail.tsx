@@ -11,13 +11,11 @@ import { useRouter } from 'expo-router';
 import { X, ThumbsUp, ThumbsDown } from 'lucide-react-native';
 import { Colors, Spacing, Typography, BorderRadius } from '../src/theme';
 import { Card } from '../src/components';
-import { useUserStore, useInsightStore } from '../src/stores';
+import { useInsightStore } from '../src/stores';
+import type { JSX } from 'react';
 
-export default function InsightDetailScreen() {
+export default function InsightDetailScreen(): JSX.Element {
   const router = useRouter();
-
-  // User store - profile loaded for future use
-  useUserStore((state) => state.profile);
 
   // Insight store
   const dailyAdvice = useInsightStore((state) => state.dailyAdvice);
@@ -175,7 +173,7 @@ const Section: React.FC<{
   title: string;
   emoji: string;
   children: React.ReactNode;
-}> = ({ title, emoji, children }) => (
+}> = ({ title, emoji, children }): JSX.Element => (
   <View style={styles.section}>
     <View style={styles.sectionHeader}>
       <Text style={styles.sectionEmoji}>{emoji}</Text>

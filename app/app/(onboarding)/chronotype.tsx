@@ -12,6 +12,7 @@ import { Colors, Spacing, Typography, BorderRadius } from '../../src/theme';
 import { PrimaryButton } from '../../src/components';
 import { Chronotype, getChronotypeLabel } from '../../src/domain/models';
 import { useUserStore } from '../../src/stores';
+import type { JSX } from 'react';
 
 interface ChronotypeOption {
   value: Chronotype;
@@ -37,13 +38,13 @@ const CHRONOTYPE_OPTIONS: ChronotypeOption[] = [
   },
 ];
 
-export default function ChronotypeScreen() {
+export default function ChronotypeScreen(): JSX.Element {
   const router = useRouter();
   const setDraftChronotype = useUserStore((state) => state.setDraftChronotype);
   const draftChronotype = useUserStore((state) => state.draftProfile.chronotype);
   const [chronotype, setChronotype] = useState<Chronotype>(draftChronotype || 'intermediate');
 
-  const handleNext = () => {
+  const handleNext = (): void => {
     setDraftChronotype(chronotype);
     router.push('/(onboarding)/bedtime');
   };

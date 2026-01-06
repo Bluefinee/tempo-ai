@@ -37,6 +37,8 @@ const calculateTemperatureScore = (status: TemperatureStatus): number => {
 
 /**
  * 体温偏差からステータスを取得
+ * @param deviation 手首体温偏差（°C）
+ * @returns 体温ステータス
  */
 export const getTemperatureStatus = (deviation: number): TemperatureStatus => {
   const absDeviation = Math.abs(deviation);

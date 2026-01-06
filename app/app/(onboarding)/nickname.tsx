@@ -5,15 +5,16 @@ import { User } from 'lucide-react-native';
 import { Colors, Spacing, Typography } from '../../src/theme';
 import { PrimaryButton, InputField } from '../../src/components';
 import { useUserStore } from '../../src/stores';
+import type { JSX } from 'react';
 
-export default function NicknameScreen() {
+export default function NicknameScreen(): JSX.Element {
   const router = useRouter();
   const setDraftNickname = useUserStore((state) => state.setDraftNickname);
   const draftNickname = useUserStore((state) => state.draftProfile.nickname);
   const [nickname, setNickname] = useState(draftNickname || '');
   const [error, setError] = useState('');
 
-  const handleNext = () => {
+  const handleNext = (): void => {
     if (!nickname.trim()) {
       setError('ニックネームを入力してください');
       return;

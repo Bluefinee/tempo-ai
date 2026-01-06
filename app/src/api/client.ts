@@ -54,7 +54,11 @@ const handleResponse = async <T>(response: Response): Promise<T> => {
       errorBody.code
     );
   }
-  return response.json();
+  const json = await response.json().catch(() => {
+    console.warn('Failed to parse response as JSON');
+    return {};
+  });
+  return json;
 };
 
 export const apiClient = {

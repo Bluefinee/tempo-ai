@@ -5,6 +5,7 @@ import { Bed } from 'lucide-react-native';
 import { Colors, Spacing, Typography } from '../../src/theme';
 import { PrimaryButton } from '../../src/components';
 import { useUserStore } from '../../src/stores';
+import type { JSX } from 'react';
 
 const HOURS = Array.from({ length: 6 }, (_, i) => 20 + i); // 20:00 - 01:00
 const MINUTES = [0, 15, 30, 45];
@@ -16,7 +17,7 @@ const parseTime = (timeStr: string): { hour: number; minute: number } => {
   return { hour: normalizedHour, minute: m };
 };
 
-export default function BedtimeScreen() {
+export default function BedtimeScreen(): JSX.Element {
   const router = useRouter();
   const setDraftTargetBedtime = useUserStore((state) => state.setDraftTargetBedtime);
   const draftBedtime = useUserStore((state) => state.draftProfile.targetBedtime);

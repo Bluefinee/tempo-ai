@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { Colors, BorderRadius, Spacing, Typography } from '../theme';
+import type { ReactElement } from 'react';
 
 interface PrimaryButtonProps {
   onPress: () => void;
@@ -23,7 +24,7 @@ export const PrimaryButton: React.FC<PrimaryButtonProps> = ({
   style,
   disabled = false,
   loading = false,
-}) => {
+}): ReactElement => {
   return (
     <TouchableOpacity
       onPress={onPress}

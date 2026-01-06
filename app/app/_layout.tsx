@@ -1,8 +1,9 @@
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import type { JSX } from 'react';
 
-export default function RootLayout() {
+export default function RootLayout(): JSX.Element {
   return (
     <SafeAreaProvider>
       <StatusBar style="dark" />

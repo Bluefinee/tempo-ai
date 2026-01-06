@@ -3,6 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { Colors, Spacing, Typography } from '../theme';
 import { getScoreColor, getScoreBackgroundColor } from '../theme/colors';
 import { ProgressBar } from './ProgressBar';
+import type { ReactElement } from 'react';
 
 interface ScoreGaugeProps {
   label: string;
@@ -16,7 +17,7 @@ export const ScoreGauge: React.FC<ScoreGaugeProps> = ({
   value,
   icon,
   isCalibrating = false,
-}) => {
+}): ReactElement => {
   const displayValue = isCalibrating ? '---' : String(value);
   const scoreColor = getScoreColor(value);
   const bgColor = getScoreBackgroundColor(value);

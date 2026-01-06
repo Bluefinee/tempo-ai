@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { View, StyleSheet, Animated } from 'react-native';
 import { Colors, BorderRadius } from '../theme';
 import { getScoreColor } from '../theme/colors';
+import type { ReactElement } from 'react';
 
 interface ProgressBarProps {
   value: number; // 0-100
@@ -15,7 +16,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
   showAnimation = true,
   height = 8,
   backgroundColor = Colors.slate[100],
-}) => {
+}): ReactElement => {
   const animatedWidth = useRef(new Animated.Value(0)).current;
   const clampedValue = Math.max(0, Math.min(100, value));
   const fillColor = getScoreColor(clampedValue);

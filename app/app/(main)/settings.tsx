@@ -7,7 +7,6 @@ import {
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
-// import { useRouter } from 'expo-router'; // TODO: Use for navigation when needed
 import {
   Heart,
   MapPin,
@@ -21,8 +20,9 @@ import { Colors, Spacing, Typography } from '../../src/theme';
 import { Card } from '../../src/components';
 import { getChronotypeLabel, getGenderLabel } from '../../src/domain/models';
 import { useUserStore } from '../../src/stores';
+import type { JSX } from 'react';
 
-export default function SettingsScreen() {
+export default function SettingsScreen(): JSX.Element {
   const profile = useUserStore((state) => state.profile);
 
   // Default values if profile is not loaded
@@ -83,16 +83,20 @@ export default function SettingsScreen() {
             <MenuItem
               icon={<Heart size={20} color={Colors.rose[500]} />}
               label="ヘルスケア連携"
-              value="接続済み"
+              value="未確認"
               valueColor={Colors.primary[600]}
-              onPress={() => {}}
+              onPress={() => {
+                // TODO: Implement
+              }}
             />
             <MenuItem
               icon={<MapPin size={20} color={Colors.blue[500]} />}
               label="位置情報"
               value="許可済み"
               valueColor={Colors.primary[600]}
-              onPress={() => {}}
+              onPress={() => {
+                // TODO: Implement
+              }}
             />
           </Card>
         </View>
@@ -104,17 +108,23 @@ export default function SettingsScreen() {
             <MenuItem
               icon={<Shield size={20} color={Colors.slate[500]} />}
               label="プライバシーポリシー"
-              onPress={() => {}}
+              onPress={() => {
+                // TODO: Implement
+              }}
             />
             <MenuItem
               icon={<FileText size={20} color={Colors.slate[500]} />}
               label="利用規約"
-              onPress={() => {}}
+              onPress={() => {
+                // TODO: Implement
+              }}
             />
             <MenuItem
               icon={<MessageCircle size={20} color={Colors.slate[500]} />}
               label="お問い合わせ"
-              onPress={() => {}}
+              onPress={() => {
+                // TODO: Implement
+              }}
             />
           </Card>
         </View>
@@ -132,7 +142,7 @@ const ProfileRow: React.FC<{
   icon: React.ReactNode;
   label: string;
   value: string;
-}> = ({ icon, label, value }) => (
+}> = ({ icon, label, value }): JSX.Element => (
   <View style={styles.profileRow}>
     {icon}
     <Text style={styles.profileRowLabel}>{label}</Text>
@@ -146,7 +156,7 @@ const MenuItem: React.FC<{
   value?: string;
   valueColor?: string;
   onPress: () => void;
-}> = ({ icon, label, value, valueColor, onPress }) => (
+}> = ({ icon, label, value, valueColor, onPress }): JSX.Element => (
   <TouchableOpacity style={styles.menuItem} onPress={onPress}>
     <View style={styles.menuItemLeft}>
       {icon}

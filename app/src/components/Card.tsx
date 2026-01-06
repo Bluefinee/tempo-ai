@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { Colors, BorderRadius, Spacing } from '../theme';
 
-interface CardProps {
+export interface CardProps {
   children: React.ReactNode;
   style?: StyleProp<ViewStyle>;
   onPress?: () => void;
@@ -23,6 +23,7 @@ export const Card: React.FC<CardProps> = ({ children, style, onPress }) => {
         onPress={onPress}
         activeOpacity={0.95}
         style={cardStyle}
+        accessibilityRole="button"
       >
         {children}
       </TouchableOpacity>

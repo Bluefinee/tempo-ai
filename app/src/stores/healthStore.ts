@@ -58,7 +58,6 @@ export const useHealthStore = create<HealthState>()((set, get) => ({
   hrvMetrics: null,
   activityMetrics: null,
   dailyScores: null,
-  conditionAssessment: null,
   rhythmAnalysis: null,
   weather: null,
   isLoadingMetrics: false,
@@ -68,7 +67,7 @@ export const useHealthStore = create<HealthState>()((set, get) => ({
   lastMetricsUpdate: null,
   lastWeatherUpdate: null,
 
-  fetchTodayMetrics: async () => {
+  fetchTodayMetrics: async (): Promise<void> => {
     set({ isLoadingMetrics: true, metricsError: null });
 
     try {
@@ -95,7 +94,7 @@ export const useHealthStore = create<HealthState>()((set, get) => ({
     }
   },
 
-  fetchWeather: async (_latitude: number, _longitude: number) => {
+  fetchWeather: async (_latitude: number, _longitude: number): Promise<void> => {
     set({ isLoadingWeather: true, weatherError: null });
 
     try {
@@ -116,7 +115,7 @@ export const useHealthStore = create<HealthState>()((set, get) => ({
     }
   },
 
-  calculateScores: () => {
+  calculateScores: (): void => {
     const { sleepMetrics, hrvMetrics, activityMetrics, rhythmAnalysis } = get();
 
     if (!sleepMetrics || !hrvMetrics || !activityMetrics || !rhythmAnalysis) {
@@ -138,6 +137,7 @@ export const useHealthStore = create<HealthState>()((set, get) => ({
         autonomic: assessment.autonomicScore.value,
         sleep: assessment.sleepScore.value,
         rhythm: assessment.rhythmScore.value,
+        activity: assessment.activityScore.value,
       },
     });
   },
@@ -173,7 +173,8 @@ export const useHealthStore = create<HealthState>()((set, get) => ({
 }));
 
 // Selectors
-export const selectTodayScores = (state: HealthState) => state.dailyScores;
+export const selectTodayScores = (state: HealthState): DailyScores | null =>
+  state.dailyScores;
 export const selectIsHealthDataStale = (state: HealthState): boolean => {
   if (!state.lastMetricsUpdate) return true;
   const hoursSinceUpdate =

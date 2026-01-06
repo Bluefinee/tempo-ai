@@ -13,10 +13,11 @@ import { Colors, Spacing, Typography, BorderRadius } from '../../src/theme';
 import { PrimaryButton, InputField } from '../../src/components';
 import { Gender, getGenderLabel } from '../../src/domain/models';
 import { useUserStore } from '../../src/stores';
+import type { JSX } from 'react';
 
 const GENDERS: Gender[] = ['male', 'female', 'other', 'preferNotToSay'];
 
-export default function BasicInfoScreen() {
+export default function BasicInfoScreen(): JSX.Element {
   const router = useRouter();
   const setDraftBasicInfo = useUserStore((state) => state.setDraftBasicInfo);
   const draftProfile = useUserStore((state) => state.draftProfile);
@@ -26,16 +27,31 @@ export default function BasicInfoScreen() {
   const [height, setHeight] = useState(draftProfile.heightCm?.toString() || '');
   const [weight, setWeight] = useState(draftProfile.weightKg?.toString() || '');
 
-  const isValid = age && height && weight;
+  const parsedAge = parseInt(age, 10);
+  const parsedHeight = parseInt(height, 10);
+  const parsedWeight = parseInt(weight, 10);
+  const isValid =
+    age &&
+    !isNaN(parsedAge) &&
+    parsedAge > 0 &&
+    parsedAge < 150 &&
+    height &&
+    !isNaN(parsedHeight) &&
+    parsedHeight > 0 &&
+    weight &&
+    !isNaN(parsedWeight) &&
+    parsedWeight > 0;
 
-  const handleNext = () => {
-    setDraftBasicInfo({
-      age: parseInt(age, 10),
-      gender,
-      heightCm: parseInt(height, 10),
-      weightKg: parseInt(weight, 10),
-    });
-    router.push('/(onboarding)/chronotype');
+  const handleNext = (): void => {
+    if (isValid) {
+      setDraftBasicInfo({
+        age: parsedAge,
+        gender,
+        heightCm: parsedHeight,
+        weightKg: parsedWeight,
+      });
+      router.push('/(onboarding)/chronotype');
+    }
   };
 
   return (

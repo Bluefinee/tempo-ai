@@ -14,16 +14,28 @@ import {
 export class ExpoLocationRepository implements LocationRepository {
   private lastLocation: LocationData | null = null;
 
+  /**
+   * 位置情報の許可状態を取得
+   * @returns 許可状態
+   */
   async getPermissionStatus(): Promise<LocationPermissionStatus> {
     const { status } = await Location.getForegroundPermissionsAsync();
     return this.mapExpoStatus(status);
   }
 
+  /**
+   * 位置情報の許可をリクエスト
+   * @returns 許可状態
+   */
   async requestPermission(): Promise<LocationPermissionStatus> {
     const { status } = await Location.requestForegroundPermissionsAsync();
     return this.mapExpoStatus(status);
   }
 
+  /**
+   * 現在の位置情報を取得
+   * @returns 位置情報データ
+   */
   async getCurrentLocation(): Promise<LocationData> {
     const location = await Location.getCurrentPositionAsync({
       accuracy: Location.Accuracy.Balanced,
@@ -70,6 +82,11 @@ export class ExpoLocationRepository implements LocationRepository {
     return locationData;
   }
 
+  /**
+   * 座標から住所情報を取得（逆ジオコーディング）
+   * @param coordinates 座標
+   * @returns 都市名と国名、またはnull
+   */
   async reverseGeocode(
     coordinates: Coordinates
   ): Promise<{ city: string; country: string } | null> {
@@ -83,7 +100,8 @@ export class ExpoLocationRepository implements LocationRepository {
         };
       }
       return null;
-    } catch {
+    } catch (error) {
+      console.error('Reverse geocoding failed:', error);
       return null;
     }
   }

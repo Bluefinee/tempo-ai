@@ -4,8 +4,9 @@ import { useRouter } from 'expo-router';
 import { Sun } from 'lucide-react-native';
 import { Colors, Spacing, Typography } from '../../src/theme';
 import { PrimaryButton } from '../../src/components';
+import type { JSX } from 'react';
 
-export default function WelcomeScreen() {
+export default function WelcomeScreen(): JSX.Element {
   const router = useRouter();
 
   const handleStart = () => {
@@ -52,7 +53,7 @@ const FeatureItem: React.FC<{
   emoji: string;
   title: string;
   description: string;
-}> = ({ emoji, title, description }) => (
+}> = ({ emoji, title, description }): JSX.Element => (
   <View style={styles.featureItem}>
     <Text style={styles.featureEmoji}>{emoji}</Text>
     <View style={styles.featureText}>

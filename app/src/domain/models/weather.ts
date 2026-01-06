@@ -41,7 +41,11 @@ export interface Location {
   city: string;
 }
 
-// WMOコードから天気状態を取得
+/**
+ * WMOコードから天気状態を取得
+ * @param code WMO天気コード
+ * @returns 天気状態の文字列
+ */
 export const getWeatherCondition = (code: number): string => {
   if (code === 0) return '快晴';
   if (code <= 3) return '晴れ';
@@ -53,7 +57,11 @@ export const getWeatherCondition = (code: number): string => {
   return '不明';
 };
 
-// 気圧トレンドのラベル
+/**
+ * 気圧トレンドのラベルを取得
+ * @param trend 気圧トレンド
+ * @returns ラベル文字列
+ */
 export const getPressureTrendLabel = (trend: PressureTrend): string => {
   switch (trend) {
     case 'up':
@@ -65,7 +73,11 @@ export const getPressureTrendLabel = (trend: PressureTrend): string => {
   }
 };
 
-// 気圧トレンドのアイコン
+/**
+ * 気圧トレンドのアイコンを取得
+ * @param trend 気圧トレンド
+ * @returns アイコン文字列
+ */
 export const getPressureTrendIcon = (trend: PressureTrend): string => {
   switch (trend) {
     case 'up':
@@ -80,6 +92,11 @@ export const getPressureTrendIcon = (trend: PressureTrend): string => {
 // UVインデックスのレベル
 export type UVLevel = 'low' | 'moderate' | 'high' | 'veryHigh' | 'extreme';
 
+/**
+ * UVインデックスからレベルを取得
+ * @param index UVインデックス値
+ * @returns UVレベル
+ */
 export const getUVLevel = (index: number): UVLevel => {
   if (index <= 2) return 'low';
   if (index <= 5) return 'moderate';
@@ -88,6 +105,11 @@ export const getUVLevel = (index: number): UVLevel => {
   return 'extreme';
 };
 
+/**
+ * UVレベルのラベルを取得
+ * @param level UVレベル
+ * @returns ラベル文字列
+ */
 export const getUVLevelLabel = (level: UVLevel): string => {
   switch (level) {
     case 'low':
@@ -106,7 +128,11 @@ export const getUVLevelLabel = (level: UVLevel): string => {
 // 気圧アラートのしきい値
 export const PRESSURE_DROP_ALERT_THRESHOLD = -10; // hPa/24h
 
-// 気圧が低下中かどうか
+/**
+ * 気圧が低下中かどうかを判定
+ * @param trend 気圧トレンド
+ * @returns 低下中の場合true
+ */
 export const isPressureDropping = (trend: PressureTrend): boolean => {
   return trend === 'down';
 };

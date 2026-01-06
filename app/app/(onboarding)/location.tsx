@@ -4,8 +4,9 @@ import { useRouter } from 'expo-router';
 import { MapPin } from 'lucide-react-native';
 import { Colors, Spacing, Typography } from '../../src/theme';
 import { PrimaryButton, SecondaryButton } from '../../src/components';
+import type { JSX } from 'react';
 
-export default function LocationScreen() {
+export default function LocationScreen(): JSX.Element {
   const router = useRouter();
 
   const handleAllow = () => {
@@ -55,7 +56,7 @@ export default function LocationScreen() {
   );
 }
 
-const InfoItem: React.FC<{ icon: string; text: string }> = ({ icon, text }) => (
+const InfoItem: React.FC<{ icon: string; text: string }> = ({ icon, text }): JSX.Element => (
   <View style={styles.infoItem}>
     <Text style={styles.infoIcon}>{icon}</Text>
     <Text style={styles.infoText}>{text}</Text>

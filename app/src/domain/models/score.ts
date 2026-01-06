@@ -13,11 +13,12 @@ export interface Score {
   statusLabel: string;
 }
 
-// 日次スコア（メイン3項目）
+// 日次スコア（メイン4項目）
 export interface DailyScores {
   autonomic: number; // 0-100
   sleep: number; // 0-100
   rhythm: number; // 0-100
+  activity: number; // 0-100
 }
 
 // コンディション評価（全4項目）
@@ -44,7 +45,11 @@ export interface RhythmAnalysis {
 
 export type RhythmStatus = 'stable' | 'recovering' | 'unstable';
 
-// スコア値からステータスを取得
+/**
+ * スコア値からステータスを取得
+ * @param value スコア値（0-100）
+ * @returns スコアステータス
+ */
 export const getScoreStatus = (value: number): ScoreStatus => {
   if (value >= 80) return 'excellent';
   if (value >= 60) return 'good';
@@ -52,7 +57,11 @@ export const getScoreStatus = (value: number): ScoreStatus => {
   return 'poor';
 };
 
-// ステータスからアイコンを取得
+/**
+ * ステータスからアイコンを取得
+ * @param status スコアステータス
+ * @returns アイコン文字列
+ */
 export const getScoreIcon = (status: ScoreStatus): string => {
   switch (status) {
     case 'excellent':
@@ -68,7 +77,11 @@ export const getScoreIcon = (status: ScoreStatus): string => {
   }
 };
 
-// ステータスからラベルを取得
+/**
+ * ステータスからラベルを取得
+ * @param status スコアステータス
+ * @returns ラベル文字列
+ */
 export const getScoreStatusLabel = (status: ScoreStatus): string => {
   switch (status) {
     case 'excellent':
@@ -84,7 +97,11 @@ export const getScoreStatusLabel = (status: ScoreStatus): string => {
   }
 };
 
-// リズムステータスのラベル
+/**
+ * リズムステータスのラベルを取得
+ * @param status リズムステータス
+ * @returns ラベル文字列
+ */
 export const getRhythmStatusLabel = (status: RhythmStatus): string => {
   switch (status) {
     case 'stable':
@@ -96,7 +113,11 @@ export const getRhythmStatusLabel = (status: RhythmStatus): string => {
   }
 };
 
-// スコアオブジェクトを作成
+/**
+ * スコアオブジェクトを作成
+ * @param value スコア値（0-100）
+ * @returns スコアオブジェクト
+ */
 export const createScore = (value: number): Score => {
   const clampedValue = Math.max(0, Math.min(100, Math.round(value)));
   const status = getScoreStatus(clampedValue);
@@ -108,7 +129,12 @@ export const createScore = (value: number): Score => {
   };
 };
 
-// キャリブレーション中の表示値
+/**
+ * キャリブレーション中の表示値を取得
+ * @param score スコアオブジェクト
+ * @param isCalibrating キャリブレーション中かどうか
+ * @returns 表示値文字列
+ */
 export const getDisplayValue = (score: Score, isCalibrating: boolean): string => {
   if (isCalibrating) return '---';
   return String(score.value);

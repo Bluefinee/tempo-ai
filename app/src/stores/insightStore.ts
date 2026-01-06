@@ -53,7 +53,7 @@ const GENERATION_MESSAGES = [
   'アドバイスを生成中...',
 ];
 
-export const useInsightStore = create<InsightState>()((set, get) => ({
+export const useInsightStore = create<InsightState>()((set) => ({
   dailyAdvice: null,
   shortGreeting: null,
   quickActions: [],

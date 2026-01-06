@@ -12,11 +12,16 @@ export interface SleepMetrics {
 }
 
 // 睡眠データの算出プロパティ
-export const getSleepDerivedMetrics = (sleep: SleepMetrics) => ({
+export const getSleepDerivedMetrics = (sleep: SleepMetrics): {
+  durationHours: number;
+  deepSleepRatio: number;
+  remSleepRatio: number;
+  lightSleepMinutes: number;
+} => ({
   durationHours: sleep.durationMinutes / 60,
   deepSleepRatio: sleep.durationMinutes > 0 ? sleep.deepSleepMinutes / sleep.durationMinutes : 0,
   remSleepRatio: sleep.durationMinutes > 0 ? sleep.remSleepMinutes / sleep.durationMinutes : 0,
-  lightSleepMinutes: sleep.durationMinutes - sleep.deepSleepMinutes - sleep.remSleepMinutes,
+  lightSleepMinutes: Math.max(0, sleep.durationMinutes - sleep.deepSleepMinutes - sleep.remSleepMinutes),
 });
 
 // HRV（心拍変動）データ
@@ -26,7 +31,10 @@ export interface HRVMetrics {
 }
 
 // HRVの算出プロパティ
-export const getHRVDerivedMetrics = (hrv: HRVMetrics) => {
+export const getHRVDerivedMetrics = (hrv: HRVMetrics): {
+  deviationPercent: number;
+  status: HRVStatus;
+} => {
   const deviationPercent = hrv.baseline30d > 0
     ? ((hrv.value - hrv.baseline30d) / hrv.baseline30d) * 100
     : 0;

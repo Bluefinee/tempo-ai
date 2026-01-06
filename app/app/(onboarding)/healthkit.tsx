@@ -4,8 +4,9 @@ import { useRouter } from 'expo-router';
 import { Heart } from 'lucide-react-native';
 import { Colors, Spacing, Typography } from '../../src/theme';
 import { PrimaryButton, SecondaryButton } from '../../src/components';
+import type { JSX } from 'react';
 
-export default function HealthKitScreen() {
+export default function HealthKitScreen(): JSX.Element {
   const router = useRouter();
 
   const handleAllow = () => {
@@ -54,7 +55,7 @@ export default function HealthKitScreen() {
   );
 }
 
-const DataItem: React.FC<{ icon: string; text: string }> = ({ icon, text }) => (
+const DataItem: React.FC<{ icon: string; text: string }> = ({ icon, text }): JSX.Element => (
   <View style={styles.dataItem}>
     <Text style={styles.dataIcon}>{icon}</Text>
     <Text style={styles.dataText}>{text}</Text>

@@ -17,6 +17,7 @@ import {
   AlcoholFrequency,
 } from '../../src/domain/models';
 import { useUserStore } from '../../src/stores';
+import type { JSX } from 'react';
 
 const OCCUPATIONS: { value: Occupation; label: string }[] = [
   { value: 'deskWork', label: 'デスクワーク' },
@@ -43,7 +44,7 @@ const ALCOHOL_OPTIONS: { value: AlcoholFrequency; label: string }[] = [
   { value: 'daily', label: '毎日' },
 ];
 
-export default function LifestyleScreen() {
+export default function LifestyleScreen(): JSX.Element {
   const router = useRouter();
   const setDraftLifestyle = useUserStore((state) => state.setDraftLifestyle);
   const draftProfile = useUserStore((state) => state.draftProfile);
@@ -58,7 +59,7 @@ export default function LifestyleScreen() {
     draftProfile.alcoholFrequency || null
   );
 
-  const handleNext = () => {
+  const handleNext = (): void => {
     setDraftLifestyle({
       occupation: occupation || undefined,
       exerciseFrequency: exercise || undefined,
@@ -67,7 +68,7 @@ export default function LifestyleScreen() {
     router.push('/(onboarding)/location');
   };
 
-  const handleSkip = () => {
+  const handleSkip = (): void => {
     router.push('/(onboarding)/location');
   };
 

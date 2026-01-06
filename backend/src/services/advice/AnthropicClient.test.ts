@@ -52,8 +52,15 @@ describe('AnthropicClient', () => {
 
   const validJsonResponse = JSON.stringify({
     summary: 'テストサマリーです。今日のコンディションは良好です。',
-    full_insight:
-      'マサさん、おはようございます。今日のコンディションは全体的に良好です。昨夜の睡眠は目標通りで、深い睡眠も十分に取れています。',
+    insight: {
+      greeting: 'マサさん、おはようございます。',
+      condition: '今日のコンディションは全体的に良好です。',
+      sleep: '昨夜の睡眠は目標通りで、深い睡眠も十分に取れています。',
+      rhythm: 'リズムは安定しています。',
+      environment: '今日の天気は良好です。',
+      advice: '午前中に軽い運動をすることをおすすめします。',
+      closing: '今日も良い一日になりますように。',
+    },
     recommended_action: {
       type: 'breathing',
       message: '深呼吸を3回してみましょう',
@@ -71,7 +78,8 @@ describe('AnthropicClient', () => {
       expect(result.ok).toBe(true);
       if (result.ok) {
         expect(result.data.summary).toBe('テストサマリーです。今日のコンディションは良好です。');
-        expect(result.data.fullInsight).toContain('マサさん、おはようございます');
+        expect(result.data.insight.greeting).toBe('マサさん、おはようございます。');
+        expect(result.data.insight.condition).toBe('今日のコンディションは全体的に良好です。');
         expect(result.data.recommendedAction.type).toBe('breathing');
         expect(result.data.recommendedAction.message).toBe('深呼吸を3回してみましょう');
       }
@@ -175,7 +183,15 @@ describe('AnthropicClient', () => {
       const mockCreate = vi.fn().mockResolvedValue(
         createMockResponse(
           JSON.stringify({
-            full_insight: 'insight',
+            insight: {
+              greeting: 'greeting',
+              condition: 'condition',
+              sleep: 'sleep',
+              rhythm: 'rhythm',
+              environment: 'environment',
+              advice: 'advice',
+              closing: 'closing',
+            },
             recommended_action: { type: 'breathing', message: 'msg' },
           }),
         ),
@@ -191,7 +207,7 @@ describe('AnthropicClient', () => {
       }
     });
 
-    it('should return PARSE_ERROR when full_insight is missing', async () => {
+    it('should return PARSE_ERROR when insight is missing', async () => {
       const client = new AnthropicClient('test-api-key');
       const mockCreate = vi.fn().mockResolvedValue(
         createMockResponse(
@@ -208,7 +224,7 @@ describe('AnthropicClient', () => {
       expect(result.ok).toBe(false);
       if (!result.ok) {
         expect(result.error.code).toBe('PARSE_ERROR');
-        expect(result.error.message).toBe('Missing or invalid full_insight field');
+        expect(result.error.message).toBe('Missing or invalid insight field');
       }
     });
 
@@ -218,7 +234,15 @@ describe('AnthropicClient', () => {
         createMockResponse(
           JSON.stringify({
             summary: 'summary',
-            full_insight: 'insight',
+            insight: {
+              greeting: 'greeting',
+              condition: 'condition',
+              sleep: 'sleep',
+              rhythm: 'rhythm',
+              environment: 'environment',
+              advice: 'advice',
+              closing: 'closing',
+            },
           }),
         ),
       );
@@ -239,7 +263,15 @@ describe('AnthropicClient', () => {
         createMockResponse(
           JSON.stringify({
             summary: 'summary',
-            full_insight: 'insight',
+            insight: {
+              greeting: 'greeting',
+              condition: 'condition',
+              sleep: 'sleep',
+              rhythm: 'rhythm',
+              environment: 'environment',
+              advice: 'advice',
+              closing: 'closing',
+            },
             recommended_action: { type: 'invalid_type', message: 'msg' },
           }),
         ),
@@ -261,7 +293,15 @@ describe('AnthropicClient', () => {
         createMockResponse(
           JSON.stringify({
             summary: 'summary',
-            full_insight: 'insight',
+            insight: {
+              greeting: 'greeting',
+              condition: 'condition',
+              sleep: 'sleep',
+              rhythm: 'rhythm',
+              environment: 'environment',
+              advice: 'advice',
+              closing: 'closing',
+            },
             recommended_action: { type: 'breathing' },
           }),
         ),
@@ -286,7 +326,15 @@ describe('AnthropicClient', () => {
           createMockResponse(
             JSON.stringify({
               summary: 'summary',
-              full_insight: 'insight',
+              insight: {
+                greeting: 'greeting',
+                condition: 'condition',
+                sleep: 'sleep',
+                rhythm: 'rhythm',
+                environment: 'environment',
+                advice: 'advice',
+                closing: 'closing',
+              },
               recommended_action: { type: actionType, message: 'msg' },
             }),
           ),

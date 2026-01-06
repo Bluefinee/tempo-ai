@@ -54,7 +54,15 @@ describe('AdviceService', () => {
 
   const createMockResponse = (): AdviceResponse => ({
     summary: 'テストサマリー',
-    fullInsight: 'テストインサイト',
+    insight: {
+      greeting: 'テスト挨拶',
+      condition: 'テストコンディション',
+      sleep: 'テスト睡眠',
+      rhythm: 'テストリズム',
+      environment: 'テスト環境',
+      advice: 'テストアドバイス',
+      closing: 'テストクロージング',
+    },
     recommendedAction: {
       type: 'breathing',
       message: '深呼吸をしましょう',
@@ -71,7 +79,8 @@ describe('AdviceService', () => {
       expect(result.ok).toBe(true);
       if (result.ok) {
         expect(result.data.summary).toBe('テストサマリー');
-        expect(result.data.fullInsight).toBe('テストインサイト');
+        expect(result.data.insight.greeting).toBe('テスト挨拶');
+        expect(result.data.insight.condition).toBe('テストコンディション');
         expect(result.data.recommendedAction.type).toBe('breathing');
       }
     });

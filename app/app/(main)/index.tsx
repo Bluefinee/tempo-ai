@@ -48,7 +48,7 @@ export default function HomeScreen(): JSX.Element {
     setMockData();
 
     // Generate insight with labor illusion
-    generateDailyInsight(nickname);
+    generateDailyInsight();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

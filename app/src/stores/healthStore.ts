@@ -7,13 +7,15 @@ import {
   ActivityMetrics,
   SimpleWeatherData,
 } from '../domain/models';
-import { calculateConditionAssessment } from '../domain/services';
+import { calculateConditionAssessment, calculatePressureTrend } from '../domain/services';
+import { getWeatherCondition } from '../domain/models/weather';
+import { apiClient } from '../api/client';
 import {
   MOCK_SLEEP_METRICS,
   MOCK_HRV_METRICS,
   MOCK_ACTIVITY_METRICS,
-  MOCK_WEATHER,
   MOCK_RHYTHM_ANALYSIS,
+  MOCK_WEATHER,
 } from '../constants/mockData';
 
 interface HealthState {
@@ -28,6 +30,8 @@ interface HealthState {
 
   // Weather
   weather: SimpleWeatherData | null;
+  weatherCode: number | null;
+  weatherHumidity: number | null;
 
   // Loading states
   isLoadingMetrics: boolean;
@@ -60,6 +64,8 @@ export const useHealthStore = create<HealthState>()((set, get) => ({
   dailyScores: null,
   rhythmAnalysis: null,
   weather: null,
+  weatherCode: null,
+  weatherHumidity: null,
   isLoadingMetrics: false,
   isLoadingWeather: false,
   metricsError: null,
@@ -94,24 +100,45 @@ export const useHealthStore = create<HealthState>()((set, get) => ({
     }
   },
 
-  fetchWeather: async (_latitude: number, _longitude: number): Promise<void> => {
+  fetchWeather: async (latitude: number, longitude: number): Promise<void> => {
     set({ isLoadingWeather: true, weatherError: null });
 
     try {
-      // TODO: Replace with actual weather API integration
-      // For now, simulate a delay and use mock data
-      await new Promise((resolve) => setTimeout(resolve, 300));
+      const response = await apiClient.weather.get({ latitude, longitude });
+
+      if (!response.success || !response.data) {
+        throw new Error(response.error || 'Failed to fetch weather');
+      }
+
+      const { temperature, humidity, pressure, weatherCode, uvIndexMax } = response.data;
+
+      // 気圧トレンドを計算
+      const pressureTrend = await calculatePressureTrend(pressure);
+
+      // SimpleWeatherData形式に変換
+      const weather: SimpleWeatherData = {
+        temp: temperature,
+        condition: getWeatherCondition(weatherCode),
+        pressure,
+        pressureTrend,
+        uv: uvIndexMax,
+        location: '現在地', // TODO: 逆ジオコーディングで都市名を取得
+      };
 
       set({
-        weather: MOCK_WEATHER,
+        weather,
+        weatherCode,
+        weatherHumidity: humidity,
         isLoadingWeather: false,
         lastWeatherUpdate: new Date(),
       });
     } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to fetch weather';
       set({
         isLoadingWeather: false,
-        weatherError: error instanceof Error ? error.message : 'Failed to fetch weather',
+        weatherError: message,
       });
+      console.error('Weather fetch error:', error);
     }
   },
 
@@ -163,6 +190,8 @@ export const useHealthStore = create<HealthState>()((set, get) => ({
       dailyScores: null,
       rhythmAnalysis: null,
       weather: null,
+      weatherCode: null,
+      weatherHumidity: null,
       isLoadingMetrics: false,
       isLoadingWeather: false,
       metricsError: null,

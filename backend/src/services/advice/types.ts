@@ -150,12 +150,30 @@ export interface RecommendedAction {
   message: string;
 }
 
+/** インサイトの7セクション */
+export interface InsightSections {
+  /** 挨拶（1文） */
+  greeting: string;
+  /** 今日のコンディション総評（2-3文） */
+  condition: string;
+  /** 睡眠分析（3-4文） */
+  sleep: string;
+  /** リズム分析（2-3文） */
+  rhythm: string;
+  /** 環境影響予測（2-3文） */
+  environment: string;
+  /** 今日の過ごし方提案（3-4文） */
+  advice: string;
+  /** クロージング（1文） */
+  closing: string;
+}
+
 /** AI生成アドバイスのレスポンス */
 export interface AdviceResponse {
   /** ホーム画面に表示する要約（100-150文字） */
   summary: string;
-  /** 詳細画面に表示するフルバージョン（400-600文字） */
-  fullInsight: string;
+  /** 詳細画面に表示する7セクション形式のインサイト */
+  insight: InsightSections;
   /** 推奨アクション */
   recommendedAction: RecommendedAction;
 }

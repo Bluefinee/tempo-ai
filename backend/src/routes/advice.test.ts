@@ -54,7 +54,15 @@ describe('POST /api/advice', () => {
 
   const createMockResponse = (): AdviceResponse => ({
     summary: 'テストサマリーです。今日のコンディションは良好です。',
-    fullInsight: 'マサさん、おはようございます。今日のコンディションは全体的に良好です。',
+    insight: {
+      greeting: 'マサさん、おはようございます。',
+      condition: '今日のコンディションは全体的に良好です。',
+      sleep: '昨夜の睡眠は目標通りで、深い睡眠も十分に取れています。',
+      rhythm: 'リズムは安定しています。',
+      environment: '今日の天気は良好です。',
+      advice: '午前中に軽い運動をすることをおすすめします。',
+      closing: '今日も良い一日になりますように。',
+    },
     recommendedAction: {
       type: 'breathing',
       message: '深呼吸を3回してみましょう',
@@ -139,7 +147,7 @@ describe('POST /api/advice', () => {
     const json = (await res.json()) as { success: boolean; data: AdviceResponse };
     expect(json.success).toBe(true);
     expect(json.data.summary).toBe('テストサマリーです。今日のコンディションは良好です。');
-    expect(json.data.fullInsight).toContain('マサさん、おはようございます');
+    expect(json.data.insight.greeting).toContain('マサさん、おはようございます');
     expect(json.data.recommendedAction.type).toBe('breathing');
     expect(json.data.recommendedAction.message).toBe('深呼吸を3回してみましょう');
   });

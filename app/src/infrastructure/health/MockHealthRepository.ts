@@ -94,7 +94,6 @@ export class MockHealthRepository implements HealthRepository {
 
     // Generate mock sleep history
     const history: SleepMetrics[] = [];
-    const baseDate = new Date();
 
     for (let i = 0; i < days; i++) {
       const date = new Date();

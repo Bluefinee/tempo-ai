@@ -7,3 +7,4 @@ export * from './autonomicScoreCalculator';
 export * from './rhythmScoreCalculator';
 export * from './activityScoreCalculator';
 export * from './scoreCalculator';
+export * from './pressureService';

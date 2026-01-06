@@ -1,9 +1,12 @@
 import { create } from 'zustand';
 import { DailyAdvice, Mood, TodayMode, QuickAction, RecommendedAction } from '../domain/models';
+import { createRecommendedAction } from '../domain/models/advice';
+import { apiClient } from '../api/client';
+import { buildAdviceRequest } from '../api/helpers/adviceRequestBuilder';
 import {
+  MOCK_QUICK_ACTIONS,
   MOCK_AI_INSIGHT_FULL,
   MOCK_AI_GREETING_SHORT,
-  MOCK_QUICK_ACTIONS,
   MOCK_RECOMMENDED_ACTION,
 } from '../constants/mockData';
 
@@ -35,7 +38,7 @@ interface InsightState {
   lastInsightUpdate: Date | null;
 
   // Actions
-  generateDailyInsight: (nickname: string) => Promise<void>;
+  generateDailyInsight: () => Promise<void>;
   setMood: (mood: Mood) => void;
   setTodayMode: (mode: TodayMode) => void;
   setInsightFeedback: (feedback: InsightFeedback) => void;
@@ -67,7 +70,7 @@ export const useInsightStore = create<InsightState>()((set) => ({
   insightError: null,
   lastInsightUpdate: null,
 
-  generateDailyInsight: async (nickname: string) => {
+  generateDailyInsight: async () => {
     set({
       isGeneratingInsight: true,
       generationPhase: 0,
@@ -75,43 +78,64 @@ export const useInsightStore = create<InsightState>()((set) => ({
     });
 
     try {
-      // Labor Illusion: Show progressive loading phases
+      // Labor Illusion: API呼び出しと並行してフェーズ表示
+      const advicePromise = (async () => {
+        const request = buildAdviceRequest();
+        if (!request) {
+          throw new Error('プロファイルが設定されていません');
+        }
+        return apiClient.advice.generate(request);
+      })();
+
+      // フェーズ表示（Labor Illusion）
       for (let phase = 0; phase < GENERATION_MESSAGES.length; phase++) {
         set({ generationPhase: phase });
         await new Promise((resolve) => setTimeout(resolve, 800));
       }
 
-      // TODO: Replace with actual API call
-      // For now, use mock data
-      const insight = MOCK_AI_INSIGHT_FULL(nickname);
-      const greeting = MOCK_AI_GREETING_SHORT(nickname);
+      // API レスポンス待機
+      const response = await advicePromise;
 
-      // Small delay before showing result
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      if (!response.success || !response.data) {
+        throw new Error(response.error || 'アドバイスの生成に失敗しました');
+      }
+
+      const { summary, insight, recommendedAction } = response.data;
+
+      // DailyAdvice形式に変換
+      const dailyAdvice: DailyAdvice = {
+        id: `advice_${Date.now()}`,
+        date: new Date(),
+        greeting: insight.greeting,
+        condition: insight.condition,
+        sleep: insight.sleep,
+        rhythm: insight.rhythm,
+        environment: insight.environment,
+        advice: insight.advice,
+        closing: insight.closing,
+      };
+
+      // RecommendedAction形式に変換
+      const action = createRecommendedAction(
+        recommendedAction.type,
+        recommendedAction.message
+      );
 
       set({
-        dailyAdvice: {
-          id: `advice_${Date.now()}`,
-          date: new Date(),
-          greeting: insight.greeting,
-          condition: insight.condition,
-          sleep: insight.sleep,
-          rhythm: insight.rhythm,
-          environment: insight.environment,
-          advice: insight.advice,
-          closing: insight.closing,
-        },
-        shortGreeting: greeting,
-        quickActions: MOCK_QUICK_ACTIONS,
-        recommendedAction: MOCK_RECOMMENDED_ACTION,
+        dailyAdvice,
+        shortGreeting: summary,
+        quickActions: MOCK_QUICK_ACTIONS, // TODO: APIから取得
+        recommendedAction: action,
         isGeneratingInsight: false,
         lastInsightUpdate: new Date(),
       });
     } catch (error) {
       set({
         isGeneratingInsight: false,
-        insightError: error instanceof Error ? error.message : 'Failed to generate insight',
+        insightError:
+          error instanceof Error ? error.message : 'アドバイスの生成に失敗しました',
       });
+      console.error('Insight generation error:', error);
     }
   },
 

@@ -41,6 +41,7 @@ export const MOCK_SCORES: DailyScores = {
   autonomic: 85,
   sleep: 72,
   rhythm: 94,
+  activity: 78,
 };
 
 // モック天気

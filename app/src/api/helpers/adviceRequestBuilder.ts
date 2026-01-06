@@ -8,6 +8,7 @@ import { useUserStore } from '../../stores/userStore';
 import { useHealthStore } from '../../stores/healthStore';
 import { useInsightStore } from '../../stores/insightStore';
 
+/** 曜日名の配列（英語） */
 const DAY_NAMES = [
   'Sunday',
   'Monday',
@@ -16,7 +17,7 @@ const DAY_NAMES = [
   'Thursday',
   'Friday',
   'Saturday',
-];
+] as const;
 
 /**
  * 現在のストア状態からAdviceRequestを構築

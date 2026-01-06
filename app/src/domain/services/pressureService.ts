@@ -6,18 +6,28 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { PressureTrend } from '../models/weather';
 
+/** AsyncStorageに保存する気圧履歴のキー */
 const PRESSURE_HISTORY_KEY = 'tempo_pressure_history';
+/** 気圧履歴を保持する時間（時間） */
 const HISTORY_RETENTION_HOURS = 24;
+/** トレンド比較に使用する過去の時間（時間） */
 const TREND_COMPARISON_HOURS = 3;
+/** トレンド判定の閾値（hPa） */
 const TREND_THRESHOLD_HPA = 2;
 
+/**
+ * 気圧記録
+ */
 interface PressureRecord {
+  /** 気圧値（hPa） */
   value: number;
+  /** タイムスタンプ（ミリ秒） */
   timestamp: number;
 }
 
 /**
  * 気圧履歴を取得
+ * @returns 気圧記録の配列
  */
 const getPressureHistory = async (): Promise<PressureRecord[]> => {
   try {
@@ -30,6 +40,7 @@ const getPressureHistory = async (): Promise<PressureRecord[]> => {
 
 /**
  * 気圧履歴を保存
+ * @param history 保存する気圧記録の配列
  */
 const savePressureHistory = async (history: PressureRecord[]): Promise<void> => {
   try {
@@ -87,6 +98,7 @@ export const calculatePressureTrend = async (
 
 /**
  * 気圧履歴をクリア（テスト用）
+ * AsyncStorageから気圧履歴を削除します
  */
 export const clearPressureHistory = async (): Promise<void> => {
   try {

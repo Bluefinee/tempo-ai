@@ -3,13 +3,23 @@
  * API呼び出しの自動リトライ機能
  */
 
+/**
+ * リトライオプション
+ */
 interface RetryOptions {
+  /** 最大リトライ回数（デフォルト: 3） */
   maxRetries?: number;
+  /** 初期待機時間（ミリ秒、デフォルト: 1000） */
   initialDelayMs?: number;
+  /** 最大待機時間（ミリ秒、デフォルト: 10000） */
   maxDelayMs?: number;
+  /** バックオフ倍率（デフォルト: 2） */
   backoffMultiplier?: number;
 }
 
+/**
+ * デフォルトのリトライオプション
+ */
 const DEFAULT_OPTIONS: Required<RetryOptions> = {
   maxRetries: 3,
   initialDelayMs: 1000,
@@ -52,12 +62,19 @@ export const withRetry = async <T>(
 
 /**
  * 指定ミリ秒待機
+ * @param ms 待機時間（ミリ秒）
+ * @returns Promise<void>
  */
 const sleep = (ms: number): Promise<void> =>
   new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
  * 条件付きリトライ（特定のエラーのみリトライ）
+ * @param fn 実行する非同期関数
+ * @param shouldRetry リトライすべきかどうかを判定する関数
+ * @param options リトライオプション
+ * @returns 関数の戻り値
+ * @throws リトライ条件を満たさない場合、または最大リトライ回数を超えた場合
  */
 export const withConditionalRetry = async <T>(
   fn: () => Promise<T>,

@@ -35,14 +35,15 @@ describe('PromptBuilder', () => {
       expect(prompt).toContain('<output_format>');
       expect(prompt).toContain('</output_format>');
       expect(prompt).toContain('"summary"');
-      expect(prompt).toContain('"full_insight"');
+      expect(prompt).toContain('"insight"');
+      expect(prompt).toContain('"greeting"');
+      expect(prompt).toContain('"condition"');
+      expect(prompt).toContain('"sleep"');
+      expect(prompt).toContain('"rhythm"');
+      expect(prompt).toContain('"environment"');
+      expect(prompt).toContain('"advice"');
+      expect(prompt).toContain('"closing"');
       expect(prompt).toContain('"recommended_action"');
-    });
-
-    it('should contain full_insight_structure section', () => {
-      const prompt = PromptBuilder.buildSystemPrompt();
-      expect(prompt).toContain('<full_insight_structure>');
-      expect(prompt).toContain('</full_insight_structure>');
     });
 
     it('should contain personalization_rules section', () => {

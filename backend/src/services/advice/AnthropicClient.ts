@@ -78,13 +78,22 @@ export class AnthropicClient {
 
       const parsed = JSON.parse(jsonMatch[0]) as {
         summary?: string;
-        full_insight?: string;
+        insight?: {
+          greeting?: string;
+          condition?: string;
+          sleep?: string;
+          rhythm?: string;
+          environment?: string;
+          advice?: string;
+          closing?: string;
+        };
         recommended_action?: {
           type?: string;
           message?: string;
         };
       };
 
+      // summary validation
       if (!parsed.summary || typeof parsed.summary !== 'string') {
         return err({
           code: 'PARSE_ERROR',
@@ -92,13 +101,25 @@ export class AnthropicClient {
         });
       }
 
-      if (!parsed.full_insight || typeof parsed.full_insight !== 'string') {
+      // insight validation
+      if (!parsed.insight || typeof parsed.insight !== 'object') {
         return err({
           code: 'PARSE_ERROR',
-          message: 'Missing or invalid full_insight field',
+          message: 'Missing or invalid insight field',
         });
       }
 
+      const insightFields = ['greeting', 'condition', 'sleep', 'rhythm', 'environment', 'advice', 'closing'] as const;
+      for (const field of insightFields) {
+        if (!parsed.insight[field] || typeof parsed.insight[field] !== 'string') {
+          return err({
+            code: 'PARSE_ERROR',
+            message: `Missing or invalid insight.${field} field`,
+          });
+        }
+      }
+
+      // recommended_action validation
       if (!parsed.recommended_action || typeof parsed.recommended_action !== 'object') {
         return err({
           code: 'PARSE_ERROR',
@@ -124,9 +145,28 @@ export class AnthropicClient {
         });
       }
 
+      // バリデーション済みなので型アサーションを使用
+      const insight = parsed.insight as {
+        greeting: string;
+        condition: string;
+        sleep: string;
+        rhythm: string;
+        environment: string;
+        advice: string;
+        closing: string;
+      };
+
       return ok({
         summary: parsed.summary,
-        fullInsight: parsed.full_insight,
+        insight: {
+          greeting: insight.greeting,
+          condition: insight.condition,
+          sleep: insight.sleep,
+          rhythm: insight.rhythm,
+          environment: insight.environment,
+          advice: insight.advice,
+          closing: insight.closing,
+        },
         recommendedAction: {
           type: actionType,
           message: parsed.recommended_action.message,
@@ -197,3 +237,4 @@ export class AnthropicClient {
     });
   };
 }
+

@@ -83,7 +83,7 @@ export const apiClient = {
     get: async (request: WeatherRequest): Promise<WeatherResponse> => {
       const { latitude, longitude } = request;
       const response = await fetchWithTimeout(
-        `${API_BASE_URL}/api/weather?lat=${latitude}&lon=${longitude}`,
+        `${API_BASE_URL}/api/weather?latitude=${latitude}&longitude=${longitude}`,
         {
           method: 'GET',
           headers: DEFAULT_HEADERS,

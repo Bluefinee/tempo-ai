@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, Platform } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Bed } from 'lucide-react-native';
 import { Colors, Spacing, Typography } from '../../src/theme';

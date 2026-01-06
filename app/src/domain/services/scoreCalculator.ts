@@ -4,7 +4,7 @@
  */
 
 import { HealthMetrics, RhythmAnalysis } from '../models';
-import { Score, ConditionAssessment, createScore, DEFAULT_SCORE } from '../models/score';
+import { ConditionAssessment, createScore, DEFAULT_SCORE } from '../models/score';
 import { calculateSleepScore } from './sleepScoreCalculator';
 import { calculateAutonomicScore } from './autonomicScoreCalculator';
 import { calculateRhythmScore } from './rhythmScoreCalculator';

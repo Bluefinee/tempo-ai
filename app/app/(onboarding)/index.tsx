@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, SafeAreaView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Sun } from 'lucide-react-native';
 import { Colors, Spacing, Typography } from '../../src/theme';
-import { PrimaryButton, SecondaryButton } from '../../src/components';
+import { PrimaryButton } from '../../src/components';
 
 export default function WelcomeScreen() {
   const router = useRouter();

@@ -4,7 +4,6 @@
 
 import {
   UserProfile,
-  HealthMetrics,
   SimpleWeatherData,
   AIInsightFull,
   Mood,

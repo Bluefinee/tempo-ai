@@ -3,8 +3,7 @@
  * Swift RhythmScoreCalculator から移植
  */
 
-import { RhythmAnalysis, RhythmStatus } from '../models/score';
-import { Score, createScore } from '../models/score';
+import { RhythmAnalysis, RhythmStatus, Score, createScore } from '../models/score';
 
 // 定数 (手首体温あり)
 const BEDTIME_WEIGHT_WITH_TEMP = 0.35;
@@ -35,14 +34,6 @@ const calculateTemperatureScore = (status: TemperatureStatus): number => {
       return 40;
   }
 };
-
-/**
- * 手首体温情報
- */
-interface WristTemperature {
-  deviation: number;
-  status: TemperatureStatus;
-}
 
 /**
  * 体温偏差からステータスを取得

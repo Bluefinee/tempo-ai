@@ -7,9 +7,8 @@ import {
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+// import { useRouter } from 'expo-router'; // TODO: Use for navigation when needed
 import {
-  User,
   Heart,
   MapPin,
   Shield,
@@ -18,13 +17,12 @@ import {
   ChevronRight,
   Moon,
 } from 'lucide-react-native';
-import { Colors, Spacing, Typography, BorderRadius } from '../../src/theme';
+import { Colors, Spacing, Typography } from '../../src/theme';
 import { Card } from '../../src/components';
 import { getChronotypeLabel, getGenderLabel } from '../../src/domain/models';
 import { useUserStore } from '../../src/stores';
 
 export default function SettingsScreen() {
-  const router = useRouter();
   const profile = useUserStore((state) => state.profile);
 
   // Default values if profile is not loaded

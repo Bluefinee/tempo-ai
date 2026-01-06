@@ -10,15 +10,14 @@ import {
 import { useRouter } from 'expo-router';
 import { X, ThumbsUp, ThumbsDown } from 'lucide-react-native';
 import { Colors, Spacing, Typography, BorderRadius } from '../src/theme';
-import { Card, PrimaryButton } from '../src/components';
+import { Card } from '../src/components';
 import { useUserStore, useInsightStore } from '../src/stores';
 
 export default function InsightDetailScreen() {
   const router = useRouter();
 
-  // User store
-  const profile = useUserStore((state) => state.profile);
-  const nickname = profile?.nickname || 'ユーザー';
+  // User store - profile loaded for future use
+  useUserStore((state) => state.profile);
 
   // Insight store
   const dailyAdvice = useInsightStore((state) => state.dailyAdvice);

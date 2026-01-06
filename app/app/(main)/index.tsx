@@ -40,7 +40,6 @@ export default function HomeScreen() {
   const shortGreeting = useInsightStore((state) => state.shortGreeting);
   const loadingMessage = useInsightStore(selectCurrentGenerationMessage);
   const generateDailyInsight = useInsightStore((state) => state.generateDailyInsight);
-  const setMockInsight = useInsightStore((state) => state.setMockInsight);
 
   // Use mock scores for now
   const scores = MOCK_SCORES;
@@ -52,6 +51,7 @@ export default function HomeScreen() {
 
     // Generate insight with labor illusion
     generateDailyInsight(nickname);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const today = new Date();

@@ -139,7 +139,10 @@
       "Bash(wc:*)",
       "Bash(npx expo install:*)",
       "Bash(npx expo-doctor:*)",
-      "Bash(jq:*)"
+      "Bash(jq:*)",
+      "Bash(gh pr merge:*)",
+      "Bash(npx wrangler:*)",
+      "Bash(tree:*)"
     ],
     "deny": [],
     "ask": [],

@@ -505,7 +505,25 @@ interface WeatherResponse {
 }
 ```
 
-### 4.3 外部API（Open-Meteo）
+### 4.3 デプロイ済み API エンドポイント
+
+#### 環境別ベースURL
+
+| 環境 | ベースURL | 状態 |
+|------|-----------|------|
+| ステージング | `https://tempo-ai-api-staging.tempo-ai.workers.dev` | ✅ 稼働中 |
+| 本番 | （Phase 9で設定予定） | - |
+| ローカル | `http://localhost:8787` | 開発用 |
+
+#### エンドポイント一覧
+
+| メソッド | パス | 説明 |
+|---------|------|------|
+| GET | `/api/health` | ヘルスチェック |
+| GET | `/api/weather?latitude=XX&longitude=YY` | 天気情報取得 |
+| POST | `/api/advice` | AIアドバイス生成 |
+
+### 4.4 外部API（Open-Meteo）
 
 無料で10,000リクエスト/日まで利用可能。
 

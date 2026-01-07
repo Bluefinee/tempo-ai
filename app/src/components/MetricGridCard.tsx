@@ -76,14 +76,14 @@ export const MetricGridCard = ({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.white,
     borderRadius: 20,
     padding: 16,
     height: 160,
     justifyContent: 'space-between',
     overflow: 'hidden',
     // シャドウ（iOS）
-    shadowColor: '#000',
+    shadowColor: colors.black,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.12,
     shadowRadius: 16,
@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#A8A29E',
+    color: colors.stone[400],
   },
   chevronWrapper: {
     opacity: 0.6,

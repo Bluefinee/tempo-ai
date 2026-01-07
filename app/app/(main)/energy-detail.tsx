@@ -61,16 +61,10 @@ const FactorCard = ({
   return (
     <View
       className="bg-white p-4 rounded-2xl border border-stone-100"
-      style={{
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.04,
-        shadowRadius: 6,
-        elevation: 2,
-      }}
+      style={styles.factorCardShadow}
     >
       <View className="flex-row items-center justify-between mb-2">
-        <View className="flex-row items-center" style={{ gap: 10 }}>
+        <View className="flex-row items-center" style={styles.factorCardHeader}>
           <View className="p-2 rounded-xl" style={{ backgroundColor: iconBg }}>
             <Icon size={16} color={iconColor} />
           </View>
@@ -124,13 +118,7 @@ const EnergyDetailScreen = (): React.ReactElement => {
     return (
       <View
         className="bg-white p-5 rounded-3xl border border-stone-100"
-        style={{
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.06,
-          shadowRadius: 10,
-          elevation: 4,
-        }}
+        style={styles.chartCard}
       >
         <Text className="text-xs font-bold text-stone-400 uppercase mb-2">
           {t('detail.energy.dailyCurve')}
@@ -138,13 +126,13 @@ const EnergyDetailScreen = (): React.ReactElement => {
 
         {/* Peak Focus と Afternoon Dip のラベル */}
         <View className="flex-row justify-between mb-2">
-          <View className="flex-row items-center" style={{ gap: 4 }}>
+          <View className="flex-row items-center" style={styles.labelRow}>
             <View className="w-2 h-2 rounded-full bg-amber-500" />
             <Text className="text-[10px] text-stone-500">
               {t('detail.energy.peakFocus')} {data.peakFocus.start}-{data.peakFocus.end}
             </Text>
           </View>
-          <View className="flex-row items-center" style={{ gap: 4 }}>
+          <View className="flex-row items-center" style={styles.labelRow}>
             <View className="w-2 h-2 rounded-full bg-stone-300" />
             <Text className="text-[10px] text-stone-500">
               {t('detail.energy.afternoonDip')} {data.afternoonDip.start}-{data.afternoonDip.end}
@@ -152,7 +140,7 @@ const EnergyDetailScreen = (): React.ReactElement => {
           </View>
         </View>
 
-        <View style={{ height: chartHeight + 20, position: 'relative' }}>
+        <View style={styles.dailyCurveContainer}>
           <Svg width="100%" height={chartHeight} viewBox={`0 0 100 ${chartHeight}`} preserveAspectRatio="none">
             <Defs>
               <LinearGradient id="curveGradient" x1="0" y1="0" x2="0" y2="1">
@@ -178,33 +166,22 @@ const EnergyDetailScreen = (): React.ReactElement => {
 
           {/* 現在時刻マーカー */}
           <View
-            style={{
-              position: 'absolute',
-              left: `${currentPosition}%`,
-              top: 0,
-              bottom: 20,
-              width: 2,
-              backgroundColor: colors.amber[400],
-              borderStyle: 'dashed',
-            }}
+            style={[
+              styles.currentTimeMarker,
+              { left: `${currentPosition}%` }
+            ]}
           />
           <View
-            style={{
-              position: 'absolute',
-              left: `${currentPosition}%`,
-              top: -4,
-              width: 8,
-              height: 8,
-              borderRadius: 4,
-              backgroundColor: colors.amber[500],
-              marginLeft: -3,
-            }}
+            style={[
+              styles.currentTimeDot,
+              { left: `${currentPosition}%` }
+            ]}
           />
 
           {/* 時間軸ラベル */}
           <View
             className="flex-row justify-between absolute bottom-0 left-0 right-0"
-            style={{ paddingHorizontal: 4 }}
+            style={styles.timeLabels}
           >
             <Text className="text-[10px] text-stone-400">6:00</Text>
             <Text className="text-[10px] text-stone-400">12:00</Text>
@@ -239,7 +216,7 @@ const EnergyDetailScreen = (): React.ReactElement => {
           }}
           showsVerticalScrollIndicator={false}
         >
-          <View className="px-6 py-6" style={{ gap: 24 }}>
+          <View className="px-6 py-6" style={styles.contentContainer}>
             {/* Main Circular Display */}
             <Animated.View
               entering={FadeInDown.duration(400)}
@@ -256,7 +233,7 @@ const EnergyDetailScreen = (): React.ReactElement => {
                 <View className="absolute items-center">
                   <Text
                     className="text-5xl font-bold text-stone-900"
-                    style={{ fontFamily: FontFamily.serif }}
+                    style={styles.scoreText}
                   >
                     {Math.round(energyScore)}%
                   </Text>
@@ -264,7 +241,7 @@ const EnergyDetailScreen = (): React.ReactElement => {
               </View>
               <View
                 className="px-4 py-1.5 rounded-full"
-                style={{ backgroundColor: colors.amber[50] }}
+                style={styles.statusBadge}
               >
                 <Text className="text-xs font-bold text-amber-600 uppercase tracking-widest">
                   {getEnergyStatus(data.score)}
@@ -273,12 +250,12 @@ const EnergyDetailScreen = (): React.ReactElement => {
             </Animated.View>
 
             {/* Contributing Factors */}
-            <Animated.View entering={FadeInDown.delay(100).duration(400)} style={{ gap: 12 }}>
+            <Animated.View entering={FadeInDown.delay(100).duration(400)} style={styles.contributingFactorsContainer}>
               <Text className="text-xs font-bold text-stone-400 uppercase tracking-widest">
                 {t('detail.energy.contributingFactors')}
               </Text>
-              <View className="flex-row flex-wrap" style={{ gap: 12 }}>
-                <View style={{ width: '48%' }}>
+              <View className="flex-row flex-wrap" style={styles.factorGrid}>
+                <View style={styles.factorCardWrapper}>
                   <FactorCard
                     icon={Activity}
                     iconColor={colors.emerald[500]}
@@ -290,7 +267,7 @@ const EnergyDetailScreen = (): React.ReactElement => {
                     detail={data.contributingFactors.recovery.detail}
                   />
                 </View>
-                <View style={{ width: '48%' }}>
+                <View style={styles.factorCardWrapper}>
                   <FactorCard
                     icon={Moon}
                     iconColor={colors.indigo[500]}
@@ -302,7 +279,7 @@ const EnergyDetailScreen = (): React.ReactElement => {
                     detail={data.contributingFactors.sleep.detail}
                   />
                 </View>
-                <View style={{ width: '48%' }}>
+                <View style={styles.factorCardWrapper}>
                   <FactorCard
                     icon={Zap}
                     iconColor={colors.amber[500]}
@@ -314,7 +291,7 @@ const EnergyDetailScreen = (): React.ReactElement => {
                     detail={data.contributingFactors.activity.detail}
                   />
                 </View>
-                <View style={{ width: '48%' }}>
+                <View style={styles.factorCardWrapper}>
                   <FactorCard
                     icon={ThermometerSun}
                     iconColor={colors.blue[500]}
@@ -347,19 +324,13 @@ const EnergyDetailScreen = (): React.ReactElement => {
             {/* History Chart */}
             <Animated.View
               entering={FadeInDown.delay(400).duration(400)}
-              style={{ gap: 16 }}
+              style={styles.chartContainer}
             >
               <TimeframeSelector selected={timeframe} onSelect={setTimeframe} />
 
               <View
                 className="bg-white p-5 rounded-3xl border border-stone-100"
-                style={{
-                  shadowColor: '#000',
-                  shadowOffset: { width: 0, height: 4 },
-                  shadowOpacity: 0.06,
-                  shadowRadius: 10,
-                  elevation: 4,
-                }}
+                style={styles.chartCard}
               >
                 <Text className="text-xs font-bold text-stone-400 uppercase mb-4">
                   {t('detail.energy.history')}
@@ -379,5 +350,73 @@ const EnergyDetailScreen = (): React.ReactElement => {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  factorCardShadow: {
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  factorCardHeader: {
+    gap: 10,
+  },
+  statusBadge: {
+    backgroundColor: colors.amber[50],
+  },
+  contributingFactorsContainer: {
+    gap: 12,
+  },
+  factorGrid: {
+    gap: 12,
+  },
+  factorCardWrapper: {
+    width: '48%',
+  },
+  contentContainer: {
+    gap: 24,
+  },
+  chartContainer: {
+    gap: 16,
+  },
+  chartCard: {
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    elevation: 4,
+  },
+  dailyCurveContainer: {
+    height: 120,
+    position: 'relative',
+  },
+  currentTimeMarker: {
+    position: 'absolute',
+    top: 0,
+    bottom: 20,
+    width: 2,
+    backgroundColor: colors.amber[400],
+    borderStyle: 'dashed',
+  },
+  currentTimeDot: {
+    position: 'absolute',
+    top: -4,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: colors.amber[500],
+    marginLeft: -3,
+  },
+  timeLabels: {
+    paddingHorizontal: 4,
+  },
+  labelRow: {
+    gap: 4,
+  },
+  scoreText: {
+    fontFamily: FontFamily.serif,
+  },
+});
 
 export default EnergyDetailScreen;

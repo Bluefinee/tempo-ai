@@ -88,7 +88,7 @@ const getHealthCards = (): HealthCard[] => [
     unit: "ms",
     Icon: Activity,
     colorIcon: colors.emerald[500],
-    lineColor: "#10B981",
+    lineColor: colors.emerald[500],
     chartData: [65, 70, 68, 75, 72, 80, 82],
   },
   {
@@ -98,7 +98,7 @@ const getHealthCards = (): HealthCard[] => [
     unit: "bpm",
     Icon: Heart,
     colorIcon: colors.rose[500],
-    lineColor: "#F43F5E",
+    lineColor: colors.rose[500],
     chartData: [60, 59, 61, 58, 59, 60, 59],
   },
   {
@@ -108,7 +108,7 @@ const getHealthCards = (): HealthCard[] => [
     unit: "brpm",
     Icon: Wind,
     colorIcon: colors.blue[500],
-    lineColor: "#3B82F6",
+    lineColor: colors.blue[500],
     chartData: [12, 11.5, 11.2, 11.8, 11.0, 11.2, 11.0],
   },
   {
@@ -118,7 +118,7 @@ const getHealthCards = (): HealthCard[] => [
     unit: "%",
     Icon: Droplets,
     colorIcon: colors.teal[500],
-    lineColor: "#14B8A6",
+    lineColor: colors.teal[500],
     chartData: [97, 98, 98, 99, 97, 98, 98],
   },
   {
@@ -128,7 +128,7 @@ const getHealthCards = (): HealthCard[] => [
     unit: "°C",
     Icon: Thermometer,
     colorIcon: colors.amber[500],
-    lineColor: "#F59E0B",
+    lineColor: colors.amber[500],
     chartData: [36.5, 36.6, 36.4, 36.7, 36.5, 36.5, 36.4],
   },
 ];

@@ -3,7 +3,7 @@
  */
 
 import React, { useState } from 'react';
-import { View, Text, ScrollView, Pressable } from 'react-native';
+import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { ChevronLeft, Activity } from 'lucide-react-native';
@@ -84,7 +84,7 @@ const RecoveryDetailScreen = (): React.ReactElement => {
           }}
           showsVerticalScrollIndicator={false}
         >
-          <View className="px-6 py-6" style={{ gap: 32 }}>
+          <View className="px-6 py-6" style={styles.container}>
             {/* Main Circular Display */}
             <Animated.View
               entering={FadeInDown.duration(400)}
@@ -104,7 +104,7 @@ const RecoveryDetailScreen = (): React.ReactElement => {
                   </Text>
                   <Text
                     className="text-5xl font-bold text-stone-900"
-                    style={{ fontFamily: FontFamily.serif }}
+                    style={styles.scoreText}
                   >
                     {Math.round(recoveryScore)}%
                   </Text>
@@ -116,17 +116,11 @@ const RecoveryDetailScreen = (): React.ReactElement => {
             <Animated.View
               entering={FadeInDown.delay(100).duration(400)}
               className="flex-row"
-              style={{ gap: 16 }}
+              style={styles.metricsRow}
             >
               <View
                 className="flex-1 bg-white p-4 rounded-2xl border border-stone-100 items-center"
-                style={{
-                  shadowColor: '#000',
-                  shadowOffset: { width: 0, height: 4 },
-                  shadowOpacity: 0.06,
-                  shadowRadius: 10,
-                  elevation: 4,
-                }}
+                style={styles.metricCard}
               >
                 <Text className="text-xs font-bold text-stone-400 uppercase">HRV</Text>
                 <Text className="text-2xl font-bold text-stone-900 my-1">
@@ -135,9 +129,7 @@ const RecoveryDetailScreen = (): React.ReactElement => {
                 </Text>
                 <View
                   className="px-2 py-0.5 rounded-full"
-                  style={{
-                    backgroundColor: getChangeBgColor(data.hrv.change),
-                  }}
+                  style={{ backgroundColor: getChangeBgColor(data.hrv.change) }}
                 >
                   <Text
                     className="text-xs font-bold"
@@ -151,13 +143,7 @@ const RecoveryDetailScreen = (): React.ReactElement => {
 
               <View
                 className="flex-1 bg-white p-4 rounded-2xl border border-stone-100 items-center"
-                style={{
-                  shadowColor: '#000',
-                  shadowOffset: { width: 0, height: 4 },
-                  shadowOpacity: 0.06,
-                  shadowRadius: 10,
-                  elevation: 4,
-                }}
+                style={styles.metricCard}
               >
                 <Text className="text-xs font-bold text-stone-400 uppercase">RHR</Text>
                 <Text className="text-2xl font-bold text-stone-900 my-1">
@@ -166,9 +152,7 @@ const RecoveryDetailScreen = (): React.ReactElement => {
                 </Text>
                 <View
                   className="px-2 py-0.5 rounded-full"
-                  style={{
-                    backgroundColor: getChangeBgColor(data.rhr.change),
-                  }}
+                  style={{ backgroundColor: getChangeBgColor(data.rhr.change) }}
                 >
                   <Text
                     className="text-xs font-bold"
@@ -202,19 +186,13 @@ const RecoveryDetailScreen = (): React.ReactElement => {
             {/* History Chart */}
             <Animated.View
               entering={FadeInDown.delay(300).duration(400)}
-              style={{ gap: 16 }}
+              style={styles.chartSection}
             >
               <TimeframeSelector selected={timeframe} onSelect={setTimeframe} />
 
               <View
                 className="bg-white p-5 rounded-3xl border border-stone-100"
-                style={{
-                  shadowColor: '#000',
-                  shadowOffset: { width: 0, height: 4 },
-                  shadowOpacity: 0.06,
-                  shadowRadius: 10,
-                  elevation: 4,
-                }}
+                style={styles.chartCard}
               >
                 <Text className="text-xs font-bold text-stone-400 uppercase mb-4">
                   {t('detail.recovery.dailyRecovery')}
@@ -239,11 +217,11 @@ const RecoveryDetailScreen = (): React.ReactElement => {
             <Animated.View
               entering={FadeInDown.delay(400).duration(400)}
               className="flex-row"
-              style={{ gap: 16 }}
+              style={styles.educationRow}
             >
               <Pressable
                 className="flex-1 bg-stone-100 p-4 rounded-2xl justify-between"
-                style={{ height: 96 }}
+                style={styles.educationCard}
               >
                 <Text className="text-xs font-bold text-stone-400">{t('detail.recovery.learn')}</Text>
                 <Text className="text-sm font-bold text-stone-900 leading-tight">
@@ -252,7 +230,7 @@ const RecoveryDetailScreen = (): React.ReactElement => {
               </Pressable>
               <Pressable
                 className="flex-1 bg-stone-100 p-4 rounded-2xl justify-between"
-                style={{ height: 96 }}
+                style={styles.educationCard}
               >
                 <Text className="text-xs font-bold text-stone-400">{t('detail.recovery.learn')}</Text>
                 <Text className="text-sm font-bold text-stone-900 leading-tight">
@@ -267,5 +245,39 @@ const RecoveryDetailScreen = (): React.ReactElement => {
   );
 }
 
+const styles = StyleSheet.create({
+  container: {
+    gap: 32,
+  },
+  scoreText: {
+    fontFamily: FontFamily.serif,
+  },
+  metricsRow: {
+    gap: 16,
+  },
+  metricCard: {
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  chartSection: {
+    gap: 16,
+  },
+  chartCard: {
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    elevation: 4,
+  },
+  educationRow: {
+    gap: 12,
+  },
+  educationCard: {
+    minHeight: 100,
+  },
+});
 
 export default RecoveryDetailScreen;

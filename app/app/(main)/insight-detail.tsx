@@ -16,15 +16,15 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { t } from '../../src/i18n';
-import { FontFamily } from '../../src/theme';
+import { FontFamily, colors } from '../../src/theme';
 import { MOCK_AI_RESPONSE } from "../../src/constants/mockData";
 import { formatDate } from "../../src/utils/dateFormatters";
 
 // アイコン設定（UI表示用）
 const DATA_POINT_ICONS = [
-  { key: 'hrv', icon: Activity, iconColor: '#FB7185', iconBg: '#FFF1F2' },
-  { key: 'sleep', icon: Moon, iconColor: '#6366F1', iconBg: '#EEF2FF' },
-  { key: 'rhythm', icon: Clock, iconColor: '#F59E0B', iconBg: '#FFFBEB' },
+  { key: 'hrv', icon: Activity, iconColor: colors.rose[400], iconBg: colors.rose[50] },
+  { key: 'sleep', icon: Moon, iconColor: colors.indigo[500], iconBg: colors.indigo[50] },
+  { key: 'rhythm', icon: Clock, iconColor: colors.amber[500], iconBg: colors.amber[50] },
 ] as const;
 
 // Fade-in animation hook
@@ -72,7 +72,7 @@ const InsightDetailScreen = (): React.ReactElement => {
           onPress={() => router.back()}
           className="w-10 h-10 items-center justify-center rounded-full"
         >
-          <ChevronLeft size={24} color="#57534E" />
+          <ChevronLeft size={24} color={colors.stone[600]} />
         </Pressable>
         <Text className="text-sm font-bold text-stone-400 uppercase tracking-widest">
           {t('screen.insightDetail.header')}
@@ -90,7 +90,7 @@ const InsightDetailScreen = (): React.ReactElement => {
         {/* Title Section */}
         <Animated.View style={titleFadeIn}>
           <View className="flex-row items-center mb-2" style={{ gap: 8 }}>
-            <Sparkles size={20} color="#6366F1" />
+            <Sparkles size={20} color={colors.indigo[500]} />
           </View>
           <Text
             className="text-3xl text-stone-900 tracking-tight mb-1"
@@ -123,7 +123,7 @@ const InsightDetailScreen = (): React.ReactElement => {
           <View
             className="bg-white rounded-2xl p-4 border border-stone-100"
             style={{
-              shadowColor: '#000',
+              shadowColor: colors.black,
               shadowOffset: { width: 0, height: 4 },
               shadowOpacity: 0.06,
               shadowRadius: 20,

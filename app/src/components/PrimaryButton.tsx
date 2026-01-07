@@ -27,7 +27,7 @@ interface PrimaryButtonProps {
   isLast?: boolean;
 }
 
-export const PrimaryButton: React.FC<PrimaryButtonProps> = ({
+export const PrimaryButton = ({
   onPress,
   children,
   style,
@@ -35,7 +35,7 @@ export const PrimaryButton: React.FC<PrimaryButtonProps> = ({
   loading = false,
   showIcon = true,
   isLast = false,
-}): ReactElement => {
+}: PrimaryButtonProps): ReactElement => {
   return (
     <TouchableOpacity
       onPress={onPress}

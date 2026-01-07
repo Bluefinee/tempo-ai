@@ -20,7 +20,7 @@ export interface CardProps {
   noPadding?: boolean;
 }
 
-export const Card: React.FC<CardProps> = ({ children, style, onPress, noPadding }) => {
+export const Card = ({ children, style, onPress, noPadding }: CardProps): React.ReactElement => {
   const cardStyle = [styles.card, noPadding && styles.noPadding, style];
 
   if (onPress) {

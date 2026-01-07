@@ -4,7 +4,7 @@
  */
 
 import React, { useMemo } from 'react';
-import { View, Text, ScrollView, Pressable } from 'react-native';
+import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import {
@@ -440,5 +440,89 @@ const RhythmScreen = (): React.ReactElement => {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  dateContainer: {
+    gap: 8,
+  },
+  dateText: {
+    letterSpacing: 1.5,
+  },
+  titleText: {
+    fontFamily: FontFamily.serif,
+  },
+  timeText: {
+    fontFamily: 'monospace',
+  },
+  sectionTitle: {
+    letterSpacing: 1.5,
+  },
+  windowCardsContainer: {
+    gap: 16,
+  },
+  peakEnergyCard: {
+    padding: 20,
+    borderWidth: 2,
+    borderColor: colors.amber[400],
+    shadowColor: colors.amber[500],
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+  melatoninCard: {
+    padding: 20,
+    borderWidth: 2,
+    borderColor: colors.indigo[400],
+    shadowColor: colors.indigo[500],
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+  windowCardContent: {
+    gap: 16,
+  },
+  windowIconContainer: {
+    flex: 1,
+  },
+  peakIconBg: {
+    backgroundColor: colors.amber[100],
+  },
+  melatoninIconBg: {
+    backgroundColor: colors.indigo[100],
+  },
+  envRow: {
+    gap: 12,
+  },
+  envCard: {
+    padding: 16,
+    borderWidth: 1,
+    borderColor: colors.stone[100],
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    elevation: 4,
+  },
+  sunriseIconBg: {
+    backgroundColor: colors.amber[100],
+  },
+  sunsetIconBg: {
+    backgroundColor: colors.rose[100],
+  },
+  weatherIconBg: {
+    backgroundColor: colors.blue[50],
+  },
+  pressureIconBg: {
+    backgroundColor: colors.emerald[100],
+  },
+  uvIconBg: {
+    backgroundColor: colors.amber[50],
+  },
+  moonIconBg: {
+    backgroundColor: colors.purple[50],
+  },
+});
 
 export default RhythmScreen;

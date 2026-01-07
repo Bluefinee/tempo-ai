@@ -10,6 +10,7 @@ import {
   ScrollView,
   Pressable,
   ActivityIndicator,
+  StyleSheet,
 } from "react-native";
 import {
   SafeAreaView,
@@ -79,7 +80,7 @@ const getMetricCards = (scores?: { recovery: number; sleep: number; rhythm: numb
 ];
 
 // Health Summary カードのデータを取得（i18n対応）
-const getHealthCards = () => [
+const getHealthCards = (): HealthCard[] => [
   {
     id: "hrv",
     label: t("metric.health.hrv.shortName"),
@@ -155,11 +156,11 @@ const TodayScreen = (): React.ReactElement => {
   // ローディング表示
   if (isLoading) {
     return (
-      <View style={{ flex: 1, backgroundColor: colors.stone[50] }}>
-        <SafeAreaView style={{ flex: 1 }}>
-          <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <View style={styles.loadingContainer}>
+        <SafeAreaView style={styles.loadingSafeArea}>
+          <View style={styles.loadingContent}>
             <ActivityIndicator size="large" color={colors.stone[900]} />
-            <Text style={{ color: colors.stone[600], marginTop: 16, fontSize: 14 }}>
+            <Text style={styles.loadingText}>
               {t("common.loading")}
             </Text>
           </View>
@@ -186,37 +187,37 @@ const TodayScreen = (): React.ReactElement => {
           >
             <Text
               className="text-2xl font-bold text-stone-900 tracking-tight"
-              style={{ fontFamily: FontFamily.serif }}
+              style={styles.headerTitle}
             >
               {greeting}
             </Text>
             <Text
               className="text-sm font-medium text-stone-500 uppercase mt-1"
-              style={{ letterSpacing: 1 }}
+              style={styles.headerDate}
             >
               {today}
             </Text>
           </Animated.View>
 
-          <View className="px-6" style={{ gap: 32 }}>
+          <View className="px-6" style={styles.contentContainer}>
             {/* 2x2 Metric Grid */}
             <Animated.View
               entering={FadeInDown.delay(100).duration(400)}
-              style={{ gap: 16 }}
+              style={styles.metricGridContainer}
             >
-              <View className="flex-row" style={{ gap: 16 }}>
-                <View style={{ flex: 1 }}>
+              <View className="flex-row" style={styles.metricRow}>
+                <View style={styles.metricCardWrapper}>
                   <MetricGridCard metric={metricCards[0]} />
                 </View>
-                <View style={{ flex: 1 }}>
+                <View style={styles.metricCardWrapper}>
                   <MetricGridCard metric={metricCards[1]} />
                 </View>
               </View>
-              <View className="flex-row" style={{ gap: 16 }}>
-                <View style={{ flex: 1 }}>
+              <View className="flex-row" style={styles.metricRow}>
+                <View style={styles.metricCardWrapper}>
                   <MetricGridCard metric={metricCards[2]} />
                 </View>
-                <View style={{ flex: 1 }}>
+                <View style={styles.metricCardWrapper}>
                   <MetricGridCard metric={metricCards[3]} />
                 </View>
               </View>
@@ -225,13 +226,13 @@ const TodayScreen = (): React.ReactElement => {
             {/* AI Insight Section */}
             <Animated.View
               entering={FadeInDown.delay(200).duration(400)}
-              style={{ gap: 12 }}
+              style={styles.sectionContainer}
             >
-              <View className="flex-row items-center px-1" style={{ gap: 8 }}>
+              <View className="flex-row items-center px-1" style={styles.sectionHeader}>
                 <Sparkles size={18} color={colors.indigo[500]} />
                 <Text
                   className="text-sm font-bold text-stone-400 uppercase"
-                  style={{ letterSpacing: 1.5 }}
+                  style={styles.sectionTitle}
                 >
                   {t("screen.today.aiInsight")}
                 </Text>
@@ -240,34 +241,19 @@ const TodayScreen = (): React.ReactElement => {
                 onPress={() => router.push("/insight-detail")}
                 className="bg-white p-5 rounded-3xl border border-stone-100 overflow-hidden"
                 style={({ pressed }) => [
-                  {
-                    shadowColor: "#000",
-                    shadowOffset: { width: 0, height: 4 },
-                    shadowOpacity: 0.06,
-                    shadowRadius: 8,
-                    elevation: 3,
-                  },
+                  styles.insightCardShadow,
                   pressed && { transform: [{ scale: 0.98 }], opacity: 0.9 },
                 ]}
               >
                 {/* Left accent bar - 紫の縦線 (absolute positioning) */}
-                <View
-                  style={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    bottom: 0,
-                    width: 4,
-                    backgroundColor: colors.indigo[500],
-                  }}
-                />
+                <View style={[styles.accentBar, styles.insightAccentBar]} />
                 <Text className="text-lg font-bold text-stone-900 mb-2">
                   {MOCK_TODAY.aiMessage.title}
                 </Text>
                 <Text className="text-sm text-stone-600 leading-relaxed mb-4">
                   {MOCK_TODAY.aiMessage.body}
                 </Text>
-                <View className="flex-row items-center" style={{ gap: 4 }}>
+                <View className="flex-row items-center" style={styles.viewAnalysisContainer}>
                   <Text className="text-xs font-bold text-indigo-600">
                     {t("screen.today.viewAnalysis")}
                   </Text>
@@ -279,13 +265,13 @@ const TodayScreen = (): React.ReactElement => {
             {/* Today's One Thing Section */}
             <Animated.View
               entering={FadeInDown.delay(300).duration(400)}
-              style={{ gap: 12 }}
+              style={styles.sectionContainer}
             >
-              <View className="flex-row items-center px-1" style={{ gap: 8 }}>
+              <View className="flex-row items-center px-1" style={styles.sectionHeader}>
                 <Target size={18} color={colors.amber[500]} />
                 <Text
                   className="text-sm font-bold text-stone-400 uppercase"
-                  style={{ letterSpacing: 1.5 }}
+                  style={styles.sectionTitle}
                 >
                   {t("screen.today.todayOneThing.title")}
                 </Text>
@@ -296,37 +282,24 @@ const TodayScreen = (): React.ReactElement => {
                 style={({ pressed }) => [
                   {
                     minHeight: 100,
-                    shadowColor: "#000",
-                    shadowOffset: { width: 0, height: 4 },
-                    shadowOpacity: 0.06,
-                    shadowRadius: 8,
-                    elevation: 3,
                   },
+                  styles.insightCardShadow,
                   pressed && { transform: [{ scale: 0.98 }], opacity: 0.9 },
                 ]}
               >
                 {/* Left accent bar - オレンジの縦線 (absolute positioning) */}
-                <View
-                  style={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    bottom: 0,
-                    width: 4,
-                    backgroundColor: colors.amber[500],
-                  }}
-                />
+                <View style={[styles.accentBar, styles.actionAccentBar]} />
                 <View
                   className="flex-row items-center"
-                  style={{ gap: 20, flex: 1 }}
+                  style={styles.actionCardContent}
                 >
                   <View
                     className="p-4 rounded-2xl"
-                    style={{ backgroundColor: colors.amber[50] }}
+                    style={styles.actionIconContainer}
                   >
                     <Footprints size={28} color={colors.amber[600]} />
                   </View>
-                  <View style={{ flex: 1 }}>
+                  <View style={styles.actionTextContainer}>
                     <Text className="text-lg font-bold text-stone-900 mb-1">
                       {MOCK_TODAY.oneThing.action}
                     </Text>
@@ -337,7 +310,7 @@ const TodayScreen = (): React.ReactElement => {
                 </View>
                 <View
                   className="p-2.5 rounded-full"
-                  style={{ backgroundColor: colors.stone[50] }}
+                  style={styles.chevronButton}
                 >
                   <ChevronRight size={22} color={colors.stone[300]} />
                 </View>
@@ -347,14 +320,14 @@ const TodayScreen = (): React.ReactElement => {
             {/* Health Summary Section */}
             <Animated.View
               entering={FadeInDown.delay(400).duration(400)}
-              style={{ gap: 12 }}
+              style={styles.sectionContainer}
             >
               <View className="flex-row items-center justify-between px-1">
-                <View className="flex-row items-center" style={{ gap: 8 }}>
+                <View className="flex-row items-center" style={styles.sectionHeader}>
                   <Activity size={18} color={colors.rose[500]} />
                   <Text
                     className="text-sm font-bold text-stone-400 uppercase"
-                    style={{ letterSpacing: 1.5 }}
+                    style={styles.sectionTitle}
                   >
                     {t("screen.today.healthSummary")}
                   </Text>
@@ -371,12 +344,7 @@ const TodayScreen = (): React.ReactElement => {
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{
-                paddingHorizontal: 24,
-                paddingTop: 8,
-                paddingBottom: 32,
-                gap: 16,
-              }}
+              contentContainerStyle={styles.healthScrollContent}
             >
               {healthCards.map((card) => (
                 <HealthSummaryCard key={card.id} card={card} />
@@ -388,5 +356,94 @@ const TodayScreen = (): React.ReactElement => {
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    backgroundColor: colors.stone[50],
+  },
+  loadingSafeArea: {
+    flex: 1,
+  },
+  loadingContent: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingText: {
+    color: colors.stone[600],
+    marginTop: 16,
+    fontSize: 14,
+  },
+  headerTitle: {
+    fontFamily: FontFamily.serif,
+  },
+  headerDate: {
+    letterSpacing: 1,
+  },
+  contentContainer: {
+    gap: 32,
+  },
+  metricGridContainer: {
+    gap: 16,
+  },
+  metricRow: {
+    gap: 16,
+  },
+  metricCardWrapper: {
+    flex: 1,
+  },
+  sectionContainer: {
+    gap: 12,
+  },
+  sectionHeader: {
+    gap: 8,
+  },
+  sectionTitle: {
+    letterSpacing: 1.5,
+  },
+  insightCardShadow: {
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  accentBar: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    bottom: 0,
+    width: 4,
+  },
+  insightAccentBar: {
+    backgroundColor: colors.indigo[500],
+  },
+  actionAccentBar: {
+    backgroundColor: colors.amber[500],
+  },
+  viewAnalysisContainer: {
+    gap: 4,
+  },
+  actionCardContent: {
+    gap: 20,
+    flex: 1,
+  },
+  actionIconContainer: {
+    backgroundColor: colors.amber[50],
+  },
+  actionTextContainer: {
+    flex: 1,
+  },
+  chevronButton: {
+    backgroundColor: colors.stone[50],
+  },
+  healthScrollContent: {
+    paddingHorizontal: 24,
+    paddingTop: 8,
+    paddingBottom: 32,
+    gap: 16,
+  },
+});
 
 export default TodayScreen;

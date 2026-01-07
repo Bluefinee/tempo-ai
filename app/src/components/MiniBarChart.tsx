@@ -61,7 +61,7 @@ export interface MiniBarChartProps {
  *   animated
  * />
  */
-export const MiniBarChart: React.FC<MiniBarChartProps> = ({
+export const MiniBarChart = ({
   data,
   color,
   height = 48,
@@ -72,7 +72,7 @@ export const MiniBarChart: React.FC<MiniBarChartProps> = ({
   gap = 4,
   borderRadius = 2,
   style,
-}) => {
+}): MiniBarChartProps => {
   const chartHeight = showLabels ? height - 20 : height;
   const lastIndex = data.length - 1;
 

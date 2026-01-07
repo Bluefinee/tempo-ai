@@ -23,7 +23,7 @@ interface HealthMetricCardProps {
   onPress?: () => void;
 }
 
-export const HealthMetricCard: React.FC<HealthMetricCardProps> = ({
+export const HealthMetricCard = ({
   name,
   value,
   unit,
@@ -31,7 +31,7 @@ export const HealthMetricCard: React.FC<HealthMetricCardProps> = ({
   statusLabel,
   isLastOdd = false,
   onPress,
-}) => {
+}: HealthMetricCardProps): React.ReactElement => {
   const isOutOfRange = status === 'out-of-range';
 
   return (

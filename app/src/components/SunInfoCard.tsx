@@ -41,13 +41,13 @@ const getTypeConfig = (type: SunType) => {
   };
 };
 
-export const SunInfoCard: React.FC<SunInfoCardProps> = ({
+export const SunInfoCard = ({
   type,
   time,
   label,
   delay = 0,
   onPress,
-}) => {
+}): SunInfoCardProps => {
   const config = getTypeConfig(type);
   const displayLabel = label ?? config.defaultLabel;
 

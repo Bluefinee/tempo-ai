@@ -38,14 +38,14 @@ const PADDING_RIGHT = 0;
 const PADDING_TOP = 20;
 const PADDING_BOTTOM = 30;
 
-export const HealthAreaChart: React.FC<HealthAreaChartProps> = ({
+export const HealthAreaChart = ({
   data,
   colorHex,
   typicalRange,
   unit,
   width: propWidth,
   height = 200,
-}) => {
+}: HealthAreaChartProps): React.ReactElement => {
   const screenWidth = useWindowDimensions().width;
   const width = propWidth ?? screenWidth - 48;
   const chartWidth = width - PADDING_LEFT - PADDING_RIGHT;

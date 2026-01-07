@@ -43,12 +43,12 @@ const PADDING_RIGHT = 16;
 const PADDING_TOP = 50;
 const PADDING_BOTTOM = 35;
 
-export const RhythmInteractiveChart: React.FC<RhythmInteractiveChartProps> = ({
+export const RhythmInteractiveChart = ({
   data,
   currentHour,
   width: propWidth,
   height = 280,
-}) => {
+}): RhythmInteractiveChartProps => {
   const screenWidth = useWindowDimensions().width;
   const width = propWidth ?? screenWidth;
   const chartWidth = width - PADDING_LEFT - PADDING_RIGHT;

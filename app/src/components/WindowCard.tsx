@@ -43,7 +43,7 @@ const getThemeConfig = (theme: Theme) => {
   };
 };
 
-export const WindowCard: React.FC<WindowCardProps> = ({
+export const WindowCard = ({
   title,
   timeRange,
   description,
@@ -53,7 +53,7 @@ export const WindowCard: React.FC<WindowCardProps> = ({
   isActive = false,
   delay = 0,
   onPress,
-}) => {
+}): WindowCardProps => {
   const config = getThemeConfig(theme);
   const IconComponent = icon ?? (iconType === 'moon' ? Moon : Sun);
 

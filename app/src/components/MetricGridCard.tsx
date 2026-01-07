@@ -22,7 +22,7 @@ interface MetricGridCardProps {
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-export const MetricGridCard: React.FC<MetricGridCardProps> = ({
+export const MetricGridCard = ({
   title,
   value,
   color,
@@ -30,7 +30,7 @@ export const MetricGridCard: React.FC<MetricGridCardProps> = ({
   chartData,
   onPress,
   delay = 0,
-}) => {
+}): MetricGridCardProps => {
   return (
     <AnimatedPressable
       entering={FadeInDown.delay(delay).duration(400)}

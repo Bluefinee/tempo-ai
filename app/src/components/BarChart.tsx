@@ -17,11 +17,11 @@ interface BarChartProps {
   maxValue?: number;
 }
 
-export const BarChart: React.FC<BarChartProps> = ({
+export const BarChart = ({
   data,
   color,
   maxValue = 100,
-}) => {
+}: BarChartProps): React.ReactElement => {
   return (
     <View style={styles.container}>
       {data.map((item, index) => {

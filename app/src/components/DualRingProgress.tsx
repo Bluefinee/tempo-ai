@@ -26,7 +26,7 @@ interface DualRingProgressProps {
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
-export const DualRingProgress: React.FC<DualRingProgressProps> = ({
+export const DualRingProgress = ({
   size,
   strokeWidth,
   innerProgress,
@@ -35,7 +35,7 @@ export const DualRingProgress: React.FC<DualRingProgressProps> = ({
   outerColor,
   backgroundColor = '#E7E5E4',
   duration = 1000,
-}) => {
+}: DualRingProgressProps): React.ReactElement => {
   const innerRadius = (size - strokeWidth * 3) / 2;
   const outerRadius = (size - strokeWidth) / 2;
   const innerCircumference = 2 * Math.PI * innerRadius;

@@ -81,7 +81,7 @@ const generateTimeframeData = (
   }
 };
 
-export const HealthMetricDetail: React.FC<HealthMetricDetailProps> = ({
+export const HealthMetricDetail = ({
   id,
   name,
   value,
@@ -92,7 +92,7 @@ export const HealthMetricDetail: React.FC<HealthMetricDetailProps> = ({
   baseline,
   baselineTrend,
   delay = 0,
-}) => {
+}): HealthMetricDetailProps => {
   const [timeframe, setTimeframe] = useState<Timeframe>('7D');
 
   const timeframes: Timeframe[] = ['7D', '30D', '60D'];

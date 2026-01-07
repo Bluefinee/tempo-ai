@@ -24,14 +24,14 @@ interface CircularProgressProps {
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
-export const CircularProgress: React.FC<CircularProgressProps> = ({
+export const CircularProgress = ({
   size,
   strokeWidth,
   progress,
   color,
   backgroundColor = '#E7E5E4',
   duration = 1000,
-}) => {
+}: CircularProgressProps): React.ReactElement => {
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const progressValue = useSharedValue(0);

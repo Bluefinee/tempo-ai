@@ -7,9 +7,9 @@ interface LoadingViewProps {
   message?: string;
 }
 
-export const LoadingView: React.FC<LoadingViewProps> = ({
+export const LoadingView = ({
   message = '読み込み中...',
-}): JSX.Element => {
+}: LoadingViewProps): JSX.Element => {
   return (
     <View style={styles.container}>
       <ActivityIndicator size="large" color={Colors.indigo[500]} />

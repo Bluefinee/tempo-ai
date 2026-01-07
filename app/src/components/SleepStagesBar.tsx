@@ -31,7 +31,7 @@ const stageLabels = {
   awake: 'Awake',
 };
 
-export const SleepStagesBar: React.FC<SleepStagesBarProps> = ({ stages }) => {
+export const SleepStagesBar = ({ stages }): SleepStagesBarProps => {
   return (
     <View style={styles.container}>
       {/* Bar */}

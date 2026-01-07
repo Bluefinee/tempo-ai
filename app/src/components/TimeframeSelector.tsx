@@ -21,10 +21,10 @@ interface TimeframeSelectorProps {
 
 const timeframes: Timeframe[] = ['7D', '30D', '60D'];
 
-export const TimeframeSelector: React.FC<TimeframeSelectorProps> = ({
+export const TimeframeSelector = ({
   selected,
   onSelect,
-}) => {
+}): TimeframeSelectorProps => {
   const selectedIndex = timeframes.indexOf(selected);
 
   const indicatorStyle = useAnimatedStyle(() => {

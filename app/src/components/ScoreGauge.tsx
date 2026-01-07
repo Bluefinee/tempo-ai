@@ -12,12 +12,12 @@ interface ScoreGaugeProps {
   isCalibrating?: boolean;
 }
 
-export const ScoreGauge: React.FC<ScoreGaugeProps> = ({
+export const ScoreGauge = ({
   label,
   value,
   icon,
   isCalibrating = false,
-}): ReactElement => {
+}: ScoreGaugeProps): ReactElement => {
   const displayValue = isCalibrating ? '---' : String(value);
   const scoreColor = getScoreColor(value);
   const bgColor = getScoreBackgroundColor(value);

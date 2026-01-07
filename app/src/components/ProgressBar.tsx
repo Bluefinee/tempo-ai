@@ -11,12 +11,12 @@ interface ProgressBarProps {
   backgroundColor?: string;
 }
 
-export const ProgressBar: React.FC<ProgressBarProps> = ({
+export const ProgressBar = ({
   value,
   showAnimation = true,
   height = 8,
   backgroundColor = Colors.stone[100],
-}): ReactElement => {
+}: ProgressBarProps): ReactElement => {
   const animatedWidth = useRef(new Animated.Value(0)).current;
   const clampedValue = Math.max(0, Math.min(100, value));
   const fillColor = getScoreColor(clampedValue);

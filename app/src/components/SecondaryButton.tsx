@@ -18,13 +18,13 @@ interface SecondaryButtonProps {
   loading?: boolean;
 }
 
-export const SecondaryButton: React.FC<SecondaryButtonProps> = ({
+export const SecondaryButton = ({
   onPress,
   children,
   style,
   disabled = false,
   loading = false,
-}): ReactElement => {
+}: SecondaryButtonProps): ReactElement => {
   return (
     <TouchableOpacity
       onPress={onPress}

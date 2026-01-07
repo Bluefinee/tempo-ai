@@ -15,12 +15,12 @@ interface InputFieldProps extends Omit<TextInputProps, 'style'> {
   error?: string;
 }
 
-export const InputField: React.FC<InputFieldProps> = ({
+export const InputField = ({
   label,
   suffix,
   error,
   ...textInputProps
-}): ReactElement => {
+}: InputFieldProps): ReactElement => {
   return (
     <View style={styles.container}>
       <Text style={styles.label}>{label}</Text>

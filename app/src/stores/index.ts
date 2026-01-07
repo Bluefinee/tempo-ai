@@ -8,8 +8,11 @@ export {
 // Health store
 export {
   useHealthStore,
-  selectTodayScores,
   selectIsHealthDataStale,
+  selectTempoScore,
+  selectIsCalibrating as selectIsCalibratingHealth,
+  selectCurrentPhase,
+  selectCalibrationProgress as selectCalibrationProgressHealth,
 } from './healthStore';
 
 // Insight store
@@ -18,3 +21,11 @@ export {
   selectCurrentGenerationMessage,
   selectIsInsightStale,
 } from './insightStore';
+
+// Breathe store
+export {
+  useBreatheStore,
+  selectIsSessionComplete,
+  selectSessionProgress,
+  selectFormattedElapsedTime,
+} from './breatheStore';

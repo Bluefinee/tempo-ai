@@ -1,23 +1,21 @@
 import { create } from 'zustand';
-import { DailyAdvice, Mood, TodayMode, QuickAction, RecommendedAction } from '../domain/models';
-import { createRecommendedAction } from '../domain/models/advice';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Mood, TodayMode } from '../domain/models';
 import { apiClient } from '../api/client';
 import { buildAdviceRequest } from '../api/helpers/adviceRequestBuilder';
-import {
-  MOCK_QUICK_ACTIONS,
-  MOCK_AI_INSIGHT_FULL,
-  MOCK_AI_GREETING_SHORT,
-  MOCK_RECOMMENDED_ACTION,
-} from '../constants/mockData';
+import { Alert, TopDiscovery } from '../domain/models/insight';
+import { useHealthStore } from './healthStore';
+import { useUserStore } from './userStore';
+import type { WeatherData, TodayInsight, TodayOneThing, RelatedInsight } from '../api/types';
 
 type InsightFeedback = 'helpful' | 'not-helpful' | null;
 
 interface InsightState {
-  // Daily insight
-  dailyAdvice: DailyAdvice | null;
-  shortGreeting: string | null;
-  quickActions: QuickAction[];
-  recommendedAction: RecommendedAction | null;
+  // AI Daily Insight
+  todayInsight: TodayInsight | null;
+  todayOneThing: TodayOneThing | null;
+  relatedInsight: RelatedInsight | null;
 
   // User check-in
   todayMood: Mood | null;
@@ -26,7 +24,7 @@ interface InsightState {
   // Feedback
   insightFeedback: InsightFeedback;
 
-  // Loading state (for Labor Illusion)
+  // Loading state
   isGeneratingInsight: boolean;
   generationPhase: number;
   generationMessages: string[];
@@ -37,17 +35,39 @@ interface InsightState {
   // Last updated
   lastInsightUpdate: Date | null;
 
+  // Weekly Data
+  weeklyScores: readonly number[];
+  topDiscovery: TopDiscovery | null;
+  recentAlerts: readonly Alert[];
+
+  // Cache
+  lastFetchedDate: string | null;
+
+  // Loading State
+  isLoading: boolean;
+  error: string | null;
+
   // Actions
   generateDailyInsight: () => Promise<void>;
   setMood: (mood: Mood) => void;
   setTodayMode: (mode: TodayMode) => void;
   setInsightFeedback: (feedback: InsightFeedback) => void;
-
-  // For testing/mock
-  setMockInsight: (nickname: string) => void;
-
-  // Reset
   resetInsight: () => void;
+  setDailyInsight: (insight: {
+    todayInsight: TodayInsight;
+    todayOneThing: TodayOneThing;
+    relatedInsight: RelatedInsight;
+  }) => void;
+  setWeeklyData: (data: {
+    weeklyScores: readonly number[];
+    topDiscovery: TopDiscovery | null;
+  }) => void;
+  setAlerts: (alerts: readonly Alert[]) => void;
+  addAlert: (alert: Alert) => void;
+  setLoading: (isLoading: boolean) => void;
+  setError: (error: string | null) => void;
+  clearCache: () => void;
+  reset: () => void;
 }
 
 const GENERATION_MESSAGES = [
@@ -56,19 +76,30 @@ const GENERATION_MESSAGES = [
   'アドバイスを生成中...',
 ];
 
-export const useInsightStore = create<InsightState>()((set) => ({
-  dailyAdvice: null,
-  shortGreeting: null,
-  quickActions: [],
-  recommendedAction: null,
-  todayMood: null,
-  todayMode: null,
-  insightFeedback: null,
-  isGeneratingInsight: false,
-  generationPhase: 0,
-  generationMessages: GENERATION_MESSAGES,
-  insightError: null,
-  lastInsightUpdate: null,
+const initialState = {
+  todayInsight: null,
+  todayOneThing: null,
+  relatedInsight: null,
+  weeklyScores: [],
+  topDiscovery: null,
+  recentAlerts: [],
+  lastFetchedDate: null,
+  isLoading: false,
+  error: null,
+};
+
+export const useInsightStore = create<InsightState>()(
+  persist(
+    (set, get) => ({
+      ...initialState,
+      todayMood: null,
+      todayMode: null,
+      insightFeedback: null,
+      isGeneratingInsight: false,
+      generationPhase: 0,
+      generationMessages: GENERATION_MESSAGES,
+      insightError: null,
+      lastInsightUpdate: null,
 
   generateDailyInsight: async () => {
     set({
@@ -80,11 +111,43 @@ export const useInsightStore = create<InsightState>()((set) => ({
     try {
       // Labor Illusion: API呼び出しと並行してフェーズ表示
       const advicePromise = (async () => {
-        const request = buildAdviceRequest();
-        if (!request) {
-          throw new Error('プロファイルが設定されていません');
-        }
-        return apiClient.advice.generate(request);
+        const healthStoreState = useHealthStore.getState();
+        const userStoreState = useUserStore.getState();
+        
+        // 天気データは一時的に空のオブジェクトを使用（実際にはuseWeatherフックから取得する必要がある）
+        const weather: WeatherData = {
+          temperature: 20,
+          pressure: 1013,
+          pressureTrend: 'stable',
+          sunrise: '06:00',
+          sunset: '18:00',
+        };
+
+        const request = buildAdviceRequest({
+          healthStore: {
+            metrics: {
+              sleep: healthStoreState.metrics.sleep ? {
+                durationMinutes: healthStoreState.metrics.sleep.durationMinutes,
+                deepSleepMinutes: Math.round(healthStoreState.metrics.sleep.durationMinutes * healthStoreState.metrics.sleep.deepSleepRatio),
+                remSleepMinutes: Math.round(healthStoreState.metrics.sleep.durationMinutes * healthStoreState.metrics.sleep.remSleepRatio),
+              } : null,
+              hrv: healthStoreState.metrics.hrv ? {
+                current: healthStoreState.metrics.hrv.current,
+                baseline30d: healthStoreState.metrics.hrv.baseline30d,
+              } : null,
+            },
+          },
+          userStore: {
+            profile: userStoreState.profile ? {
+              goals: (userStoreState.profile as { goals?: unknown }).goals ?? ['better_sleep'],
+              wakeUpTime: (userStoreState.profile as { wakeUpTime?: unknown }).wakeUpTime ?? '07:00',
+              windDownTime: (userStoreState.profile as { windDownTime?: unknown }).windDownTime ?? '23:00',
+            } : null,
+          },
+          weather,
+        });
+
+        return apiClient.generateAdvice(request);
       })();
 
       // フェーズ表示（Labor Illusion）
@@ -96,38 +159,24 @@ export const useInsightStore = create<InsightState>()((set) => ({
       // API レスポンス待機
       const response = await advicePromise;
 
-      if (!response.success || !response.data) {
-        throw new Error(response.error || 'アドバイスの生成に失敗しました');
+      if (!response.success) {
+        throw new Error(response.error?.message || 'アドバイスの生成に失敗しました');
       }
 
-      const { summary, insight, recommendedAction } = response.data;
+      if (!response.data) {
+        throw new Error('アドバイスの生成に失敗しました');
+      }
 
-      // DailyAdvice形式に変換
-      const dailyAdvice: DailyAdvice = {
-        id: `advice_${Date.now()}`,
-        date: new Date(),
-        greeting: insight.greeting,
-        condition: insight.condition,
-        sleep: insight.sleep,
-        rhythm: insight.rhythm,
-        environment: insight.environment,
-        advice: insight.advice,
-        closing: insight.closing,
-      };
-
-      // RecommendedAction形式に変換
-      const action = createRecommendedAction(
-        recommendedAction.type,
-        recommendedAction.message
-      );
+      const data = response.data;
 
       set({
-        dailyAdvice,
-        shortGreeting: summary,
-        quickActions: MOCK_QUICK_ACTIONS, // TODO: APIから取得
-        recommendedAction: action,
+        todayInsight: data.todayInsight,
+        todayOneThing: data.todayOneThing,
+        relatedInsight: data.relatedInsight,
         isGeneratingInsight: false,
         lastInsightUpdate: new Date(),
+        lastFetchedDate: new Date().toISOString().split('T')[0],
+        error: null,
       });
     } catch (error) {
       set({
@@ -135,59 +184,88 @@ export const useInsightStore = create<InsightState>()((set) => ({
         insightError:
           error instanceof Error ? error.message : 'アドバイスの生成に失敗しました',
       });
-      console.error('Insight generation error:', error);
     }
   },
 
-  setMood: (mood) => set({ todayMood: mood }),
+      setMood: (mood) => set({ todayMood: mood }),
 
-  setTodayMode: (mode) => set({ todayMode: mode }),
+      setTodayMode: (mode) => set({ todayMode: mode }),
 
-  setInsightFeedback: (feedback) => {
-    set({ insightFeedback: feedback });
-    // TODO: Send feedback to backend
-  },
-
-  setMockInsight: (nickname: string) => {
-    const insight = MOCK_AI_INSIGHT_FULL(nickname);
-    const greeting = MOCK_AI_GREETING_SHORT(nickname);
-
-    set({
-      dailyAdvice: {
-        id: `advice_${Date.now()}`,
-        date: new Date(),
-        greeting: insight.greeting,
-        condition: insight.condition,
-        sleep: insight.sleep,
-        rhythm: insight.rhythm,
-        environment: insight.environment,
-        advice: insight.advice,
-        closing: insight.closing,
+      setInsightFeedback: (feedback) => {
+        set({ insightFeedback: feedback });
+        // TODO: Send feedback to backend
       },
-      shortGreeting: greeting,
-      quickActions: MOCK_QUICK_ACTIONS,
-      recommendedAction: MOCK_RECOMMENDED_ACTION,
-      lastInsightUpdate: new Date(),
-    });
-  },
 
-  resetInsight: () =>
-    set({
-      dailyAdvice: null,
-      shortGreeting: null,
-      quickActions: [],
-      recommendedAction: null,
-      todayMood: null,
-      todayMode: null,
-      insightFeedback: null,
-      isGeneratingInsight: false,
-      generationPhase: 0,
-      insightError: null,
-      lastInsightUpdate: null,
+      resetInsight: () =>
+        set({
+          todayInsight: null,
+          todayOneThing: null,
+          relatedInsight: null,
+          todayMood: null,
+          todayMode: null,
+          insightFeedback: null,
+          isGeneratingInsight: false,
+          generationPhase: 0,
+          insightError: null,
+          lastInsightUpdate: null,
+          lastFetchedDate: null,
+        }),
+
+      setDailyInsight: (insight) => {
+        const today = new Date().toISOString().split('T')[0];
+        set({
+          todayInsight: insight.todayInsight,
+          todayOneThing: insight.todayOneThing,
+          relatedInsight: insight.relatedInsight,
+          lastFetchedDate: today,
+          error: null,
+        });
+      },
+
+      setWeeklyData: (data) => {
+        set({
+          weeklyScores: data.weeklyScores,
+          topDiscovery: data.topDiscovery,
+        });
+      },
+
+      setAlerts: (alerts) => {
+        set({ recentAlerts: alerts });
+      },
+
+      addAlert: (alert) => {
+        set((state) => ({
+          recentAlerts: [alert, ...state.recentAlerts].slice(0, 10),
+        }));
+      },
+
+      setLoading: (isLoading) => set({ isLoading }),
+
+      setError: (error) => set({ error }),
+
+      clearCache: () => {
+        set({
+          todayInsight: null,
+          todayOneThing: null,
+          relatedInsight: null,
+          lastFetchedDate: null,
+        });
+      },
+
+      reset: () => set(initialState),
     }),
-}));
+    {
+      name: 'tempo-insight-storage',
+      storage: createJSONStorage(() => AsyncStorage),
+      partialize: (state) => ({
+        weeklyScores: state.weeklyScores,
+        lastFetchedDate: state.lastFetchedDate,
+      }),
+    }
+  )
+);
 
-// Selectors
+// Selectors (既存)
 export const selectCurrentGenerationMessage = (state: InsightState): string =>
   state.generationMessages[state.generationPhase] || '';
 
@@ -195,10 +273,31 @@ export const selectIsInsightStale = (state: InsightState): boolean => {
   if (!state.lastInsightUpdate) return true;
   const lastUpdate = state.lastInsightUpdate;
   const now = new Date();
-  // Stale if not from today
   return (
     lastUpdate.getDate() !== now.getDate() ||
     lastUpdate.getMonth() !== now.getMonth() ||
     lastUpdate.getFullYear() !== now.getFullYear()
   );
+};
+
+// Selectors
+export const selectTodayInsight = (state: InsightState): TodayInsight | null =>
+  state.todayInsight;
+
+export const selectTodayOneThing = (state: InsightState): TodayOneThing | null =>
+  state.todayOneThing;
+
+export const selectRelatedInsight = (state: InsightState): RelatedInsight | null =>
+  state.relatedInsight;
+
+export const selectWeeklyAverage = (state: InsightState): number => {
+  if (state.weeklyScores.length === 0) return 0;
+  const sum = state.weeklyScores.reduce((a, b) => a + b, 0);
+  return Math.round(sum / state.weeklyScores.length);
+};
+
+export const selectIsCacheValid = (state: InsightState): boolean => {
+  if (!state.lastFetchedDate) return false;
+  const today = new Date().toISOString().split('T')[0];
+  return state.lastFetchedDate === today;
 };

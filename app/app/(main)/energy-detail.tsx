@@ -437,7 +437,6 @@ const styles = StyleSheet.create({
     bottom: 20,
     width: 2,
     backgroundColor: colors.amber[400],
-    borderStyle: "dashed",
   },
   currentTimeDot: {
     position: "absolute",

@@ -4,7 +4,7 @@
  */
 
 import React, { useMemo } from "react";
-import { View, Text, ScrollView, Pressable, StyleSheet } from "react-native";
+import { View, Text, ScrollView, Pressable } from "react-native";
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -28,9 +28,10 @@ import {
   RhythmInteractiveChart,
   type RhythmDataPoint,
 } from "../../src/components";
-import { colors, FontFamily } from "../../src/theme";
+import { colors } from "../../src/theme";
 import { t } from "../../src/i18n";
 import { getEnvironmentData } from "../../src/constants/mockData";
+import { getPressureTrendIcon } from "../../src/domain/models/weather";
 
 // モックデータ: 24時間分のエネルギーレベル (sozai版と同じデータ形式)
 const RHYTHM_DATA: RhythmDataPoint[] = [
@@ -54,24 +55,6 @@ const RHYTHM_DATA: RhythmDataPoint[] = [
   { time: "11 PM", hour: 23, energy: 15 },
   { time: "12 AM", hour: 24, energy: 10 },
 ];
-
-/**
- * 気圧トレンドのアイコンを取得
- * @param trend - トレンドタイプ（rising/stable/falling）
- * @returns 矢印アイコン文字（↑/→/↓）
- */
-const getPressureTrendIcon = (
-  trend: "rising" | "stable" | "falling",
-): string => {
-  switch (trend) {
-    case "rising":
-      return "↑";
-    case "stable":
-      return "→";
-    case "falling":
-      return "↓";
-  }
-};
 
 // 日付フォーマット（英語）
 const formatDate = (date: Date): string => {
@@ -432,89 +415,5 @@ const RhythmScreen = (): React.ReactElement => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  dateContainer: {
-    gap: 8,
-  },
-  dateText: {
-    letterSpacing: 1.5,
-  },
-  titleText: {
-    fontFamily: FontFamily.serif,
-  },
-  timeText: {
-    fontFamily: "monospace",
-  },
-  sectionTitle: {
-    letterSpacing: 1.5,
-  },
-  windowCardsContainer: {
-    gap: 16,
-  },
-  peakEnergyCard: {
-    padding: 20,
-    borderWidth: 2,
-    borderColor: colors.amber[400],
-    shadowColor: colors.amber[500],
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 6,
-  },
-  melatoninCard: {
-    padding: 20,
-    borderWidth: 2,
-    borderColor: colors.indigo[400],
-    shadowColor: colors.indigo[500],
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 6,
-  },
-  windowCardContent: {
-    gap: 16,
-  },
-  windowIconContainer: {
-    flex: 1,
-  },
-  peakIconBg: {
-    backgroundColor: colors.amber[100],
-  },
-  melatoninIconBg: {
-    backgroundColor: colors.indigo[100],
-  },
-  envRow: {
-    gap: 12,
-  },
-  envCard: {
-    padding: 16,
-    borderWidth: 1,
-    borderColor: colors.stone[100],
-    shadowColor: colors.black,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.06,
-    shadowRadius: 10,
-    elevation: 4,
-  },
-  sunriseIconBg: {
-    backgroundColor: colors.amber[100],
-  },
-  sunsetIconBg: {
-    backgroundColor: colors.rose[100],
-  },
-  weatherIconBg: {
-    backgroundColor: colors.blue[50],
-  },
-  pressureIconBg: {
-    backgroundColor: colors.emerald[100],
-  },
-  uvIconBg: {
-    backgroundColor: colors.amber[50],
-  },
-  moonIconBg: {
-    backgroundColor: colors.purple[50],
-  },
-});
 
 export default RhythmScreen;

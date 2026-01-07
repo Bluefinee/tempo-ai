@@ -22,10 +22,16 @@ interface SunInfoCardProps {
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
+interface IconProps {
+  size?: number;
+  color?: string;
+  strokeWidth?: number;
+}
+
 const getTypeConfig = (
   type: SunType,
 ): {
-  Icon: React.ComponentType<any>;
+  Icon: React.ComponentType<IconProps>;
   iconColor: string;
   iconBgColor: string;
   labelColor: string;

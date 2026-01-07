@@ -33,7 +33,6 @@ export const MetricGridCard = ({
 
   return (
     <Pressable
-      key={metric.id}
       onPress={() => router.push(metric.route)}
       className="bg-white p-5 rounded-3xl border border-stone-100"
       style={({ pressed }) => [

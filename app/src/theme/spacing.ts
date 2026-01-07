@@ -1,58 +1,28 @@
 /**
- * TempoAI スペーシングシステム
- * 4px ベースのスケール
+ * スペーシング定義（8pxグリッド）
+ * @see docs/specs/ui_ux_design.md
  */
-
 export const Spacing = {
-  /** 0px */
-  none: 0,
-  /** 2px */
-  xxs: 2,
-  /** 4px */
   xs: 4,
-  /** 8px */
   sm: 8,
-  /** 12px */
-  md: 12,
-  /** 16px */
-  lg: 16,
-  /** 20px */
-  xl: 20,
-  /** 24px */
-  xxl: 24,
-  /** 32px */
-  xxxl: 32,
-  /** 40px */
-  huge: 40,
-  /** 48px */
-  massive: 48,
-  /** 64px */
-  giant: 64,
+  md: 16,
+  lg: 24,
+  xl: 32,
+  xxl: 48,
 } as const;
 
-// ボーダー半径
+/**
+ * 角丸定義
+ * Tailwind CSS border-radius mapping
+ */
 export const BorderRadius = {
-  /** 4px */
-  xs: 4,
-  /** 8px */
-  sm: 8,
-  /** 12px */
-  md: 12,
-  /** 16px */
-  lg: 16,
-  /** 20px */
-  xl: 20,
-  /** 24px - カード用 */
-  xxl: 24,
-  /** 9999px - ピル/ボタン用 */
-  full: 9999,
-} as const;
-
-// 画面パディング
-export const ScreenPadding = {
-  horizontal: Spacing.lg,
-  vertical: Spacing.lg,
-  bottom: Spacing.huge, // タブバー考慮
+  sm: 8,      // rounded-lg
+  md: 12,     // rounded-xl
+  lg: 16,     // rounded-2xl
+  xl: 24,     // rounded-3xl (sozai のメインカード)
+  '2xl': 20,  // rounded-2xl
+  '3xl': 24,  // rounded-3xl
+  full: 9999, // rounded-full
 } as const;
 
 export type SpacingKey = keyof typeof Spacing;

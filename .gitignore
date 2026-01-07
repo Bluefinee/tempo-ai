@@ -187,3 +187,5 @@ ENV/
 
 # Review artifacts (temporary analysis files)
 docs/reviews/
+
+sozai/

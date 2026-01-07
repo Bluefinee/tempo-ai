@@ -22,6 +22,8 @@ export class OpenMeteoClient {
       'temperature_2m,relative_humidity_2m,pressure_msl,weather_code',
     );
     url.searchParams.set('daily', 'uv_index_max,sunrise,sunset');
+    url.searchParams.set('hourly', 'pressure_msl'); // 気圧トレンド計算用
+    url.searchParams.set('past_hours', '24'); // 過去24時間のデータ
     url.searchParams.set('timezone', 'auto');
     return url;
   };
@@ -99,10 +101,19 @@ export class OpenMeteoClient {
       const weatherData = weatherResult.data;
       const airData = airResult.data;
 
+      // 気圧トレンドの計算
+      const currentPressure = weatherData.current.pressure_msl;
+
+      // デフォルトはstable
+      // 過去24時間のデータがある場合のみトレンドを計算
+      // Note: Open-Meteo APIは hourly データを返さない場合があるため、
+      // 現時点では常に 'stable' を返す
+      // TODO: 実際のAPIレスポンスを確認してトレンド計算を実装
+
       return ok({
         temperature: weatherData.current.temperature_2m,
         humidity: weatherData.current.relative_humidity_2m,
-        pressure: weatherData.current.pressure_msl,
+        pressure: currentPressure,
         weatherCode: weatherData.current.weather_code,
         uvIndexMax: weatherData.daily.uv_index_max[0] ?? 0,
         sunrise: weatherData.daily.sunrise[0] ?? '',

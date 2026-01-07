@@ -1,147 +1,185 @@
 /**
- * API Request/Response Types
+ * API型定義
+ * @see docs/specs/technical_spec.md
  */
 
-import {
-  AIInsightFull,
-  Mood,
-  TodayMode,
-} from '../domain/models';
-
 // ========================================
-// Advice API
+// User Profile
 // ========================================
 
-export interface AdviceRequestProfile {
-  nickname: string;
-  age: number;
-  gender: string;
-  chronotype: string;
-  occupation?: string;
-  exerciseFrequency?: string;
-  targetBedtime: string;
+export type UserGoal = 'better_sleep' | 'more_energy' | 'less_stress' | 'peak_performance';
+
+export interface UserProfile {
+  goals: UserGoal[];
+  wakeUpTime: string;
+  windDownTime: string;
 }
 
-export interface AdviceRequestHealthData {
-  sleep?: {
-    bedtime: string;
-    wakeTime: string;
-    durationHours: number;
-    deepSleepMinutes: number;
-    remSleepMinutes: number;
-    deepSleepRatio: number;
-  };
-  hrv?: {
-    value: number;
-    baseline30d: number;
-    deviationPercent: number;
-  };
-  activity?: {
-    stepsYesterday: number;
-    activeMinutesYesterday: number;
-  };
-  scores: {
-    autonomic: number;
-    sleep: number;
-    rhythm: number;
-    activity: number;
-  };
-  rhythmAnalysis: {
-    bedtimeStddevMinutes: number;
-    wakeTimeStddevMinutes: number;
-    consecutiveStableDays: number;
-    status: 'stable' | 'recovering' | 'unstable';
-  };
+// ========================================
+// Scores (新規追加)
+// ========================================
+
+export interface ScoresData {
+  recovery: number; // 0-100
+  sleep: number; // 0-100
+  rhythm: number; // 0-100
+  energy: number; // 0-100
 }
 
-export interface AdviceRequestLocation {
-  latitude: number;
-  longitude: number;
-  city: string;
+// ========================================
+// Health Metrics
+// ========================================
+
+export interface SleepData {
+  durationMinutes: number;
+  deepSleepMinutes: number;
+  deepSleepPercent: number;
+  remSleepMinutes: number;
+  remSleepPercent: number;
+  bedtime?: string;
+  wakeTime?: string;
+  vsTargetBedtime?: string; // "+15min" or "-10min"
 }
 
-export interface AdviceRequestContext {
-  currentTime: string;
-  dayOfWeek: string;
-  mood?: Mood;
-  todayMode: TodayMode;
+export interface HrvData {
+  current: number;
+  baseline: number;
+  deviation?: number;
 }
 
-export interface AdviceRequestWeather {
+export interface RhrData {
+  current: number;
+  baseline: number;
+}
+
+export interface HealthMetrics {
+  hrv: HrvData;
+  rhr: RhrData;
+  sleep: SleepData;
+}
+
+// ========================================
+// Weather
+// ========================================
+
+export type PressureTrend = 'rising' | 'stable' | 'falling';
+
+export interface WeatherData {
   temperature: number;
-  humidity: number;
   pressure: number;
-  weatherCode: number;
-  uvIndexMax: number;
+  pressureTrend: PressureTrend;
+  sunrise: string;
+  sunset: string;
+  description?: string;
+  location?: string;
 }
+
+// ========================================
+// Rhythm Phases (新規追加)
+// ========================================
+
+export interface RhythmPhases {
+  peakFocus: {
+    start: string; // HH:mm
+    end: string; // HH:mm
+  };
+  afternoonDip: {
+    start: string; // HH:mm
+    end: string; // HH:mm
+  };
+  secondWind: {
+    start: string; // HH:mm
+    end: string; // HH:mm
+  };
+  windDown: {
+    start: string; // HH:mm
+    end: string; // HH:mm
+  };
+}
+
+// ========================================
+// Advice Request/Response
+// ========================================
 
 export interface AdviceRequest {
-  profile: AdviceRequestProfile;
-  healthData: AdviceRequestHealthData;
-  location: AdviceRequestLocation;
-  context: AdviceRequestContext;
-  weather?: AdviceRequestWeather;
+  user: UserProfile;
+  scores: ScoresData;
+  healthMetrics: HealthMetrics;
+  weather: WeatherData;
+  rhythmPhases: RhythmPhases;
+  locale?: string;
 }
 
-export interface AdviceResponseData {
-  summary: string;
-  insight: AIInsightFull;
-  recommendedAction: {
-    type: 'breathing' | 'morning_light' | 'rest' | 'activity';
-    message: string;
+export type OneThingIcon = 'walking' | 'breathing' | 'rest' | 'coffee' | 'sun';
+
+export interface WhyThisMattersItem {
+  headline: string;
+  explanation: string;
+}
+
+export interface TodayInsight {
+  title: string; // 英語、詩的（2-4語）
+  summary: string; // 日本語、100-150文字
+  whyThisMatters: {
+    hrv: WhyThisMattersItem;
+    sleep: WhyThisMattersItem;
+    rhythm: WhyThisMattersItem;
   };
+  whatThisMeansForToday: string; // 日本語、80-120文字
+}
+
+export interface TodayOneThing {
+  icon: OneThingIcon;
+  action: string; // 20文字以内
+  summary: string; // 40文字以内
+  time: string | null; // HH:MM形式 または null
+  whyThisAction: string; // 3-4文
+  benefits: string[]; // 各15文字以内
+  howToDoIt: string[]; // 各20文字以内
+  expectedBenefit: {
+    text: string;
+    source: string;
+  };
+}
+
+export interface RelatedInsight {
+  label: string; // "Research Finding"
+  text: string; // 30文字以内
+  source: string;
 }
 
 export interface AdviceResponse {
-  success: boolean;
-  data?: AdviceResponseData;
-  error?: string;
+  todayInsight: TodayInsight;
+  todayOneThing: TodayOneThing;
+  relatedInsight: RelatedInsight;
 }
 
 // ========================================
-// Weather API
+// Weather Response
 // ========================================
-
-export interface WeatherRequest {
-  latitude: number;
-  longitude: number;
-}
-
-export interface WeatherResponseData {
-  temperature: number;
-  humidity: number;
-  pressure: number;
-  weatherCode: number;
-  uvIndexMax: number;
-  sunrise: string;
-  sunset: string;
-  airQuality: {
-    pm25: number;
-    aqi: number;
-  };
-}
 
 export interface WeatherResponse {
-  success: boolean;
-  data?: WeatherResponseData;
-  error?: string;
+  temperature: number;
+  pressure: number;
+  pressureTrend: PressureTrend;
+  sunrise: string;
+  sunset: string;
+  description: string;
+  location: string;
 }
 
 // ========================================
-// Health Check API
-// ========================================
-
-export interface HealthCheckResponse {
-  status: string;
-  timestamp?: string;
-}
-
-// ========================================
-// Generic API Error
+// API Error
 // ========================================
 
 export interface ApiError {
-  code: string;
-  message: string;
-  details?: unknown;
+  error: string;
+  message?: string;
+  statusCode?: number;
 }
+
+// ========================================
+// API Response (Generic)
+// ========================================
+
+export type ApiResponse<T> = { success: true; data: T } | { success: false; error: ApiError };

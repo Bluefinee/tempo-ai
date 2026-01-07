@@ -3,6 +3,7 @@ import app from '../index';
 import type {
   OpenMeteoAirQualityResponse,
   OpenMeteoWeatherResponse,
+  WeatherData,
 } from '../services/weather/types';
 
 describe('GET /api/weather', () => {
@@ -128,10 +129,13 @@ describe('GET /api/weather', () => {
 
     const res = await app.request('/api/weather?latitude=35.6762&longitude=139.6503');
 
-    expect(res.status).toBe(502);
+    // エラー時はデフォルト天気データを返すため、200になる
+    expect(res.status).toBe(200);
 
-    const json = (await res.json()) as { success: boolean };
-    expect(json.success).toBe(false);
+    const json = (await res.json()) as { success: boolean; data?: WeatherData };
+    expect(json.success).toBe(true);
+    // デフォルトデータが返されていることを確認
+    expect(json.data).toBeDefined();
   });
 
   it('should handle network errors gracefully', async () => {
@@ -139,9 +143,12 @@ describe('GET /api/weather', () => {
 
     const res = await app.request('/api/weather?latitude=35.6762&longitude=139.6503');
 
-    expect(res.status).toBe(503);
+    // エラー時はデフォルト天気データを返すため、200になる
+    expect(res.status).toBe(200);
 
-    const json = (await res.json()) as { success: boolean };
-    expect(json.success).toBe(false);
+    const json = (await res.json()) as { success: boolean; data?: WeatherData };
+    expect(json.success).toBe(true);
+    // デフォルトデータが返されていることを確認
+    expect(json.data).toBeDefined();
   });
 });

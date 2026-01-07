@@ -1,11 +1,21 @@
+/**
+ * NicknameScreen - ニックネーム入力画面
+ * sozai/new のスタイルを React Native で再現
+ * Step 3 of 9
+ */
+
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, StyleSheet, useWindowDimensions, KeyboardAvoidingView, Platform } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { User } from 'lucide-react-native';
-import { Colors, Spacing, Typography } from '../../src/theme';
+import { Colors, FontFamily } from '../../src/theme';
 import { PrimaryButton, InputField } from '../../src/components';
 import { useUserStore } from '../../src/stores';
 import type { JSX } from 'react';
+
+const { width, height } = useWindowDimensions();
+const CURRENT_STEP = 3;
+const TOTAL_STEPS = 9;
 
 export default function NicknameScreen(): JSX.Element {
   const router = useRouter();
@@ -16,11 +26,11 @@ export default function NicknameScreen(): JSX.Element {
 
   const handleNext = (): void => {
     if (!nickname.trim()) {
-      setError('ニックネームを入力してください');
+      setError('Please enter a nickname');
       return;
     }
     if (nickname.length > 20) {
-      setError('20文字以内で入力してください');
+      setError('Nickname must be 20 characters or less');
       return;
     }
     setDraftNickname(nickname.trim());
@@ -28,91 +38,154 @@ export default function NicknameScreen(): JSX.Element {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.keyboardView}
-      >
-        <View style={styles.content}>
-          <View style={styles.iconContainer}>
-            <User size={48} color={Colors.primary[500]} strokeWidth={1.5} />
+    <View style={styles.container}>
+      {/* Decorative background blobs */}
+      <View style={styles.blobTopRight} />
+      <View style={styles.blobBottomLeft} />
+
+      <SafeAreaView style={styles.safeArea}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.keyboardView}
+        >
+          {/* Progress Bar */}
+          <View style={styles.progressContainer}>
+            {[...Array(TOTAL_STEPS)].map((_, idx) => (
+              <View
+                key={idx}
+                style={[
+                  styles.progressSegment,
+                  idx < CURRENT_STEP ? styles.progressActive : styles.progressInactive,
+                ]}
+              />
+            ))}
           </View>
 
-          <Text style={styles.title}>ニックネーム</Text>
-          <Text style={styles.description}>
-            AI があなたに呼びかける名前を{'\n'}教えてください
-          </Text>
+          {/* Content */}
+          <View style={styles.content}>
+            <Text style={styles.emoji}>🤖</Text>
+            <Text style={styles.title}>Warm AI Guidance</Text>
+            <Text style={styles.description}>
+              No robotic charts. Just gentle, poetic advice to help you feel your best.
+            </Text>
 
-          <View style={styles.inputWrapper}>
-            <InputField
-              label="ニックネーム"
-              value={nickname}
-              onChangeText={(text) => {
-                setNickname(text);
-                setError('');
-              }}
-              placeholder="例: たろう"
-              autoFocus
-              maxLength={20}
-              error={error}
-            />
+            <View style={styles.inputWrapper}>
+              <InputField
+                label="What should we call you?"
+                value={nickname}
+                onChangeText={(text) => {
+                  setNickname(text);
+                  setError('');
+                }}
+                placeholder="Enter your name"
+                autoFocus
+                maxLength={20}
+                error={error}
+              />
+            </View>
           </View>
-        </View>
 
-        <View style={styles.footer}>
-          <PrimaryButton
-            onPress={handleNext}
-            disabled={!nickname.trim()}
-          >
-            次へ
-          </PrimaryButton>
-        </View>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+          {/* Footer */}
+          <View style={styles.footer}>
+            <PrimaryButton
+              onPress={handleNext}
+              disabled={!nickname.trim()}
+            >
+              Continue
+            </PrimaryButton>
+          </View>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.slate[50],
+    backgroundColor: Colors.stone[50],
+    overflow: 'hidden',
+  },
+  safeArea: {
+    flex: 1,
   },
   keyboardView: {
     flex: 1,
   },
+  // Decorative blobs
+  blobTopRight: {
+    position: 'absolute',
+    top: -height * 0.15,
+    right: -width * 0.2,
+    width: 256,
+    height: 256,
+    backgroundColor: Colors.indigo[100],
+    borderRadius: 128,
+    opacity: 0.4,
+  },
+  blobBottomLeft: {
+    position: 'absolute',
+    bottom: -height * 0.1,
+    left: -width * 0.15,
+    width: 320,
+    height: 320,
+    backgroundColor: Colors.amber[100],
+    borderRadius: 160,
+    opacity: 0.4,
+  },
+  // Progress bar
+  progressContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: 32,
+    paddingTop: 48,
+    gap: 8,
+  },
+  progressSegment: {
+    flex: 1,
+    height: 4,
+    borderRadius: 2,
+  },
+  progressActive: {
+    backgroundColor: Colors.indigo[500],
+  },
+  progressInactive: {
+    backgroundColor: Colors.stone[200],
+  },
+  // Content
   content: {
     flex: 1,
-    paddingHorizontal: Spacing.xxl,
-    paddingTop: Spacing.huge,
     alignItems: 'center',
-  },
-  iconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 20,
-    backgroundColor: Colors.primary[50],
     justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: Spacing.xxl,
+    paddingHorizontal: 32,
+  },
+  emoji: {
+    fontSize: 60,
+    marginBottom: 32,
   },
   title: {
-    ...Typography.h2,
-    color: Colors.slate[800],
-    marginBottom: Spacing.md,
+    fontFamily: FontFamily.serif,
+    fontSize: 24,
+    fontWeight: '700',
+    color: Colors.stone[900],
     textAlign: 'center',
+    letterSpacing: -0.5,
+    marginBottom: 16,
   },
   description: {
-    ...Typography.body,
-    color: Colors.slate[500],
+    fontFamily: FontFamily.regular,
+    fontSize: 16,
+    color: Colors.stone[500],
     textAlign: 'center',
-    marginBottom: Spacing.xxl,
-    lineHeight: 24,
+    lineHeight: 26,
+    marginBottom: 32,
   },
   inputWrapper: {
     width: '100%',
   },
+  // Footer
   footer: {
-    paddingHorizontal: Spacing.xxl,
-    paddingBottom: Spacing.xxxl,
+    paddingHorizontal: 32,
+    paddingBottom: 48,
+    alignItems: 'center',
   },
 });

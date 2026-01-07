@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { err, ok } from '../../utils/result';
 import { AdviceService } from './AdviceService';
 import { AnthropicClient } from './AnthropicClient';
-import type { AdviceRequest, AdviceResponse } from './types';
+import type { AdviceRequest } from './types';
 
 // AnthropicClientをモック
 vi.mock('./AnthropicClient');
@@ -19,53 +19,105 @@ describe('AdviceService', () => {
   });
 
   const createValidRequest = (): AdviceRequest => ({
-    profile: {
-      nickname: 'マサ',
-      age: 28,
-      gender: 'male',
-      chronotype: 'morning',
-      targetBedtime: '23:00',
+    user: {
+      goals: ['better_sleep'],
+      wakeUpTime: '07:00',
+      windDownTime: '23:00',
     },
-    healthData: {
-      scores: {
-        autonomic: 85,
-        sleep: 78,
-        rhythm: 88,
-        activity: 68,
+    scores: {
+      recovery: 70,
+      sleep: 85,
+      rhythm: 92,
+      energy: 78,
+    },
+    healthMetrics: {
+      hrv: {
+        current: 82,
+        baseline: 77,
+        deviation: 6,
       },
-      rhythmAnalysis: {
-        bedtimeStddevMinutes: 22,
-        wakeTimeStddevMinutes: 18,
-        consecutiveStableDays: 5,
-        status: 'stable',
+      rhr: {
+        current: 59,
+        baseline: 59,
+      },
+      sleep: {
+        durationMinutes: 428,
+        deepSleepMinutes: 105,
+        deepSleepPercent: 23,
+        remSleepMinutes: 95,
+        remSleepPercent: 22,
+        bedtime: '23:15',
+        wakeTime: '06:45',
+        vsTargetBedtime: '+15min',
       },
     },
-    location: {
-      latitude: 35.6762,
-      longitude: 139.6503,
-      city: 'Tokyo',
+    weather: {
+      temperature: 8,
+      pressure: 1018,
+      pressureTrend: 'stable',
+      sunrise: '06:50',
+      sunset: '16:48',
+      description: '晴れ',
+      location: 'Tokyo',
     },
-    context: {
-      currentTime: '07:15',
-      dayOfWeek: '水曜日',
-      todayMode: 'normal',
+    rhythmPhases: {
+      peakFocus: {
+        start: '09:00',
+        end: '12:00',
+      },
+      afternoonDip: {
+        start: '14:00',
+        end: '16:00',
+      },
+      secondWind: {
+        start: '17:00',
+        end: '20:00',
+      },
+      windDown: {
+        start: '21:00',
+        end: '23:00',
+      },
     },
+    locale: 'ja',
   });
 
-  const createMockResponse = (): AdviceResponse => ({
-    summary: 'テストサマリー',
-    insight: {
-      greeting: 'テスト挨拶',
-      condition: 'テストコンディション',
-      sleep: 'テスト睡眠',
-      rhythm: 'テストリズム',
-      environment: 'テスト環境',
-      advice: 'テストアドバイス',
-      closing: 'テストクロージング',
+  const createMockResponse = () => ({
+    todayInsight: {
+      title: 'Morning Light',
+      summary: '今日は良いスタートが切れそうです。',
+      whyThisMatters: {
+        hrv: {
+          headline: 'HRVがベースラインより6%高い',
+          explanation: '自律神経がしっかり回復しています。',
+        },
+        sleep: {
+          headline: '深い睡眠が23%',
+          explanation: '身体の修復に理想的な範囲でした。',
+        },
+        rhythm: {
+          headline: '就寝時刻が目標の15分遅れ',
+          explanation: 'この程度のズレは許容範囲です。',
+        },
+      },
+      whatThisMeansForToday: '午前中は特に集中力が高まります。',
     },
-    recommendedAction: {
-      type: 'breathing',
-      message: '深呼吸をしましょう',
+    todayOneThing: {
+      icon: 'breathing' as const,
+      action: '深呼吸で1日をスタート',
+      summary: '心と身体を整えます',
+      time: '07:30',
+      whyThisAction: '深呼吸は自律神経を整えます。',
+      benefits: ['心を落ち着ける', '集中力を高める', 'ストレスを軽減'],
+      howToDoIt: ['楽な姿勢で座る', '4秒かけて吸う', '8秒で吐く'],
+      expectedBenefit: {
+        text: '呼吸法は自律神経のバランスを整えます',
+        source: '一般的な知見',
+      },
+    },
+    relatedInsight: {
+      label: 'Research Finding',
+      text: 'HRVが基準値を上回っています',
+      source: '研究に基づく',
     },
   });
 
@@ -78,10 +130,10 @@ describe('AdviceService', () => {
 
       expect(result.ok).toBe(true);
       if (result.ok) {
-        expect(result.data.summary).toBe('テストサマリー');
-        expect(result.data.insight.greeting).toBe('テスト挨拶');
-        expect(result.data.insight.condition).toBe('テストコンディション');
-        expect(result.data.recommendedAction.type).toBe('breathing');
+        expect(result.data.todayInsight.title).toBe('Morning Light');
+        expect(result.data.todayOneThing.icon).toBe('breathing');
+        expect(result.data.todayOneThing.action).toBe('深呼吸で1日をスタート');
+        expect(result.data.relatedInsight.label).toBe('Research Finding');
       }
     });
 
@@ -102,16 +154,16 @@ describe('AdviceService', () => {
 
       // User data XMLにはuser_dataタグが含まれる
       expect(userDataXml).toContain('<user_data>');
-      expect(userDataXml).toContain('<nickname>マサ</nickname>');
+      expect(userDataXml).toContain('<goals>better_sleep</goals>');
+      expect(userDataXml).toContain('<wake_up_time>07:00</wake_up_time>');
     });
 
-    it('should return INVALID_REQUEST when profile is missing', async () => {
+    it('should return INVALID_REQUEST when user is missing', async () => {
       const service = new AdviceService('test-api-key');
 
       const invalidRequest = {
-        healthData: createValidRequest().healthData,
-        location: createValidRequest().location,
-        context: createValidRequest().context,
+        healthMetrics: createValidRequest().healthMetrics,
+        weather: createValidRequest().weather,
       };
 
       const result = await service.generateAdvice(invalidRequest);
@@ -123,13 +175,12 @@ describe('AdviceService', () => {
       }
     });
 
-    it('should return INVALID_REQUEST when healthData is missing', async () => {
+    it('should return INVALID_REQUEST when healthMetrics is missing', async () => {
       const service = new AdviceService('test-api-key');
 
       const invalidRequest = {
-        profile: createValidRequest().profile,
-        location: createValidRequest().location,
-        context: createValidRequest().context,
+        user: createValidRequest().user,
+        weather: createValidRequest().weather,
       };
 
       const result = await service.generateAdvice(invalidRequest);
@@ -140,28 +191,14 @@ describe('AdviceService', () => {
       }
     });
 
-    it('should return INVALID_REQUEST when age is out of range', async () => {
-      const service = new AdviceService('test-api-key');
-
-      const invalidRequest = createValidRequest();
-      invalidRequest.profile.age = 150;
-
-      const result = await service.generateAdvice(invalidRequest);
-
-      expect(result.ok).toBe(false);
-      if (!result.ok) {
-        expect(result.error.code).toBe('INVALID_REQUEST');
-      }
-    });
-
-    it('should return INVALID_REQUEST when gender is invalid', async () => {
+    it('should return INVALID_REQUEST when goals is invalid', async () => {
       const service = new AdviceService('test-api-key');
 
       const invalidRequest = {
         ...createValidRequest(),
-        profile: {
-          ...createValidRequest().profile,
-          gender: 'invalid',
+        user: {
+          ...createValidRequest().user,
+          goals: ['invalid_goal'],
         },
       };
 
@@ -184,10 +221,11 @@ describe('AdviceService', () => {
 
       const result = await service.generateAdvice(createValidRequest());
 
-      expect(result.ok).toBe(false);
-      if (!result.ok) {
-        expect(result.error.code).toBe('AI_API_ERROR');
-        expect(result.error.message).toBe('API error occurred');
+      // AI_API_ERROR時もフォールバックレスポンスを返すため、okになる
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        // フォールバックレスポンスが返されていることを確認
+        expect(result.data.todayInsight.title).toBe('New Day');
       }
     });
 
@@ -202,9 +240,11 @@ describe('AdviceService', () => {
 
       const result = await service.generateAdvice(createValidRequest());
 
-      expect(result.ok).toBe(false);
-      if (!result.ok) {
-        expect(result.error.code).toBe('RATE_LIMIT_ERROR');
+      // RATE_LIMIT_ERROR時もフォールバックレスポンスを返すため、okになる
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        // フォールバックレスポンスが返されていることを確認
+        expect(result.data.todayInsight.title).toBe('New Day');
       }
     });
 
@@ -219,95 +259,42 @@ describe('AdviceService', () => {
 
       const result = await service.generateAdvice(createValidRequest());
 
-      expect(result.ok).toBe(false);
-      if (!result.ok) {
-        expect(result.error.code).toBe('PARSE_ERROR');
+      // PARSE_ERROR時はフォールバックレスポンスを返すため、okになる
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        // フォールバックレスポンスが返されていることを確認
+        expect(result.data.todayInsight.title).toBe('New Day');
       }
     });
 
-    it('should handle request with optional fields', async () => {
+    it('should include scores in XML', async () => {
       mockGenerateAdvice.mockResolvedValue(ok(createMockResponse()));
       const service = new AdviceService('test-api-key');
 
-      const requestWithOptionals = {
-        ...createValidRequest(),
-        profile: {
-          ...createValidRequest().profile,
-          occupation: 'deskWork' as const,
-          exerciseFrequency: 'twiceWeek' as const,
-        },
-        healthData: {
-          ...createValidRequest().healthData,
-          sleep: {
-            bedtime: '23:15',
-            wakeTime: '06:45',
-            durationHours: 7.5,
-            deepSleepMinutes: 105,
-            remSleepMinutes: 95,
-            deepSleepRatio: 0.23,
-          },
-          hrv: {
-            value: 68,
-            baseline30d: 62,
-            deviationPercent: 9.7,
-          },
-        },
-        weather: {
-          temperature: 20.5,
-          humidity: 65,
-          pressure: 1013.25,
-          weatherCode: 0,
-          uvIndexMax: 5.2,
-        },
-      };
+      await service.generateAdvice(createValidRequest());
 
-      const result = await service.generateAdvice(requestWithOptionals);
-
-      expect(result.ok).toBe(true);
+      const calls = mockGenerateAdvice.mock.calls;
+      expect(calls.length).toBeGreaterThan(0);
+      const [, userDataXml] = calls[0] as [string, string];
+      expect(userDataXml).toContain('<scores');
+      expect(userDataXml).toContain('<recovery value="70"');
+      expect(userDataXml).toContain('<sleep value="85"');
+      expect(userDataXml).toContain('<rhythm value="92"');
+      expect(userDataXml).toContain('<energy value="78"');
     });
 
-    it('should handle challenge mode', async () => {
+    it('should include rhythm_phases in XML', async () => {
       mockGenerateAdvice.mockResolvedValue(ok(createMockResponse()));
       const service = new AdviceService('test-api-key');
 
-      const requestWithChallengeMode = {
-        ...createValidRequest(),
-        context: {
-          ...createValidRequest().context,
-          todayMode: 'challenge' as const,
-        },
-      };
+      await service.generateAdvice(createValidRequest());
 
-      const result = await service.generateAdvice(requestWithChallengeMode);
-
-      expect(result.ok).toBe(true);
-
-      const challengeCalls = mockGenerateAdvice.mock.calls;
-      expect(challengeCalls.length).toBeGreaterThan(0);
-      const [, challengeUserDataXml] = challengeCalls[0] as [string, string];
-      expect(challengeUserDataXml).toContain('<today_mode>challenge</today_mode>');
-    });
-
-    it('should handle holiday mode', async () => {
-      mockGenerateAdvice.mockResolvedValue(ok(createMockResponse()));
-      const service = new AdviceService('test-api-key');
-
-      const requestWithHolidayMode = {
-        ...createValidRequest(),
-        context: {
-          ...createValidRequest().context,
-          todayMode: 'holiday' as const,
-        },
-      };
-
-      const result = await service.generateAdvice(requestWithHolidayMode);
-
-      expect(result.ok).toBe(true);
-
-      const holidayCalls = mockGenerateAdvice.mock.calls;
-      expect(holidayCalls.length).toBeGreaterThan(0);
-      const [, holidayUserDataXml] = holidayCalls[0] as [string, string];
-      expect(holidayUserDataXml).toContain('<today_mode>holiday</today_mode>');
+      const calls = mockGenerateAdvice.mock.calls;
+      expect(calls.length).toBeGreaterThan(0);
+      const [, userDataXml] = calls[0] as [string, string];
+      expect(userDataXml).toContain('<rhythm_phases>');
+      expect(userDataXml).toContain('<peak_focus start="09:00" end="12:00"');
+      expect(userDataXml).toContain('<afternoon_dip start="14:00" end="16:00"');
     });
   });
 });

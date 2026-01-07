@@ -15,7 +15,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
   value,
   showAnimation = true,
   height = 8,
-  backgroundColor = Colors.slate[100],
+  backgroundColor = Colors.stone[100],
 }): ReactElement => {
   const animatedWidth = useRef(new Animated.Value(0)).current;
   const clampedValue = Math.max(0, Math.min(100, value));

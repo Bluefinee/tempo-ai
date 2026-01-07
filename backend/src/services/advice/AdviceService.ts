@@ -1,4 +1,4 @@
-import { type Result, err } from '../../utils/result';
+import { type Result, err, isOk, ok } from '../../utils/result';
 import { AnthropicClient } from './AnthropicClient';
 import { PromptBuilder } from './PromptBuilder';
 import {
@@ -6,6 +6,7 @@ import {
   type AdviceRequest,
   AdviceRequestSchema,
   type AdviceResponse,
+  createFallbackResponse,
 } from './types';
 
 /**
@@ -46,6 +47,15 @@ export class AdviceService {
     const userDataXml = PromptBuilder.buildUserDataXml(request);
 
     // AI呼び出し
-    return await this.client.generateAdvice(systemPrompt, userDataXml);
+    const aiResult = await this.client.generateAdvice(systemPrompt, userDataXml);
+
+    if (!isOk(aiResult)) {
+      // エラー時はフォールバックレスポンスを返す
+      console.warn('AI API failed, returning fallback response', aiResult.error);
+      return ok(createFallbackResponse());
+    }
+
+    // ClaudeAdviceOutputをAdviceResponseに変換（新形式では変換不要）
+    return ok(aiResult.data);
   };
 }

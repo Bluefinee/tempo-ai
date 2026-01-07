@@ -1,18 +1,34 @@
+/**
+ * BedtimeScreen - 就寝時刻設定画面
+ * sozai/new のスタイルを React Native で再現
+ * Step 6 of 9
+ */
+
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Dimensions,
+  ScrollView,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { Bed } from 'lucide-react-native';
-import { Colors, Spacing, Typography } from '../../src/theme';
+import { Colors, Spacing, BorderRadius, FontFamily } from '../../src/theme';
 import { PrimaryButton } from '../../src/components';
 import { useUserStore } from '../../src/stores';
 import type { JSX } from 'react';
+
+const { width, height } = Dimensions.get('window');
+const CURRENT_STEP = 6;
+const TOTAL_STEPS = 9;
 
 const HOURS = Array.from({ length: 6 }, (_, i) => 20 + i); // 20:00 - 01:00
 const MINUTES = [0, 15, 30, 45];
 
 const parseTime = (timeStr: string): { hour: number; minute: number } => {
   const [h, m] = timeStr.split(':').map(Number);
-  // Convert hours < 20 (like 00, 01) to 24, 25 format
   const normalizedHour = h < 20 ? h + 24 : h;
   return { hour: normalizedHour, minute: m };
 };
@@ -31,149 +47,274 @@ export default function BedtimeScreen(): JSX.Element {
     return `${displayHour.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
   };
 
-  const handleNext = () => {
+  const handleNext = (): void => {
     setDraftTargetBedtime(formatTime(hour, minute));
     router.push('/(onboarding)/lifestyle');
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
-        <View style={styles.iconContainer}>
-          <Bed size={48} color={Colors.indigo[500]} strokeWidth={1.5} />
+    <View style={styles.container}>
+      {/* Decorative background blobs */}
+      <View style={styles.blobTopRight} />
+      <View style={styles.blobBottomLeft} />
+
+      <SafeAreaView style={styles.safeArea}>
+        {/* Progress Bar */}
+        <View style={styles.progressContainer}>
+          {[...Array(TOTAL_STEPS)].map((_, idx) => (
+            <View
+              key={idx}
+              style={[
+                styles.progressSegment,
+                idx < CURRENT_STEP ? styles.progressActive : styles.progressInactive,
+              ]}
+            />
+          ))}
         </View>
 
-        <Text style={styles.title}>目標就寝時刻</Text>
-        <Text style={styles.description}>
-          理想的な就寝時刻を設定してください{'\n'}
-          AIがリズムを分析する基準になります
-        </Text>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Content */}
+          <View style={styles.content}>
+            <Text style={styles.emoji}>🛏️</Text>
+            <Text style={styles.title}>Restful Ritual</Text>
+            <Text style={styles.description}>
+              Set your ideal bedtime. This becomes the anchor for your circadian rhythm analysis.
+            </Text>
 
-        <View style={styles.timeDisplay}>
-          <Text style={styles.timeText}>{formatTime(hour, minute)}</Text>
-        </View>
+            {/* Time Display */}
+            <View style={styles.timeDisplay}>
+              <Text style={styles.timeText}>{formatTime(hour, minute)}</Text>
+            </View>
 
-        <View style={styles.pickerContainer}>
-          <View style={styles.pickerColumn}>
-            <Text style={styles.pickerLabel}>時</Text>
-            {HOURS.map((h) => (
-              <Text
-                key={h}
-                style={[
-                  styles.pickerItem,
-                  hour === h && styles.pickerItemSelected,
-                ]}
-                onPress={() => setHour(h)}
-              >
-                {h >= 24 ? h - 24 : h}
-              </Text>
-            ))}
+            {/* Time Picker */}
+            <View style={styles.pickerContainer}>
+              <View style={styles.pickerColumn}>
+                <Text style={styles.pickerLabel}>HOUR</Text>
+                <View style={styles.pickerOptions}>
+                  {HOURS.map((h) => (
+                    <TouchableOpacity
+                      key={h}
+                      style={[
+                        styles.pickerItem,
+                        hour === h && styles.pickerItemSelected,
+                      ]}
+                      onPress={() => setHour(h)}
+                    >
+                      <Text
+                        style={[
+                          styles.pickerItemText,
+                          hour === h && styles.pickerItemTextSelected,
+                        ]}
+                      >
+                        {h >= 24 ? h - 24 : h}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+
+              <View style={styles.pickerColumn}>
+                <Text style={styles.pickerLabel}>MINUTE</Text>
+                <View style={styles.pickerOptions}>
+                  {MINUTES.map((m) => (
+                    <TouchableOpacity
+                      key={m}
+                      style={[
+                        styles.pickerItem,
+                        minute === m && styles.pickerItemSelected,
+                      ]}
+                      onPress={() => setMinute(m)}
+                    >
+                      <Text
+                        style={[
+                          styles.pickerItemText,
+                          minute === m && styles.pickerItemTextSelected,
+                        ]}
+                      >
+                        {m.toString().padStart(2, '0')}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+            </View>
+
+            <Text style={styles.hint}>
+              We can also infer this from your sleep data over time.
+            </Text>
           </View>
-          <View style={styles.pickerColumn}>
-            <Text style={styles.pickerLabel}>分</Text>
-            {MINUTES.map((m) => (
-              <Text
-                key={m}
-                style={[
-                  styles.pickerItem,
-                  minute === m && styles.pickerItemSelected,
-                ]}
-                onPress={() => setMinute(m)}
-              >
-                {m.toString().padStart(2, '0')}
-              </Text>
-            ))}
-          </View>
+        </ScrollView>
+
+        {/* Footer */}
+        <View style={styles.footer}>
+          <PrimaryButton onPress={handleNext}>
+            Continue
+          </PrimaryButton>
         </View>
-
-        <Text style={styles.hint}>
-          睡眠データから自動推定された時刻を参考に{'\n'}
-          設定することもできます
-        </Text>
-      </View>
-
-      <View style={styles.footer}>
-        <PrimaryButton onPress={handleNext}>次へ</PrimaryButton>
-      </View>
-    </SafeAreaView>
+      </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.slate[50],
+    backgroundColor: Colors.stone[50],
+    overflow: 'hidden',
   },
-  content: {
+  safeArea: {
     flex: 1,
-    paddingHorizontal: Spacing.xxl,
-    paddingTop: Spacing.huge,
-    alignItems: 'center',
   },
-  iconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 20,
-    backgroundColor: Colors.indigo[50],
-    justifyContent: 'center',
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 24,
+  },
+  // Decorative blobs
+  blobTopRight: {
+    position: 'absolute',
+    top: -height * 0.15,
+    right: -width * 0.2,
+    width: 256,
+    height: 256,
+    backgroundColor: Colors.indigo[100],
+    borderRadius: 128,
+    opacity: 0.4,
+  },
+  blobBottomLeft: {
+    position: 'absolute',
+    bottom: -height * 0.1,
+    left: -width * 0.15,
+    width: 320,
+    height: 320,
+    backgroundColor: Colors.amber[100],
+    borderRadius: 160,
+    opacity: 0.4,
+  },
+  // Progress bar
+  progressContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: 32,
+    paddingTop: 48,
+    gap: 8,
+  },
+  progressSegment: {
+    flex: 1,
+    height: 4,
+    borderRadius: 2,
+  },
+  progressActive: {
+    backgroundColor: Colors.indigo[500],
+  },
+  progressInactive: {
+    backgroundColor: Colors.stone[200],
+  },
+  // Content
+  content: {
     alignItems: 'center',
-    marginBottom: Spacing.xxl,
+    paddingHorizontal: 32,
+    paddingTop: 32,
+  },
+  emoji: {
+    fontSize: 60,
+    marginBottom: 24,
   },
   title: {
-    ...Typography.h2,
-    color: Colors.slate[800],
-    marginBottom: Spacing.md,
+    fontFamily: FontFamily.serif,
+    fontSize: 24,
+    fontWeight: '700',
+    color: Colors.stone[900],
     textAlign: 'center',
+    letterSpacing: -0.5,
+    marginBottom: 12,
   },
   description: {
-    ...Typography.body,
-    color: Colors.slate[500],
+    fontFamily: FontFamily.regular,
+    fontSize: 16,
+    color: Colors.stone[500],
     textAlign: 'center',
-    marginBottom: Spacing.xxl,
-    lineHeight: 24,
+    lineHeight: 26,
+    marginBottom: 32,
   },
+  // Time Display
   timeDisplay: {
     backgroundColor: Colors.indigo[50],
-    borderRadius: 20,
+    borderRadius: BorderRadius.xl,
     paddingVertical: Spacing.lg,
-    paddingHorizontal: Spacing.xxxl,
-    marginBottom: Spacing.xxl,
+    paddingHorizontal: Spacing.xxl,
+    marginBottom: 32,
+    borderWidth: 2,
+    borderColor: Colors.indigo[500],
   },
   timeText: {
-    ...Typography.scoreNumber,
+    fontFamily: FontFamily.bold,
+    fontSize: 48,
+    fontWeight: '700',
     color: Colors.indigo[600],
+    letterSpacing: 2,
   },
+  // Picker
   pickerContainer: {
     flexDirection: 'row',
-    gap: Spacing.huge,
-    marginBottom: Spacing.xxl,
+    gap: 48,
+    marginBottom: 24,
   },
   pickerColumn: {
     alignItems: 'center',
   },
   pickerLabel: {
-    ...Typography.caption,
-    color: Colors.slate[400],
-    marginBottom: Spacing.md,
+    fontFamily: FontFamily.medium,
+    fontSize: 10,
+    fontWeight: '500',
+    color: Colors.stone[400],
+    letterSpacing: 1.5,
+    marginBottom: 12,
+  },
+  pickerOptions: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 8,
+    maxWidth: 140,
   },
   pickerItem: {
-    ...Typography.h4,
-    color: Colors.slate[400],
-    paddingVertical: Spacing.sm,
-    paddingHorizontal: Spacing.lg,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: Colors.white,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: Colors.stone[200],
   },
   pickerItemSelected: {
-    color: Colors.indigo[600],
-    fontWeight: '700',
+    backgroundColor: Colors.indigo[500],
+    borderColor: Colors.indigo[500],
+  },
+  pickerItemText: {
+    fontFamily: FontFamily.semibold,
+    fontSize: 16,
+    fontWeight: '600',
+    color: Colors.stone[600],
+  },
+  pickerItemTextSelected: {
+    color: Colors.white,
   },
   hint: {
-    ...Typography.caption,
-    color: Colors.slate[400],
+    fontFamily: FontFamily.regular,
+    fontSize: 12,
+    color: Colors.stone[400],
     textAlign: 'center',
-    lineHeight: 18,
   },
+  // Footer
   footer: {
-    paddingHorizontal: Spacing.xxl,
-    paddingBottom: Spacing.xxxl,
+    paddingHorizontal: 32,
+    paddingBottom: 48,
+    alignItems: 'center',
   },
 });

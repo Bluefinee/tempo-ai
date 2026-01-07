@@ -37,7 +37,7 @@ export const SecondaryButton: React.FC<SecondaryButtonProps> = ({
       ]}
     >
       {loading ? (
-        <ActivityIndicator color={Colors.slate[600]} />
+        <ActivityIndicator color={Colors.stone[600]} />
       ) : (
         <Text style={styles.text}>{children}</Text>
       )}
@@ -54,8 +54,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: Colors.slate[100],
-    shadowColor: Colors.slate[900],
+    borderColor: Colors.stone[100],
+    shadowColor: Colors.stone[900],
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 2,
@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   text: {
-    ...Typography.button,
-    color: Colors.slate[600],
+    ...Typography.bodyMedium,
+    color: Colors.stone[600],
   },
 });

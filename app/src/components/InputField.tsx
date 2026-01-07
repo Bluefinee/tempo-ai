@@ -27,7 +27,7 @@ export const InputField: React.FC<InputFieldProps> = ({
       <View style={[styles.inputContainer, error && styles.inputError]}>
         <TextInput
           style={styles.input}
-          placeholderTextColor={Colors.slate[300]}
+          placeholderTextColor={Colors.stone[300]}
           {...textInputProps}
         />
         {suffix && <Text style={styles.suffix}>{suffix}</Text>}
@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
   },
   label: {
     ...Typography.label,
-    color: Colors.slate[500],
+    color: Colors.stone[500],
     marginBottom: Spacing.sm,
     marginLeft: Spacing.xs,
   },
@@ -52,9 +52,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: Colors.white,
     borderWidth: 1,
-    borderColor: Colors.slate[100],
+    borderColor: Colors.stone[100],
     borderRadius: BorderRadius.xl,
-    shadowColor: Colors.slate[900],
+    shadowColor: Colors.stone[900],
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 2,
@@ -63,21 +63,21 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     ...Typography.body,
-    color: Colors.slate[800],
+    color: Colors.stone[800],
     paddingVertical: Spacing.lg,
     paddingHorizontal: Spacing.xl,
   },
   inputError: {
-    borderColor: Colors.rose[500],
+    borderColor: Colors.coral[500],
   },
   suffix: {
     ...Typography.bodyMedium,
-    color: Colors.slate[400],
+    color: Colors.stone[400],
     paddingRight: Spacing.xl,
   },
   error: {
     ...Typography.caption,
-    color: Colors.rose[500],
+    color: Colors.coral[500],
     marginTop: Spacing.xs,
     marginLeft: Spacing.xs,
   },

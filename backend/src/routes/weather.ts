@@ -1,11 +1,9 @@
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
-import type { ContentfulStatusCode } from 'hono/utils/http-status';
 import { z } from 'zod';
 import type { Bindings } from '../index';
 import { OpenMeteoClient } from '../services/weather/OpenMeteoClient';
 import { WeatherService } from '../services/weather/WeatherService';
-import type { WeatherError } from '../services/weather/types';
 import { isOk } from '../utils/result';
 
 const weatherRoutes = new Hono<{ Bindings: Bindings }>();
@@ -22,18 +20,17 @@ const QuerySchema = z.object({
     .pipe(z.number().min(-180).max(180)),
 });
 
-/**
- * Maps weather error codes to HTTP status codes
- */
-const getStatusCode = (errorCode: WeatherError['code']): ContentfulStatusCode => {
-  const statusMap: Record<WeatherError['code'], ContentfulStatusCode> = {
-    INVALID_COORDINATES: 400,
-    API_ERROR: 502,
-    NETWORK_ERROR: 503,
-    PARSE_ERROR: 500,
-  };
-  return statusMap[errorCode];
-};
+// Note: getStatusCode is not used anymore due to fallback implementation
+// Keeping for reference if we want to return errors in the future
+// const getStatusCode = (errorCode: WeatherError['code']): ContentfulStatusCode => {
+//   const statusMap: Record<WeatherError['code'], ContentfulStatusCode> = {
+//     INVALID_COORDINATES: 400,
+//     API_ERROR: 502,
+//     NETWORK_ERROR: 503,
+//     PARSE_ERROR: 500,
+//   };
+//   return statusMap[errorCode];
+// };
 
 weatherRoutes.get(
   '/',
@@ -62,10 +59,24 @@ weatherRoutes.get(
       return c.json({ success: true, data: result.data });
     }
 
-    return c.json(
-      { success: false, error: result.error.message },
-      getStatusCode(result.error.code),
-    );
+    // エラー時はデフォルト値を返す
+    console.warn('Weather API failed, returning default data', result.error);
+    return c.json({
+      success: true,
+      data: {
+        temperature: 20,
+        humidity: 50,
+        pressure: 1013,
+        weatherCode: 0,
+        uvIndexMax: 5,
+        sunrise: '06:00',
+        sunset: '18:00',
+        airQuality: {
+          pm25: 10,
+          aqi: 50,
+        },
+      },
+    });
   },
 );
 

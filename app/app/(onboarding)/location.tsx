@@ -1,141 +1,221 @@
+/**
+ * LocationScreen - 位置情報許可画面
+ * sozai/new のスタイルを React Native で再現
+ * Step 8 of 9
+ */
+
 import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, useWindowDimensions } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { MapPin } from 'lucide-react-native';
-import { Colors, Spacing, Typography } from '../../src/theme';
+import { Colors, Spacing, BorderRadius, FontFamily } from '../../src/theme';
 import { PrimaryButton, SecondaryButton } from '../../src/components';
 import type { JSX } from 'react';
+
+const { width, height } = useWindowDimensions();
+const CURRENT_STEP = 8;
+const TOTAL_STEPS = 9;
 
 export default function LocationScreen(): JSX.Element {
   const router = useRouter();
 
-  const handleAllow = () => {
+  const handleAllow = (): void => {
     // TODO: Request location permission
     router.push('/(onboarding)/complete');
   };
 
-  const handleSkip = () => {
+  const handleSkip = (): void => {
     router.push('/(onboarding)/complete');
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
-        <View style={styles.iconContainer}>
-          <MapPin size={48} color={Colors.blue[500]} strokeWidth={1.5} />
+    <View style={styles.container}>
+      {/* Decorative background blobs */}
+      <View style={styles.blobTopRight} />
+      <View style={styles.blobBottomLeft} />
+
+      <SafeAreaView style={styles.safeArea}>
+        {/* Progress Bar */}
+        <View style={styles.progressContainer}>
+          {[...Array(TOTAL_STEPS)].map((_, idx) => (
+            <View
+              key={idx}
+              style={[
+                styles.progressSegment,
+                idx < CURRENT_STEP ? styles.progressActive : styles.progressInactive,
+              ]}
+            />
+          ))}
         </View>
 
-        <Text style={styles.title}>位置情報</Text>
-        <Text style={styles.description}>
-          天気や気圧情報を取得して{'\n'}
-          環境に応じたアドバイスを提供します
-        </Text>
+        {/* Content */}
+        <View style={styles.content}>
+          <Text style={styles.emoji}>📍</Text>
+          <Text style={styles.title}>Weather Wisdom</Text>
+          <Text style={styles.description}>
+            Local weather and barometric pressure can affect your energy and mood. Let us help you adapt.
+          </Text>
 
-        <View style={styles.infoBox}>
-          <Text style={styles.infoTitle}>位置情報の利用目的</Text>
-          <View style={styles.infoList}>
-            <InfoItem icon="☀️" text="現在地の天気情報を取得" />
-            <InfoItem icon="📊" text="気圧変化による体調影響を分析" />
-            <InfoItem icon="🌡️" text="気温に応じた行動提案" />
+          {/* Info Box */}
+          <View style={styles.infoBox}>
+            <Text style={styles.infoTitle}>Why We Need Location</Text>
+            <View style={styles.dataList}>
+              <DataItem emoji="☀️" text="Get local weather conditions" />
+              <DataItem emoji="📊" text="Track pressure changes that affect you" />
+              <DataItem emoji="🌡️" text="Temperature-based recommendations" />
+            </View>
           </View>
+
+          <Text style={styles.privacyNote}>
+            Your location is only used to fetch weather data and is never stored on our servers.
+          </Text>
         </View>
 
-        <Text style={styles.privacyNote}>
-          位置情報は天気APIへの問い合わせにのみ使用され、{'\n'}
-          サーバーには保存されません。
-        </Text>
-      </View>
-
-      <View style={styles.footer}>
-        <PrimaryButton onPress={handleAllow}>許可する</PrimaryButton>
-        <SecondaryButton onPress={handleSkip} style={styles.skipButton}>
-          あとで設定
-        </SecondaryButton>
-      </View>
-    </SafeAreaView>
+        {/* Footer */}
+        <View style={styles.footer}>
+          <PrimaryButton onPress={handleAllow}>
+            Allow Location
+          </PrimaryButton>
+          <SecondaryButton onPress={handleSkip} style={styles.skipButton}>
+            Set Up Later
+          </SecondaryButton>
+        </View>
+      </SafeAreaView>
+    </View>
   );
 }
 
-const InfoItem: React.FC<{ icon: string; text: string }> = ({ icon, text }): JSX.Element => (
-  <View style={styles.infoItem}>
-    <Text style={styles.infoIcon}>{icon}</Text>
-    <Text style={styles.infoText}>{text}</Text>
+const DataItem: React.FC<{ emoji: string; text: string }> = ({ emoji, text }): JSX.Element => (
+  <View style={styles.dataItem}>
+    <Text style={styles.dataEmoji}>{emoji}</Text>
+    <Text style={styles.dataText}>{text}</Text>
   </View>
 );
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.slate[50],
+    backgroundColor: Colors.stone[50],
+    overflow: 'hidden',
   },
+  safeArea: {
+    flex: 1,
+  },
+  // Decorative blobs
+  blobTopRight: {
+    position: 'absolute',
+    top: -height * 0.15,
+    right: -width * 0.2,
+    width: 256,
+    height: 256,
+    backgroundColor: Colors.emerald[100],
+    borderRadius: 128,
+    opacity: 0.4,
+  },
+  blobBottomLeft: {
+    position: 'absolute',
+    bottom: -height * 0.1,
+    left: -width * 0.15,
+    width: 320,
+    height: 320,
+    backgroundColor: Colors.indigo[100],
+    borderRadius: 160,
+    opacity: 0.4,
+  },
+  // Progress bar
+  progressContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: 32,
+    paddingTop: 48,
+    gap: 8,
+  },
+  progressSegment: {
+    flex: 1,
+    height: 4,
+    borderRadius: 2,
+  },
+  progressActive: {
+    backgroundColor: Colors.indigo[500],
+  },
+  progressInactive: {
+    backgroundColor: Colors.stone[200],
+  },
+  // Content
   content: {
     flex: 1,
-    paddingHorizontal: Spacing.xxl,
-    paddingTop: Spacing.huge,
     alignItems: 'center',
-  },
-  iconContainer: {
-    width: 100,
-    height: 100,
-    borderRadius: 25,
-    backgroundColor: Colors.blue[50],
     justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: Spacing.xxl,
+    paddingHorizontal: 32,
+  },
+  emoji: {
+    fontSize: 60,
+    marginBottom: 32,
   },
   title: {
-    ...Typography.h2,
-    color: Colors.slate[800],
-    marginBottom: Spacing.md,
+    fontFamily: FontFamily.serif,
+    fontSize: 24,
+    fontWeight: '700',
+    color: Colors.stone[900],
     textAlign: 'center',
+    letterSpacing: -0.5,
+    marginBottom: 16,
   },
   description: {
-    ...Typography.body,
-    color: Colors.slate[500],
+    fontFamily: FontFamily.regular,
+    fontSize: 16,
+    color: Colors.stone[500],
     textAlign: 'center',
-    marginBottom: Spacing.xxl,
-    lineHeight: 24,
+    lineHeight: 26,
+    marginBottom: 32,
   },
+  // Info box
   infoBox: {
     width: '100%',
     backgroundColor: Colors.white,
-    borderRadius: 16,
-    padding: Spacing.xl,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.lg,
     marginBottom: Spacing.lg,
+    borderWidth: 1,
+    borderColor: Colors.stone[100],
   },
   infoTitle: {
-    ...Typography.bodyMedium,
-    color: Colors.slate[700],
-    marginBottom: Spacing.md,
+    fontFamily: FontFamily.bold,
+    fontSize: 14,
+    fontWeight: '700',
+    color: Colors.stone[700],
+    marginBottom: 12,
   },
-  infoList: {
-    gap: Spacing.md,
+  dataList: {
+    gap: 12,
   },
-  infoItem: {
+  dataItem: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  infoIcon: {
+  dataEmoji: {
     fontSize: 18,
-    marginRight: Spacing.md,
+    marginRight: 12,
   },
-  infoText: {
-    ...Typography.bodySmall,
-    color: Colors.slate[600],
+  dataText: {
+    fontFamily: FontFamily.regular,
+    fontSize: 14,
+    color: Colors.stone[600],
     flex: 1,
   },
   privacyNote: {
-    ...Typography.caption,
-    color: Colors.slate[400],
+    fontFamily: FontFamily.regular,
+    fontSize: 12,
+    color: Colors.stone[400],
     textAlign: 'center',
-    lineHeight: 18,
   },
+  // Footer
   footer: {
-    paddingHorizontal: Spacing.xxl,
-    paddingBottom: Spacing.xxxl,
-    gap: Spacing.md,
+    paddingHorizontal: 32,
+    paddingBottom: 48,
+    alignItems: 'center',
+    gap: 12,
   },
   skipButton: {
-    marginTop: Spacing.sm,
+    marginTop: 4,
   },
 });

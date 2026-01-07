@@ -21,6 +21,11 @@ export const OpenMeteoWeatherResponseSchema = z.object({
     sunrise: z.array(z.string()),
     sunset: z.array(z.string()),
   }),
+  hourly: z
+    .object({
+      pressure_msl: z.array(z.number()),
+    })
+    .optional(),
 });
 
 export type OpenMeteoWeatherResponse = z.infer<typeof OpenMeteoWeatherResponseSchema>;

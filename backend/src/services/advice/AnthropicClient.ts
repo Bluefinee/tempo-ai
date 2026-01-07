@@ -1,7 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import type { PromptCachingBetaMessage } from '@anthropic-ai/sdk/resources/beta/prompt-caching/messages';
 import { type Result, err, ok } from '../../utils/result';
-import type { AdviceError, AdviceResponse, RecommendedActionType } from './types';
+import type { AdviceError, ClaudeAdviceOutput, OneThingIcon } from './types';
 
 /**
  * Anthropic API クライアント（Prompt Caching対応）
@@ -24,12 +24,12 @@ export class AnthropicClient {
    * アドバイスを生成
    * @param systemPrompt - System Prompt（キャッシュ対象）
    * @param userDataXml - User Data XML
-   * @returns Result<AdviceResponse, AdviceError>
+   * @returns Result<ClaudeAdviceOutput, AdviceError>
    */
   generateAdvice = async (
     systemPrompt: string,
     userDataXml: string,
-  ): Promise<Result<AdviceResponse, AdviceError>> => {
+  ): Promise<Result<ClaudeAdviceOutput, AdviceError>> => {
     try {
       const response = await this.client.beta.promptCaching.messages.create({
         model: this.model,
@@ -55,7 +55,7 @@ export class AnthropicClient {
    */
   private parseResponse = (
     response: PromptCachingBetaMessage,
-  ): Result<AdviceResponse, AdviceError> => {
+  ): Result<ClaudeAdviceOutput, AdviceError> => {
     const textBlock = response.content.find(
       (block): block is Anthropic.TextBlock => block.type === 'text',
     );
@@ -77,107 +77,227 @@ export class AnthropicClient {
       }
 
       const parsed = JSON.parse(jsonMatch[0]) as {
-        summary?: string;
-        insight?: {
-          greeting?: string;
-          condition?: string;
-          sleep?: string;
-          rhythm?: string;
-          environment?: string;
-          advice?: string;
-          closing?: string;
+        todayInsight?: {
+          title?: string;
+          summary?: string;
+          whyThisMatters?: {
+            hrv?: { headline?: string; explanation?: string };
+            sleep?: { headline?: string; explanation?: string };
+            rhythm?: { headline?: string; explanation?: string };
+          };
+          whatThisMeansForToday?: string;
         };
-        recommended_action?: {
-          type?: string;
-          message?: string;
+        todayOneThing?: {
+          icon?: string;
+          action?: string;
+          summary?: string;
+          time?: string;
+          whyThisAction?: string;
+          benefits?: string[];
+          howToDoIt?: string[];
+          expectedBenefit?: {
+            text?: string;
+            source?: string;
+          };
+        };
+        relatedInsight?: {
+          label?: string;
+          text?: string;
+          source?: string;
         };
       };
 
-      // summary validation
-      if (!parsed.summary || typeof parsed.summary !== 'string') {
+      // todayInsight validation
+      if (!parsed.todayInsight || typeof parsed.todayInsight !== 'object') {
         return err({
           code: 'PARSE_ERROR',
-          message: 'Missing or invalid summary field',
+          message: 'Missing or invalid todayInsight field',
+        });
+      }
+      if (!parsed.todayInsight.title || typeof parsed.todayInsight.title !== 'string') {
+        return err({
+          code: 'PARSE_ERROR',
+          message: 'Missing or invalid todayInsight.title field',
+        });
+      }
+      if (!parsed.todayInsight.summary || typeof parsed.todayInsight.summary !== 'string') {
+        return err({
+          code: 'PARSE_ERROR',
+          message: 'Missing or invalid todayInsight.summary field',
+        });
+      }
+      if (
+        !parsed.todayInsight.whyThisMatters ||
+        typeof parsed.todayInsight.whyThisMatters !== 'object'
+      ) {
+        return err({
+          code: 'PARSE_ERROR',
+          message: 'Missing or invalid todayInsight.whyThisMatters field',
         });
       }
 
-      // insight validation
-      if (!parsed.insight || typeof parsed.insight !== 'object') {
-        return err({
-          code: 'PARSE_ERROR',
-          message: 'Missing or invalid insight field',
-        });
-      }
-
-      const insightFields = [
-        'greeting',
-        'condition',
-        'sleep',
-        'rhythm',
-        'environment',
-        'advice',
-        'closing',
-      ] as const;
-      for (const field of insightFields) {
-        if (!parsed.insight[field] || typeof parsed.insight[field] !== 'string') {
+      // Validate whyThisMatters sub-fields
+      const whyMattersFields = ['hrv', 'sleep', 'rhythm'] as const;
+      for (const field of whyMattersFields) {
+        const item = parsed.todayInsight.whyThisMatters[field];
+        if (!item || typeof item !== 'object' || !item.headline || !item.explanation) {
           return err({
             code: 'PARSE_ERROR',
-            message: `Missing or invalid insight.${field} field`,
+            message: `Missing or invalid todayInsight.whyThisMatters.${field} field`,
           });
         }
       }
 
-      // recommended_action validation
-      if (!parsed.recommended_action || typeof parsed.recommended_action !== 'object') {
-        return err({
-          code: 'PARSE_ERROR',
-          message: 'Missing or invalid recommended_action field',
-        });
-      }
-
-      const actionType = parsed.recommended_action.type;
-      if (!this.isValidActionType(actionType)) {
-        return err({
-          code: 'PARSE_ERROR',
-          message: `Invalid recommended_action.type: ${actionType}`,
-        });
-      }
-
       if (
-        !parsed.recommended_action.message ||
-        typeof parsed.recommended_action.message !== 'string'
+        !parsed.todayInsight.whatThisMeansForToday ||
+        typeof parsed.todayInsight.whatThisMeansForToday !== 'string'
       ) {
         return err({
           code: 'PARSE_ERROR',
-          message: 'Missing or invalid recommended_action.message field',
+          message: 'Missing or invalid todayInsight.whatThisMeansForToday field',
         });
       }
 
-      // バリデーション済みなので型アサーションを使用
-      const insight = parsed.insight as {
-        greeting: string;
-        condition: string;
-        sleep: string;
-        rhythm: string;
-        environment: string;
-        advice: string;
-        closing: string;
-      };
+      // todayOneThing validation
+      if (!parsed.todayOneThing || typeof parsed.todayOneThing !== 'object') {
+        return err({
+          code: 'PARSE_ERROR',
+          message: 'Missing or invalid todayOneThing field',
+        });
+      }
+      if (!this.isValidOneThingIcon(parsed.todayOneThing.icon)) {
+        return err({
+          code: 'PARSE_ERROR',
+          message: `Invalid todayOneThing.icon: ${parsed.todayOneThing.icon}`,
+        });
+      }
+      if (!parsed.todayOneThing.action || typeof parsed.todayOneThing.action !== 'string') {
+        return err({
+          code: 'PARSE_ERROR',
+          message: 'Missing or invalid todayOneThing.action field',
+        });
+      }
+      if (!parsed.todayOneThing.summary || typeof parsed.todayOneThing.summary !== 'string') {
+        return err({
+          code: 'PARSE_ERROR',
+          message: 'Missing or invalid todayOneThing.summary field',
+        });
+      }
+      if (!parsed.todayOneThing.time || typeof parsed.todayOneThing.time !== 'string') {
+        return err({
+          code: 'PARSE_ERROR',
+          message: 'Missing or invalid todayOneThing.time field',
+        });
+      }
+      if (
+        !parsed.todayOneThing.whyThisAction ||
+        typeof parsed.todayOneThing.whyThisAction !== 'string'
+      ) {
+        return err({
+          code: 'PARSE_ERROR',
+          message: 'Missing or invalid todayOneThing.whyThisAction field',
+        });
+      }
+      if (
+        !Array.isArray(parsed.todayOneThing.benefits) ||
+        parsed.todayOneThing.benefits.length === 0
+      ) {
+        return err({
+          code: 'PARSE_ERROR',
+          message: 'Missing or invalid todayOneThing.benefits field',
+        });
+      }
+      if (
+        !Array.isArray(parsed.todayOneThing.howToDoIt) ||
+        parsed.todayOneThing.howToDoIt.length === 0
+      ) {
+        return err({
+          code: 'PARSE_ERROR',
+          message: 'Missing or invalid todayOneThing.howToDoIt field',
+        });
+      }
+      if (
+        !parsed.todayOneThing.expectedBenefit ||
+        typeof parsed.todayOneThing.expectedBenefit !== 'object'
+      ) {
+        return err({
+          code: 'PARSE_ERROR',
+          message: 'Missing or invalid todayOneThing.expectedBenefit field',
+        });
+      }
+      if (
+        !parsed.todayOneThing.expectedBenefit.text ||
+        !parsed.todayOneThing.expectedBenefit.source
+      ) {
+        return err({
+          code: 'PARSE_ERROR',
+          message: 'Missing or invalid todayOneThing.expectedBenefit.text or source field',
+        });
+      }
+
+      // relatedInsight validation
+      if (!parsed.relatedInsight || typeof parsed.relatedInsight !== 'object') {
+        return err({
+          code: 'PARSE_ERROR',
+          message: 'Missing or invalid relatedInsight field',
+        });
+      }
+      if (!parsed.relatedInsight.label || typeof parsed.relatedInsight.label !== 'string') {
+        return err({
+          code: 'PARSE_ERROR',
+          message: 'Missing or invalid relatedInsight.label field',
+        });
+      }
+      if (!parsed.relatedInsight.text || typeof parsed.relatedInsight.text !== 'string') {
+        return err({
+          code: 'PARSE_ERROR',
+          message: 'Missing or invalid relatedInsight.text field',
+        });
+      }
+      if (!parsed.relatedInsight.source || typeof parsed.relatedInsight.source !== 'string') {
+        return err({
+          code: 'PARSE_ERROR',
+          message: 'Missing or invalid relatedInsight.source field',
+        });
+      }
 
       return ok({
-        summary: parsed.summary,
-        insight: {
-          greeting: insight.greeting,
-          condition: insight.condition,
-          sleep: insight.sleep,
-          rhythm: insight.rhythm,
-          environment: insight.environment,
-          advice: insight.advice,
-          closing: insight.closing,
+        todayInsight: {
+          title: parsed.todayInsight.title,
+          summary: parsed.todayInsight.summary,
+          whyThisMatters: {
+            hrv: {
+              headline: parsed.todayInsight.whyThisMatters.hrv?.headline ?? '',
+              explanation: parsed.todayInsight.whyThisMatters.hrv?.explanation ?? '',
+            },
+            sleep: {
+              headline: parsed.todayInsight.whyThisMatters.sleep?.headline ?? '',
+              explanation: parsed.todayInsight.whyThisMatters.sleep?.explanation ?? '',
+            },
+            rhythm: {
+              headline: parsed.todayInsight.whyThisMatters.rhythm?.headline ?? '',
+              explanation: parsed.todayInsight.whyThisMatters.rhythm?.explanation ?? '',
+            },
+          },
+          whatThisMeansForToday: parsed.todayInsight.whatThisMeansForToday,
         },
-        recommendedAction: {
-          type: actionType,
-          message: parsed.recommended_action.message,
+        todayOneThing: {
+          icon: parsed.todayOneThing.icon as OneThingIcon,
+          action: parsed.todayOneThing.action,
+          summary: parsed.todayOneThing.summary,
+          time: parsed.todayOneThing.time,
+          whyThisAction: parsed.todayOneThing.whyThisAction,
+          benefits: parsed.todayOneThing.benefits,
+          howToDoIt: parsed.todayOneThing.howToDoIt,
+          expectedBenefit: {
+            text: parsed.todayOneThing.expectedBenefit.text ?? '',
+            source: parsed.todayOneThing.expectedBenefit.source ?? '',
+          },
+        },
+        relatedInsight: {
+          label: parsed.relatedInsight.label,
+          text: parsed.relatedInsight.text,
+          source: parsed.relatedInsight.source,
         },
       });
     } catch (parseError) {
@@ -190,18 +310,18 @@ export class AnthropicClient {
   };
 
   /**
-   * アクションタイプのバリデーション
+   * OneThingIconのバリデーション
    */
-  private isValidActionType = (type: unknown): type is RecommendedActionType => {
+  private isValidOneThingIcon = (icon: unknown): icon is OneThingIcon => {
     return (
-      typeof type === 'string' && ['breathing', 'morning_light', 'rest', 'activity'].includes(type)
+      typeof icon === 'string' && ['walking', 'breathing', 'rest', 'coffee', 'sun'].includes(icon)
     );
   };
 
   /**
    * エラーハンドリング
    */
-  private handleError = (error: unknown): Result<AdviceResponse, AdviceError> => {
+  private handleError = (error: unknown): Result<ClaudeAdviceOutput, AdviceError> => {
     if (error instanceof Anthropic.APIError) {
       if (error.status === 429) {
         return err({

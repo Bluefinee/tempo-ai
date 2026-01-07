@@ -19,53 +19,97 @@ describe('POST /api/advice', () => {
   let testApp: Hono<{ Bindings: Bindings }>;
 
   const createValidRequestBody = () => ({
-    profile: {
-      nickname: 'マサ',
-      age: 28,
-      gender: 'male',
-      chronotype: 'morning',
-      targetBedtime: '23:00',
+    user: {
+      goals: ['better_sleep'] as const,
+      wakeUpTime: '07:00',
+      windDownTime: '23:00',
     },
-    healthData: {
-      scores: {
-        autonomic: 85,
-        sleep: 78,
-        rhythm: 88,
-        activity: 68,
+    scores: {
+      recovery: 70,
+      sleep: 85,
+      rhythm: 92,
+      energy: 78,
+    },
+    healthMetrics: {
+      hrv: {
+        current: 82,
+        baseline: 77,
+        deviation: 6,
       },
-      rhythmAnalysis: {
-        bedtimeStddevMinutes: 22,
-        wakeTimeStddevMinutes: 18,
-        consecutiveStableDays: 5,
-        status: 'stable',
+      rhr: {
+        current: 59,
+        baseline: 59,
+      },
+      sleep: {
+        durationMinutes: 428,
+        deepSleepMinutes: 105,
+        deepSleepPercent: 23,
+        remSleepMinutes: 95,
+        remSleepPercent: 22,
+        bedtime: '23:15',
+        wakeTime: '06:45',
+        vsTargetBedtime: '+15min',
       },
     },
-    location: {
-      latitude: 35.6762,
-      longitude: 139.6503,
-      city: 'Tokyo',
+    weather: {
+      temperature: 8,
+      pressure: 1018,
+      pressureTrend: 'stable' as const,
+      sunrise: '06:50',
+      sunset: '16:48',
+      description: '晴れ',
+      location: 'Tokyo',
     },
-    context: {
-      currentTime: '07:15',
-      dayOfWeek: '水曜日',
-      todayMode: 'normal',
+    rhythmPhases: {
+      peakFocus: {
+        start: '09:00',
+        end: '12:00',
+      },
+      afternoonDip: {
+        start: '14:00',
+        end: '16:00',
+      },
     },
+    locale: 'ja',
   });
 
   const createMockResponse = (): AdviceResponse => ({
-    summary: 'テストサマリーです。今日のコンディションは良好です。',
-    insight: {
-      greeting: 'マサさん、おはようございます。',
-      condition: '今日のコンディションは全体的に良好です。',
-      sleep: '昨夜の睡眠は目標通りで、深い睡眠も十分に取れています。',
-      rhythm: 'リズムは安定しています。',
-      environment: '今日の天気は良好です。',
-      advice: '午前中に軽い運動をすることをおすすめします。',
-      closing: '今日も良い一日になりますように。',
+    todayInsight: {
+      title: 'A Quiet Harmony',
+      summary: '今日のあなたは穏やかな波のように整っています。',
+      whyThisMatters: {
+        hrv: {
+          headline: 'HRVがベースラインより6%高い',
+          explanation: '自律神経がしっかり回復しています。',
+        },
+        sleep: {
+          headline: '深い睡眠が23%',
+          explanation: '身体の修復に理想的な範囲でした。',
+        },
+        rhythm: {
+          headline: '就寝時刻が目標の15分遅れ',
+          explanation: 'この程度のズレは許容範囲です。',
+        },
+      },
+      whatThisMeansForToday: '午前中は特に集中力が高まります。',
     },
-    recommendedAction: {
-      type: 'breathing',
-      message: '深呼吸を3回してみましょう',
+    todayOneThing: {
+      icon: 'walking' as const,
+      action: '14時頃に5分の散歩',
+      summary: '夕方のリズムが整います',
+      time: '14:00',
+      whyThisAction: 'Afternoon Dipの時間帯に軽い動きを入れることで午後の集中力を回復できます。',
+      benefits: ['覚醒度を回復', 'メラトニン分泌を改善', '体温リズムを安定'],
+      howToDoIt: ['外に出る', '軽いペースで歩く', '自然光を浴びる'],
+      expectedBenefit: {
+        text: '午後の軽い運動は睡眠の質を10-20%改善する傾向があります',
+        source: 'サーカディアンリズム研究に基づく',
+      },
+    },
+    relatedInsight: {
+      label: 'Research Finding',
+      text: '23時前就寝で深い睡眠が20-25%増加',
+      source: '睡眠科学研究に基づく',
     },
   });
 
@@ -146,10 +190,11 @@ describe('POST /api/advice', () => {
 
     const json = (await res.json()) as { success: boolean; data: AdviceResponse };
     expect(json.success).toBe(true);
-    expect(json.data.summary).toBe('テストサマリーです。今日のコンディションは良好です。');
-    expect(json.data.insight.greeting).toContain('マサさん、おはようございます');
-    expect(json.data.recommendedAction.type).toBe('breathing');
-    expect(json.data.recommendedAction.message).toBe('深呼吸を3回してみましょう');
+    expect(json.data.todayInsight.title).toBe('A Quiet Harmony');
+    expect(json.data.todayInsight.summary).toBeTruthy();
+    expect(json.data.todayOneThing.icon).toBe('walking');
+    expect(json.data.todayOneThing.action).toBe('14時頃に5分の散歩');
+    expect(json.data.relatedInsight.label).toBe('Research Finding');
   });
 
   it('should return 400 for invalid JSON body', async () => {
@@ -261,63 +306,17 @@ describe('POST /api/advice', () => {
     expect(json.error).toBe('ANTHROPIC_API_KEY is not configured');
   });
 
-  it('should handle request with optional weather data', async () => {
+  it('should handle request with all required fields', async () => {
     mockGenerateAdvice.mockResolvedValue(ok(createMockResponse()));
 
-    const requestWithWeather = {
-      ...createValidRequestBody(),
-      weather: {
-        temperature: 20.5,
-        humidity: 65,
-        pressure: 1013.25,
-        weatherCode: 0,
-        uvIndexMax: 5.2,
-      },
-    };
-
-    const res = await makeRequest(requestWithWeather);
+    const res = await makeRequest(createValidRequestBody());
 
     expect(res.status).toBe(200);
 
     const json = (await res.json()) as { success: boolean; data: AdviceResponse };
     expect(json.success).toBe(true);
-  });
-
-  it('should handle challenge mode request', async () => {
-    mockGenerateAdvice.mockResolvedValue(ok(createMockResponse()));
-
-    const challengeRequest = {
-      ...createValidRequestBody(),
-      context: {
-        ...createValidRequestBody().context,
-        todayMode: 'challenge',
-      },
-    };
-
-    const res = await makeRequest(challengeRequest);
-
-    expect(res.status).toBe(200);
-
-    const json = (await res.json()) as { success: boolean; data: AdviceResponse };
-    expect(json.success).toBe(true);
-  });
-
-  it('should handle holiday mode request', async () => {
-    mockGenerateAdvice.mockResolvedValue(ok(createMockResponse()));
-
-    const holidayRequest = {
-      ...createValidRequestBody(),
-      context: {
-        ...createValidRequestBody().context,
-        todayMode: 'holiday',
-      },
-    };
-
-    const res = await makeRequest(holidayRequest);
-
-    expect(res.status).toBe(200);
-
-    const json = (await res.json()) as { success: boolean; data: AdviceResponse };
-    expect(json.success).toBe(true);
+    expect(json.data.todayInsight).toBeTruthy();
+    expect(json.data.todayOneThing).toBeTruthy();
+    expect(json.data.relatedInsight).toBeTruthy();
   });
 });

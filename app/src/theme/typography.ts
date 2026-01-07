@@ -1,4 +1,4 @@
-import { TextStyle, Platform } from 'react-native';
+import { TextStyle, Platform } from "react-native";
 
 /**
  * タイポグラフィ定義
@@ -9,19 +9,19 @@ import { TextStyle, Platform } from 'react-native';
 
 // Plus Jakarta Sans font family
 export const FontFamily = {
-  regular: 'PlusJakartaSans_400Regular',
-  medium: 'PlusJakartaSans_500Medium',
-  semibold: 'PlusJakartaSans_600SemiBold',
-  bold: 'PlusJakartaSans_700Bold',
+  regular: "PlusJakartaSans_400Regular",
+  medium: "PlusJakartaSans_500Medium",
+  semibold: "PlusJakartaSans_600SemiBold",
+  bold: "PlusJakartaSans_700Bold",
   // Serif for headings (system serif)
   serif: Platform.select({
-    ios: 'Georgia',
-    android: 'serif',
+    ios: "Georgia",
+    android: "serif",
   }),
   // Monospace for timestamps and timers
   mono: Platform.select({
-    ios: 'Menlo',
-    android: 'monospace',
+    ios: "Menlo",
+    android: "monospace",
   }),
 } as const;
 
@@ -30,7 +30,7 @@ export const Typography = {
   heading1: {
     fontFamily: FontFamily.serif,
     fontSize: 30,
-    fontWeight: '400',
+    fontWeight: "400",
     lineHeight: 38,
     letterSpacing: -0.5,
   } as TextStyle,
@@ -39,7 +39,7 @@ export const Typography = {
   heading2: {
     fontFamily: FontFamily.semibold,
     fontSize: 24,
-    fontWeight: '600',
+    fontWeight: "600",
     lineHeight: 32,
   } as TextStyle,
 
@@ -47,7 +47,7 @@ export const Typography = {
   heading3: {
     fontFamily: FontFamily.bold,
     fontSize: 18,
-    fontWeight: '700',
+    fontWeight: "700",
     lineHeight: 24,
   } as TextStyle,
 
@@ -55,7 +55,7 @@ export const Typography = {
   body: {
     fontFamily: FontFamily.regular,
     fontSize: 15,
-    fontWeight: '400',
+    fontWeight: "400",
     lineHeight: 24,
   } as TextStyle,
 
@@ -63,7 +63,7 @@ export const Typography = {
   bodyMedium: {
     fontFamily: FontFamily.medium,
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: "500",
     lineHeight: 24,
   } as TextStyle,
 
@@ -71,7 +71,7 @@ export const Typography = {
   caption: {
     fontFamily: FontFamily.regular,
     fontSize: 14,
-    fontWeight: '400',
+    fontWeight: "400",
     lineHeight: 20,
   } as TextStyle,
 
@@ -79,17 +79,17 @@ export const Typography = {
   label: {
     fontFamily: FontFamily.medium,
     fontSize: 12,
-    fontWeight: '500',
+    fontWeight: "500",
     lineHeight: 16,
     letterSpacing: 1,
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
   } as TextStyle,
 
   // 小ラベル - 10px Medium (for tab bar labels)
   labelSmall: {
     fontFamily: FontFamily.medium,
     fontSize: 10,
-    fontWeight: '500',
+    fontWeight: "500",
     lineHeight: 14,
   } as TextStyle,
 
@@ -97,17 +97,17 @@ export const Typography = {
   dateLabel: {
     fontFamily: FontFamily.semibold,
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: "600",
     lineHeight: 18,
     letterSpacing: 2,
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
   } as TextStyle,
 
   // 数値（大） - 52px Bold (for WaveScore)
   scoreXL: {
     fontFamily: FontFamily.bold,
     fontSize: 52,
-    fontWeight: '700',
+    fontWeight: "700",
     lineHeight: 56,
     letterSpacing: -1,
   } as TextStyle,
@@ -116,7 +116,7 @@ export const Typography = {
   scoreLG: {
     fontFamily: FontFamily.bold,
     fontSize: 48,
-    fontWeight: '700',
+    fontWeight: "700",
     lineHeight: 56,
   } as TextStyle,
 
@@ -124,7 +124,7 @@ export const Typography = {
   scoreMD: {
     fontFamily: FontFamily.bold,
     fontSize: 32,
-    fontWeight: '700',
+    fontWeight: "700",
     lineHeight: 40,
   } as TextStyle,
 
@@ -132,7 +132,7 @@ export const Typography = {
   mono: {
     fontFamily: FontFamily.mono,
     fontSize: 48,
-    fontWeight: '300',
+    fontWeight: "300",
     lineHeight: 56,
     letterSpacing: -1,
   } as TextStyle,
@@ -141,10 +141,10 @@ export const Typography = {
   sectionTitle: {
     fontFamily: FontFamily.medium,
     fontSize: 11,
-    fontWeight: '500',
+    fontWeight: "500",
     lineHeight: 14,
     letterSpacing: 1.5,
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
   } as TextStyle,
 } as const;
 

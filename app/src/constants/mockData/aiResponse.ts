@@ -63,4 +63,3 @@ export const MOCK_AI_RESPONSE: AIResponse = {
     source: "時間生物学研究",
   },
 };
-

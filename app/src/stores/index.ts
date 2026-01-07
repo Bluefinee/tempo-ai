@@ -3,7 +3,7 @@ export {
   useUserStore,
   selectIsCalibrating,
   selectCalibrationProgress,
-} from './userStore';
+} from "./userStore";
 
 // Health store
 export {
@@ -13,14 +13,14 @@ export {
   selectIsCalibrating as selectIsCalibratingHealth,
   selectCurrentPhase,
   selectCalibrationProgress as selectCalibrationProgressHealth,
-} from './healthStore';
+} from "./healthStore";
 
 // Insight store
 export {
   useInsightStore,
   selectCurrentGenerationMessage,
   selectIsInsightStale,
-} from './insightStore';
+} from "./insightStore";
 
 // Breathe store
 export {
@@ -28,4 +28,4 @@ export {
   selectIsSessionComplete,
   selectSessionProgress,
   selectFormattedElapsedTime,
-} from './breatheStore';
+} from "./breatheStore";

@@ -10,18 +10,15 @@ import type {
   SimpleWeatherData,
   DailySnapshot,
   RealtimeMetrics,
-} from '../../domain/models';
+} from "../../domain/models";
 import type {
   TempoScoreResult,
   HrvMetrics as NewHrvMetrics,
   SleepMetrics as NewSleepMetrics,
   RhythmMetrics,
   ActivityMetrics as NewActivityMetrics,
-} from '../../domain/services/tempoScoreCalculator';
-import type {
-  CircadianRhythm,
-  EnergyCurve,
-} from '../../domain/models/rhythm';
+} from "../../domain/services/tempoScoreCalculator";
+import type { CircadianRhythm, EnergyCurve } from "../../domain/models/rhythm";
 
 export interface HealthMetricsV2 {
   hrv: NewHrvMetrics | null;
@@ -90,7 +87,7 @@ export interface HealthState {
     wakeUpTime: string,
     windDownTime: string,
     sunrise: string,
-    sunset: string
+    sunset: string,
   ) => void;
   startCalibration: () => void;
   incrementCalibrationDay: () => void;
@@ -130,4 +127,3 @@ export const initialHealthState = {
   lastSnapshotDate: null,
   realtimeMetrics: null,
 };
-

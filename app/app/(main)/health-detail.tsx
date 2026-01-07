@@ -3,10 +3,20 @@
  * sozai/tempoai-health-summary/ を React Native で完全再現
  */
 
-import React, { useState, useRef, useCallback, useMemo } from 'react';
-import { View, Text, ScrollView, Pressable, useWindowDimensions } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import React, { useState, useRef, useCallback, useMemo } from "react";
+import {
+  View,
+  Text,
+  ScrollView,
+  Pressable,
+  useWindowDimensions,
+  StyleSheet,
+} from "react-native";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
 import {
   ChevronLeft,
   Check,
@@ -19,19 +29,24 @@ import {
   Wind,
   Droplets,
   Thermometer,
-} from 'lucide-react-native';
-import { BlurView } from 'expo-blur';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+} from "lucide-react-native";
+import { BlurView } from "expo-blur";
+import Animated, { FadeInDown } from "react-native-reanimated";
 
-import { HealthAreaChart, type ChartDataPoint } from '../../src/components';
-import { colors } from '../../src/theme';
-import { t } from '../../src/i18n';
-import { seededRandom } from '../../src/constants/mockDataFactory';
-import { type Timeframe } from '../../src/components/TimeframeSelector';
+import { HealthAreaChart, type ChartDataPoint } from "../../src/components";
+import { colors } from "../../src/theme";
+import { t } from "../../src/i18n";
+import { seededRandom } from "../../src/constants/mockDataFactory";
+import { type Timeframe } from "../../src/components/TimeframeSelector";
 
-export type IconType = 'activity' | 'heart' | 'wind' | 'droplet' | 'thermometer';
-export type MetricStatus = 'in-range' | 'out-of-range';
-export type BaselineTrend = 'up' | 'down' | 'neutral';
+export type IconType =
+  | "activity"
+  | "heart"
+  | "wind"
+  | "droplet"
+  | "thermometer";
+export type MetricStatus = "in-range" | "out-of-range";
+export type BaselineTrend = "up" | "down" | "neutral";
 
 // メトリクスデータ型
 interface MetricData {
@@ -60,154 +75,138 @@ const ICON_MAP = {
   thermometer: Thermometer,
 };
 
-// ステータスラベルを動的に生成するヘルパー
-const getStatusLabel = (
-  status: MetricStatus,
-  typicalRange: { min: number; max: number },
-  value: number | string
-): string => {
-  if (status === 'in-range') {
-    return `${t('metric.health.status.within')} ${typicalRange.min}-${typicalRange.max}`;
-  }
-  const numValue = typeof value === 'number' ? value : parseFloat(value);
-  if (numValue < typicalRange.min) {
-    return `Low < ${typicalRange.min}`;
-  }
-  return `High > ${typicalRange.max}`;
-};
-
 // モックデータ - sozai/tempoai-health-summary と同じ（i18n対応）
 const getMetrics = (): MetricData[] => [
   {
-    id: 'hrv',
-    name: t('metric.health.hrv.name'),
-    shortName: t('metric.health.hrv.shortName'),
-    cardLabel: t('metric.health.hrv.cardLabel'),
+    id: "hrv",
+    name: t("metric.health.hrv.name"),
+    shortName: t("metric.health.hrv.shortName"),
+    cardLabel: t("metric.health.hrv.cardLabel"),
     value: 82,
-    unit: 'ms',
-    status: 'in-range',
-    statusLabel: `${t('metric.health.status.within')} 58-97`,
-    colorHex: '#22C55E',
+    unit: "ms",
+    status: "in-range",
+    statusLabel: `${t("metric.health.status.within")} 58-97`,
+    colorHex: "#22C55E",
     typicalRange: { min: 58, max: 97 },
-    baseline: '77 ms',
-    baselineTrend: 'up',
-    iconType: 'activity',
+    baseline: "77 ms",
+    baselineTrend: "up",
+    iconType: "activity",
     chartData: [
-      { day: 'T', value: 65 },
-      { day: 'F', value: 78 },
-      { day: 'S', value: 72 },
-      { day: 'S', value: 85 },
-      { day: 'M', value: 71 },
-      { day: 'T', value: 88 },
-      { day: 'W', value: 82 },
+      { day: "T", value: 65 },
+      { day: "F", value: 78 },
+      { day: "S", value: 72 },
+      { day: "S", value: 85 },
+      { day: "M", value: 71 },
+      { day: "T", value: 88 },
+      { day: "W", value: 82 },
     ],
   },
   {
-    id: 'rhr',
-    name: t('metric.health.rhr.name'),
-    shortName: t('metric.health.rhr.shortName'),
-    cardLabel: t('metric.health.rhr.cardLabel'),
+    id: "rhr",
+    name: t("metric.health.rhr.name"),
+    shortName: t("metric.health.rhr.shortName"),
+    cardLabel: t("metric.health.rhr.cardLabel"),
     value: 59,
-    unit: 'bpm',
-    status: 'out-of-range',
-    statusLabel: 'Low < 53',
-    colorHex: '#F87171',
+    unit: "bpm",
+    status: "out-of-range",
+    statusLabel: "Low < 53",
+    colorHex: "#F87171",
     typicalRange: { min: 54, max: 63 },
-    baseline: '59 bpm',
-    baselineTrend: 'down',
-    iconType: 'heart',
+    baseline: "59 bpm",
+    baselineTrend: "down",
+    iconType: "heart",
     chartData: [
-      { day: 'T', value: 56 },
-      { day: 'F', value: 52 },
-      { day: 'S', value: 52 },
-      { day: 'S', value: 59 },
-      { day: 'M', value: 62 },
-      { day: 'T', value: 59 },
-      { day: 'W', value: 51 },
+      { day: "T", value: 56 },
+      { day: "F", value: 52 },
+      { day: "S", value: 52 },
+      { day: "S", value: 59 },
+      { day: "M", value: 62 },
+      { day: "T", value: 59 },
+      { day: "W", value: 51 },
     ],
   },
   {
-    id: 'resp',
-    name: t('metric.health.resp.name'),
-    shortName: t('metric.health.resp.shortName'),
-    cardLabel: t('metric.health.resp.cardLabel'),
+    id: "resp",
+    name: t("metric.health.resp.name"),
+    shortName: t("metric.health.resp.shortName"),
+    cardLabel: t("metric.health.resp.cardLabel"),
     value: 11.0,
-    unit: 'BrPM',
-    status: 'in-range',
-    statusLabel: `${t('metric.health.status.within')} 10.5-16`,
-    colorHex: '#3B82F6',
+    unit: "BrPM",
+    status: "in-range",
+    statusLabel: `${t("metric.health.status.within")} 10.5-16`,
+    colorHex: "#3B82F6",
     typicalRange: { min: 10.5, max: 16 },
-    baseline: '11.2 BrPM',
-    baselineTrend: 'neutral',
-    iconType: 'wind',
+    baseline: "11.2 BrPM",
+    baselineTrend: "neutral",
+    iconType: "wind",
     chartData: [
-      { day: 'T', value: 11.2 },
-      { day: 'F', value: 10.8 },
-      { day: 'S', value: 11.5 },
-      { day: 'S', value: 11.0 },
-      { day: 'M', value: 11.1 },
-      { day: 'T', value: 10.9 },
-      { day: 'W', value: 11.0 },
+      { day: "T", value: 11.2 },
+      { day: "F", value: 10.8 },
+      { day: "S", value: 11.5 },
+      { day: "S", value: 11.0 },
+      { day: "M", value: 11.1 },
+      { day: "T", value: 10.9 },
+      { day: "W", value: 11.0 },
     ],
   },
   {
-    id: 'spo2',
-    name: t('metric.health.spo2.name'),
-    shortName: t('metric.health.spo2.shortName'),
-    cardLabel: t('metric.health.spo2.cardLabel'),
+    id: "spo2",
+    name: t("metric.health.spo2.name"),
+    shortName: t("metric.health.spo2.shortName"),
+    cardLabel: t("metric.health.spo2.cardLabel"),
     value: 98,
-    unit: '%',
-    status: 'in-range',
-    statusLabel: `${t('metric.health.status.within')} 96-99`,
-    colorHex: '#14B8A6',
+    unit: "%",
+    status: "in-range",
+    statusLabel: `${t("metric.health.status.within")} 96-99`,
+    colorHex: "#14B8A6",
     typicalRange: { min: 96, max: 99 },
-    baseline: '98%',
-    baselineTrend: 'neutral',
-    iconType: 'droplet',
+    baseline: "98%",
+    baselineTrend: "neutral",
+    iconType: "droplet",
     chartData: [
-      { day: 'T', value: 97 },
-      { day: 'F', value: 98 },
-      { day: 'S', value: 99 },
-      { day: 'S', value: 98 },
-      { day: 'M', value: 97 },
-      { day: 'T', value: 98 },
-      { day: 'W', value: 98 },
+      { day: "T", value: 97 },
+      { day: "F", value: 98 },
+      { day: "S", value: 99 },
+      { day: "S", value: 98 },
+      { day: "M", value: 97 },
+      { day: "T", value: 98 },
+      { day: "W", value: 98 },
     ],
   },
   {
-    id: 'temp',
-    name: t('metric.health.temp.name'),
-    shortName: t('metric.health.temp.shortName'),
-    cardLabel: t('metric.health.temp.cardLabel'),
+    id: "temp",
+    name: t("metric.health.temp.name"),
+    shortName: t("metric.health.temp.shortName"),
+    cardLabel: t("metric.health.temp.cardLabel"),
     value: 36.4,
-    unit: '°C',
-    status: 'in-range',
-    statusLabel: `${t('metric.health.status.within')} 36.1-36.9`,
-    colorHex: '#F59E0B',
+    unit: "°C",
+    status: "in-range",
+    statusLabel: `${t("metric.health.status.within")} 36.1-36.9`,
+    colorHex: "#F59E0B",
     typicalRange: { min: 36.1, max: 36.9 },
-    baseline: '36.4°C',
-    baselineTrend: 'neutral',
-    iconType: 'thermometer',
+    baseline: "36.4°C",
+    baselineTrend: "neutral",
+    iconType: "thermometer",
     chartData: [
-      { day: 'T', value: 36.3 },
-      { day: 'F', value: 36.5 },
-      { day: 'S', value: 36.4 },
-      { day: 'S', value: 36.2 },
-      { day: 'M', value: 36.6 },
-      { day: 'T', value: 36.3 },
-      { day: 'W', value: 36.4 },
+      { day: "T", value: 36.3 },
+      { day: "F", value: 36.5 },
+      { day: "S", value: 36.4 },
+      { day: "S", value: 36.2 },
+      { day: "M", value: 36.6 },
+      { day: "T", value: 36.3 },
+      { day: "W", value: 36.4 },
     ],
   },
 ];
 
-export default function HealthDetailScreen(): React.ReactElement {
+const HealthDetailScreen = (): React.ReactElement => {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const scrollViewRef = useRef<ScrollView>(null);
 
   // i18n対応のメトリクスデータを取得
   const metrics = useMemo(() => getMetrics(), []);
-  const [activeSection, setActiveSection] = useState<string>('hrv');
+  const [activeSection, setActiveSection] = useState<string>("hrv");
 
   // セクションの位置を保持
   const sectionPositions = useRef<Record<string, number>>({});
@@ -220,7 +219,7 @@ export default function HealthDetailScreen(): React.ReactElement {
   const scrollToSection = useCallback((id: string) => {
     setActiveSection(id);
     const sectionY = sectionPositions.current[id];
-    const containerY = sectionPositions.current['_container'] || 0;
+    const containerY = sectionPositions.current["_container"] || 0;
     if (sectionY !== undefined && scrollViewRef.current) {
       // コンテナの開始位置 + セクションの相対位置 - ヘッダー分のオフセット
       const scrollY = containerY + sectionY - 70;
@@ -238,46 +237,50 @@ export default function HealthDetailScreen(): React.ReactElement {
     (
       baseData: ChartDataPoint[],
       tf: Timeframe,
-      typicalRange: { min: number; max: number }
+      typicalRange: { min: number; max: number },
     ): ChartDataPoint[] => {
       const baseValue =
-        typeof baseData[0]?.value === 'number' ? baseData[0].value : typicalRange.min;
+        typeof baseData[0]?.value === "number"
+          ? baseData[0].value
+          : typicalRange.min;
       const range = typicalRange.max - typicalRange.min;
 
       const generateValue = (index: number, seed: number): number => {
         const variance = range * 0.4;
         const random = seededRandom(index + seed);
-        const val =
-          baseValue + (random - 0.5) * variance * 2;
+        const val = baseValue + (random - 0.5) * variance * 2;
         return (
           Math.round(
-            Math.max(typicalRange.min * 0.85, Math.min(typicalRange.max * 1.15, val)) * 10
+            Math.max(
+              typicalRange.min * 0.85,
+              Math.min(typicalRange.max * 1.15, val),
+            ) * 10,
           ) / 10
         );
       };
 
       switch (tf) {
-        case '7D':
+        case "7D":
           return baseData;
-        case '30D': {
-          const labels = ['W1', 'W2', 'W3', 'W4', 'Now'];
+        case "30D": {
+          const labels = ["W1", "W2", "W3", "W4", "Now"];
           return labels.map((label, i) => ({
             day: label,
             value:
               i === labels.length - 1
-                ? typeof baseData[baseData.length - 1]?.value === 'number'
+                ? typeof baseData[baseData.length - 1]?.value === "number"
                   ? baseData[baseData.length - 1].value
                   : baseValue
                 : generateValue(i, 30),
           }));
         }
-        case '60D': {
-          const labels = ['6w', '4w', '2w', '1w', 'Now'];
+        case "60D": {
+          const labels = ["6w", "4w", "2w", "1w", "Now"];
           return labels.map((label, i) => ({
             day: label,
             value:
               i === labels.length - 1
-                ? typeof baseData[baseData.length - 1]?.value === 'number'
+                ? typeof baseData[baseData.length - 1]?.value === "number"
                   ? baseData[baseData.length - 1].value
                   : baseValue
                 : generateValue(i, 60),
@@ -287,12 +290,12 @@ export default function HealthDetailScreen(): React.ReactElement {
           return baseData;
       }
     },
-    []
+    [],
   );
 
   // タイムフレーム状態を各メトリックごとに管理
   const [timeframes, setTimeframes] = useState<Record<string, Timeframe>>({});
-  const getTimeframe = (id: string): Timeframe => timeframes[id] || '7D';
+  const getTimeframe = (id: string): Timeframe => timeframes[id] || "7D";
   const setTimeframe = (id: string, tf: Timeframe) =>
     setTimeframes((prev) => ({ ...prev, [id]: tf }));
 
@@ -301,75 +304,41 @@ export default function HealthDetailScreen(): React.ReactElement {
 
   // Temperatureカード用（横長レイアウト）- アイコン付き
   const renderTemperatureCard = (metric: MetricData, onPress: () => void) => {
-    const isOutOfRange = metric.status === 'out-of-range';
+    const isOutOfRange = metric.status === "out-of-range";
     const IconComponent = ICON_MAP[metric.iconType];
     return (
-      <View
-        style={{
-          backgroundColor: colors.white,
-          borderRadius: 24,
-          borderWidth: 1,
-          borderColor: colors.stone[100],
-          overflow: 'hidden',
-        }}
-      >
-        <Pressable
-          onPress={onPress}
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: 16,
-          }}
-        >
+      <View style={styles.tempCard}>
+        <Pressable onPress={onPress} style={styles.tempCardPressable}>
           {/* 左側: アイコン + ラベル（縦中央） */}
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+          <View style={styles.tempLeftSection}>
             <IconComponent size={18} color={colors.stone[400]} />
-            <Text
-              style={{
-                fontSize: 14,
-                fontWeight: '700',
-                color: colors.stone[400],
-              }}
-            >
-              {metric.cardLabel}
-            </Text>
+            <Text style={styles.tempCardLabel}>{metric.cardLabel}</Text>
           </View>
           {/* 右側: 数値とステータス */}
-          <View style={{ alignItems: 'flex-end' }}>
-            <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 4 }}>
-              <Text
-                style={{
-                  fontSize: 36,
-                  fontWeight: '700',
-                  color: colors.stone[900],
-                  letterSpacing: -1,
-                }}
-              >
-                {metric.value}
-              </Text>
-              <Text
-                style={{
-                  fontSize: 16,
-                  fontWeight: '500',
-                  color: colors.stone[400],
-                }}
-              >
-                {metric.unit}
-              </Text>
+          <View style={styles.tempRightSection}>
+            <View style={styles.tempValueRow}>
+              <Text style={styles.tempValue}>{metric.value}</Text>
+              <Text style={styles.tempUnit}>{metric.unit}</Text>
             </View>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 }}>
+            <View style={styles.tempStatusRow}>
               {isOutOfRange ? (
-                <AlertCircle size={14} strokeWidth={2.5} color={colors.amber[500]} />
+                <AlertCircle
+                  size={14}
+                  strokeWidth={2.5}
+                  color={colors.amber[500]}
+                />
               ) : (
                 <Check size={14} strokeWidth={3} color={colors.emerald[500]} />
               )}
               <Text
-                style={{
-                  fontSize: 14,
-                  fontWeight: '500',
-                  color: isOutOfRange ? colors.amber[500] : colors.emerald[500],
-                }}
+                style={[
+                  styles.tempStatusText,
+                  {
+                    color: isOutOfRange
+                      ? colors.amber[500]
+                      : colors.emerald[500],
+                  },
+                ]}
               >
                 {metric.statusLabel}
               </Text>
@@ -383,8 +352,12 @@ export default function HealthDetailScreen(): React.ReactElement {
   // インラインMetricDetail
   const renderMetricDetail = (metric: MetricData, index: number) => {
     const tf = getTimeframe(metric.id);
-    const displayChartData = generateTimeframeData(metric.chartData, tf, metric.typicalRange);
-    const tfOptions: Timeframe[] = ['7D', '30D', '60D'];
+    const displayChartData = generateTimeframeData(
+      metric.chartData,
+      tf,
+      metric.typicalRange,
+    );
+    const tfOptions: Timeframe[] = ["7D", "30D", "60D"];
 
     return (
       <Animated.View
@@ -399,51 +372,54 @@ export default function HealthDetailScreen(): React.ReactElement {
         {/* Section Header with Left Border */}
         <View
           className="flex-row items-center mb-4 pl-4"
-          style={{ borderLeftWidth: 4, borderLeftColor: metric.colorHex }}
+          style={[styles.sectionHeader, { borderLeftColor: metric.colorHex }]}
         >
-          <Text className="text-lg font-semibold text-stone-900">{metric.name}</Text>
+          <Text className="text-lg font-semibold text-stone-900">
+            {metric.name}
+          </Text>
         </View>
 
         {/* Main Card */}
         <View
           className="bg-white p-5 rounded-2xl border border-stone-100"
-          style={{
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.06,
-            shadowRadius: 10,
-            elevation: 4,
-          }}
+          style={styles.detailCard}
         >
           {/* Top Stats Row */}
           <View className="flex-row justify-between items-end mb-6">
             <View>
               <Text
                 className="text-xs font-semibold text-stone-400 uppercase mb-1"
-                style={{ letterSpacing: 0.5 }}
+                style={styles.statLabel}
               >
-                {t('detail.health.mostRecent')}
+                {t("detail.health.mostRecent")}
               </Text>
-              <View className="flex-row items-baseline" style={{ gap: 4 }}>
-                <Text className="text-4xl font-bold" style={{ color: metric.colorHex }}>
+              <View className="flex-row items-baseline" style={styles.valueRow}>
+                <Text
+                  className="text-4xl font-bold"
+                  style={{ color: metric.colorHex }}
+                >
                   {metric.value}
                 </Text>
-                <Text className="text-sm font-medium text-stone-500">{metric.unit}</Text>
+                <Text className="text-sm font-medium text-stone-500">
+                  {metric.unit}
+                </Text>
               </View>
             </View>
-            <View style={{ alignItems: 'flex-end' }}>
+            <View style={styles.baselineContainer}>
               <Text
                 className="text-xs font-semibold text-stone-400 uppercase mb-1"
-                style={{ letterSpacing: 0.5 }}
+                style={styles.statLabel}
               >
-                {t('detail.health.baseline')}
+                {t("detail.health.baseline")}
               </Text>
-              <View className="flex-row items-center" style={{ gap: 4 }}>
-                <Text className="text-sm font-medium text-stone-600">{metric.baseline}</Text>
-                {metric.baselineTrend === 'up' && (
+              <View className="flex-row items-center" style={styles.valueRow}>
+                <Text className="text-sm font-medium text-stone-600">
+                  {metric.baseline}
+                </Text>
+                {metric.baselineTrend === "up" && (
                   <ArrowUp size={16} color={metric.colorHex} />
                 )}
-                {metric.baselineTrend === 'down' && (
+                {metric.baselineTrend === "down" && (
                   <ArrowDown size={16} color={metric.colorHex} />
                 )}
               </View>
@@ -454,7 +430,7 @@ export default function HealthDetailScreen(): React.ReactElement {
           <View className="items-center mb-6">
             <View
               className="flex-row bg-stone-100 p-1 rounded-full"
-              style={{ gap: 4 }}
+              style={styles.timeframeSelector}
             >
               {tfOptions.map((option) => (
                 <Pressable
@@ -474,7 +450,9 @@ export default function HealthDetailScreen(): React.ReactElement {
                 >
                   <Text
                     className="text-xs font-medium"
-                    style={{ color: tf === option ? colors.white : colors.stone[500] }}
+                    style={{
+                      color: tf === option ? colors.white : colors.stone[500],
+                    }}
                   >
                     {option}
                   </Text>
@@ -497,12 +475,12 @@ export default function HealthDetailScreen(): React.ReactElement {
           {/* Legend */}
           <View
             className="flex-row items-center pt-2 border-t border-stone-100"
-            style={{ gap: 8 }}
+            style={styles.legend}
           >
             <CheckCircle2 size={16} color={metric.colorHex} />
             <Text className="text-xs font-medium text-stone-500">
-              {t('detail.health.typicalRange')}: {metric.typicalRange.min}-{metric.typicalRange.max}{' '}
-              {metric.unit.replace(' ', '')}
+              {t("detail.health.typicalRange")}: {metric.typicalRange.min}-
+              {metric.typicalRange.max} {metric.unit.replace(" ", "")}
             </Text>
           </View>
         </View>
@@ -512,7 +490,7 @@ export default function HealthDetailScreen(): React.ReactElement {
 
   return (
     <View className="flex-1 bg-stone-50">
-      <SafeAreaView className="flex-1" edges={['top']}>
+      <SafeAreaView className="flex-1" edges={["top"]}>
         {/* Header */}
         <View
           className="flex-row items-center justify-between px-5 border-b border-stone-100 bg-stone-50"
@@ -528,10 +506,14 @@ export default function HealthDetailScreen(): React.ReactElement {
             onPress={handleBack}
             className="p-2 -ml-2 rounded-full"
             style={({ pressed }) => [
-              { backgroundColor: pressed ? colors.stone[100] : 'transparent' },
+              { backgroundColor: pressed ? colors.stone[100] : "transparent" },
             ]}
           >
-            <ChevronLeft size={24} strokeWidth={2.5} color={colors.stone[800]} />
+            <ChevronLeft
+              size={24}
+              strokeWidth={2.5}
+              color={colors.stone[800]}
+            />
           </Pressable>
           <Text className="text-lg font-bold text-stone-900">Health</Text>
           <View style={{ width: 40 }} />
@@ -554,77 +536,61 @@ export default function HealthDetailScreen(): React.ReactElement {
                 const cardWidth = (containerWidth - CARD_GAP) / 2;
                 const cardHeight = cardWidth * 0.85; // 縦幅を少し狭める
 
-                const renderMetricCard = (metric: MetricData, onPress: () => void) => {
-                  const isOutOfRange = metric.status === 'out-of-range';
+                const renderMetricCard = (
+                  metric: MetricData,
+                  onPress: () => void,
+                ) => {
+                  const isOutOfRange = metric.status === "out-of-range";
                   const IconComponent = ICON_MAP[metric.iconType];
                   return (
                     <View
-                      style={{
-                        width: cardWidth,
-                        height: cardHeight,
-                        backgroundColor: colors.white,
-                        borderRadius: 24,
-                        borderWidth: 1,
-                        borderColor: colors.stone[100],
-                        overflow: 'hidden',
-                      }}
+                      style={[
+                        styles.metricCard,
+                        { width: cardWidth, height: cardHeight },
+                      ]}
                     >
                       <Pressable
                         onPress={onPress}
-                        style={{
-                          padding: 16,
-                        }}
+                        style={styles.metricCardPressable}
                       >
                         {/* Icon + Label */}
-                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                        <View style={styles.metricCardHeader}>
                           <IconComponent size={18} color={colors.stone[400]} />
-                          <Text
-                            style={{
-                              fontSize: 14,
-                              fontWeight: '700',
-                              color: colors.stone[400],
-                            }}
-                          >
+                          <Text style={styles.metricCardLabel}>
                             {metric.cardLabel}
                           </Text>
                         </View>
 
                         {/* Value */}
-                        <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 4, marginTop: 8 }}>
-                          <Text
-                            style={{
-                              fontSize: 36,
-                              fontWeight: '700',
-                              color: colors.stone[900],
-                              letterSpacing: -1,
-                            }}
-                          >
-                            {metric.value}
-                          </Text>
-                          <Text
-                            style={{
-                              fontSize: 16,
-                              fontWeight: '500',
-                              color: colors.stone[400],
-                            }}
-                          >
-                            {metric.unit}
-                          </Text>
+                        <View style={styles.metricValueContainer}>
+                          <Text style={styles.metricValue}>{metric.value}</Text>
+                          <Text style={styles.metricUnit}>{metric.unit}</Text>
                         </View>
 
                         {/* Status */}
-                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8 }}>
+                        <View style={styles.metricStatusContainer}>
                           {isOutOfRange ? (
-                            <AlertCircle size={14} strokeWidth={2.5} color={colors.amber[500]} />
+                            <AlertCircle
+                              size={14}
+                              strokeWidth={2.5}
+                              color={colors.amber[500]}
+                            />
                           ) : (
-                            <Check size={14} strokeWidth={3} color={colors.emerald[500]} />
+                            <Check
+                              size={14}
+                              strokeWidth={3}
+                              color={colors.emerald[500]}
+                            />
                           )}
                           <Text
-                            style={{
-                              fontSize: 14,
-                              fontWeight: '500',
-                              color: isOutOfRange ? colors.amber[500] : colors.emerald[500],
-                            }}
+                            style={[
+                              styles.metricStatusText,
+                              {
+                                color: isOutOfRange
+                                  ? colors.amber[500]
+                                  : colors.emerald[500],
+                              },
+                            ]}
                           >
                             {metric.statusLabel}
                           </Text>
@@ -635,19 +601,29 @@ export default function HealthDetailScreen(): React.ReactElement {
                 };
 
                 return (
-                  <View style={{ gap: CARD_GAP }}>
+                  <View style={[styles.gridContainer, { gap: CARD_GAP }]}>
                     {/* Row 1: HRV & RHR */}
-                    <View style={{ flexDirection: 'row', gap: CARD_GAP }}>
-                      {renderMetricCard(metrics[0], () => scrollToSection(metrics[0].id))}
-                      {renderMetricCard(metrics[1], () => scrollToSection(metrics[1].id))}
+                    <View style={[styles.gridRow, { gap: CARD_GAP }]}>
+                      {renderMetricCard(metrics[0], () =>
+                        scrollToSection(metrics[0].id),
+                      )}
+                      {renderMetricCard(metrics[1], () =>
+                        scrollToSection(metrics[1].id),
+                      )}
                     </View>
                     {/* Row 2: RESP & SpO2 */}
-                    <View style={{ flexDirection: 'row', gap: CARD_GAP }}>
-                      {renderMetricCard(metrics[2], () => scrollToSection(metrics[2].id))}
-                      {renderMetricCard(metrics[3], () => scrollToSection(metrics[3].id))}
+                    <View style={[styles.gridRow, { gap: CARD_GAP }]}>
+                      {renderMetricCard(metrics[2], () =>
+                        scrollToSection(metrics[2].id),
+                      )}
+                      {renderMetricCard(metrics[3], () =>
+                        scrollToSection(metrics[3].id),
+                      )}
                     </View>
                     {/* Row 3: Temperature (full width) */}
-                    {renderTemperatureCard(metrics[4], () => scrollToSection(metrics[4].id))}
+                    {renderTemperatureCard(metrics[4], () =>
+                      scrollToSection(metrics[4].id),
+                    )}
                   </View>
                 );
               })()}
@@ -655,13 +631,16 @@ export default function HealthDetailScreen(): React.ReactElement {
 
             {/* Detail Sections - インライン実装 */}
             <View
-              style={{ gap: 8 }}
+              style={styles.detailSections}
               onLayout={(event) => {
                 // Detail Sectionsコンテナの開始位置を保存
-                sectionPositions.current['_container'] = event.nativeEvent.layout.y;
+                sectionPositions.current["_container"] =
+                  event.nativeEvent.layout.y;
               }}
             >
-              {metrics.map((metric, index) => renderMetricDetail(metric, index))}
+              {metrics.map((metric, index) =>
+                renderMetricDetail(metric, index),
+              )}
             </View>
           </View>
         </ScrollView>
@@ -671,7 +650,7 @@ export default function HealthDetailScreen(): React.ReactElement {
           className="absolute bottom-0 left-0 right-0 border-t border-stone-200"
           style={{
             paddingBottom: insets.bottom + 8,
-            backgroundColor: 'rgba(255, 255, 255, 0.85)',
+            backgroundColor: "rgba(255, 255, 255, 0.85)",
           }}
         >
           <BlurView intensity={80} tint="light" className="absolute inset-0" />
@@ -693,7 +672,9 @@ export default function HealthDetailScreen(): React.ReactElement {
                   className="flex-row items-center px-4 py-2.5 rounded-xl"
                   style={[
                     {
-                      backgroundColor: isActive ? colors.stone[900] : colors.stone[100],
+                      backgroundColor: isActive
+                        ? colors.stone[900]
+                        : colors.stone[100],
                       transform: [{ scale: isActive ? 1 : 0.95 }],
                     },
                     isActive && {
@@ -731,4 +712,143 @@ export default function HealthDetailScreen(): React.ReactElement {
       </SafeAreaView>
     </View>
   );
-}
+};
+
+const styles = StyleSheet.create({
+  sectionHeader: {
+    borderLeftWidth: 4,
+  },
+  detailCard: {
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    elevation: 4,
+  },
+  statLabel: {
+    letterSpacing: 0.5,
+  },
+  valueRow: {
+    gap: 4,
+  },
+  baselineContainer: {
+    alignItems: "flex-end",
+  },
+  timeframeSelector: {
+    gap: 4,
+  },
+  legend: {
+    gap: 8,
+  },
+  tempCard: {
+    backgroundColor: colors.white,
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: colors.stone[100],
+    overflow: "hidden",
+  },
+  tempCardPressable: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: 16,
+  },
+  tempLeftSection: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  tempCardLabel: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: colors.stone[400],
+  },
+  tempRightSection: {
+    alignItems: "flex-end",
+  },
+  tempValueRow: {
+    flexDirection: "row",
+    alignItems: "baseline",
+    gap: 4,
+  },
+  tempValue: {
+    fontSize: 36,
+    fontWeight: "700",
+    color: colors.stone[900],
+    letterSpacing: -1,
+  },
+  tempUnit: {
+    fontSize: 16,
+    fontWeight: "500",
+    color: colors.stone[400],
+  },
+  tempStatusRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginTop: 4,
+  },
+  tempStatusText: {
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  metricCard: {
+    backgroundColor: colors.white,
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: colors.stone[100],
+    overflow: "hidden",
+  },
+  metricCardPressable: {
+    padding: 16,
+  },
+  metricCardHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  metricCardLabel: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: colors.stone[400],
+  },
+  metricValueContainer: {
+    flexDirection: "row",
+    alignItems: "baseline",
+    gap: 4,
+    marginTop: 8,
+  },
+  metricValue: {
+    fontSize: 36,
+    fontWeight: "700",
+    color: colors.stone[900],
+    letterSpacing: -1,
+  },
+  metricUnit: {
+    fontSize: 16,
+    fontWeight: "500",
+    color: colors.stone[400],
+  },
+  metricStatusContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginTop: 8,
+  },
+  metricStatusText: {
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  gridContainer: {
+    // gap is dynamic
+  },
+  gridRow: {
+    flexDirection: "row",
+    // gap is dynamic
+  },
+  detailSections: {
+    gap: 8,
+  },
+});
+
+export default HealthDetailScreen;

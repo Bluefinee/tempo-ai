@@ -16,12 +16,12 @@ export const Spacing = {
  * Tailwind CSS border-radius mapping
  */
 export const BorderRadius = {
-  sm: 8,      // rounded-lg
-  md: 12,     // rounded-xl
-  lg: 16,     // rounded-2xl
-  xl: 24,     // rounded-3xl (sozai のメインカード)
-  '2xl': 20,  // rounded-2xl
-  '3xl': 24,  // rounded-3xl
+  sm: 8, // rounded-lg
+  md: 12, // rounded-xl
+  lg: 16, // rounded-2xl
+  xl: 24, // rounded-3xl (sozai のメインカード)
+  "2xl": 20, // rounded-2xl
+  "3xl": 24, // rounded-3xl
   full: 9999, // rounded-full
 } as const;
 

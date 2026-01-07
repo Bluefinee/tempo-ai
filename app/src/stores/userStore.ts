@@ -1,6 +1,6 @@
-import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   UserProfile,
   Chronotype,
@@ -9,10 +9,10 @@ import {
   ExerciseFrequency,
   AlcoholFrequency,
   CALIBRATION_PERIOD_DAYS,
-} from '../domain/models';
+} from "../domain/models";
 
 // 新規: Types
-type Goal = 'better_sleep' | 'more_energy' | 'less_stress' | 'peak_performance';
+type Goal = "better_sleep" | "more_energy" | "less_stress" | "peak_performance";
 
 interface UserPreferences {
   gentleNudges: boolean;
@@ -60,7 +60,15 @@ interface UserState {
   resetUser: () => void;
 
   // 新規: Actions
-  setProfile: (profile: Partial<UserProfile & { goals?: Goal[]; wakeUpTime?: string; windDownTime?: string }>) => void;
+  setProfile: (
+    profile: Partial<
+      UserProfile & {
+        goals?: Goal[];
+        wakeUpTime?: string;
+        windDownTime?: string;
+      }
+    >,
+  ) => void;
   setGoals: (goals: Goal[]) => void;
   setWakeUpTime: (time: string) => void;
   setWindDownTime: (time: string) => void;
@@ -78,13 +86,13 @@ const initialPreferences: UserPreferences = {
 
 const createDefaultProfile = (draft: Partial<UserProfile>): UserProfile => ({
   id: `user_${Date.now()}`,
-  nickname: draft.nickname || 'ユーザー',
+  nickname: draft.nickname || "ユーザー",
   age: draft.age || 30,
-  gender: draft.gender || 'other',
+  gender: draft.gender || "other",
   heightCm: draft.heightCm,
   weightKg: draft.weightKg,
-  chronotype: draft.chronotype || 'intermediate',
-  targetBedtime: draft.targetBedtime || '23:00',
+  chronotype: draft.chronotype || "intermediate",
+  targetBedtime: draft.targetBedtime || "23:00",
   occupation: draft.occupation,
   exerciseFrequency: draft.exerciseFrequency,
   alcoholFrequency: draft.alcoholFrequency,
@@ -130,7 +138,10 @@ export const useUserStore = create<UserState>()(
 
       nextOnboardingStep: () =>
         set((state) => ({
-          onboardingStep: Math.min(state.onboardingStep + 1, TOTAL_ONBOARDING_STEPS - 1),
+          onboardingStep: Math.min(
+            state.onboardingStep + 1,
+            TOTAL_ONBOARDING_STEPS - 1,
+          ),
         })),
 
       previousOnboardingStep: () =>
@@ -139,7 +150,12 @@ export const useUserStore = create<UserState>()(
         })),
 
       setOnboardingStep: (step) =>
-        set({ onboardingStep: Math.max(0, Math.min(step, TOTAL_ONBOARDING_STEPS - 1)) }),
+        set({
+          onboardingStep: Math.max(
+            0,
+            Math.min(step, TOTAL_ONBOARDING_STEPS - 1),
+          ),
+        }),
 
       completeOnboarding: () => {
         const { draftProfile } = get();
@@ -165,7 +181,7 @@ export const useUserStore = create<UserState>()(
                 ...state.profile,
                 calibrationDaysCompleted: Math.min(
                   state.profile.calibrationDaysCompleted + 1,
-                  CALIBRATION_PERIOD_DAYS
+                  CALIBRATION_PERIOD_DAYS,
                 ),
                 updatedAt: new Date(),
               }
@@ -235,14 +251,14 @@ export const useUserStore = create<UserState>()(
       },
     }),
     {
-      name: 'tempo-user-storage',
+      name: "tempo-user-storage",
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({
         profile: state.profile,
         isOnboardingComplete: state.isOnboardingComplete,
       }),
-    }
-  )
+    },
+  ),
 );
 
 // Selectors (既存)
@@ -257,16 +273,17 @@ export const selectCalibrationProgress = (state: UserState): number =>
 
 // 新規: Selectors
 export const selectNickname = (state: UserState): string =>
-  state.profile?.nickname ?? '';
+  state.profile?.nickname ?? "";
 
 export const selectGoals = (state: UserState): Goal[] =>
   (state.profile as unknown as { goals?: Goal[] })?.goals ?? [];
 
 export const selectWakeUpTime = (state: UserState): string =>
-  (state.profile as unknown as { wakeUpTime?: string })?.wakeUpTime ?? '07:00';
+  (state.profile as unknown as { wakeUpTime?: string })?.wakeUpTime ?? "07:00";
 
 export const selectWindDownTime = (state: UserState): string =>
-  (state.profile as unknown as { windDownTime?: string })?.windDownTime ?? '23:00';
+  (state.profile as unknown as { windDownTime?: string })?.windDownTime ??
+  "23:00";
 
 export const selectHapticEnabled = (state: UserState): boolean =>
   state.preferences.hapticFeedback;

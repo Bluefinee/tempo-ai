@@ -5,16 +5,14 @@
  */
 
 import React from "react";
-import { View, Text, StyleSheet, useWindowDimensions } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Colors, FontFamily } from "../../src/theme";
 import { PrimaryButton } from "../../src/components";
 import type { JSX } from "react";
 
-const { width, height } = useWindowDimensions();
-
-export default function WelcomeScreen(): JSX.Element {
+const WelcomeScreen = (): JSX.Element => {
   const router = useRouter();
 
   const handleStart = () => {
@@ -58,7 +56,7 @@ export default function WelcomeScreen(): JSX.Element {
       </SafeAreaView>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -72,8 +70,8 @@ const styles = StyleSheet.create({
   // Decorative blobs
   blobTopRight: {
     position: "absolute",
-    top: -height * 0.15,
-    right: -width * 0.2,
+    top: -100,
+    right: -80,
     width: 256, // w-64
     height: 256, // h-64
     backgroundColor: Colors.amber[100],
@@ -83,8 +81,8 @@ const styles = StyleSheet.create({
   },
   blobBottomLeft: {
     position: "absolute",
-    bottom: -height * 0.1,
-    left: -width * 0.15,
+    bottom: -80,
+    left: -60,
     width: 320, // w-80
     height: 320, // h-80
     backgroundColor: Colors.indigo[100],
@@ -145,3 +143,5 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 });
+
+export default WelcomeScreen;

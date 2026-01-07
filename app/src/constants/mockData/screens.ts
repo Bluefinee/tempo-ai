@@ -10,7 +10,7 @@ import { MOCK_AI_RESPONSE } from "./aiResponse";
 /**
  * 気圧トレンド型
  */
-export type PressureTrend = "up" | "stable" | "down";
+export type PressureTrend = "rising" | "stable" | "falling";
 
 /**
  * 環境データ型（API準備用）
@@ -56,7 +56,7 @@ export interface EnvironmentData {
  */
 export const getEnvironmentData = (
   _latitude?: number,
-  _longitude?: number
+  _longitude?: number,
 ): EnvironmentData => {
   // TODO: 実APIからの取得に置き換え
   // const response = await fetch(`/api/environment?lat=${latitude}&lon=${longitude}`);
@@ -73,7 +73,7 @@ export const getEnvironmentData = (
     sunriseTime,
     sunsetTime,
     dayLengthMinutes: Math.round(
-      (sunsetTime.getTime() - sunriseTime.getTime()) / 60000
+      (sunsetTime.getTime() - sunriseTime.getTime()) / 60000,
     ),
     location: "東京",
     // 天気
@@ -269,4 +269,3 @@ export const MOCK_BREATHE = {
  * Time Period Type
  */
 export type TimePeriod = "weekly" | "monthly";
-

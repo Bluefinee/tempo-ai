@@ -1,15 +1,15 @@
-import { getLocales } from 'expo-localization';
-import { I18n } from 'i18n-js';
-import ja from './locales/ja.json';
+import { getLocales } from "expo-localization";
+import { I18n } from "i18n-js";
+import ja from "./locales/ja.json";
 
 const i18n = new I18n({ ja });
 
 // デバイスロケール取得
-const deviceLocale = getLocales()[0]?.languageCode ?? 'ja';
+const deviceLocale = getLocales()[0]?.languageCode ?? "ja";
 
 // 日本語のみサポート（将来英語追加）
-i18n.locale = deviceLocale === 'ja' ? 'ja' : 'ja';
-i18n.defaultLocale = 'ja';
+i18n.locale = deviceLocale === "ja" ? "ja" : "ja";
+i18n.defaultLocale = "ja";
 i18n.enableFallback = true;
 
 export const t = (key: string, options?: Record<string, unknown>): string => {
@@ -25,8 +25,3 @@ export const getLocale = (): string => {
 };
 
 export default i18n;
-
-
-
-
-

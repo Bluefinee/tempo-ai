@@ -3,13 +3,13 @@
  * 睡眠詳細画面で睡眠ステージを表示
  */
 
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import Animated, { FadeIn } from 'react-native-reanimated';
-import { colors } from '../theme';
+import React from "react";
+import { View, Text, StyleSheet } from "react-native";
+import Animated, { FadeIn } from "react-native-reanimated";
+import { colors } from "../theme";
 
 interface SleepStage {
-  stage: 'deep' | 'rem' | 'light' | 'awake';
+  stage: "deep" | "rem" | "light" | "awake";
   percentage: number;
 }
 
@@ -25,13 +25,15 @@ const stageColors = {
 };
 
 const stageLabels = {
-  deep: 'Deep',
-  rem: 'REM',
-  light: 'Light',
-  awake: 'Awake',
+  deep: "Deep",
+  rem: "REM",
+  light: "Light",
+  awake: "Awake",
 };
 
-export const SleepStagesBar: React.FC<SleepStagesBarProps> = ({ stages }) => {
+export const SleepStagesBar = ({
+  stages,
+}: SleepStagesBarProps): React.ReactElement => {
   return (
     <View style={styles.container}>
       {/* Bar */}
@@ -75,23 +77,23 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   bar: {
-    flexDirection: 'row',
+    flexDirection: "row",
     height: 12,
     borderRadius: 6,
-    overflow: 'hidden',
+    overflow: "hidden",
     backgroundColor: colors.stone[100],
   },
   segment: {
-    height: '100%',
+    height: "100%",
   },
   legend: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: 16,
   },
   legendItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 6,
   },
   legendDot: {
@@ -101,13 +103,12 @@ const styles = StyleSheet.create({
   },
   legendLabel: {
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: "600",
     color: colors.stone[600],
   },
   legendValue: {
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: "700",
     color: colors.stone[900],
   },
 });
-

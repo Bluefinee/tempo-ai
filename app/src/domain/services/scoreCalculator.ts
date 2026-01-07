@@ -107,14 +107,14 @@ export const calculateSleepScore = (input: SleepScoreInput): number => {
     const bedtimeDeviation =
       Math.abs(
         input.timing.actualBedtime.getTime() -
-          input.timing.targetBedtime.getTime()
+          input.timing.targetBedtime.getTime(),
       ) /
       (1000 * 60); // 分
 
     const wakeDeviation =
       Math.abs(
         input.timing.actualWakeTime.getTime() -
-          input.timing.targetWakeTime.getTime()
+          input.timing.targetWakeTime.getTime(),
       ) /
       (1000 * 60);
 
@@ -122,7 +122,7 @@ export const calculateSleepScore = (input: SleepScoreInput): number => {
   }
 
   return Math.round(
-    durationScore * 0.4 + qualityScore * 0.4 + timingScore * 0.2
+    durationScore * 0.4 + qualityScore * 0.4 + timingScore * 0.2,
   );
 };
 
@@ -168,7 +168,7 @@ export interface EnergyScoreInput {
   sleep: number; // Sleep Score (0-100)
   weather: {
     pressure: number; // hPa
-    pressureTrend: 'rising' | 'stable' | 'falling';
+    pressureTrend: "rising" | "stable" | "falling";
   };
 }
 
@@ -180,11 +180,11 @@ export const calculateEnergyScore = (input: EnergyScoreInput): number => {
   let weatherFactor = 100;
 
   if (
-    input.weather.pressureTrend === 'falling' &&
+    input.weather.pressureTrend === "falling" &&
     input.weather.pressure < 1010
   ) {
     weatherFactor -= 20; // 気圧急低下: -20%
-  } else if (input.weather.pressureTrend === 'rising') {
+  } else if (input.weather.pressureTrend === "rising") {
     weatherFactor += 5; // 気圧上昇: +5%
   }
 
@@ -192,4 +192,3 @@ export const calculateEnergyScore = (input: EnergyScoreInput): number => {
 
   return Math.round(baseScore + weatherScore * 0.1);
 };
-

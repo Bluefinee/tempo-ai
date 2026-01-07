@@ -23,4 +23,3 @@ export const MOCK_USER: UserProfile = {
   createdAt: new Date(),
   updatedAt: new Date(),
 };
-

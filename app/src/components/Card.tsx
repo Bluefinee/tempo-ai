@@ -3,15 +3,15 @@
  * 浮遊感のあるカードデザインを提供
  */
 
-import React from 'react';
+import React from "react";
 import {
   View,
   StyleSheet,
   TouchableOpacity,
   ViewStyle,
   StyleProp,
-} from 'react-native';
-import { Colors, Shadows } from '../theme';
+} from "react-native";
+import { Colors, Shadows } from "../theme";
 
 export interface CardProps {
   children: React.ReactNode;
@@ -20,7 +20,12 @@ export interface CardProps {
   noPadding?: boolean;
 }
 
-export const Card = ({ children, style, onPress, noPadding }: CardProps): React.ReactElement => {
+export const Card = ({
+  children,
+  style,
+  onPress,
+  noPadding,
+}: CardProps): React.ReactElement => {
   const cardStyle = [styles.card, noPadding && styles.noPadding, style];
 
   if (onPress) {

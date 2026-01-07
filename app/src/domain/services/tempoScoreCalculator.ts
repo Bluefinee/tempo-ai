@@ -15,12 +15,12 @@
 export interface SleepMetrics {
   readonly durationMinutes: number;
   readonly deepSleepRatio: number; // 0.0-1.0
-  readonly remSleepRatio: number;  // 0.0-1.0
+  readonly remSleepRatio: number; // 0.0-1.0
 }
 
 export interface HrvMetrics {
-  readonly current: number;       // ms
-  readonly baseline30d: number;   // ms
+  readonly current: number; // ms
+  readonly baseline30d: number; // ms
 }
 
 export interface RhythmMetrics {
@@ -108,10 +108,10 @@ export const calculateSleepScore = (sleep: SleepMetrics): number => {
 
 const consistencyScore = (stddevMinutes: number): number => {
   if (stddevMinutes <= 15) return 100; // 非常に安定
-  if (stddevMinutes <= 30) return 85;  // 安定
-  if (stddevMinutes <= 45) return 70;  // やや安定
-  if (stddevMinutes <= 60) return 55;  // やや不安定
-  if (stddevMinutes <= 90) return 40;  // 不安定
+  if (stddevMinutes <= 30) return 85; // 安定
+  if (stddevMinutes <= 45) return 70; // やや安定
+  if (stddevMinutes <= 60) return 55; // やや不安定
+  if (stddevMinutes <= 90) return 40; // 不安定
   return 25; // 非常に不安定
 };
 
@@ -145,22 +145,24 @@ export const calculateTempoScore = (
   sleepMetrics: SleepMetrics | null,
   rhythmMetrics: RhythmMetrics | null,
   activityMetrics: ActivityMetrics | null,
-  isCalibrating: boolean = false
+  isCalibrating: boolean = false,
 ): TempoScoreResult => {
   // デフォルト値（キャリブレーション中）
   const hrvScore = hrvMetrics ? calculateHrvScore(hrvMetrics) : 70;
   const sleepScore = sleepMetrics ? calculateSleepScore(sleepMetrics) : 70;
   const rhythmScore = rhythmMetrics ? calculateRhythmScore(rhythmMetrics) : 70;
-  const activityScore = activityMetrics ? calculateActivityScore(activityMetrics) : 70;
+  const activityScore = activityMetrics
+    ? calculateActivityScore(activityMetrics)
+    : 70;
 
   // 重み付け計算
   const score = clamp(
-    hrvScore * 0.40 +
-    sleepScore * 0.35 +
-    rhythmScore * 0.15 +
-    activityScore * 0.10,
+    hrvScore * 0.4 +
+      sleepScore * 0.35 +
+      rhythmScore * 0.15 +
+      activityScore * 0.1,
     0,
-    100
+    100,
   );
 
   return {
@@ -174,8 +176,3 @@ export const calculateTempoScore = (
     isCalibrating,
   };
 };
-
-
-
-
-

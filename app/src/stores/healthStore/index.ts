@@ -2,9 +2,9 @@
  * HealthStore - メインストア
  */
 
-import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   MOCK_SLEEP_METRICS,
   MOCK_HRV_METRICS,
@@ -13,29 +13,27 @@ import {
   MOCK_WEATHER,
   createMockDailySnapshot,
   createMockRealtimeMetrics,
-} from '../../constants/mockData';
-import { formatDateString } from '../../constants/mockDataFactory';
-import { dataSourceAdapter } from '../../services/dataSourceAdapter';
-import {
-  calculateTempoScore,
-} from '../../domain/services/tempoScoreCalculator';
+} from "../../constants/mockData";
+import { formatDateString } from "../../constants/mockDataFactory";
+import { dataSourceAdapter } from "../../services/dataSourceAdapter";
+import { calculateTempoScore } from "../../domain/services/tempoScoreCalculator";
 import {
   calculateCircadianRhythm,
   calculateEnergyCurve,
-} from '../../domain/services/rhythmCalculator';
+} from "../../domain/services/rhythmCalculator";
 import {
   calculateRecoveryScore,
   calculateSleepScore,
   calculateRhythmScore,
   calculateEnergyScore,
-} from '../../domain/services/scoreCalculator';
-import type { DailyScores } from '../../domain/models/score';
-import type { DailySnapshot } from '../../domain/models';
-import type { HealthState, HealthMetricsV2 } from './types';
-import { initialHealthState } from './types';
+} from "../../domain/services/scoreCalculator";
+import type { DailyScores } from "../../domain/models/score";
+import type { DailySnapshot } from "../../domain/models";
+import type { HealthState, HealthMetricsV2 } from "./types";
+import { initialHealthState } from "./types";
 
-export type { HealthState, HealthMetricsV2 } from './types';
-export * from './selectors';
+export type { HealthState, HealthMetricsV2 } from "./types";
+export * from "./selectors";
 
 export const useHealthStore = create<HealthState>()(
   persist(
@@ -77,16 +75,25 @@ export const useHealthStore = create<HealthState>()(
         } catch (error) {
           set({
             isLoadingMetrics: false,
-            metricsError: error instanceof Error ? error.message : 'Failed to fetch metrics',
+            metricsError:
+              error instanceof Error
+                ? error.message
+                : "Failed to fetch metrics",
           });
         }
       },
 
-      fetchWeather: async (latitude: number, longitude: number): Promise<void> => {
+      fetchWeather: async (
+        latitude: number,
+        longitude: number,
+      ): Promise<void> => {
         set({ isLoadingWeather: true, weatherError: null });
 
         try {
-          const weather = await dataSourceAdapter.getWeather(latitude, longitude);
+          const weather = await dataSourceAdapter.getWeather(
+            latitude,
+            longitude,
+          );
 
           set({
             weather,
@@ -96,7 +103,8 @@ export const useHealthStore = create<HealthState>()(
             lastWeatherUpdate: new Date(),
           });
         } catch (error) {
-          const message = error instanceof Error ? error.message : 'Failed to fetch weather';
+          const message =
+            error instanceof Error ? error.message : "Failed to fetch weather";
           set({
             isLoadingWeather: false,
             weatherError: message,
@@ -151,18 +159,23 @@ export const useHealthStore = create<HealthState>()(
           metrics.sleep,
           metrics.rhythm,
           metrics.activity,
-          isCalibrating
+          isCalibrating,
         );
 
         set({ tempoScore });
       },
 
-      calculateAndSetCircadianRhythm: (wakeUpTime: string, windDownTime: string, sunrise: string, sunset: string) => {
+      calculateAndSetCircadianRhythm: (
+        wakeUpTime: string,
+        windDownTime: string,
+        sunrise: string,
+        sunset: string,
+      ) => {
         const circadianRhythm = calculateCircadianRhythm(
           wakeUpTime,
           windDownTime,
           sunrise,
-          sunset
+          sunset,
         );
         const energyCurve = calculateEnergyCurve(wakeUpTime, windDownTime);
 
@@ -179,7 +192,10 @@ export const useHealthStore = create<HealthState>()(
 
       incrementCalibrationDay: () => {
         set((state) => ({
-          calibrationDaysCompleted: Math.min(state.calibrationDaysCompleted + 1, 7),
+          calibrationDaysCompleted: Math.min(
+            state.calibrationDaysCompleted + 1,
+            7,
+          ),
         }));
       },
 
@@ -220,16 +236,27 @@ export const useHealthStore = create<HealthState>()(
             error:
               error instanceof Error
                 ? error.message
-                : 'Failed to calculate daily snapshot',
+                : "Failed to calculate daily snapshot",
           });
         }
       },
 
       calculateDailyScores: () => {
-        const { sleepMetrics, hrvMetrics, activityMetrics, rhythmAnalysis, weather } = get();
+        const {
+          sleepMetrics,
+          hrvMetrics,
+          activityMetrics,
+          rhythmAnalysis,
+          weather,
+        } = get();
 
-        if (!sleepMetrics || !hrvMetrics || !activityMetrics || !rhythmAnalysis) {
-          console.warn('Missing metrics for score calculation');
+        if (
+          !sleepMetrics ||
+          !hrvMetrics ||
+          !activityMetrics ||
+          !rhythmAnalysis
+        ) {
+          console.warn("Missing metrics for score calculation");
           return;
         }
 
@@ -241,7 +268,10 @@ export const useHealthStore = create<HealthState>()(
           stages: {
             deepMinutes: sleepMetrics.deepSleepMinutes,
             remMinutes: sleepMetrics.remSleepMinutes,
-            lightMinutes: sleepMetrics.durationMinutes - sleepMetrics.deepSleepMinutes - sleepMetrics.remSleepMinutes,
+            lightMinutes:
+              sleepMetrics.durationMinutes -
+              sleepMetrics.deepSleepMinutes -
+              sleepMetrics.remSleepMinutes,
             awakeMinutes: 0,
           },
         });
@@ -268,7 +298,7 @@ export const useHealthStore = create<HealthState>()(
           sleep: sleepScore,
           weather: {
             pressure: weather?.pressure ?? 1013,
-            pressureTrend: weather?.pressureTrend ?? 'stable',
+            pressureTrend: weather?.pressureTrend ?? "stable",
           },
         });
 
@@ -281,11 +311,17 @@ export const useHealthStore = create<HealthState>()(
 
         const currentSnapshot = get().dailySnapshot;
         set({
-          dailySnapshot: {
-            ...currentSnapshot,
-            date: formatDateString(new Date()),
-            scores: dailyScores,
-          } as DailySnapshot,
+          dailySnapshot: currentSnapshot
+            ? {
+                ...currentSnapshot,
+                date: formatDateString(new Date()),
+                scores: dailyScores,
+              }
+            : ({
+                date: formatDateString(new Date()),
+                scores: dailyScores,
+                calculatedAt: new Date(),
+              } as DailySnapshot),
         });
       },
 
@@ -314,13 +350,13 @@ export const useHealthStore = create<HealthState>()(
             metricsError:
               error instanceof Error
                 ? error.message
-                : 'Failed to fetch realtime metrics',
+                : "Failed to fetch realtime metrics",
           });
         }
       },
     }),
     {
-      name: 'tempo-health-storage',
+      name: "tempo-health-storage",
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({
         calibrationStartDate: state.calibrationStartDate,
@@ -328,7 +364,6 @@ export const useHealthStore = create<HealthState>()(
         dailySnapshot: state.dailySnapshot,
         lastSnapshotDate: state.lastSnapshotDate,
       }),
-    }
-  )
+    },
+  ),
 );
-

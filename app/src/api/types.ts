@@ -7,7 +7,11 @@
 // User Profile
 // ========================================
 
-export type UserGoal = 'better_sleep' | 'more_energy' | 'less_stress' | 'peak_performance';
+export type UserGoal =
+  | "better_sleep"
+  | "more_energy"
+  | "less_stress"
+  | "peak_performance";
 
 export interface UserProfile {
   goals: UserGoal[];
@@ -62,7 +66,7 @@ export interface HealthMetrics {
 // Weather
 // ========================================
 
-export type PressureTrend = 'rising' | 'stable' | 'falling';
+export type PressureTrend = "rising" | "stable" | "falling";
 
 export interface WeatherData {
   temperature: number;
@@ -110,7 +114,7 @@ export interface AdviceRequest {
   locale?: string;
 }
 
-export type OneThingIcon = 'walking' | 'breathing' | 'rest' | 'coffee' | 'sun';
+export type OneThingIcon = "walking" | "breathing" | "rest" | "coffee" | "sun";
 
 export interface WhyThisMattersItem {
   headline: string;
@@ -182,4 +186,6 @@ export interface ApiError {
 // API Response (Generic)
 // ========================================
 
-export type ApiResponse<T> = { success: true; data: T } | { success: false; error: ApiError };
+export type ApiResponse<T> =
+  | { success: true; data: T }
+  | { success: false; error: ApiError };

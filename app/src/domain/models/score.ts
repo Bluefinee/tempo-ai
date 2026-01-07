@@ -3,7 +3,7 @@
  */
 
 // スコアステータス
-export type ScoreStatus = 'excellent' | 'good' | 'fair' | 'poor' | 'rest';
+export type ScoreStatus = "excellent" | "good" | "fair" | "poor" | "rest";
 
 // スコア
 export interface Score {
@@ -29,7 +29,7 @@ export interface ConditionAssessment {
   energyScore: Score; // 旧: activityScore
   averageScore: number;
   overallStatus: ScoreStatus;
-  weakestArea: 'sleep' | 'recovery' | 'rhythm' | 'energy' | null;
+  weakestArea: "sleep" | "recovery" | "rhythm" | "energy" | null;
 }
 
 // リズム分析
@@ -43,7 +43,7 @@ export interface RhythmAnalysis {
   wakeTimeConsistencyScore: number; // 0-100
 }
 
-export type RhythmStatus = 'stable' | 'recovering' | 'unstable';
+export type RhythmStatus = "stable" | "recovering" | "unstable";
 
 /**
  * スコア値からステータスを取得
@@ -51,10 +51,10 @@ export type RhythmStatus = 'stable' | 'recovering' | 'unstable';
  * @returns スコアステータス
  */
 export const getScoreStatus = (value: number): ScoreStatus => {
-  if (value >= 80) return 'excellent';
-  if (value >= 60) return 'good';
-  if (value >= 40) return 'fair';
-  return 'poor';
+  if (value >= 80) return "excellent";
+  if (value >= 60) return "good";
+  if (value >= 40) return "fair";
+  return "poor";
 };
 
 /**
@@ -64,16 +64,16 @@ export const getScoreStatus = (value: number): ScoreStatus => {
  */
 export const getScoreIcon = (status: ScoreStatus): string => {
   switch (status) {
-    case 'excellent':
-      return '🌟';
-    case 'good':
-      return '😊';
-    case 'fair':
-      return '😐';
-    case 'poor':
-      return '😔';
-    case 'rest':
-      return '💤';
+    case "excellent":
+      return "🌟";
+    case "good":
+      return "😊";
+    case "fair":
+      return "😐";
+    case "poor":
+      return "😔";
+    case "rest":
+      return "💤";
   }
 };
 
@@ -84,16 +84,16 @@ export const getScoreIcon = (status: ScoreStatus): string => {
  */
 export const getScoreStatusLabel = (status: ScoreStatus): string => {
   switch (status) {
-    case 'excellent':
-      return '絶好調';
-    case 'good':
-      return '良好';
-    case 'fair':
-      return 'まあまあ';
-    case 'poor':
-      return '要注意';
-    case 'rest':
-      return '休息推奨';
+    case "excellent":
+      return "絶好調";
+    case "good":
+      return "良好";
+    case "fair":
+      return "まあまあ";
+    case "poor":
+      return "要注意";
+    case "rest":
+      return "休息推奨";
   }
 };
 
@@ -104,12 +104,12 @@ export const getScoreStatusLabel = (status: ScoreStatus): string => {
  */
 export const getRhythmStatusLabel = (status: RhythmStatus): string => {
   switch (status) {
-    case 'stable':
-      return '安定';
-    case 'recovering':
-      return '回復中';
-    case 'unstable':
-      return '不安定';
+    case "stable":
+      return "安定";
+    case "recovering":
+      return "回復中";
+    case "unstable":
+      return "不安定";
   }
 };
 
@@ -135,8 +135,11 @@ export const createScore = (value: number): Score => {
  * @param isCalibrating キャリブレーション中かどうか
  * @returns 表示値文字列
  */
-export const getDisplayValue = (score: Score, isCalibrating: boolean): string => {
-  if (isCalibrating) return '---';
+export const getDisplayValue = (
+  score: Score,
+  isCalibrating: boolean,
+): string => {
+  if (isCalibrating) return "---";
   return String(score.value);
 };
 
@@ -148,7 +151,7 @@ export const DEFAULT_RHYTHM_ANALYSIS: RhythmAnalysis = {
   bedtimeStddevMinutes: 0,
   wakeTimeStddevMinutes: 0,
   consecutiveStableDays: 0,
-  status: 'unstable',
+  status: "unstable",
   isStable: false,
   bedtimeConsistencyScore: 0,
   wakeTimeConsistencyScore: 0,

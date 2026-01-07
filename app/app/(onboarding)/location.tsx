@@ -4,28 +4,27 @@
  * Step 8 of 9
  */
 
-import React from 'react';
-import { View, Text, StyleSheet, useWindowDimensions } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
-import { Colors, Spacing, BorderRadius, FontFamily } from '../../src/theme';
-import { PrimaryButton, SecondaryButton } from '../../src/components';
-import type { JSX } from 'react';
+import React from "react";
+import { View, Text, StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
+import { Colors, Spacing, BorderRadius, FontFamily } from "../../src/theme";
+import { PrimaryButton, SecondaryButton } from "../../src/components";
+import type { JSX } from "react";
 
-const { width, height } = useWindowDimensions();
 const CURRENT_STEP = 8;
 const TOTAL_STEPS = 9;
 
-export default function LocationScreen(): JSX.Element {
+const LocationScreen = (): JSX.Element => {
   const router = useRouter();
 
   const handleAllow = (): void => {
     // TODO: Request location permission
-    router.push('/(onboarding)/complete');
+    router.push("/(onboarding)/complete");
   };
 
   const handleSkip = (): void => {
-    router.push('/(onboarding)/complete');
+    router.push("/(onboarding)/complete");
   };
 
   return (
@@ -42,7 +41,9 @@ export default function LocationScreen(): JSX.Element {
               key={idx}
               style={[
                 styles.progressSegment,
-                idx < CURRENT_STEP ? styles.progressActive : styles.progressInactive,
+                idx < CURRENT_STEP
+                  ? styles.progressActive
+                  : styles.progressInactive,
               ]}
             />
           ))}
@@ -53,7 +54,8 @@ export default function LocationScreen(): JSX.Element {
           <Text style={styles.emoji}>📍</Text>
           <Text style={styles.title}>Weather Wisdom</Text>
           <Text style={styles.description}>
-            Local weather and barometric pressure can affect your energy and mood. Let us help you adapt.
+            Local weather and barometric pressure can affect your energy and
+            mood. Let us help you adapt.
           </Text>
 
           {/* Info Box */}
@@ -61,21 +63,23 @@ export default function LocationScreen(): JSX.Element {
             <Text style={styles.infoTitle}>Why We Need Location</Text>
             <View style={styles.dataList}>
               <DataItem emoji="☀️" text="Get local weather conditions" />
-              <DataItem emoji="📊" text="Track pressure changes that affect you" />
+              <DataItem
+                emoji="📊"
+                text="Track pressure changes that affect you"
+              />
               <DataItem emoji="🌡️" text="Temperature-based recommendations" />
             </View>
           </View>
 
           <Text style={styles.privacyNote}>
-            Your location is only used to fetch weather data and is never stored on our servers.
+            Your location is only used to fetch weather data and is never stored
+            on our servers.
           </Text>
         </View>
 
         {/* Footer */}
         <View style={styles.footer}>
-          <PrimaryButton onPress={handleAllow}>
-            Allow Location
-          </PrimaryButton>
+          <PrimaryButton onPress={handleAllow}>Allow Location</PrimaryButton>
           <SecondaryButton onPress={handleSkip} style={styles.skipButton}>
             Set Up Later
           </SecondaryButton>
@@ -83,9 +87,12 @@ export default function LocationScreen(): JSX.Element {
       </SafeAreaView>
     </View>
   );
-}
+};
 
-const DataItem: React.FC<{ emoji: string; text: string }> = ({ emoji, text }): JSX.Element => (
+const DataItem: React.FC<{ emoji: string; text: string }> = ({
+  emoji,
+  text,
+}): JSX.Element => (
   <View style={styles.dataItem}>
     <Text style={styles.dataEmoji}>{emoji}</Text>
     <Text style={styles.dataText}>{text}</Text>
@@ -96,16 +103,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.stone[50],
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   safeArea: {
     flex: 1,
   },
   // Decorative blobs
   blobTopRight: {
-    position: 'absolute',
-    top: -height * 0.15,
-    right: -width * 0.2,
+    position: "absolute",
+    top: -100,
+    right: -80,
     width: 256,
     height: 256,
     backgroundColor: Colors.emerald[100],
@@ -113,9 +120,9 @@ const styles = StyleSheet.create({
     opacity: 0.4,
   },
   blobBottomLeft: {
-    position: 'absolute',
-    bottom: -height * 0.1,
-    left: -width * 0.15,
+    position: "absolute",
+    bottom: -80,
+    left: -60,
     width: 320,
     height: 320,
     backgroundColor: Colors.indigo[100],
@@ -124,7 +131,7 @@ const styles = StyleSheet.create({
   },
   // Progress bar
   progressContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     paddingHorizontal: 32,
     paddingTop: 48,
     gap: 8,
@@ -143,8 +150,8 @@ const styles = StyleSheet.create({
   // Content
   content: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     paddingHorizontal: 32,
   },
   emoji: {
@@ -154,9 +161,9 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: FontFamily.serif,
     fontSize: 24,
-    fontWeight: '700',
+    fontWeight: "700",
     color: Colors.stone[900],
-    textAlign: 'center',
+    textAlign: "center",
     letterSpacing: -0.5,
     marginBottom: 16,
   },
@@ -164,13 +171,13 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.regular,
     fontSize: 16,
     color: Colors.stone[500],
-    textAlign: 'center',
+    textAlign: "center",
     lineHeight: 26,
     marginBottom: 32,
   },
   // Info box
   infoBox: {
-    width: '100%',
+    width: "100%",
     backgroundColor: Colors.white,
     borderRadius: BorderRadius.lg,
     padding: Spacing.lg,
@@ -181,7 +188,7 @@ const styles = StyleSheet.create({
   infoTitle: {
     fontFamily: FontFamily.bold,
     fontSize: 14,
-    fontWeight: '700',
+    fontWeight: "700",
     color: Colors.stone[700],
     marginBottom: 12,
   },
@@ -189,8 +196,8 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   dataItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   dataEmoji: {
     fontSize: 18,
@@ -206,16 +213,18 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.regular,
     fontSize: 12,
     color: Colors.stone[400],
-    textAlign: 'center',
+    textAlign: "center",
   },
   // Footer
   footer: {
     paddingHorizontal: 32,
     paddingBottom: 48,
-    alignItems: 'center',
+    alignItems: "center",
     gap: 12,
   },
   skipButton: {
     marginTop: 4,
   },
 });
+
+export default LocationScreen;

@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   TouchableOpacity,
   Text,
@@ -6,9 +6,9 @@ import {
   ViewStyle,
   StyleProp,
   ActivityIndicator,
-} from 'react-native';
-import { Colors, BorderRadius, Spacing, Typography } from '../theme';
-import type { ReactElement } from 'react';
+} from "react-native";
+import { Colors, BorderRadius, Spacing, Typography } from "../theme";
+import type { ReactElement } from "react";
 
 interface SecondaryButtonProps {
   onPress: () => void;
@@ -18,23 +18,19 @@ interface SecondaryButtonProps {
   loading?: boolean;
 }
 
-export const SecondaryButton: React.FC<SecondaryButtonProps> = ({
+export const SecondaryButton = ({
   onPress,
   children,
   style,
   disabled = false,
   loading = false,
-}): ReactElement => {
+}: SecondaryButtonProps): ReactElement => {
   return (
     <TouchableOpacity
       onPress={onPress}
       disabled={disabled || loading}
       activeOpacity={0.9}
-      style={[
-        styles.button,
-        (disabled || loading) && styles.disabled,
-        style,
-      ]}
+      style={[styles.button, (disabled || loading) && styles.disabled, style]}
     >
       {loading ? (
         <ActivityIndicator color={Colors.stone[600]} />
@@ -51,8 +47,8 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.full,
     paddingVertical: Spacing.lg,
     paddingHorizontal: Spacing.xxl,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     borderWidth: 1,
     borderColor: Colors.stone[100],
     shadowColor: Colors.stone[900],

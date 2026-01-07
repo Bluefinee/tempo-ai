@@ -10,21 +10,21 @@ import {
   CircadianRhythm,
   EnergyCurve,
   EnergyCurvePoint,
-} from '../models/rhythm';
+} from "../models/rhythm";
 
 // ========================================
 // Utility Functions
 // ========================================
 
 const parseTime = (timeString: string): Date => {
-  const [hours, minutes] = timeString.split(':').map(Number);
+  const [hours, minutes] = timeString.split(":").map(Number);
   const date = new Date();
   date.setHours(hours, minutes, 0, 0);
   return date;
 };
 
 const parseHour = (timeString: string): number => {
-  return parseInt(timeString.split(':')[0], 10);
+  return parseInt(timeString.split(":")[0], 10);
 };
 
 const addHours = (date: Date, hours: number): Date => {
@@ -62,7 +62,7 @@ interface PhaseDefinition {
 
 export const calculatePhases = (
   wakeUpTime: string,
-  windDownTime: string
+  windDownTime: string,
 ): readonly RhythmPhase[] => {
   const wake = parseTime(wakeUpTime);
   const sleep = parseTime(windDownTime);
@@ -74,32 +74,32 @@ export const calculatePhases = (
     end: Date;
   }[] = [
     {
-      definition: { name: 'Wake Window', type: 'transition' },
+      definition: { name: "Wake Window", type: "transition" },
       start: wake,
       end: addHours(wake, 2),
     },
     {
-      definition: { name: 'Peak Focus', type: 'high' },
+      definition: { name: "Peak Focus", type: "high" },
       start: addHours(wake, 2),
       end: addHours(wake, 5),
     },
     {
-      definition: { name: 'Afternoon Dip', type: 'low' },
+      definition: { name: "Afternoon Dip", type: "low" },
       start: addHours(wake, 7),
       end: addHours(wake, 9),
     },
     {
-      definition: { name: 'Second Wind', type: 'high' },
+      definition: { name: "Second Wind", type: "high" },
       start: addHours(wake, 10),
       end: addHours(wake, 13),
     },
     {
-      definition: { name: 'Wind Down', type: 'transition' },
+      definition: { name: "Wind Down", type: "transition" },
       start: addMinutes(sleep, -120),
       end: sleep,
     },
     {
-      definition: { name: 'Melatonin Window', type: 'sleep' },
+      definition: { name: "Melatonin Window", type: "sleep" },
       start: addMinutes(sleep, -30),
       end: wake,
     },
@@ -122,7 +122,7 @@ export const calculateCircadianRhythm = (
   wakeUpTime: string,
   windDownTime: string,
   sunrise: string,
-  sunset: string
+  sunset: string,
 ): CircadianRhythm => {
   const phases = calculatePhases(wakeUpTime, windDownTime);
   const now = new Date();
@@ -157,7 +157,7 @@ export const calculateCircadianRhythm = (
 const getEnergyLevel = (
   hoursSinceWake: number,
   wakeHour: number,
-  sleepHour: number
+  sleepHour: number,
 ): number => {
   const awakeHours = (sleepHour - wakeHour + 24) % 24;
 
@@ -207,7 +207,7 @@ const getEnergyLevel = (
 
 export const calculateEnergyCurve = (
   wakeUpTime: string,
-  windDownTime: string
+  windDownTime: string,
 ): EnergyCurve => {
   const wakeHour = parseHour(wakeUpTime);
   const sleepHour = parseHour(windDownTime);
@@ -224,8 +224,3 @@ export const calculateEnergyCurve = (
 
   return curve;
 };
-
-
-
-
-

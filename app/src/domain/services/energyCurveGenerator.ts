@@ -9,7 +9,7 @@ export interface EnergyCurvePoint {
 export const generateEnergyCurve = (
   wakeUpTime: Date,
   bedtime: Date,
-  recoveryScore: number // その日のRecoveryスコアで全体調整
+  recoveryScore: number, // その日のRecoveryスコアで全体調整
 ): EnergyCurvePoint[] => {
   const baseEnergy = recoveryScore * 0.8;
   const points: EnergyCurvePoint[] = [];
@@ -46,8 +46,8 @@ export const generateEnergyCurve = (
       energy = 50 + (hoursSinceWake - 9) * 5;
     } else {
       // Wind Down: 就寝に向けて低下
-      const hoursToBedtime =
-        (bedtime.getTime() - time.getTime()) / (1000 * 60 * 60);
+      // hoursToBedtime を将来的に使用する可能性があるため、計算は保持
+      // const hoursToBedtime = (bedtime.getTime() - time.getTime()) / (1000 * 60 * 60);
       energy = Math.max(30, 70 - Math.max(0, 13 - hoursSinceWake) * 3);
     }
 
@@ -64,12 +64,11 @@ export const generateEnergyCurve = (
 };
 
 const formatTime = (date: Date): string => {
-  const hours = date.getHours().toString().padStart(2, '0');
-  const minutes = date.getMinutes().toString().padStart(2, '0');
+  const hours = date.getHours().toString().padStart(2, "0");
+  const minutes = date.getMinutes().toString().padStart(2, "0");
   return `${hours}:${minutes}`;
 };
 
 const clamp = (value: number, min: number, max: number): number => {
   return Math.min(Math.max(value, min), max);
 };
-

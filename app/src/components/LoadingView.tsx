@@ -1,15 +1,15 @@
-import React from 'react';
-import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
-import { Colors, Spacing, Typography } from '../theme';
-import type { JSX } from 'react';
+import React from "react";
+import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
+import { Colors, Spacing, Typography } from "../theme";
+import type { JSX } from "react";
 
 interface LoadingViewProps {
   message?: string;
 }
 
-export const LoadingView: React.FC<LoadingViewProps> = ({
-  message = '読み込み中...',
-}): JSX.Element => {
+export const LoadingView = ({
+  message = "読み込み中...",
+}: LoadingViewProps): JSX.Element => {
   return (
     <View style={styles.container}>
       <ActivityIndicator size="large" color={Colors.indigo[500]} />
@@ -21,8 +21,8 @@ export const LoadingView: React.FC<LoadingViewProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: Colors.offWhite,
   },
   message: {

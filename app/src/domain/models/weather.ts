@@ -3,7 +3,7 @@
  */
 
 // 気圧トレンド
-export type PressureTrend = 'rising' | 'stable' | 'falling';
+export type PressureTrend = "rising" | "stable" | "falling";
 
 // 天気データ
 export interface WeatherData {
@@ -47,14 +47,14 @@ export interface Location {
  * @returns 天気状態の文字列
  */
 export const getWeatherCondition = (code: number): string => {
-  if (code === 0) return '快晴';
-  if (code <= 3) return '晴れ';
-  if (code <= 49) return '曇り';
-  if (code <= 59) return '霧雨';
-  if (code <= 69) return '雨';
-  if (code <= 79) return '雪';
-  if (code <= 99) return '雷雨';
-  return '不明';
+  if (code === 0) return "快晴";
+  if (code <= 3) return "晴れ";
+  if (code <= 49) return "曇り";
+  if (code <= 59) return "霧雨";
+  if (code <= 69) return "雨";
+  if (code <= 79) return "雪";
+  if (code <= 99) return "雷雨";
+  return "不明";
 };
 
 /**
@@ -64,12 +64,12 @@ export const getWeatherCondition = (code: number): string => {
  */
 export const getPressureTrendLabel = (trend: PressureTrend): string => {
   switch (trend) {
-    case 'rising':
-      return '上昇中';
-    case 'stable':
-      return '安定';
-    case 'falling':
-      return '下降中';
+    case "rising":
+      return "上昇中";
+    case "stable":
+      return "安定";
+    case "falling":
+      return "下降中";
   }
 };
 
@@ -80,17 +80,17 @@ export const getPressureTrendLabel = (trend: PressureTrend): string => {
  */
 export const getPressureTrendIcon = (trend: PressureTrend): string => {
   switch (trend) {
-    case 'rising':
-      return '↑';
-    case 'stable':
-      return '→';
-    case 'falling':
-      return '↓';
+    case "rising":
+      return "↑";
+    case "stable":
+      return "→";
+    case "falling":
+      return "↓";
   }
 };
 
 // UVインデックスのレベル
-export type UVLevel = 'low' | 'moderate' | 'high' | 'veryHigh' | 'extreme';
+export type UVLevel = "low" | "moderate" | "high" | "veryHigh" | "extreme";
 
 /**
  * UVインデックスからレベルを取得
@@ -98,11 +98,11 @@ export type UVLevel = 'low' | 'moderate' | 'high' | 'veryHigh' | 'extreme';
  * @returns UVレベル
  */
 export const getUVLevel = (index: number): UVLevel => {
-  if (index <= 2) return 'low';
-  if (index <= 5) return 'moderate';
-  if (index <= 7) return 'high';
-  if (index <= 10) return 'veryHigh';
-  return 'extreme';
+  if (index <= 2) return "low";
+  if (index <= 5) return "moderate";
+  if (index <= 7) return "high";
+  if (index <= 10) return "veryHigh";
+  return "extreme";
 };
 
 /**
@@ -112,16 +112,16 @@ export const getUVLevel = (index: number): UVLevel => {
  */
 export const getUVLevelLabel = (level: UVLevel): string => {
   switch (level) {
-    case 'low':
-      return '弱い';
-    case 'moderate':
-      return '中程度';
-    case 'high':
-      return '強い';
-    case 'veryHigh':
-      return '非常に強い';
-    case 'extreme':
-      return '極端';
+    case "low":
+      return "弱い";
+    case "moderate":
+      return "中程度";
+    case "high":
+      return "強い";
+    case "veryHigh":
+      return "非常に強い";
+    case "extreme":
+      return "極端";
   }
 };
 
@@ -134,5 +134,5 @@ export const PRESSURE_DROP_ALERT_THRESHOLD = -10; // hPa/24h
  * @returns 低下中の場合true
  */
 export const isPressureDropping = (trend: PressureTrend): boolean => {
-  return trend === 'falling';
+  return trend === "falling";
 };

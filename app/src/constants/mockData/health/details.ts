@@ -4,33 +4,11 @@
  */
 
 import type {
-  HealthMetrics,
-  SleepMetrics,
-  HRVMetrics,
-  ActivityMetrics,
-  RhythmAnalysis,
-  DailyScoreSnapshot,
-  QuickAction,
-  RecommendedAction,
-  SimpleWeatherData,
-} from "../../../domain/models";
-import type {
   HealthMetricHistory,
-  DailySnapshot,
-  RealtimeMetrics,
-  RealtimeHealthMetric,
   BarChartDataPoint,
 } from "../../../domain/models/healthHistory";
-import {
-  getMockMetricHistory,
-  getAllScoreHistories,
-  getAllHealthMetricHistories,
-  formatDateString,
-} from "../../mockDataFactory";
-import {
-  toBarChartData,
-  calculateDeviationPercent,
-} from "../../../utils/healthDataTransformer";
+import { getAllScoreHistories } from "../../mockDataFactory";
+import { toBarChartData } from "../../../utils/healthDataTransformer";
 export interface MockDetailRecovery {
   score: number;
   status: string;
@@ -52,10 +30,10 @@ export interface MockDetailSleep {
   duration: { hours: number; minutes: number; percentage: number };
   quality: { percentage: number };
   analysis: string;
-  stages: Array<{
+  stages: {
     stage: "deep" | "rem" | "light" | "awake";
     percentage: number;
-  }>;
+  }[];
   timing: {
     bedtime: { actual: string; target: string; diff: string };
     wakeTime: { actual: string; target: string; diff: string };
@@ -106,7 +84,7 @@ export interface MockDetailRhythm {
       detail: string;
     };
   };
-  weeklyPattern: Array<{ day: string; offset: number }>;
+  weeklyPattern: { day: string; offset: number }[];
   rawHistory: HealthMetricHistory;
   history: {
     "7D": BarChartDataPoint[];

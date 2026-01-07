@@ -1,26 +1,26 @@
-import React from 'react';
+import React from "react";
 import {
   View,
   Text,
   TextInput,
   StyleSheet,
   TextInputProps,
-} from 'react-native';
-import { Colors, BorderRadius, Spacing, Typography } from '../theme';
-import type { ReactElement } from 'react';
+} from "react-native";
+import { Colors, BorderRadius, Spacing, Typography } from "../theme";
+import type { ReactElement } from "react";
 
-interface InputFieldProps extends Omit<TextInputProps, 'style'> {
+interface InputFieldProps extends Omit<TextInputProps, "style"> {
   label: string;
   suffix?: string;
   error?: string;
 }
 
-export const InputField: React.FC<InputFieldProps> = ({
+export const InputField = ({
   label,
   suffix,
   error,
   ...textInputProps
-}): ReactElement => {
+}: InputFieldProps): ReactElement => {
   return (
     <View style={styles.container}>
       <Text style={styles.label}>{label}</Text>
@@ -48,8 +48,8 @@ const styles = StyleSheet.create({
     marginLeft: Spacing.xs,
   },
   inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: Colors.white,
     borderWidth: 1,
     borderColor: Colors.stone[100],

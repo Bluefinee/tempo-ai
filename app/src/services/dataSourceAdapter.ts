@@ -1,5 +1,5 @@
-import { DATA_SOURCE_CONFIG } from '../config/dataSource';
-import { apiClient } from '../api/client';
+import { DATA_SOURCE_CONFIG } from "../config/dataSource";
+import { apiClient } from "../api/client";
 import {
   MOCK_SLEEP_METRICS,
   MOCK_HRV_METRICS,
@@ -7,15 +7,15 @@ import {
   MOCK_RHYTHM_ANALYSIS,
   MOCK_WEATHER,
   MOCK_AI_RESPONSE,
-} from '../constants/mockData';
+} from "../constants/mockData";
 import type {
   SleepMetrics,
   HRVMetrics,
   ActivityMetrics,
   RhythmAnalysis,
   SimpleWeatherData,
-} from '../domain/models';
-import type { AdviceRequest, AdviceResponse } from '../api/types';
+} from "../domain/models";
+import type { AdviceRequest, AdviceResponse } from "../api/types";
 
 /**
  * データソースアダプター
@@ -30,7 +30,7 @@ class DataSourceAdapter {
       return MOCK_SLEEP_METRICS;
     }
     // TODO: 実装 - HealthKitService.fetchSleepMetrics()
-    throw new Error('Real HealthKit integration not yet implemented');
+    throw new Error("Real HealthKit integration not yet implemented");
   }
 
   /**
@@ -41,7 +41,7 @@ class DataSourceAdapter {
       return MOCK_HRV_METRICS;
     }
     // TODO: 実装 - HealthKitService.fetchHRVMetrics()
-    throw new Error('Real HealthKit integration not yet implemented');
+    throw new Error("Real HealthKit integration not yet implemented");
   }
 
   /**
@@ -52,7 +52,7 @@ class DataSourceAdapter {
       return MOCK_ACTIVITY_METRICS;
     }
     // TODO: 実装 - HealthKitService.fetchActivityMetrics()
-    throw new Error('Real HealthKit integration not yet implemented');
+    throw new Error("Real HealthKit integration not yet implemented");
   }
 
   /**
@@ -63,7 +63,7 @@ class DataSourceAdapter {
       return MOCK_RHYTHM_ANALYSIS;
     }
     // TODO: 実装 - HealthKitService.fetchRhythmAnalysis()
-    throw new Error('Real HealthKit integration not yet implemented');
+    throw new Error("Real HealthKit integration not yet implemented");
   }
 
   /**
@@ -74,18 +74,18 @@ class DataSourceAdapter {
       return MOCK_WEATHER;
     }
 
-      const result = await apiClient.getWeather(lat, lon);
+    const result = await apiClient.getWeather(lat, lon);
     if (!result.success) {
-      throw new Error('Failed to fetch weather data');
+      throw new Error("Failed to fetch weather data");
     }
 
     return {
       temp: result.data.temperature,
-      condition: result.data.description || 'sunny',
+      condition: result.data.description || "sunny",
       pressure: result.data.pressure,
       pressureTrend: result.data.pressureTrend,
       uv: 0, // TODO: UV index is not available yet
-      location: result.data.location || '現在地',
+      location: result.data.location || "現在地",
     };
   }
 
@@ -97,9 +97,9 @@ class DataSourceAdapter {
       return MOCK_AI_RESPONSE;
     }
 
-      const result = await apiClient.generateAdvice(request);
+    const result = await apiClient.generateAdvice(request);
     if (!result.success) {
-      throw new Error('Failed to generate AI advice');
+      throw new Error("Failed to generate AI advice");
     }
 
     return result.data;
@@ -108,4 +108,3 @@ class DataSourceAdapter {
 
 // シングルトンインスタンス
 export const dataSourceAdapter = new DataSourceAdapter();
-

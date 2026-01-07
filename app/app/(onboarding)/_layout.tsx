@@ -1,12 +1,12 @@
-import { Stack } from 'expo-router';
-import type { JSX } from 'react';
+import { Stack } from "expo-router";
+import type { JSX } from "react";
 
-export default function OnboardingLayout(): JSX.Element {
+const OnboardingLayout = (): JSX.Element => {
   return (
     <Stack
       screenOptions={{
         headerShown: false,
-        animation: 'slide_from_right',
+        animation: "slide_from_right",
         gestureEnabled: false, // オンボーディング中は戻るジェスチャーを無効化
       }}
     >
@@ -21,4 +21,6 @@ export default function OnboardingLayout(): JSX.Element {
       <Stack.Screen name="complete" />
     </Stack>
   );
-}
+};
+
+export default OnboardingLayout;

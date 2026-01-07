@@ -4,14 +4,14 @@
  */
 
 export type RhythmPhaseName =
-  | 'Wake Window'
-  | 'Peak Focus'
-  | 'Afternoon Dip'
-  | 'Second Wind'
-  | 'Wind Down'
-  | 'Melatonin Window';
+  | "Wake Window"
+  | "Peak Focus"
+  | "Afternoon Dip"
+  | "Second Wind"
+  | "Wind Down"
+  | "Melatonin Window";
 
-export type RhythmPhaseType = 'high' | 'low' | 'transition' | 'sleep';
+export type RhythmPhaseType = "high" | "low" | "transition" | "sleep";
 
 export interface RhythmPhase {
   readonly name: RhythmPhaseName;
@@ -54,8 +54,8 @@ export interface WindowCardData {
   readonly title: string;
   readonly timeRange: string;
   readonly description: string;
-  readonly icon: 'sun' | 'moon';
-  readonly theme: 'day' | 'night';
+  readonly icon: "sun" | "moon";
+  readonly theme: "day" | "night";
   readonly isActive?: boolean;
 }
 
@@ -66,8 +66,3 @@ export interface SunData {
   readonly sunrise: string; // "7:12"
   readonly sunset: string; // "17:45"
 }
-
-
-
-
-

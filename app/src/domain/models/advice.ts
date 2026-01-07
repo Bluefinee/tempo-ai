@@ -3,7 +3,7 @@
  */
 
 // アクションタイプ
-export type ActionType = 'breathing' | 'morning_light' | 'rest' | 'activity';
+export type ActionType = "breathing" | "morning_light" | "rest" | "activity";
 
 // 推奨アクション
 export interface RecommendedAction {
@@ -48,35 +48,35 @@ export interface QuickAction {
 // アクションタイプの表示名
 export const getActionTypeLabel = (type: ActionType): string => {
   switch (type) {
-    case 'breathing':
-      return '呼吸法';
-    case 'morning_light':
-      return '朝の光';
-    case 'rest':
-      return '休息';
-    case 'activity':
-      return '活動';
+    case "breathing":
+      return "呼吸法";
+    case "morning_light":
+      return "朝の光";
+    case "rest":
+      return "休息";
+    case "activity":
+      return "活動";
   }
 };
 
 // アクションタイプのアイコン
 export const getActionTypeIcon = (type: ActionType): string => {
   switch (type) {
-    case 'breathing':
-      return 'wind';
-    case 'morning_light':
-      return 'sun';
-    case 'rest':
-      return 'coffee';
-    case 'activity':
-      return 'footprints';
+    case "breathing":
+      return "wind";
+    case "morning_light":
+      return "sun";
+    case "rest":
+      return "coffee";
+    case "activity":
+      return "footprints";
   }
 };
 
 // デフォルト推奨アクション
 export const createRecommendedAction = (
   type: ActionType,
-  message: string
+  message: string,
 ): RecommendedAction => ({
   type,
   message,
@@ -88,33 +88,33 @@ export const createRecommendedAction = (
 export type Mood = 1 | 2 | 3 | 4 | 5;
 
 // 本日モード
-export type TodayMode = 'normal' | 'challenge' | 'holiday';
+export type TodayMode = "normal" | "challenge" | "holiday";
 
 // 気分のラベル
 export const getMoodLabel = (mood: Mood): string => {
   switch (mood) {
     case 1:
-      return 'とても悪い';
+      return "とても悪い";
     case 2:
-      return '悪い';
+      return "悪い";
     case 3:
-      return '普通';
+      return "普通";
     case 4:
-      return '良い';
+      return "良い";
     case 5:
-      return 'とても良い';
+      return "とても良い";
   }
 };
 
 // 本日モードのラベル
 export const getTodayModeLabel = (mode: TodayMode): string => {
   switch (mode) {
-    case 'normal':
-      return 'ふつう';
-    case 'challenge':
-      return 'がんばる';
-    case 'holiday':
-      return 'ゆっくり';
+    case "normal":
+      return "ふつう";
+    case "challenge":
+      return "がんばる";
+    case "holiday":
+      return "ゆっくり";
   }
 };
 

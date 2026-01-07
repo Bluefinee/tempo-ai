@@ -4,11 +4,11 @@
  * StyleSheet.createのみ使用（NativeWind排除）
  */
 
-import React from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
-import { ChevronRight } from 'lucide-react-native';
-import Animated, { FadeInDown } from 'react-native-reanimated';
-import { colors } from '../theme';
+import React from "react";
+import { View, Text, Pressable, StyleSheet } from "react-native";
+import { ChevronRight } from "lucide-react-native";
+import Animated, { FadeInDown } from "react-native-reanimated";
+import { colors } from "../theme";
 
 interface MetricGridCardProps {
   title: string;
@@ -22,7 +22,7 @@ interface MetricGridCardProps {
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-export const MetricGridCard: React.FC<MetricGridCardProps> = ({
+export const MetricGridCard = ({
   title,
   value,
   color,
@@ -30,15 +30,12 @@ export const MetricGridCard: React.FC<MetricGridCardProps> = ({
   chartData,
   onPress,
   delay = 0,
-}) => {
+}: MetricGridCardProps): React.ReactElement => {
   return (
     <AnimatedPressable
       entering={FadeInDown.delay(delay).duration(400)}
       onPress={onPress}
-      style={({ pressed }) => [
-        styles.card,
-        pressed && styles.cardPressed,
-      ]}
+      style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
     >
       {/* Header */}
       <View style={styles.header}>
@@ -76,14 +73,14 @@ export const MetricGridCard: React.FC<MetricGridCardProps> = ({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.white,
     borderRadius: 20,
     padding: 16,
     height: 160,
-    justifyContent: 'space-between',
-    overflow: 'hidden',
+    justifyContent: "space-between",
+    overflow: "hidden",
     // シャドウ（iOS）
-    shadowColor: '#000',
+    shadowColor: colors.black,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.12,
     shadowRadius: 16,
@@ -95,27 +92,27 @@ const styles = StyleSheet.create({
     transform: [{ scale: 0.97 }],
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   title: {
     fontSize: 14,
-    fontWeight: '500',
-    color: '#A8A29E',
+    fontWeight: "500",
+    color: colors.stone[400],
   },
   chevronWrapper: {
     opacity: 0.6,
   },
   value: {
     fontSize: 36,
-    fontWeight: '700',
+    fontWeight: "700",
     letterSpacing: -1,
   },
   barChart: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "flex-end",
+    justifyContent: "space-between",
     height: 36,
     gap: 3,
   },

@@ -72,9 +72,9 @@
         "humidity": "湿度",
         "pressure": "気圧",
         "pressureTrend": {
-          "up": "上昇中",
+          "rising": "上昇中",
           "stable": "安定",
-          "down": "下降中"
+          "falling": "下降中"
         },
         "uv": "UV指数",
         "uvLevel": {

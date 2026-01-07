@@ -1,4 +1,4 @@
-import type { RhythmPhases } from '../../api/types';
+import type { RhythmPhases } from "../../api/types";
 
 /**
  * サーカディアンリズムのフェーズを計算
@@ -9,7 +9,7 @@ export interface RhythmPhaseInput {
 }
 
 export const calculateRhythmPhases = (
-  input: RhythmPhaseInput
+  input: RhythmPhaseInput,
 ): RhythmPhases => {
   const { wakeUpTime, bedtime } = input;
 
@@ -52,8 +52,7 @@ const addHours = (date: Date, hours: number): Date => {
 };
 
 const formatTime = (date: Date): string => {
-  const hours = date.getHours().toString().padStart(2, '0');
-  const minutes = date.getMinutes().toString().padStart(2, '0');
+  const hours = date.getHours().toString().padStart(2, "0");
+  const minutes = date.getMinutes().toString().padStart(2, "0");
   return `${hours}:${minutes}`;
 };
-

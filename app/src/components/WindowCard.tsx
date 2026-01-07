@@ -3,21 +3,21 @@
  * StyleSheet.createのみ使用（NativeWind排除）
  */
 
-import React from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
-import { Sun, Moon, LucideIcon } from 'lucide-react-native';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+import React from "react";
+import { View, Text, Pressable, StyleSheet } from "react-native";
+import { Sun, Moon, LucideIcon } from "lucide-react-native";
+import Animated, { FadeInDown } from "react-native-reanimated";
 
-import { Colors } from '../theme';
+import { Colors } from "../theme";
 
-type Theme = 'day' | 'night';
+type Theme = "day" | "night";
 
 interface WindowCardProps {
   title: string;
   timeRange: string;
   description: string;
   icon?: LucideIcon;
-  iconType?: 'sun' | 'moon';
+  iconType?: "sun" | "moon";
   theme: Theme;
   isActive?: boolean;
   delay?: number;
@@ -26,24 +26,31 @@ interface WindowCardProps {
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-const getThemeConfig = (theme: Theme) => {
-  if (theme === 'day') {
+const getThemeConfig = (
+  theme: Theme,
+): {
+  iconBgColor: string;
+  iconColor: string;
+  timeColor: string;
+  accentColor: string;
+} => {
+  if (theme === "day") {
     return {
-      iconBgColor: 'rgba(251, 191, 36, 0.15)',
+      iconBgColor: "rgba(251, 191, 36, 0.15)",
       iconColor: Colors.amber[500],
       timeColor: Colors.stone[500],
       accentColor: Colors.amber[400],
     };
   }
   return {
-    iconBgColor: 'rgba(99, 102, 241, 0.12)',
+    iconBgColor: "rgba(99, 102, 241, 0.12)",
     iconColor: Colors.indigo[500],
     timeColor: Colors.stone[500],
     accentColor: Colors.indigo[400],
   };
 };
 
-export const WindowCard: React.FC<WindowCardProps> = ({
+export const WindowCard = ({
   title,
   timeRange,
   description,
@@ -53,9 +60,9 @@ export const WindowCard: React.FC<WindowCardProps> = ({
   isActive = false,
   delay = 0,
   onPress,
-}) => {
+}: WindowCardProps): React.ReactElement => {
   const config = getThemeConfig(theme);
-  const IconComponent = icon ?? (iconType === 'moon' ? Moon : Sun);
+  const IconComponent = icon ?? (iconType === "moon" ? Moon : Sun);
 
   return (
     <AnimatedPressable
@@ -70,7 +77,12 @@ export const WindowCard: React.FC<WindowCardProps> = ({
       {/* Main content */}
       <View style={styles.content}>
         {/* Icon */}
-        <View style={[styles.iconContainer, { backgroundColor: config.iconBgColor }]}>
+        <View
+          style={[
+            styles.iconContainer,
+            { backgroundColor: config.iconBgColor },
+          ]}
+        >
           <IconComponent size={22} color={config.iconColor} strokeWidth={2} />
         </View>
 
@@ -78,7 +90,9 @@ export const WindowCard: React.FC<WindowCardProps> = ({
         <View style={styles.textContent}>
           <View style={styles.header}>
             <Text style={styles.title}>{title}</Text>
-            <Text style={[styles.timeRange, { color: config.timeColor }]}>{timeRange}</Text>
+            <Text style={[styles.timeRange, { color: config.timeColor }]}>
+              {timeRange}
+            </Text>
           </View>
           <Text style={styles.description}>{description}</Text>
         </View>
@@ -89,11 +103,11 @@ export const WindowCard: React.FC<WindowCardProps> = ({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderRadius: 20,
     padding: 16,
     // シャドウ（iOS）
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.12,
     shadowRadius: 16,
@@ -108,40 +122,40 @@ const styles = StyleSheet.create({
     transform: [{ scale: 0.98 }],
   },
   content: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 14,
   },
   iconContainer: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   textContent: {
     flex: 1,
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 6,
   },
   title: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#1C1917',
+    fontWeight: "600",
+    color: "#1C1917",
     letterSpacing: -0.3,
     flex: 1,
     marginRight: 8,
   },
   timeRange: {
     fontSize: 12,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   description: {
     fontSize: 14,
-    color: '#78716C',
+    color: "#78716C",
     lineHeight: 20,
   },
 });

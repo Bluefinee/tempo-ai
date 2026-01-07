@@ -8,29 +8,12 @@ import type {
   SleepMetrics,
   HRVMetrics,
   ActivityMetrics,
-  RhythmAnalysis,
-  DailyScoreSnapshot,
+  SimpleWeatherData,
   QuickAction,
   RecommendedAction,
-  SimpleWeatherData,
+  RhythmAnalysis,
+  DailyScoreSnapshot,
 } from "../../../domain/models";
-import type {
-  HealthMetricHistory,
-  DailySnapshot,
-  RealtimeMetrics,
-  RealtimeHealthMetric,
-  BarChartDataPoint,
-} from "../../../domain/models/healthHistory";
-import {
-  getMockMetricHistory,
-  getAllScoreHistories,
-  getAllHealthMetricHistories,
-  formatDateString,
-} from "../../mockDataFactory";
-import {
-  toBarChartData,
-  calculateDeviationPercent,
-} from "../../../utils/healthDataTransformer";
 
 /**
  * MOCK WEATHER DATA
@@ -191,4 +174,3 @@ export const MOCK_WEEKLY_SCORES: DailyScoreSnapshot[] = [
  * - history: BarChart 互換形式への変換ゲッター
  * - ベースライン・典型範囲を含む
  */
-

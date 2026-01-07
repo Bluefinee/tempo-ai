@@ -4,24 +4,24 @@
  * Step 5 of 9
  */
 
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   Dimensions,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
-import { Sun, Moon, Clock } from 'lucide-react-native';
-import { Colors, Spacing, BorderRadius, FontFamily } from '../../src/theme';
-import { PrimaryButton } from '../../src/components';
-import { Chronotype, getChronotypeLabel } from '../../src/domain/models';
-import { useUserStore } from '../../src/stores';
-import type { JSX } from 'react';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
+import { Sun, Moon, Clock } from "lucide-react-native";
+import { Colors, Spacing, BorderRadius, FontFamily } from "../../src/theme";
+import { PrimaryButton } from "../../src/components";
+import { Chronotype, getChronotypeLabel } from "../../src/domain/models";
+import { useUserStore } from "../../src/stores";
+import type { JSX } from "react";
 
-const { width, height } = Dimensions.get('window');
+const { width, height } = Dimensions.get("window");
 const CURRENT_STEP = 5;
 const TOTAL_STEPS = 9;
 
@@ -33,31 +33,36 @@ interface ChronotypeOption {
 
 const CHRONOTYPE_OPTIONS: ChronotypeOption[] = [
   {
-    value: 'morning',
+    value: "morning",
     icon: <Sun size={32} color={Colors.amber[500]} />,
-    description: 'I wake up early naturally and feel most energized in the morning.',
+    description:
+      "I wake up early naturally and feel most energized in the morning.",
   },
   {
-    value: 'intermediate',
+    value: "intermediate",
     icon: <Clock size={32} color={Colors.indigo[500]} />,
-    description: 'No strong preference. I adapt to most schedules.',
+    description: "No strong preference. I adapt to most schedules.",
   },
   {
-    value: 'evening',
+    value: "evening",
     icon: <Moon size={32} color={Colors.indigo[500]} />,
-    description: 'I come alive at night and find mornings difficult.',
+    description: "I come alive at night and find mornings difficult.",
   },
 ];
 
-export default function ChronotypeScreen(): JSX.Element {
+const ChronotypeScreen = (): JSX.Element => {
   const router = useRouter();
   const setDraftChronotype = useUserStore((state) => state.setDraftChronotype);
-  const draftChronotype = useUserStore((state) => state.draftProfile.chronotype);
-  const [chronotype, setChronotype] = useState<Chronotype>(draftChronotype || 'intermediate');
+  const draftChronotype = useUserStore(
+    (state) => state.draftProfile.chronotype,
+  );
+  const [chronotype, setChronotype] = useState<Chronotype>(
+    draftChronotype || "intermediate",
+  );
 
   const handleNext = (): void => {
     setDraftChronotype(chronotype);
-    router.push('/(onboarding)/bedtime');
+    router.push("/(onboarding)/bedtime");
   };
 
   return (
@@ -74,7 +79,9 @@ export default function ChronotypeScreen(): JSX.Element {
               key={idx}
               style={[
                 styles.progressSegment,
-                idx < CURRENT_STEP ? styles.progressActive : styles.progressInactive,
+                idx < CURRENT_STEP
+                  ? styles.progressActive
+                  : styles.progressInactive,
               ]}
             />
           ))}
@@ -85,7 +92,8 @@ export default function ChronotypeScreen(): JSX.Element {
           <Text style={styles.emoji}>🌙</Text>
           <Text style={styles.title}>Circadian Sync</Text>
           <Text style={styles.description}>
-            Light, food, and movement timed right can fix your sleep and boost your focus.
+            Light, food, and movement timed right can fix your sleep and boost
+            your focus.
           </Text>
 
           <View style={styles.options}>
@@ -107,7 +115,9 @@ export default function ChronotypeScreen(): JSX.Element {
                 >
                   {getChronotypeLabel(option.value)}
                 </Text>
-                <Text style={styles.optionDescription}>{option.description}</Text>
+                <Text style={styles.optionDescription}>
+                  {option.description}
+                </Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -115,27 +125,25 @@ export default function ChronotypeScreen(): JSX.Element {
 
         {/* Footer */}
         <View style={styles.footer}>
-          <PrimaryButton onPress={handleNext}>
-            Continue
-          </PrimaryButton>
+          <PrimaryButton onPress={handleNext}>Continue</PrimaryButton>
         </View>
       </SafeAreaView>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.stone[50],
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   safeArea: {
     flex: 1,
   },
   // Decorative blobs
   blobTopRight: {
-    position: 'absolute',
+    position: "absolute",
     top: -height * 0.15,
     right: -width * 0.2,
     width: 256,
@@ -145,7 +153,7 @@ const styles = StyleSheet.create({
     opacity: 0.4,
   },
   blobBottomLeft: {
-    position: 'absolute',
+    position: "absolute",
     bottom: -height * 0.1,
     left: -width * 0.15,
     width: 320,
@@ -156,7 +164,7 @@ const styles = StyleSheet.create({
   },
   // Progress bar
   progressContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     paddingHorizontal: 32,
     paddingTop: 48,
     gap: 8,
@@ -175,7 +183,7 @@ const styles = StyleSheet.create({
   // Content
   content: {
     flex: 1,
-    alignItems: 'center',
+    alignItems: "center",
     paddingHorizontal: 32,
     paddingTop: 32,
   },
@@ -186,9 +194,9 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: FontFamily.serif,
     fontSize: 24,
-    fontWeight: '700',
+    fontWeight: "700",
     color: Colors.stone[900],
-    textAlign: 'center',
+    textAlign: "center",
     letterSpacing: -0.5,
     marginBottom: 12,
   },
@@ -196,24 +204,24 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.regular,
     fontSize: 16,
     color: Colors.stone[500],
-    textAlign: 'center',
+    textAlign: "center",
     lineHeight: 26,
     marginBottom: 32,
   },
   // Options
   options: {
-    width: '100%',
+    width: "100%",
     gap: 12,
   },
   optionCard: {
     backgroundColor: Colors.white,
     borderRadius: BorderRadius.lg,
     padding: Spacing.lg,
-    alignItems: 'center',
+    alignItems: "center",
     borderWidth: 2,
-    borderColor: 'transparent',
+    borderColor: "transparent",
     // shadow-soft
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.06,
     shadowRadius: 20,
@@ -229,7 +237,7 @@ const styles = StyleSheet.create({
   optionLabel: {
     fontFamily: FontFamily.bold,
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: "700",
     color: Colors.stone[700],
     marginBottom: 4,
   },
@@ -240,13 +248,15 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.regular,
     fontSize: 12,
     color: Colors.stone[500],
-    textAlign: 'center',
+    textAlign: "center",
     lineHeight: 18,
   },
   // Footer
   footer: {
     paddingHorizontal: 32,
     paddingBottom: 48,
-    alignItems: 'center',
+    alignItems: "center",
   },
 });
+
+export default ChronotypeScreen;

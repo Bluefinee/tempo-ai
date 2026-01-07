@@ -4,31 +4,31 @@
  * フルスクリーンモーダル風デザイン
  */
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { View, Text, Pressable, useWindowDimensions } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
-import { X, Play, Pause, Wind } from 'lucide-react-native';
-import Svg, { Circle } from 'react-native-svg';
-import { LinearGradient } from 'expo-linear-gradient';
-import * as Haptics from 'expo-haptics';
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import {
+  View,
+  Text,
+  Pressable,
+  useWindowDimensions,
+  StyleSheet,
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
+import { X, Play, Pause, Wind } from "lucide-react-native";
+import Svg, { Circle } from "react-native-svg";
+import { LinearGradient } from "expo-linear-gradient";
+import * as Haptics from "expo-haptics";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
   Easing,
-} from 'react-native-reanimated';
+} from "react-native-reanimated";
 
-import { TAB_BAR_HEIGHT } from './_layout';
-import { t } from '../../src/i18n';
+import { TAB_BAR_HEIGHT } from "./_layout";
+import { t } from "../../src/i18n";
 
-const DEEP_NAVY = '#0F172A';
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = useWindowDimensions();
-
-// Responsive circle size
-const CIRCLE_SIZE = Math.min(SCREEN_WIDTH * 0.65, 280);
-const SVG_RADIUS = CIRCLE_SIZE * 0.47;
-const CIRCUMFERENCE = 2 * Math.PI * SVG_RADIUS;
+const DEEP_NAVY = "#0F172A";
 
 // 4-4-4 Box breathing: 4s inhale, 4s hold, 4s exhale (12s cycle)
 const PHASE_DURATIONS = {
@@ -40,25 +40,32 @@ const PHASE_DURATIONS = {
 const formatTime = (seconds: number): string => {
   const mins = Math.floor(seconds / 60);
   const secs = seconds % 60;
-  return `${mins.toString().padStart(2, '0')}:${secs < 10 ? '0' : ''}${secs}`;
+  return `${mins.toString().padStart(2, "0")}:${secs < 10 ? "0" : ""}${secs}`;
 };
 
-export default function BreatheScreen(): React.ReactElement {
+const BreatheScreen = (): React.ReactElement => {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { width: SCREEN_WIDTH } = useWindowDimensions();
   const [isActive, setIsActive] = useState(false);
-  const [phase, setPhase] = useState<'idle' | 'inhale' | 'hold' | 'exhale'>('idle');
+  const [phase, setPhase] = useState<"idle" | "inhale" | "hold" | "exhale">(
+    "idle",
+  );
   const [timeLeft, setTimeLeft] = useState(60);
 
   const previousPhaseRef = useRef(phase);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const phaseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Responsive circle size
+  const CIRCLE_SIZE = Math.min(SCREEN_WIDTH * 0.65, 280);
+  const SVG_RADIUS = CIRCLE_SIZE * 0.47;
+  const CIRCUMFERENCE = 2 * Math.PI * SVG_RADIUS;
+
   // Animation values
   const scale = useSharedValue(0.75);
   const glowOpacity = useSharedValue(0.2);
   const glowScale = useSharedValue(1);
-  const breatheRingOpacity = useSharedValue(0.3);
 
   // Progress calculation
   const totalTime = 60;
@@ -72,7 +79,7 @@ export default function BreatheScreen(): React.ReactElement {
         setTimeLeft((prev) => {
           if (prev <= 1) {
             setIsActive(false);
-            setPhase('idle');
+            setPhase("idle");
             return 0;
           }
           return prev - 1;
@@ -95,20 +102,20 @@ export default function BreatheScreen(): React.ReactElement {
   // Phase cycling effect
   useEffect(() => {
     if (!isActive) {
-      setPhase('idle');
+      setPhase("idle");
       return;
     }
 
     const runCycle = (): void => {
-      setPhase('inhale');
+      setPhase("inhale");
 
       phaseTimeoutRef.current = setTimeout(() => {
         if (!isActive) return;
-        setPhase('hold');
+        setPhase("hold");
 
         phaseTimeoutRef.current = setTimeout(() => {
           if (!isActive) return;
-          setPhase('exhale');
+          setPhase("exhale");
 
           phaseTimeoutRef.current = setTimeout(() => {
             if (!isActive) return;
@@ -129,9 +136,14 @@ export default function BreatheScreen(): React.ReactElement {
 
   // Animation effect based on phase
   useEffect(() => {
-    const targetScale = phase === 'exhale' ? 0.5 : phase === 'inhale' || phase === 'hold' ? 1 : 0.75;
-    const targetGlow = phase === 'inhale' || phase === 'hold' ? 0.4 : 0.2;
-    const targetGlowScale = phase === 'inhale' || phase === 'hold' ? 1.25 : 1;
+    const targetScale =
+      phase === "exhale"
+        ? 0.5
+        : phase === "inhale" || phase === "hold"
+          ? 1
+          : 0.75;
+    const targetGlow = phase === "inhale" || phase === "hold" ? 0.4 : 0.2;
+    const targetGlowScale = phase === "inhale" || phase === "hold" ? 1.25 : 1;
 
     scale.value = withTiming(targetScale, {
       duration: 4000,
@@ -157,14 +169,14 @@ export default function BreatheScreen(): React.ReactElement {
 
   const getInstruction = (): string => {
     switch (phase) {
-      case 'inhale':
-        return t('screen.breathe.instruction.inhale');
-      case 'hold':
-        return t('screen.breathe.instruction.hold');
-      case 'exhale':
-        return t('screen.breathe.instruction.exhale');
+      case "inhale":
+        return t("screen.breathe.instruction.inhale");
+      case "hold":
+        return t("screen.breathe.instruction.hold");
+      case "exhale":
+        return t("screen.breathe.instruction.exhale");
       default:
-        return t('screen.breathe.instruction.ready');
+        return t("screen.breathe.instruction.ready");
     }
   };
 
@@ -193,61 +205,55 @@ export default function BreatheScreen(): React.ReactElement {
 
   const getPhaseColor = (): string => {
     switch (phase) {
-      case 'inhale': return '#818CF8';
-      case 'hold': return '#A78BFA';
-      case 'exhale': return '#6366F1';
-      default: return '#6366F1';
+      case "inhale":
+        return "#818CF8";
+      case "hold":
+        return "#A78BFA";
+      case "exhale":
+        return "#6366F1";
+      default:
+        return "#6366F1";
     }
   };
 
   return (
-    <View className="flex-1" style={{ backgroundColor: DEEP_NAVY }}>
+    <View className="flex-1" style={styles.container}>
       {/* Background gradient overlay */}
       <LinearGradient
-        colors={['rgba(99, 102, 241, 0.15)', 'transparent', 'rgba(99, 102, 241, 0.1)']}
+        colors={[
+          "rgba(99, 102, 241, 0.15)",
+          "transparent",
+          "rgba(99, 102, 241, 0.1)",
+        ]}
         locations={[0, 0.5, 1]}
-        style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+        style={styles.backgroundGradient}
       />
 
       {/* Background ambient glow */}
-      <Animated.View
-        style={[
-          glowStyle,
-          {
-            position: 'absolute',
-            top: '35%',
-            left: '50%',
-            width: 400,
-            height: 400,
-            marginLeft: -200,
-            marginTop: -200,
-            backgroundColor: '#6366F1',
-            borderRadius: 200,
-          },
-        ]}
-      />
+      <Animated.View style={[glowStyle, styles.ambientGlow]} />
 
       {/* Header */}
       <View
         className="flex-row justify-between items-center px-6 z-10"
         style={{ paddingTop: insets.top + 12 }}
       >
-        <View className="flex-row items-center" style={{ gap: 12 }}>
-          <View
-            className="p-2 rounded-xl"
-            style={{ backgroundColor: 'rgba(99, 102, 241, 0.3)' }}
-          >
+        <View className="flex-row items-center" style={styles.headerLeft}>
+          <View className="p-2 rounded-xl" style={styles.headerIconBg}>
             <Wind size={20} color="#A5B4FC" />
           </View>
           <View>
-            <Text className="text-lg font-semibold tracking-wide text-white">{t('screen.breathe.title')}</Text>
-            <Text className="text-xs text-indigo-300">{t('screen.breathe.subtitle')}</Text>
+            <Text className="text-lg font-semibold tracking-wide text-white">
+              {t("screen.breathe.title")}
+            </Text>
+            <Text className="text-xs text-indigo-300">
+              {t("screen.breathe.subtitle")}
+            </Text>
           </View>
         </View>
         <Pressable
           onPress={handleClose}
           className="p-2.5 rounded-full"
-          style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
+          style={styles.closeButton}
         >
           <X size={20} color="#FFFFFF" />
         </Pressable>
@@ -256,7 +262,7 @@ export default function BreatheScreen(): React.ReactElement {
       {/* Main Content Area */}
       <View
         className="flex-1 items-center justify-center"
-        style={{ marginTop: -20 }}
+        style={styles.mainContent}
       >
         {/* Breathing Circle Container */}
         <View
@@ -265,7 +271,7 @@ export default function BreatheScreen(): React.ReactElement {
         >
           {/* Progress Ring SVG */}
           <Svg
-            style={{ position: 'absolute', width: '100%', height: '100%' }}
+            style={styles.svgAbsolute}
             viewBox={`0 0 ${CIRCLE_SIZE} ${CIRCLE_SIZE}`}
           >
             {/* Background Ring */}
@@ -297,13 +303,11 @@ export default function BreatheScreen(): React.ReactElement {
           <Animated.View
             style={[
               pulseStyle,
+              styles.outerRingBase,
               {
-                position: 'absolute',
                 width: CIRCLE_SIZE * 0.85,
                 height: CIRCLE_SIZE * 0.85,
                 borderRadius: (CIRCLE_SIZE * 0.85) / 2,
-                borderWidth: 1,
-                borderColor: 'rgba(99, 102, 241, 0.25)',
               },
             ]}
           />
@@ -312,13 +316,11 @@ export default function BreatheScreen(): React.ReactElement {
           <Animated.View
             style={[
               pulseStyle,
+              styles.middleRingBase,
               {
-                position: 'absolute',
                 width: CIRCLE_SIZE * 0.7,
                 height: CIRCLE_SIZE * 0.7,
                 borderRadius: (CIRCLE_SIZE * 0.7) / 2,
-                borderWidth: 1,
-                borderColor: 'rgba(129, 140, 248, 0.2)',
               },
             ]}
           />
@@ -327,34 +329,22 @@ export default function BreatheScreen(): React.ReactElement {
           <Animated.View
             style={[
               pulseStyle,
+              styles.coreCircleBase,
               {
                 width: CIRCLE_SIZE * 0.45,
                 height: CIRCLE_SIZE * 0.45,
                 borderRadius: (CIRCLE_SIZE * 0.45) / 2,
-                overflow: 'hidden',
-                shadowColor: '#6366F1',
-                shadowOffset: { width: 0, height: 0 },
-                shadowOpacity: 0.6,
-                shadowRadius: 30,
-                elevation: 20,
               },
             ]}
           >
             <LinearGradient
-              colors={['#818CF8', '#6366F1', '#4F46E5']}
+              colors={["#818CF8", "#6366F1", "#4F46E5"]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
-              style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
+              style={styles.coreGradient}
             >
               {/* Inner glow effect */}
-              <View
-                style={{
-                  width: '60%',
-                  height: '60%',
-                  borderRadius: 100,
-                  backgroundColor: 'rgba(255, 255, 255, 0.15)',
-                }}
-              />
+              <View style={styles.innerGlow} />
             </LinearGradient>
           </Animated.View>
         </View>
@@ -370,10 +360,16 @@ export default function BreatheScreen(): React.ReactElement {
           {isActive && (
             <View
               className="mt-3 px-4 py-1.5 rounded-full"
-              style={{ backgroundColor: 'rgba(99, 102, 241, 0.3)' }}
+              style={styles.phaseBadge}
             >
               <Text className="text-xs font-medium text-indigo-200 tracking-widest">
-                {phase === 'inhale' ? t('screen.breathe.phase.inhale') : phase === 'hold' ? t('screen.breathe.phase.hold') : phase === 'exhale' ? t('screen.breathe.phase.exhale') : ''}
+                {phase === "inhale"
+                  ? t("screen.breathe.phase.inhale")
+                  : phase === "hold"
+                    ? t("screen.breathe.phase.hold")
+                    : phase === "exhale"
+                      ? t("screen.breathe.phase.exhale")
+                      : ""}
               </Text>
             </View>
           )}
@@ -383,21 +379,23 @@ export default function BreatheScreen(): React.ReactElement {
       {/* Controls - Fixed at bottom above tab bar */}
       <View
         className="items-center z-10"
-        style={{
-          paddingBottom: TAB_BAR_HEIGHT + insets.bottom + 24,
-          gap: 20,
-        }}
+        style={[
+          styles.controlsContainer,
+          { paddingBottom: TAB_BAR_HEIGHT + insets.bottom + 24 },
+        ]}
       >
         {/* Timer Display */}
         <View className="items-center">
           <Text
             className="font-mono font-light text-white tracking-widest"
-            style={{ fontSize: 48, opacity: 0.9 }}
+            style={styles.timerText}
           >
             {formatTime(timeLeft)}
           </Text>
           <Text className="text-xs text-indigo-300 mt-1">
-            {isActive ? t('screen.breathe.sessionInProgress') : t('screen.breathe.tapToBegin')}
+            {isActive
+              ? t("screen.breathe.sessionInProgress")
+              : t("screen.breathe.tapToBegin")}
           </Text>
         </View>
 
@@ -405,25 +403,116 @@ export default function BreatheScreen(): React.ReactElement {
         <Pressable
           onPress={handleToggle}
           className="items-center justify-center"
-          style={{
-            width: 72,
-            height: 72,
-            borderRadius: 36,
-            backgroundColor: '#FFFFFF',
-            shadowColor: '#FFFFFF',
-            shadowOffset: { width: 0, height: 0 },
-            shadowOpacity: 0.3,
-            shadowRadius: 16,
-            elevation: 12,
-          }}
+          style={styles.playPauseButton}
         >
           {isActive ? (
             <Pause size={28} color="#4F46E5" fill="#4F46E5" />
           ) : (
-            <Play size={28} color="#4F46E5" fill="#4F46E5" style={{ marginLeft: 3 }} />
+            <Play
+              size={28}
+              color="#4F46E5"
+              fill="#4F46E5"
+              style={styles.playIcon}
+            />
           )}
         </Pressable>
       </View>
     </View>
   );
-}
+};
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: DEEP_NAVY,
+  },
+  backgroundGradient: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  ambientGlow: {
+    position: "absolute",
+    top: "35%",
+    left: "50%",
+    width: 400,
+    height: 400,
+    marginLeft: -200,
+    marginTop: -200,
+    backgroundColor: "#6366F1",
+    borderRadius: 200,
+  },
+  headerLeft: {
+    gap: 12,
+  },
+  headerIconBg: {
+    backgroundColor: "rgba(99, 102, 241, 0.3)",
+  },
+  closeButton: {
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+  },
+  mainContent: {
+    marginTop: -20,
+  },
+  svgAbsolute: {
+    position: "absolute",
+    width: "100%",
+    height: "100%",
+  },
+  outerRingBase: {
+    position: "absolute",
+    borderWidth: 1,
+    borderColor: "rgba(99, 102, 241, 0.25)",
+  },
+  middleRingBase: {
+    position: "absolute",
+    borderWidth: 1,
+    borderColor: "rgba(129, 140, 248, 0.2)",
+  },
+  coreCircleBase: {
+    overflow: "hidden",
+    shadowColor: "#6366F1",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 30,
+    elevation: 20,
+  },
+  coreGradient: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  innerGlow: {
+    width: "60%",
+    height: "60%",
+    borderRadius: 100,
+    backgroundColor: "rgba(255, 255, 255, 0.15)",
+  },
+  phaseBadge: {
+    backgroundColor: "rgba(99, 102, 241, 0.3)",
+  },
+  controlsContainer: {
+    gap: 20,
+  },
+  timerText: {
+    fontSize: 48,
+    opacity: 0.9,
+  },
+  playPauseButton: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: "#FFFFFF",
+    shadowColor: "#FFFFFF",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    elevation: 12,
+  },
+  playIcon: {
+    marginLeft: 3,
+  },
+});
+
+export default BreatheScreen;

@@ -7,10 +7,10 @@
  * - オプションでラベル表示
  */
 
-import React from 'react';
-import { View, Text, StyleSheet, ViewStyle, TextStyle } from 'react-native';
-import Animated, { FadeInUp } from 'react-native-reanimated';
-import { colors } from '../theme';
+import React from "react";
+import { View, Text, StyleSheet, ViewStyle } from "react-native";
+import Animated, { FadeInUp } from "react-native-reanimated";
+import { colors } from "../theme";
 
 export interface MiniBarChartData {
   label?: string;
@@ -61,7 +61,7 @@ export interface MiniBarChartProps {
  *   animated
  * />
  */
-export const MiniBarChart: React.FC<MiniBarChartProps> = ({
+export const MiniBarChart = ({
   data,
   color,
   height = 48,
@@ -72,11 +72,14 @@ export const MiniBarChart: React.FC<MiniBarChartProps> = ({
   gap = 4,
   borderRadius = 2,
   style,
-}) => {
+}: MiniBarChartProps): React.ReactElement => {
   const chartHeight = showLabels ? height - 20 : height;
   const lastIndex = data.length - 1;
 
-  const renderBar = (item: MiniBarChartData, index: number) => {
+  const renderBar = (
+    item: MiniBarChartData,
+    index: number,
+  ): React.ReactElement => {
     const heightPercentage = Math.min((item.value / maxValue) * 100, 100);
     const isLast = index === lastIndex;
     const opacity = isLast ? 1 : inactiveOpacity;
@@ -115,13 +118,7 @@ export const MiniBarChart: React.FC<MiniBarChartProps> = ({
   };
 
   return (
-    <View
-      style={[
-        styles.container,
-        { height, gap },
-        style,
-      ]}
-    >
+    <View style={[styles.container, { height, gap }, style]}>
       {data.map(renderBar)}
     </View>
   );
@@ -129,20 +126,20 @@ export const MiniBarChart: React.FC<MiniBarChartProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "flex-end",
+    justifyContent: "space-between",
   },
   barWrapper: {
     flex: 1,
-    justifyContent: 'flex-end',
-    alignItems: 'center',
+    justifyContent: "flex-end",
+    alignItems: "center",
   },
   label: {
     fontSize: 10,
-    fontWeight: '600',
+    fontWeight: "600",
     color: colors.stone[400],
     marginTop: 6,
-    textAlign: 'center',
+    textAlign: "center",
   },
 });

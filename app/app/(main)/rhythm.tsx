@@ -50,13 +50,13 @@ const RHYTHM_DATA: RhythmDataPoint[] = [
 ];
 
 // 気圧トレンドのアイコンを取得
-const getPressureTrendIcon = (trend: 'up' | 'stable' | 'down'): string => {
+const getPressureTrendIcon = (trend: 'rising' | 'stable' | 'falling'): string => {
   switch (trend) {
-    case 'up':
+    case 'rising':
       return '↑';
     case 'stable':
       return '→';
-    case 'down':
+    case 'falling':
       return '↓';
   }
 };

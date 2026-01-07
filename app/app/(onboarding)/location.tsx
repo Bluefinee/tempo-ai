@@ -12,12 +12,12 @@ import { Colors, Spacing, BorderRadius, FontFamily } from '../../src/theme';
 import { PrimaryButton, SecondaryButton } from '../../src/components';
 import type { JSX } from 'react';
 
-const { width, height } = useWindowDimensions();
 const CURRENT_STEP = 8;
 const TOTAL_STEPS = 9;
 
 export default function LocationScreen(): JSX.Element {
   const router = useRouter();
+  const { width, height } = useWindowDimensions();
 
   const handleAllow = (): void => {
     // TODO: Request location permission

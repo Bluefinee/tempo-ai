@@ -10,7 +10,7 @@ import { MOCK_AI_RESPONSE } from "./aiResponse";
 /**
  * 気圧トレンド型
  */
-export type PressureTrend = "up" | "stable" | "down";
+export type PressureTrend = "rising" | "stable" | "falling";
 
 /**
  * 環境データ型（API準備用）

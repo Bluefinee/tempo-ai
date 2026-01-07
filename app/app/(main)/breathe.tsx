@@ -23,12 +23,6 @@ import { TAB_BAR_HEIGHT } from './_layout';
 import { t } from '../../src/i18n';
 
 const DEEP_NAVY = '#0F172A';
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = useWindowDimensions();
-
-// Responsive circle size
-const CIRCLE_SIZE = Math.min(SCREEN_WIDTH * 0.65, 280);
-const SVG_RADIUS = CIRCLE_SIZE * 0.47;
-const CIRCUMFERENCE = 2 * Math.PI * SVG_RADIUS;
 
 // 4-4-4 Box breathing: 4s inhale, 4s hold, 4s exhale (12s cycle)
 const PHASE_DURATIONS = {
@@ -46,6 +40,7 @@ const formatTime = (seconds: number): string => {
 export default function BreatheScreen(): React.ReactElement {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = useWindowDimensions();
   const [isActive, setIsActive] = useState(false);
   const [phase, setPhase] = useState<'idle' | 'inhale' | 'hold' | 'exhale'>('idle');
   const [timeLeft, setTimeLeft] = useState(60);
@@ -53,6 +48,11 @@ export default function BreatheScreen(): React.ReactElement {
   const previousPhaseRef = useRef(phase);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const phaseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Responsive circle size
+  const CIRCLE_SIZE = Math.min(SCREEN_WIDTH * 0.65, 280);
+  const SVG_RADIUS = CIRCLE_SIZE * 0.47;
+  const CIRCUMFERENCE = 2 * Math.PI * SVG_RADIUS;
 
   // Animation values
   const scale = useSharedValue(0.75);

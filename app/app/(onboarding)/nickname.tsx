@@ -13,12 +13,12 @@ import { PrimaryButton, InputField } from '../../src/components';
 import { useUserStore } from '../../src/stores';
 import type { JSX } from 'react';
 
-const { width, height } = useWindowDimensions();
 const CURRENT_STEP = 3;
 const TOTAL_STEPS = 9;
 
 export default function NicknameScreen(): JSX.Element {
   const router = useRouter();
+  const { width, height } = useWindowDimensions();
   const setDraftNickname = useUserStore((state) => state.setDraftNickname);
   const draftNickname = useUserStore((state) => state.draftProfile.nickname);
   const [nickname, setNickname] = useState(draftNickname || '');

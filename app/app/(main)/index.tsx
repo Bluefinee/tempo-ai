@@ -22,15 +22,11 @@ import {
   ArrowRight,
   Heart,
   Activity,
-  Footprints,
-  Target,
   Wind,
   Droplets,
   Thermometer,
-  CheckCircle2,
 } from "lucide-react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
-import Svg, { Polyline, Circle } from "react-native-svg";
 
 import { TAB_BAR_HEIGHT } from "./_layout";
 import { colors, FontFamily } from "../../src/theme";
@@ -38,17 +34,8 @@ import { t } from "../../src/i18n";
 import { MOCK_TODAY, MOCK_SETTINGS } from "../../src/constants/mockData";
 import { getGreeting, formatDate } from "../../src/utils/dateFormatters";
 import { useHealthStore } from "../../src/stores/healthStore";
-
-// 4つの指標カードのデータ（i18n対応）
-type MetricCard = {
-  id: string;
-  title: string;
-  value: string;
-  colorText: string;
-  colorAccent: string;
-  chartData: number[];
-  route: "/recovery-detail" | "/sleep-detail" | "/rhythm-detail" | "/energy-detail";
-};
+import { MetricGridCard, type MetricCard } from "../../src/components/today/MetricGridCard";
+import { HealthSummaryCard, type HealthCard } from "../../src/components/today/HealthSummaryCard";
 
 const getMetricCards = (scores?: { recovery: number; sleep: number; rhythm: number; energy: number }): MetricCard[] => [
   {
@@ -143,17 +130,6 @@ const getHealthCards = () => [
   },
 ];
 
-// Health Cardの型定義
-type HealthCard = {
-  id: string;
-  label: string;
-  value: string;
-  unit: string;
-  Icon: typeof Activity;
-  colorIcon: string;
-  lineColor: string;
-  chartData: number[];
-};
 
 export default function TodayScreen(): React.ReactElement {
   const router = useRouter();
@@ -190,210 +166,7 @@ export default function TodayScreen(): React.ReactElement {
     );
   }
 
-  // MetricGridCard をインラインで実装（正方形、浮遊感）
-  const renderMetricCard = (metric: MetricCard) => (
-    <Pressable
-      key={metric.id}
-      onPress={() => router.push(metric.route)}
-      className="bg-white p-5 rounded-3xl border border-stone-100"
-      style={({ pressed }) => [
-        {
-          aspectRatio: 1,
-          justifyContent: "space-between",
-          shadowColor: "#000",
-          shadowOffset: { width: 0, height: 8 },
-          shadowOpacity: 0.08,
-          shadowRadius: 16,
-          elevation: 8,
-        },
-        pressed && { transform: [{ scale: 0.98 }] },
-      ]}
-    >
-      {/* Header */}
-      <View className="flex-row justify-between items-start">
-        <Text className="text-sm font-bold text-stone-400">{metric.title}</Text>
-        <ChevronRight size={16} color={colors.stone[300]} />
-      </View>
 
-      {/* Value */}
-      <Text
-        className="text-3xl font-bold tracking-tight"
-        style={{ color: metric.colorText, fontFamily: FontFamily.serif }}
-      >
-        {metric.value}
-      </Text>
-
-      {/* Mini Bar Chart */}
-      <View
-        className="flex-row items-end justify-between"
-        style={{ gap: 4, height: 48 }}
-      >
-        {metric.chartData.map((val, i) => (
-          <View
-            key={i}
-            className="flex-1 rounded-sm"
-            style={{
-              height: `${val}%`,
-              backgroundColor: metric.colorAccent,
-              opacity: i === metric.chartData.length - 1 ? 1 : 0.3,
-            }}
-          />
-        ))}
-      </View>
-    </Pressable>
-  );
-
-  // HealthSummaryCard
-  const renderHealthCard = (card: HealthCard) => {
-    const { Icon, chartData, lineColor } = card;
-    const min = Math.min(...chartData);
-    const max = Math.max(...chartData);
-    const range = max - min || 1;
-    const points = chartData
-      .map((val, i) => {
-        const x = (i / (chartData.length - 1)) * 100;
-        const y = 100 - ((val - min) / range) * 80 - 10;
-        return `${x},${y}`;
-      })
-      .join(" ");
-    const lastY =
-      100 - ((chartData[chartData.length - 1] - min) / range) * 80 - 10;
-
-    return (
-      <View
-        key={card.id}
-        style={{
-          width: 140,
-          aspectRatio: 1,
-          backgroundColor: colors.white,
-          borderRadius: 16,
-          borderWidth: 1,
-          borderColor: colors.stone[100],
-          shadowColor: "#000",
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.06,
-          shadowRadius: 8,
-          elevation: 3,
-          overflow: "hidden",
-          padding: 16,
-        }}
-      >
-        <Pressable
-          onPress={() => router.push("/health-detail")}
-          style={({ pressed }) => [pressed && { opacity: 0.7 }]}
-        >
-          {/* Header: Icon + Label */}
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
-            <View
-              style={{
-                width: 24,
-                height: 24,
-                borderRadius: 12,
-                backgroundColor: colors.stone[100],
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <Icon size={12} color={card.colorIcon} />
-            </View>
-            <Text
-              style={{
-                fontSize: 12,
-                fontWeight: "600",
-                color: colors.stone[500],
-                textTransform: "uppercase",
-                letterSpacing: 0.3,
-              }}
-            >
-              {card.label}
-            </Text>
-          </View>
-
-          {/* Value + Unit */}
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "baseline",
-              gap: 3,
-              marginTop: 10,
-            }}
-          >
-            <Text
-              style={{
-                fontSize: 32,
-                fontWeight: "700",
-                color: colors.stone[900],
-                letterSpacing: -0.5,
-              }}
-            >
-              {card.value}
-            </Text>
-            <Text
-              style={{
-                fontSize: 14,
-                fontWeight: "500",
-                color: colors.stone[400],
-              }}
-            >
-              {card.unit}
-            </Text>
-          </View>
-
-          {/* Bottom Section: Graph + Badge */}
-          <View style={{ marginTop: 12 }}>
-            {/* Mini Line Chart */}
-            <View style={{ height: 28 }}>
-              <Svg
-                width="100%"
-                height="100%"
-                viewBox="0 0 100 100"
-                preserveAspectRatio="none"
-              >
-                <Polyline
-                  points={points}
-                  fill="none"
-                  stroke={lineColor}
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  opacity={0.5}
-                />
-                <Circle cx="100" cy={lastY} r="4" fill={lineColor} />
-              </Svg>
-            </View>
-
-            {/* Status Badge - 右寄せ */}
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "flex-end",
-                marginTop: 8,
-              }}
-            >
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  gap: 3,
-                }}
-              >
-                <CheckCircle2 size={12} color={colors.emerald[500]} />
-                <Text
-                  style={{
-                    fontSize: 11,
-                    fontWeight: "600",
-                    color: colors.emerald[500],
-                  }}
-                >
-                  {t("screen.today.normal")}
-                </Text>
-              </View>
-            </View>
-          </View>
-        </Pressable>
-      </View>
-    );
-  };
 
   return (
     <View className="flex-1 bg-stone-50">
@@ -431,18 +204,18 @@ export default function TodayScreen(): React.ReactElement {
             >
               <View className="flex-row" style={{ gap: 16 }}>
                 <View style={{ flex: 1 }}>
-                  {renderMetricCard(metricCards[0])}
+                  <MetricGridCard metric={metricCards[0]} />
                 </View>
                 <View style={{ flex: 1 }}>
-                  {renderMetricCard(metricCards[1])}
+                  <MetricGridCard metric={metricCards[1]} />
                 </View>
               </View>
               <View className="flex-row" style={{ gap: 16 }}>
                 <View style={{ flex: 1 }}>
-                  {renderMetricCard(metricCards[2])}
+                  <MetricGridCard metric={metricCards[2]} />
                 </View>
                 <View style={{ flex: 1 }}>
-                  {renderMetricCard(metricCards[3])}
+                  <MetricGridCard metric={metricCards[3]} />
                 </View>
               </View>
             </Animated.View>
@@ -603,7 +376,9 @@ export default function TodayScreen(): React.ReactElement {
                 gap: 16,
               }}
             >
-              {healthCards.map(renderHealthCard)}
+              {healthCards.map((card) => (
+                <HealthSummaryCard key={card.id} card={card} />
+              ))}
             </ScrollView>
           </Animated.View>
         </ScrollView>

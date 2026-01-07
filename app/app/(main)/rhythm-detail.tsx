@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { View, Text, ScrollView, Pressable } from 'react-native';
+import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { ChevronLeft, Clock, Moon, Sun, Calendar, Plane } from 'lucide-react-native';
@@ -56,16 +56,10 @@ const FactorCard = ({
   return (
     <View
       className="bg-white p-4 rounded-2xl border border-stone-100"
-      style={{
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.04,
-        shadowRadius: 6,
-        elevation: 2,
-      }}
+      style={styles.factorCard}
     >
       <View className="flex-row items-center justify-between mb-2">
-        <View className="flex-row items-center" style={{ gap: 10 }}>
+        <View className="flex-row items-center" style={styles.factorHeader}>
           <View className="p-2 rounded-xl" style={{ backgroundColor: iconBg }}>
             <Icon size={16} color={iconColor} />
           </View>
@@ -109,18 +103,12 @@ const RhythmDetailScreen = (): React.ReactElement => {
     return (
       <View
         className="bg-white p-5 rounded-3xl border border-stone-100"
-        style={{
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.06,
-          shadowRadius: 10,
-          elevation: 4,
-        }}
+        style={styles.weeklyPatternCard}
       >
         <Text className="text-xs font-bold text-stone-400 uppercase mb-4">
           {t('detail.rhythm.weeklyPattern')}
         </Text>
-        <View style={{ height: chartHeight, position: 'relative' }}>
+        <View style={[styles.chartContainer, { height: chartHeight }]}>
           <Svg width="100%" height={chartHeight} viewBox={`0 0 300 ${chartHeight}`}>
             {/* Center line (target bedtime) */}
             <Line
@@ -153,27 +141,17 @@ const RhythmDetailScreen = (): React.ReactElement => {
             })}
           </Svg>
           {/* Day labels */}
-          <View
-            style={{
-              position: 'absolute',
-              bottom: 0,
-              left: 0,
-              right: 0,
-              flexDirection: 'row',
-              justifyContent: 'space-around',
-              paddingHorizontal: 20,
-            }}
-          >
+          <View style={styles.dayLabelsContainer}>
             {pattern.map((item, index) => (
               <Text
                 key={item.day}
-                style={{
-                  fontSize: 10,
-                  fontWeight: '500',
-                  color: index === pattern.length - 1 ? colors.purple[600] : colors.stone[400],
-                  width: barWidth + gap,
-                  textAlign: 'center',
-                }}
+                style={[
+                  styles.dayLabel,
+                  {
+                    color: index === pattern.length - 1 ? colors.purple[600] : colors.stone[400],
+                    width: barWidth + gap,
+                  }
+                ]}
               >
                 {item.day}
               </Text>
@@ -211,7 +189,7 @@ const RhythmDetailScreen = (): React.ReactElement => {
           }}
           showsVerticalScrollIndicator={false}
         >
-          <View className="px-6 py-6" style={{ gap: 24 }}>
+          <View className="px-6 py-6" style={styles.container}>
             {/* Main Circular Display */}
             <Animated.View entering={FadeInDown.duration(400)} className="items-center">
               <View className="relative w-48 h-48 items-center justify-center mb-4">
@@ -225,7 +203,7 @@ const RhythmDetailScreen = (): React.ReactElement => {
                 <View className="absolute items-center">
                   <Text
                     className="text-5xl font-bold text-stone-900"
-                    style={{ fontFamily: FontFamily.serif }}
+                    style={styles.scoreText}
                   >
                     {Math.round(rhythmScore)}%
                   </Text>
@@ -233,7 +211,7 @@ const RhythmDetailScreen = (): React.ReactElement => {
               </View>
               <View
                 className="px-4 py-1.5 rounded-full"
-                style={{ backgroundColor: colors.purple[50] }}
+                style={styles.statusBadge}
               >
                 <Text className="text-xs font-bold text-purple-600 uppercase tracking-widest">
                   {getRhythmStatus(data.score)}
@@ -242,22 +220,16 @@ const RhythmDetailScreen = (): React.ReactElement => {
             </Animated.View>
 
             {/* Consistency Metrics */}
-            <Animated.View entering={FadeInDown.delay(100).duration(400)} style={{ gap: 12 }}>
+            <Animated.View entering={FadeInDown.delay(100).duration(400)} style={styles.section}>
               {/* Bedtime Consistency */}
               <View
                 className="bg-white p-4 rounded-2xl border border-stone-100 flex-row justify-between items-center"
-                style={{
-                  shadowColor: '#000',
-                  shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: 0.04,
-                  shadowRadius: 6,
-                  elevation: 2,
-                }}
+                style={styles.consistencyCard}
               >
-                <View className="flex-row items-center" style={{ gap: 12 }}>
+                <View className="flex-row items-center" style={styles.consistencyRow}>
                   <View
                     className="p-2.5 rounded-xl"
-                    style={{ backgroundColor: colors.purple[50] }}
+                    style={styles.iconBg}
                   >
                     <Clock size={20} color={colors.purple[600]} />
                   </View>
@@ -278,18 +250,12 @@ const RhythmDetailScreen = (): React.ReactElement => {
               {/* Wake Consistency */}
               <View
                 className="bg-white p-4 rounded-2xl border border-stone-100 flex-row justify-between items-center"
-                style={{
-                  shadowColor: '#000',
-                  shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: 0.04,
-                  shadowRadius: 6,
-                  elevation: 2,
-                }}
+                style={styles.consistencyCard}
               >
-                <View className="flex-row items-center" style={{ gap: 12 }}>
+                <View className="flex-row items-center" style={styles.consistencyRow}>
                   <View
                     className="p-2.5 rounded-xl"
-                    style={{ backgroundColor: colors.purple[50] }}
+                    style={styles.iconBg}
                   >
                     <Clock size={20} color={colors.purple[600]} />
                   </View>
@@ -309,12 +275,12 @@ const RhythmDetailScreen = (): React.ReactElement => {
             </Animated.View>
 
             {/* Contributing Factors */}
-            <Animated.View entering={FadeInDown.delay(150).duration(400)} style={{ gap: 12 }}>
+            <Animated.View entering={FadeInDown.delay(150).duration(400)} style={styles.section}>
               <Text className="text-xs font-bold text-stone-400 uppercase tracking-widest">
                 {t('detail.rhythm.contributingFactors')}
               </Text>
-              <View className="flex-row flex-wrap" style={{ gap: 12 }}>
-                <View style={{ width: '48%' }}>
+              <View className="flex-row flex-wrap" style={styles.section}>
+                <View style={styles.factorCardWrapper}>
                   <FactorCard
                     icon={Moon}
                     iconColor={colors.purple[500]}
@@ -326,7 +292,7 @@ const RhythmDetailScreen = (): React.ReactElement => {
                     detail={data.contributingFactors.bedtimeVariance.detail}
                   />
                 </View>
-                <View style={{ width: '48%' }}>
+                <View style={styles.factorCardWrapper}>
                   <FactorCard
                     icon={Sun}
                     iconColor={colors.amber[500]}
@@ -338,7 +304,7 @@ const RhythmDetailScreen = (): React.ReactElement => {
                     detail={data.contributingFactors.wakeVariance.detail}
                   />
                 </View>
-                <View style={{ width: '48%' }}>
+                <View style={styles.factorCardWrapper}>
                   <FactorCard
                     icon={Calendar}
                     iconColor={colors.blue[500]}
@@ -350,7 +316,7 @@ const RhythmDetailScreen = (): React.ReactElement => {
                     detail={data.contributingFactors.weekendShift.detail}
                   />
                 </View>
-                <View style={{ width: '48%' }}>
+                <View style={styles.factorCardWrapper}>
                   <FactorCard
                     icon={Plane}
                     iconColor={colors.rose[500]}
@@ -383,5 +349,70 @@ const RhythmDetailScreen = (): React.ReactElement => {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  factorCard: {
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  factorHeader: {
+    gap: 10,
+  },
+  weeklyPatternCard: {
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    elevation: 4,
+  },
+  chartContainer: {
+    position: 'relative',
+  },
+  dayLabelsContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingHorizontal: 20,
+  },
+  dayLabel: {
+    fontSize: 10,
+    fontWeight: '500',
+    textAlign: 'center',
+  },
+  container: {
+    gap: 24,
+  },
+  scoreText: {
+    fontFamily: FontFamily.serif,
+  },
+  statusBadge: {
+    backgroundColor: colors.purple[50],
+  },
+  section: {
+    gap: 12,
+  },
+  consistencyCard: {
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  consistencyRow: {
+    gap: 12,
+  },
+  iconBg: {
+    backgroundColor: colors.purple[50],
+  },
+  factorCardWrapper: {
+    width: '48%',
+  },
+});
 
 export default RhythmDetailScreen;

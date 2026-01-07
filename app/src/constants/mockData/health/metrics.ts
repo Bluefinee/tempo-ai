@@ -8,29 +8,12 @@ import type {
   SleepMetrics,
   HRVMetrics,
   ActivityMetrics,
-  RhythmAnalysis,
-  DailyScoreSnapshot,
+  SimpleWeatherData,
   QuickAction,
   RecommendedAction,
-  SimpleWeatherData,
+  RhythmAnalysis,
+  DailyScoreSnapshot,
 } from "../../../domain/models";
-import type {
-  HealthMetricHistory,
-  DailySnapshot,
-  RealtimeMetrics,
-  RealtimeHealthMetric,
-  BarChartDataPoint,
-} from "../../../domain/models/healthHistory";
-import {
-  getMockMetricHistory,
-  getAllScoreHistories,
-  getAllHealthMetricHistories,
-  formatDateString,
-} from "../../mockDataFactory";
-import {
-  toBarChartData,
-  calculateDeviationPercent,
-} from "../../../utils/healthDataTransformer";
 
 /**
  * MOCK WEATHER DATA

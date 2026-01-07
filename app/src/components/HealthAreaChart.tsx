@@ -152,7 +152,7 @@ export const HealthAreaChart = ({
         onPanResponderRelease: () => setTouchedIndex(null),
         onPanResponderTerminate: () => setTouchedIndex(null),
       }),
-    [points]
+    [points, handleTouch]
   );
 
   const chartId = `healthChart_${Math.random().toString(36).substr(2, 9)}`;

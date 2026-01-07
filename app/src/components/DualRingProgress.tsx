@@ -53,7 +53,7 @@ export const DualRingProgress = ({
       duration,
       easing: Easing.bezier(0.25, 0.1, 0.25, 1),
     });
-  }, [innerProgress, outerProgress, duration]);
+  }, [innerProgress, outerProgress, duration, innerProgressValue, outerProgressValue]);
 
   const innerAnimatedProps = useAnimatedProps(() => {
     const strokeDashoffset =

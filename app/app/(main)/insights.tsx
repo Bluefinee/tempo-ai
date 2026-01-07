@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { View, Text, ScrollView, Pressable } from 'react-native';
+import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
@@ -76,7 +76,7 @@ const AlertItem: React.FC<{ alert: AlertConfig; delay: number }> = ({ alert, del
     <Animated.View
       entering={FadeInDown.delay(delay).duration(400)}
       className="bg-white p-4 rounded-2xl border border-stone-100 flex-row items-start"
-      style={{ gap: 16 }}
+      style={styles.alertItem}
     >
       <View className="p-2 rounded-xl mt-0.5" style={{ backgroundColor: bg }}>
         <Icon size={20} color={color} />
@@ -101,34 +101,29 @@ const InsightsScreen = (): React.ReactElement => {
     <View className="flex-1 bg-stone-100">
       <SafeAreaView className="flex-1" edges={['top']}>
         <ScrollView
-          contentContainerStyle={{
-            paddingBottom: TAB_BAR_HEIGHT + insets.bottom + 24,
-          }}
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingBottom: TAB_BAR_HEIGHT + insets.bottom + 24 },
+          ]}
           showsVerticalScrollIndicator={false}
         >
           {/* Header */}
           <Animated.View entering={FadeInDown.duration(400)} className="pt-14 px-6 mb-6">
             <Text
               className="text-3xl text-stone-900 tracking-tight mb-1"
-              style={{ fontFamily: FontFamily.serif }}
+              style={styles.headerTitle}
             >
               Insights
             </Text>
             <Text className="text-sm text-stone-500">{t('screen.insights.subtitle')}</Text>
           </Animated.View>
 
-          <View className="px-6" style={{ gap: 32 }}>
+          <View className="px-6" style={styles.mainContainer}>
             {/* Weekly Strip */}
             <Animated.View
               entering={FadeInDown.delay(100).duration(400)}
               className="bg-white p-4 rounded-2xl border border-stone-100"
-              style={{
-                shadowColor: colors.stone[900],
-                shadowOffset: { width: 0, height: 4 },
-                shadowOpacity: 0.06,
-                shadowRadius: 20,
-                elevation: 4,
-              }}
+              style={styles.weeklyCard}
             >
               <View className="flex-row justify-between items-center mb-4">
                 <Text className="text-sm font-bold text-stone-800">{t('screen.insights.thisWeek')}</Text>
@@ -139,11 +134,11 @@ const InsightsScreen = (): React.ReactElement => {
                 </View>
               </View>
 
-              <View className="flex-row justify-between items-end pb-2" style={{ height: 96 }}>
+              <View className="flex-row justify-between items-end pb-2" style={styles.barContainerHeight}>
                 {MOCK_DATA.weeklyScores.map((score, i) => {
                   const isToday = i === MOCK_DATA.todayIndex;
                   return (
-                    <View key={i} className="flex-1 items-center h-full" style={{ gap: 8 }}>
+                    <View key={i} className="flex-1 items-center h-full" style={styles.barItem}>
                       {/* Bar Track */}
                       <View className="flex-1 w-2 bg-stone-100 rounded-full overflow-hidden justify-end">
                         <View
@@ -177,35 +172,18 @@ const InsightsScreen = (): React.ReactElement => {
             <AnimatedPressable
               entering={FadeInDown.delay(200).duration(400)}
               style={({ pressed }) => [
-                {
-                  borderRadius: 24,
-                  overflow: 'hidden',
-                },
-                pressed && { transform: [{ scale: 0.98 }] },
+                styles.discoveryCardPressable,
+                pressed && styles.discoveryCardPressed,
               ]}
             >
               <LinearGradient
                 colors={[colors.indigo[400], colors.indigo[600]]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
-                style={{
-                  borderRadius: 24,
-                  padding: 24,
-                  shadowColor: colors.indigo[500],
-                  shadowOffset: { width: 0, height: 12 },
-                  shadowOpacity: 0.4,
-                  shadowRadius: 24,
-                  elevation: 12,
-                }}
+                style={styles.discoveryGradient}
               >
-                <View className="flex-row items-center mb-4" style={{ gap: 8 }}>
-                  <View
-                    style={{
-                      backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                      padding: 8,
-                      borderRadius: 10,
-                    }}
-                  >
+                <View className="flex-row items-center mb-4" style={styles.discoveryHeader}>
+                  <View style={styles.discoveryIconBg}>
                     <TrendingUp size={16} color="#FFFFFF" />
                   </View>
                   <Text className="text-xs font-bold text-white/90 uppercase tracking-wider">
@@ -214,24 +192,19 @@ const InsightsScreen = (): React.ReactElement => {
                 </View>
                 <Text
                   className="text-[22px] font-bold text-white mb-3"
-                  style={{ lineHeight: 30 }}
+                  style={styles.discoveryTitle}
                 >
                   {t('screen.insights.topDiscoveryTitle')}
                 </Text>
                 <Text
                   className="text-sm text-white/80 mb-5"
-                  style={{ lineHeight: 22 }}
+                  style={styles.discoveryDescription}
                 >
                   {t('screen.insights.topDiscoveryDescription')}
                 </Text>
                 <View
                   className="flex-row items-center self-start"
-                  style={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-                    paddingHorizontal: 16,
-                    paddingVertical: 10,
-                    borderRadius: 12,
-                  }}
+                  style={styles.discoveryButton}
                 >
                   <Text className="text-sm font-semibold text-white mr-2">{t('screen.insights.viewDetails')}</Text>
                   <ArrowRight size={14} color="#FFFFFF" />
@@ -246,7 +219,7 @@ const InsightsScreen = (): React.ReactElement => {
                   {t('screen.insights.recentAlerts')}
                 </Text>
               </Animated.View>
-              <View style={{ gap: 16 }}>
+              <View style={styles.alertsContainer}>
                 {getAlerts().map((alert, index) => (
                   <AlertItem key={index} alert={alert} delay={350 + index * 50} />
                 ))}
@@ -257,6 +230,73 @@ const InsightsScreen = (): React.ReactElement => {
       </SafeAreaView>
     </View>
   );
-}
+};
+
+const styles = StyleSheet.create({
+  scrollContent: {
+    // Dynamic paddingBottom will be merged
+  },
+  headerTitle: {
+    fontFamily: FontFamily.serif,
+  },
+  mainContainer: {
+    gap: 32,
+  },
+  weeklyCard: {
+    shadowColor: colors.stone[900],
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 20,
+    elevation: 4,
+  },
+  barContainerHeight: {
+    height: 96,
+  },
+  barItem: {
+    gap: 8,
+  },
+  discoveryCardPressable: {
+    borderRadius: 24,
+    overflow: 'hidden',
+  },
+  discoveryCardPressed: {
+    transform: [{ scale: 0.98 }],
+  },
+  discoveryGradient: {
+    borderRadius: 24,
+    padding: 24,
+    shadowColor: colors.indigo[500],
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.4,
+    shadowRadius: 24,
+    elevation: 12,
+  },
+  discoveryHeader: {
+    gap: 8,
+  },
+  discoveryIconBg: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    padding: 8,
+    borderRadius: 10,
+  },
+  discoveryTitle: {
+    lineHeight: 30,
+  },
+  discoveryDescription: {
+    lineHeight: 22,
+  },
+  discoveryButton: {
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 12,
+  },
+  alertsContainer: {
+    gap: 16,
+  },
+  alertItem: {
+    gap: 16,
+  },
+});
 
 export default InsightsScreen;

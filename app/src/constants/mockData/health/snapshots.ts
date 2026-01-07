@@ -4,31 +4,15 @@
  */
 
 import type {
-  HealthMetrics,
-  SleepMetrics,
-  HRVMetrics,
-  ActivityMetrics,
-  RhythmAnalysis,
-  DailyScoreSnapshot,
-  QuickAction,
-  RecommendedAction,
-  SimpleWeatherData,
-} from "../../../domain/models";
-import type {
-  HealthMetricHistory,
   DailySnapshot,
   RealtimeMetrics,
   RealtimeHealthMetric,
-  BarChartDataPoint,
 } from "../../../domain/models/healthHistory";
 import {
-  getMockMetricHistory,
-  getAllScoreHistories,
-  getAllHealthMetricHistories,
   formatDateString,
+  getAllHealthMetricHistories,
 } from "../../mockDataFactory";
 import {
-  toBarChartData,
   calculateDeviationPercent,
 } from "../../../utils/healthDataTransformer";
 

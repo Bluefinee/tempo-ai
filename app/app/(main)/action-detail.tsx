@@ -19,6 +19,7 @@ import Animated, {
 import { t } from '../../src/i18n';
 import { colors, FontFamily } from '../../src/theme';
 import { MOCK_AI_RESPONSE } from "../../src/constants/mockData";
+import { useFadeIn } from '../../src/hooks/useFadeIn';
 
 // アイコン設定（UI表示用）
 const BENEFIT_ICONS = [
@@ -26,9 +27,6 @@ const BENEFIT_ICONS = [
   { icon: Moon, iconColor: colors.indigo[500], iconBg: colors.indigo[50] },
   { icon: Battery, iconColor: colors.emerald[500], iconBg: colors.emerald[50] },
 ];
-
-// Import shared fade-in hook
-import { useFadeIn } from '../../src/hooks/useFadeIn';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -139,7 +137,7 @@ const ActionDetailScreen = (): React.ReactElement => {
                 style={{
                   borderWidth: 1,
                   borderColor: colors.stone[100],
-                  shadowColor: '#000',
+                  shadowColor: colors.black,
                   shadowOffset: { width: 0, height: 2 },
                   shadowOpacity: 0.04,
                   shadowRadius: 4,
@@ -185,7 +183,7 @@ const ActionDetailScreen = (): React.ReactElement => {
           <View
             className="bg-white p-5 rounded-2xl border border-stone-100"
             style={{
-              shadowColor: '#000',
+              shadowColor: colors.black,
               shadowOffset: { width: 0, height: 2 },
               shadowOpacity: 0.04,
               shadowRadius: 8,

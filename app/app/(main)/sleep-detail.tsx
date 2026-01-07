@@ -3,7 +3,7 @@
  */
 
 import React, { useState } from 'react';
-import { View, Text, ScrollView, Pressable } from 'react-native';
+import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { ChevronLeft, Moon, Sun, Sparkles } from 'lucide-react-native';
@@ -67,12 +67,12 @@ const SleepDetailScreen = (): React.ReactElement => {
           }}
           showsVerticalScrollIndicator={false}
         >
-          <View className="px-6 py-6" style={{ gap: 32 }}>
+          <View className="px-6 py-6" style={styles.container}>
             {/* Main Dual Ring Display */}
             <Animated.View
               entering={FadeInDown.duration(400)}
               className="items-center"
-              style={{ gap: 24 }}
+              style={styles.mainDisplay}
             >
               <View className="relative w-64 h-64 items-center justify-center">
                 <DualRingProgress
@@ -85,10 +85,10 @@ const SleepDetailScreen = (): React.ReactElement => {
                   backgroundColor={colors.indigo[100]}
                 />
                 <View className="absolute items-center">
-                  <Moon size={24} color={colors.indigo[500]} style={{ marginBottom: 4 }} />
+                  <Moon size={24} color={colors.indigo[500]} style={styles.moonIcon} />
                   <Text
                     className="text-3xl font-bold text-stone-900"
-                    style={{ fontFamily: FontFamily.serif }}
+                    style={styles.scoreText}
                   >
                     {Math.round(sleepScore)}%
                   </Text>
@@ -98,7 +98,7 @@ const SleepDetailScreen = (): React.ReactElement => {
                 </View>
               </View>
 
-              <View className="flex-row items-center w-full justify-center" style={{ gap: 32 }}>
+              <View className="flex-row items-center w-full justify-center" style={styles.metricsRow}>
                 <View className="items-center">
                   <Text className="text-xs font-bold text-indigo-500 uppercase mb-1">
                     {t('detail.sleep.duration')}
@@ -109,7 +109,7 @@ const SleepDetailScreen = (): React.ReactElement => {
                 </View>
                 <View className="w-px h-8 bg-stone-200" />
                 <View className="items-center">
-                  <View className="flex-row items-center mb-1" style={{ gap: 4 }}>
+                  <View className="flex-row items-center mb-1" style={styles.qualityRow}>
                     <Text className="text-xs font-bold text-indigo-400 uppercase">{t('detail.sleep.quality')}</Text>
                     <Sparkles size={10} color={colors.indigo[400]} />
                   </View>
@@ -133,20 +133,14 @@ const SleepDetailScreen = (): React.ReactElement => {
             {/* Sleep Stages Breakdown */}
             <Animated.View
               entering={FadeInDown.delay(200).duration(400)}
-              style={{ gap: 16 }}
+              style={styles.section}
             >
               <Text className="text-xs font-bold text-stone-400 uppercase tracking-widest">
                 {t('detail.sleep.sleepStages')}
               </Text>
               <View
                 className="bg-white p-5 rounded-3xl border border-stone-100"
-                style={{
-                  shadowColor: '#000',
-                  shadowOffset: { width: 0, height: 4 },
-                  shadowOpacity: 0.06,
-                  shadowRadius: 10,
-                  elevation: 4,
-                }}
+                style={styles.cardShadow}
               >
                 <SleepStagesBar stages={data.stages} />
               </View>
@@ -156,19 +150,13 @@ const SleepDetailScreen = (): React.ReactElement => {
             <Animated.View
               entering={FadeInDown.delay(300).duration(400)}
               className="flex-row"
-              style={{ gap: 16 }}
+              style={styles.section}
             >
               <View
                 className="flex-1 bg-white p-4 rounded-2xl border border-stone-100"
-                style={{
-                  shadowColor: '#000',
-                  shadowOffset: { width: 0, height: 4 },
-                  shadowOpacity: 0.06,
-                  shadowRadius: 10,
-                  elevation: 4,
-                }}
+                style={styles.cardShadow}
               >
-                <View className="flex-row items-center mb-2" style={{ gap: 8 }}>
+                <View className="flex-row items-center mb-2" style={styles.timingRow}>
                   <Moon size={16} color={colors.indigo[500]} />
                   <Text className="text-xs font-bold text-stone-400 uppercase">{t('detail.sleep.bedtime')}</Text>
                 </View>
@@ -182,15 +170,9 @@ const SleepDetailScreen = (): React.ReactElement => {
 
               <View
                 className="flex-1 bg-white p-4 rounded-2xl border border-stone-100"
-                style={{
-                  shadowColor: '#000',
-                  shadowOffset: { width: 0, height: 4 },
-                  shadowOpacity: 0.06,
-                  shadowRadius: 10,
-                  elevation: 4,
-                }}
+                style={styles.cardShadow}
               >
-                <View className="flex-row items-center mb-2" style={{ gap: 8 }}>
+                <View className="flex-row items-center mb-2" style={styles.timingRow}>
                   <Sun size={16} color={colors.amber[500]} />
                   <Text className="text-xs font-bold text-stone-400 uppercase">{t('detail.sleep.wakeTime')}</Text>
                 </View>
@@ -206,19 +188,13 @@ const SleepDetailScreen = (): React.ReactElement => {
             {/* History Chart */}
             <Animated.View
               entering={FadeInDown.delay(400).duration(400)}
-              style={{ gap: 16 }}
+              style={styles.section}
             >
               <TimeframeSelector selected={timeframe} onSelect={setTimeframe} />
 
               <View
                 className="bg-white p-5 rounded-3xl border border-stone-100"
-                style={{
-                  shadowColor: '#000',
-                  shadowOffset: { width: 0, height: 4 },
-                  shadowOpacity: 0.06,
-                  shadowRadius: 10,
-                  elevation: 4,
-                }}
+                style={styles.cardShadow}
               >
                 <Text className="text-xs font-bold text-stone-400 uppercase mb-4">
                   {t('detail.sleep.history')}
@@ -239,5 +215,38 @@ const SleepDetailScreen = (): React.ReactElement => {
   );
 }
 
+const styles = StyleSheet.create({
+  container: {
+    gap: 32,
+  },
+  mainDisplay: {
+    gap: 24,
+  },
+  moonIcon: {
+    marginBottom: 4,
+  },
+  scoreText: {
+    fontFamily: FontFamily.serif,
+  },
+  metricsRow: {
+    gap: 32,
+  },
+  qualityRow: {
+    gap: 4,
+  },
+  section: {
+    gap: 16,
+  },
+  cardShadow: {
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    elevation: 4,
+  },
+  timingRow: {
+    gap: 8,
+  },
+});
 
 export default SleepDetailScreen;

@@ -28,7 +28,8 @@ import Animated, {
 
 import { TAB_BAR_HEIGHT } from './_layout';
 import { t } from '../../src/i18n';
-import { FontFamily } from '../../src/theme';
+import { FontFamily, colors } from '../../src/theme';
+import { useFadeIn } from '../../src/hooks/useFadeIn';
 
 // 日本語化されたMOCKデータ
 const MOCK_DATA = {
@@ -38,9 +39,6 @@ const MOCK_DATA = {
   targetBedtime: '22:30',
   targetWakeUp: '6:30',
 };
-
-// Import shared fade-in hook
-import { useFadeIn } from '../../src/hooks/useFadeIn';
 
 // Toggle Switch Component
 const ToggleSwitch: React.FC<{
@@ -70,8 +68,8 @@ const ToggleSwitch: React.FC<{
             width: 20,
             height: 20,
             borderRadius: 10,
-            backgroundColor: '#FFFFFF',
-            shadowColor: '#000',
+            backgroundColor: colors.white,
+            shadowColor: colors.black,
             shadowOffset: { width: 0, height: 2 },
             shadowOpacity: 0.15,
             shadowRadius: 4,
@@ -92,7 +90,7 @@ const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title
     <View
       className="bg-white rounded-2xl border border-stone-100 p-2"
       style={{
-        shadowColor: '#000',
+        shadowColor: colors.black,
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.06,
         shadowRadius: 20,
@@ -213,7 +211,7 @@ const SettingsScreen = (): React.ReactElement => {
               className="bg-white p-4 rounded-3xl border border-stone-100 flex-row items-center mb-8"
               style={{
                 gap: 16,
-                shadowColor: '#000',
+                shadowColor: colors.black,
                 shadowOffset: { width: 0, height: 4 },
                 shadowOpacity: 0.06,
                 shadowRadius: 20,

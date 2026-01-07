@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useRef, useCallback, useMemo } from 'react';
-import { View, Text, ScrollView, Pressable, useWindowDimensions } from 'react-native';
+import { View, Text, ScrollView, Pressable, useWindowDimensions, StyleSheet } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import {
@@ -288,72 +288,36 @@ const HealthDetailScreen = (): React.ReactElement => {
     const isOutOfRange = metric.status === 'out-of-range';
     const IconComponent = ICON_MAP[metric.iconType];
     return (
-      <View
-        style={{
-          backgroundColor: colors.white,
-          borderRadius: 24,
-          borderWidth: 1,
-          borderColor: colors.stone[100],
-          overflow: 'hidden',
-        }}
-      >
-        <Pressable
-          onPress={onPress}
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: 16,
-          }}
-        >
+      <View style={styles.tempCard}>
+        <Pressable onPress={onPress} style={styles.tempCardPressable}>
           {/* 左側: アイコン + ラベル（縦中央） */}
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+          <View style={styles.tempLeftSection}>
             <IconComponent size={18} color={colors.stone[400]} />
-            <Text
-              style={{
-                fontSize: 14,
-                fontWeight: '700',
-                color: colors.stone[400],
-              }}
-            >
+            <Text style={styles.tempCardLabel}>
               {metric.cardLabel}
             </Text>
           </View>
           {/* 右側: 数値とステータス */}
-          <View style={{ alignItems: 'flex-end' }}>
-            <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 4 }}>
-              <Text
-                style={{
-                  fontSize: 36,
-                  fontWeight: '700',
-                  color: colors.stone[900],
-                  letterSpacing: -1,
-                }}
-              >
+          <View style={styles.tempRightSection}>
+            <View style={styles.tempValueRow}>
+              <Text style={styles.tempValue}>
                 {metric.value}
               </Text>
-              <Text
-                style={{
-                  fontSize: 16,
-                  fontWeight: '500',
-                  color: colors.stone[400],
-                }}
-              >
+              <Text style={styles.tempUnit}>
                 {metric.unit}
               </Text>
             </View>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 }}>
+            <View style={styles.tempStatusRow}>
               {isOutOfRange ? (
                 <AlertCircle size={14} strokeWidth={2.5} color={colors.amber[500]} />
               ) : (
                 <Check size={14} strokeWidth={3} color={colors.emerald[500]} />
               )}
               <Text
-                style={{
-                  fontSize: 14,
-                  fontWeight: '500',
-                  color: isOutOfRange ? colors.amber[500] : colors.emerald[500],
-                }}
+                style={[
+                  styles.tempStatusText,
+                  { color: isOutOfRange ? colors.amber[500] : colors.emerald[500] }
+                ]}
               >
                 {metric.statusLabel}
               </Text>
@@ -383,7 +347,7 @@ const HealthDetailScreen = (): React.ReactElement => {
         {/* Section Header with Left Border */}
         <View
           className="flex-row items-center mb-4 pl-4"
-          style={{ borderLeftWidth: 4, borderLeftColor: metric.colorHex }}
+          style={[styles.sectionHeader, { borderLeftColor: metric.colorHex }]}
         >
           <Text className="text-lg font-semibold text-stone-900">{metric.name}</Text>
         </View>
@@ -391,38 +355,32 @@ const HealthDetailScreen = (): React.ReactElement => {
         {/* Main Card */}
         <View
           className="bg-white p-5 rounded-2xl border border-stone-100"
-          style={{
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.06,
-            shadowRadius: 10,
-            elevation: 4,
-          }}
+          style={styles.detailCard}
         >
           {/* Top Stats Row */}
           <View className="flex-row justify-between items-end mb-6">
             <View>
               <Text
                 className="text-xs font-semibold text-stone-400 uppercase mb-1"
-                style={{ letterSpacing: 0.5 }}
+                style={styles.statLabel}
               >
                 {t('detail.health.mostRecent')}
               </Text>
-              <View className="flex-row items-baseline" style={{ gap: 4 }}>
+              <View className="flex-row items-baseline" style={styles.valueRow}>
                 <Text className="text-4xl font-bold" style={{ color: metric.colorHex }}>
                   {metric.value}
                 </Text>
                 <Text className="text-sm font-medium text-stone-500">{metric.unit}</Text>
               </View>
             </View>
-            <View style={{ alignItems: 'flex-end' }}>
+            <View style={styles.baselineContainer}>
               <Text
                 className="text-xs font-semibold text-stone-400 uppercase mb-1"
-                style={{ letterSpacing: 0.5 }}
+                style={styles.statLabel}
               >
                 {t('detail.health.baseline')}
               </Text>
-              <View className="flex-row items-center" style={{ gap: 4 }}>
+              <View className="flex-row items-center" style={styles.valueRow}>
                 <Text className="text-sm font-medium text-stone-600">{metric.baseline}</Text>
                 {metric.baselineTrend === 'up' && (
                   <ArrowUp size={16} color={metric.colorHex} />
@@ -438,7 +396,7 @@ const HealthDetailScreen = (): React.ReactElement => {
           <View className="items-center mb-6">
             <View
               className="flex-row bg-stone-100 p-1 rounded-full"
-              style={{ gap: 4 }}
+              style={styles.timeframeSelector}
             >
               {tfOptions.map((option) => (
                 <Pressable
@@ -481,7 +439,7 @@ const HealthDetailScreen = (): React.ReactElement => {
           {/* Legend */}
           <View
             className="flex-row items-center pt-2 border-t border-stone-100"
-            style={{ gap: 8 }}
+            style={styles.legend}
           >
             <CheckCircle2 size={16} color={metric.colorHex} />
             <Text className="text-xs font-medium text-stone-500">
@@ -543,72 +501,45 @@ const HealthDetailScreen = (): React.ReactElement => {
                   const IconComponent = ICON_MAP[metric.iconType];
                   return (
                     <View
-                      style={{
-                        width: cardWidth,
-                        height: cardHeight,
-                        backgroundColor: colors.white,
-                        borderRadius: 24,
-                        borderWidth: 1,
-                        borderColor: colors.stone[100],
-                        overflow: 'hidden',
-                      }}
+                      style={[
+                        styles.metricCard,
+                        { width: cardWidth, height: cardHeight }
+                      ]}
                     >
                       <Pressable
                         onPress={onPress}
-                        style={{
-                          padding: 16,
-                        }}
+                        style={styles.metricCardPressable}
                       >
                         {/* Icon + Label */}
-                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                        <View style={styles.metricCardHeader}>
                           <IconComponent size={18} color={colors.stone[400]} />
-                          <Text
-                            style={{
-                              fontSize: 14,
-                              fontWeight: '700',
-                              color: colors.stone[400],
-                            }}
-                          >
+                          <Text style={styles.metricCardLabel}>
                             {metric.cardLabel}
                           </Text>
                         </View>
 
                         {/* Value */}
-                        <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 4, marginTop: 8 }}>
-                          <Text
-                            style={{
-                              fontSize: 36,
-                              fontWeight: '700',
-                              color: colors.stone[900],
-                              letterSpacing: -1,
-                            }}
-                          >
+                        <View style={styles.metricValueContainer}>
+                          <Text style={styles.metricValue}>
                             {metric.value}
                           </Text>
-                          <Text
-                            style={{
-                              fontSize: 16,
-                              fontWeight: '500',
-                              color: colors.stone[400],
-                            }}
-                          >
+                          <Text style={styles.metricUnit}>
                             {metric.unit}
                           </Text>
                         </View>
 
                         {/* Status */}
-                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8 }}>
+                        <View style={styles.metricStatusContainer}>
                           {isOutOfRange ? (
                             <AlertCircle size={14} strokeWidth={2.5} color={colors.amber[500]} />
                           ) : (
                             <Check size={14} strokeWidth={3} color={colors.emerald[500]} />
                           )}
                           <Text
-                            style={{
-                              fontSize: 14,
-                              fontWeight: '500',
-                              color: isOutOfRange ? colors.amber[500] : colors.emerald[500],
-                            }}
+                            style={[
+                              styles.metricStatusText,
+                              { color: isOutOfRange ? colors.amber[500] : colors.emerald[500] }
+                            ]}
                           >
                             {metric.statusLabel}
                           </Text>
@@ -619,14 +550,14 @@ const HealthDetailScreen = (): React.ReactElement => {
                 };
 
                 return (
-                  <View style={{ gap: CARD_GAP }}>
+                  <View style={[styles.gridContainer, { gap: CARD_GAP }]}>
                     {/* Row 1: HRV & RHR */}
-                    <View style={{ flexDirection: 'row', gap: CARD_GAP }}>
+                    <View style={[styles.gridRow, { gap: CARD_GAP }]}>
                       {renderMetricCard(metrics[0], () => scrollToSection(metrics[0].id))}
                       {renderMetricCard(metrics[1], () => scrollToSection(metrics[1].id))}
                     </View>
                     {/* Row 2: RESP & SpO2 */}
-                    <View style={{ flexDirection: 'row', gap: CARD_GAP }}>
+                    <View style={[styles.gridRow, { gap: CARD_GAP }]}>
                       {renderMetricCard(metrics[2], () => scrollToSection(metrics[2].id))}
                       {renderMetricCard(metrics[3], () => scrollToSection(metrics[3].id))}
                     </View>
@@ -639,7 +570,7 @@ const HealthDetailScreen = (): React.ReactElement => {
 
             {/* Detail Sections - インライン実装 */}
             <View
-              style={{ gap: 8 }}
+              style={styles.detailSections}
               onLayout={(event) => {
                 // Detail Sectionsコンテナの開始位置を保存
                 sectionPositions.current['_container'] = event.nativeEvent.layout.y;
@@ -716,5 +647,142 @@ const HealthDetailScreen = (): React.ReactElement => {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  sectionHeader: {
+    borderLeftWidth: 4,
+  },
+  detailCard: {
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    elevation: 4,
+  },
+  statLabel: {
+    letterSpacing: 0.5,
+  },
+  valueRow: {
+    gap: 4,
+  },
+  baselineContainer: {
+    alignItems: 'flex-end',
+  },
+  timeframeSelector: {
+    gap: 4,
+  },
+  legend: {
+    gap: 8,
+  },
+  tempCard: {
+    backgroundColor: colors.white,
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: colors.stone[100],
+    overflow: 'hidden',
+  },
+  tempCardPressable: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+  },
+  tempLeftSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  tempCardLabel: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: colors.stone[400],
+  },
+  tempRightSection: {
+    alignItems: 'flex-end',
+  },
+  tempValueRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 4,
+  },
+  tempValue: {
+    fontSize: 36,
+    fontWeight: '700',
+    color: colors.stone[900],
+    letterSpacing: -1,
+  },
+  tempUnit: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: colors.stone[400],
+  },
+  tempStatusRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 4,
+  },
+  tempStatusText: {
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  metricCard: {
+    backgroundColor: colors.white,
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: colors.stone[100],
+    overflow: 'hidden',
+  },
+  metricCardPressable: {
+    padding: 16,
+  },
+  metricCardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  metricCardLabel: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: colors.stone[400],
+  },
+  metricValueContainer: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 4,
+    marginTop: 8,
+  },
+  metricValue: {
+    fontSize: 36,
+    fontWeight: '700',
+    color: colors.stone[900],
+    letterSpacing: -1,
+  },
+  metricUnit: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: colors.stone[400],
+  },
+  metricStatusContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 8,
+  },
+  metricStatusText: {
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  gridContainer: {
+    // gap is dynamic
+  },
+  gridRow: {
+    flexDirection: 'row',
+    // gap is dynamic
+  },
+  detailSections: {
+    gap: 8,
+  },
+});
 
 export default HealthDetailScreen;

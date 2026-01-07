@@ -14,7 +14,7 @@ import {
   View,
 } from 'react-native';
 import { ChevronRight, Check } from 'lucide-react-native';
-import { Colors, BorderRadius, Spacing, FontFamily } from '../theme';
+import { Colors, FontFamily } from '../theme';
 import type { ReactElement } from 'react';
 
 interface PrimaryButtonProps {

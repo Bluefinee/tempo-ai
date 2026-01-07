@@ -10,8 +10,8 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { colors } from '../theme';
 import { HealthAreaChart, type ChartDataPoint } from './HealthAreaChart';
+import { type Timeframe } from './TimeframeSelector';
 
-export type Timeframe = '7D' | '30D' | '60D';
 export type BaselineTrend = 'up' | 'down' | 'neutral';
 
 interface HealthMetricDetailProps {

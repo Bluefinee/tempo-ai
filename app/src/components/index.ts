@@ -28,4 +28,4 @@ export { SunInfoCard } from './SunInfoCard';
 // ヘルス詳細画面用
 export { HealthMetricCard, type IconType, type MetricStatus } from './HealthMetricCard';
 export { HealthAreaChart, type ChartDataPoint } from './HealthAreaChart';
-export { HealthMetricDetail, type Timeframe as HealthTimeframe, type BaselineTrend } from './HealthMetricDetail';
+export { HealthMetricDetail, type BaselineTrend } from './HealthMetricDetail';

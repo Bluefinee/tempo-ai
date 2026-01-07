@@ -1,0 +1,25 @@
+# 修正が必要なヘルパー関数リスト
+
+## app/(main) screens
+- index.tsx: getMetricCards, getHealthCards
+- breathe.tsx: なし(主に定数)
+- rhythm.tsx: getPressureTrendIcon, getPressureTrendLabel
+- action-detail.tsx: なし
+- energy-detail.tsx: getStatusBadge
+- health-detail.tsx: seededRandom (already has type)
+- recovery-detail.tsx: getChangeColor, getChangeBgColor, getChangeSymbol
+- rhythm-detail.tsx: formatTime
+- sleep-detail.tsx: formatDuration, formatTime
+
+## components
+- BarChart.tsx: addHours
+- MiniBarChart.tsx: renderBar
+- RhythmInteractiveChart.tsx: multiple useMemo/useCallback
+- HealthMetricDetail.tsx: generateTimeframeData
+- TimeframeSelector.tsx: 戻り値型追加済み
+- WindowCard.tsx: 修正済み
+- SunInfoCard.tsx: 修正済み
+
+## 未使用インポート削除対象
+- MiniBarChart.tsx: TextStyle
+- 各onboardingスクリーン: width, height (useWindowDimensions)

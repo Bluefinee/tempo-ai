@@ -22,7 +22,7 @@ interface SunInfoCardProps {
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-const getTypeConfig = (type: SunType) => {
+const getTypeConfig = (type: SunType): { Icon: React.ComponentType<any>; iconColor: string; iconBgColor: string; labelColor: string; defaultLabel: string } => {
   if (type === 'sunrise') {
     return {
       Icon: Sunrise,

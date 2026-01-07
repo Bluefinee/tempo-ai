@@ -26,7 +26,7 @@ interface WindowCardProps {
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-const getThemeConfig = (theme: Theme) => {
+const getThemeConfig = (theme: Theme): { iconBgColor: string; iconColor: string; timeColor: string; accentColor: string } => {
   if (theme === 'day') {
     return {
       iconBgColor: 'rgba(251, 191, 36, 0.15)',

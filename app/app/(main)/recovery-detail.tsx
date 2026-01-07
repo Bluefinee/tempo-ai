@@ -43,19 +43,19 @@ const RecoveryDetailScreen = (): React.ReactElement => {
     router.back();
   };
 
-  const getChangeColor = (change: number) => {
+  const getChangeColor = (change: number): string => {
     if (change > 0) return colors.emerald[600];
     if (change < 0) return colors.rose[500];
     return colors.stone[500];
   };
 
-  const getChangeBgColor = (change: number) => {
+  const getChangeBgColor = (change: number): string => {
     if (change > 0) return colors.emerald[50];
     if (change < 0) return colors.rose[50];
     return colors.stone[100];
   };
 
-  const getChangeSymbol = (change: number) => {
+  const getChangeSymbol = (change: number): string => {
     if (change > 0) return '↑';
     if (change < 0) return '↓';
     return '=';

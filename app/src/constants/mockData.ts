@@ -345,263 +345,10 @@ export const MOCK_BREATHE = {
   },
 };
 
-// =============================================================================
-// DETAIL SCREENS MOCK DATA
-// =============================================================================
-
-export const MOCK_DETAIL = {
-  recovery: {
-    score: 70,
-    status: "トレーニング準備OK",
-    hrv: { value: 82, unit: "ms", change: 5, baseline: 77 },
-    rhr: { value: 59, unit: "bpm", change: 0, baseline: 59 },
-    analysis:
-      "回復スコアは、HRVの日中平均82ms（5:39に取得、60日平均の77msより6%高い）と、安静時心拍数59bpm（22:06に取得、60日平均の59bpmと同等）に基づいています。",
-    calculatedAt: "5:39",
-    history: {
-      "7D": [
-        { label: "木", value: 45 },
-        { label: "金", value: 60 },
-        { label: "土", value: 55 },
-        { label: "日", value: 80 },
-        { label: "月", value: 70 },
-        { label: "火", value: 65 },
-        { label: "水", value: 70 },
-      ],
-      // 30日間 - 全日表示（Apple Health風）
-      "30D": Array.from({ length: 30 }, (_, i) => ({
-        label: String(i + 1),
-        value: [
-          55, 60, 58, 62, 65, 50, 48, 70, 72, 68, 55, 60, 75, 78, 65, 62, 58,
-          70, 72, 80, 75, 68, 65, 60, 55, 70, 75, 72, 68, 70,
-        ][i],
-      })),
-      // 60日間 - 全日表示（Apple Health風）
-      "60D": Array.from({ length: 60 }, (_, i) => ({
-        label: String(i + 1),
-        value: [
-          52, 55, 58, 48, 60, 55, 65, 70, 62, 58, 72, 68, 55, 60, 75, 55, 60,
-          58, 62, 65, 70, 72, 68, 75, 78, 65, 70, 72, 68, 70, 58, 62, 55, 68,
-          72, 65, 70, 75, 60, 55, 78, 72, 68, 62, 58, 70, 65, 72, 68, 75, 60,
-          55, 70, 72, 68, 62, 58, 75, 70, 65,
-        ][i],
-      })),
-    },
-    weeklyAverage: 64,
-  },
-  sleep: {
-    score: 85,
-    duration: { hours: 7, minutes: 8, percentage: 80 },
-    quality: { percentage: 85 },
-    analysis:
-      "睡眠時間は目標を下回りましたが、REMと深い睡眠は通常より多くなっています。身体が睡眠不足を補おうと、回復的なステージを優先しているようです。",
-    stages: [
-      { stage: "deep" as const, percentage: 23 },
-      { stage: "rem" as const, percentage: 22 },
-      { stage: "light" as const, percentage: 53 },
-      { stage: "awake" as const, percentage: 2 },
-    ],
-    timing: {
-      bedtime: { actual: "23:15", target: "23:00", diff: "15分遅れ" },
-      wakeTime: { actual: "06:45", target: "07:00", diff: "15分早起き" },
-    },
-    history: {
-      "7D": [
-        { label: "木", value: 67 },
-        { label: "金", value: 83 },
-        { label: "土", value: 76 },
-        { label: "日", value: 89 },
-        { label: "月", value: 80 },
-        { label: "火", value: 79 },
-        { label: "水", value: 85 },
-      ],
-      // 30日間 - 全日表示（Apple Health風）
-      "30D": Array.from({ length: 30 }, (_, i) => ({
-        label: String(i + 1),
-        value: [
-          72, 75, 68, 80, 82, 78, 65, 70, 85, 88, 75, 72, 80, 83, 78, 76, 70,
-          82, 85, 90, 88, 82, 78, 75, 70, 80, 85, 83, 80, 85,
-        ][i],
-      })),
-      // 60日間 - 全日表示（Apple Health風）
-      "60D": Array.from({ length: 60 }, (_, i) => ({
-        label: String(i + 1),
-        value: [
-          68, 72, 75, 65, 78, 72, 80, 85, 78, 75, 88, 82, 70, 75, 85, 72, 75,
-          70, 78, 82, 85, 88, 82, 85, 90, 78, 82, 85, 80, 85, 70, 75, 68, 80,
-          82, 78, 65, 70, 85, 88, 75, 72, 80, 83, 78, 76, 70, 82, 85, 90, 88,
-          82, 78, 75, 70, 80, 85, 83, 80, 85,
-        ][i],
-      })),
-    },
-  },
-  rhythm: {
-    score: 92,
-    status: "同期済み",
-    analysis:
-      "サーカディアンリズムが睡眠-覚醒サイクルとよく調和しています。この1週間、就寝時刻の一貫性が優れており、高いリズムスコアに貢献しています。",
-    // Bedtime/Wake Consistency
-    consistency: {
-      bedtime: {
-        target: "23:00",
-        deviation: "±12分",
-      },
-      wakeTime: {
-        target: "07:00",
-        deviation: "±8分",
-      },
-    },
-    // Contributing Factors（スコア算出根拠）
-    contributingFactors: {
-      bedtimeVariance: {
-        value: 95,
-        label: "就寝ばらつき",
-        trend: "+3%",
-        trendDirection: "up" as const,
-        detail: "平均 ±12分 (目標±15分)",
-      },
-      wakeVariance: {
-        value: 98,
-        label: "起床ばらつき",
-        trend: "+5%",
-        trendDirection: "up" as const,
-        detail: "平均 ±8分 (目標±15分)",
-      },
-      weekendShift: {
-        value: 85,
-        label: "週末シフト",
-        trend: "安定",
-        trendDirection: "stable" as const,
-        detail: "週末の遅れ 25分",
-      },
-      socialJetlag: {
-        value: 90,
-        label: "社会的時差",
-        trend: "-2%",
-        trendDirection: "down" as const,
-        detail: "平日-週末差 32分",
-      },
-    },
-    // Weekly Pattern - 就寝時刻のズレ（分）
-    weeklyPattern: [
-      { day: "木", offset: 0 },
-      { day: "金", offset: -10 },
-      { day: "土", offset: 5 },
-      { day: "日", offset: 0 },
-      { day: "月", offset: 15 },
-      { day: "火", offset: 5 },
-      { day: "水", offset: 0 },
-    ],
-    history: {
-      "7D": [
-        { label: "木", value: 88 },
-        { label: "金", value: 90 },
-        { label: "土", value: 92 },
-        { label: "日", value: 91 },
-        { label: "月", value: 89 },
-        { label: "火", value: 94 },
-        { label: "水", value: 92 },
-      ],
-      // 30日間 - 全日表示（Apple Health風）
-      "30D": Array.from({ length: 30 }, (_, i) => ({
-        label: String(i + 1),
-        value: [
-          85, 88, 86, 90, 92, 78, 72, 88, 90, 92, 85, 88, 94, 95, 88, 86, 82,
-          90, 92, 96, 94, 90, 88, 85, 80, 90, 92, 94, 90, 92,
-        ][i],
-      })),
-      // 60日間 - 全日表示（Apple Health風）
-      "60D": Array.from({ length: 60 }, (_, i) => ({
-        label: String(i + 1),
-        value: [
-          82, 85, 88, 75, 88, 82, 90, 92, 88, 85, 94, 90, 80, 85, 92, 85, 88,
-          82, 90, 92, 94, 96, 92, 94, 98, 88, 90, 92, 88, 92, 85, 88, 80, 90,
-          92, 88, 85, 88, 94, 95, 88, 86, 92, 94, 88, 86, 82, 90, 94, 96, 94,
-          90, 88, 85, 80, 90, 92, 94, 90, 92,
-        ][i],
-      })),
-    },
-  },
-  energy: {
-    score: 78,
-    status: "適度なエネルギー",
-    analysis:
-      "回復度と睡眠データに基づくと、今日は良好なエネルギーを保てそうです。Peak Focus時間帯は9:00〜12:00です。Afternoon Dip（14:00〜16:00）は軽めのタスクに切り替えるのがおすすめです。",
-    // Contributing Factors - 詳細データ
-    contributingFactors: {
-      recovery: {
-        value: 70,
-        label: "回復",
-        trend: "+5%",
-        trendDirection: "up" as const,
-        detail: "HRV 82ms (基準+6%)",
-      },
-      sleep: {
-        value: 85,
-        label: "睡眠",
-        trend: "+3%",
-        trendDirection: "up" as const,
-        detail: "深い睡眠 1h45m",
-      },
-      activity: {
-        value: 75,
-        label: "アクティビティ",
-        trend: "安定",
-        trendDirection: "stable" as const,
-        detail: "昨日 8,500歩",
-      },
-      weather: {
-        value: 80,
-        label: "天気",
-        trend: "安定",
-        trendDirection: "stable" as const,
-        detail: "晴れ・気圧安定",
-      },
-    },
-    // Peak Focus Window
-    peakFocus: {
-      start: "09:00",
-      end: "12:00",
-    },
-    // Afternoon Dip
-    afternoonDip: {
-      start: "14:00",
-      end: "16:00",
-    },
-    history: {
-      "7D": [
-        { label: "木", value: 50 },
-        { label: "金", value: 60 },
-        { label: "土", value: 55 },
-        { label: "日", value: 70 },
-        { label: "月", value: 80 },
-        { label: "火", value: 75 },
-        { label: "水", value: 78 },
-      ],
-      // 30日間 - 全日表示（Apple Health風）
-      "30D": Array.from({ length: 30 }, (_, i) => ({
-        label: String(i + 1),
-        value: [
-          65, 70, 68, 72, 75, 60, 55, 78, 80, 75, 62, 68, 82, 85, 72, 70, 65,
-          78, 80, 88, 82, 75, 72, 68, 62, 78, 82, 80, 75, 78,
-        ][i],
-      })),
-      // 60日間 - 全日表示（Apple Health風）
-      "60D": Array.from({ length: 60 }, (_, i) => ({
-        label: String(i + 1),
-        value: [
-          60, 65, 68, 55, 70, 62, 75, 78, 70, 65, 80, 75, 62, 68, 82, 65, 70,
-          62, 72, 75, 78, 82, 75, 80, 85, 70, 75, 78, 72, 78, 65, 70, 60, 75,
-          78, 70, 68, 72, 80, 82, 72, 68, 78, 80, 72, 70, 65, 78, 82, 88, 82,
-          75, 72, 68, 62, 78, 82, 80, 75, 78,
-        ][i],
-      })),
-    },
-  },
-};
 
 // =============================================================================
-// LEGACY MOCK DATA (後方互換性のため維持)
+// HEALTH STORE MOCK DATA
+// healthStore で使用されるモックデータ
 // =============================================================================
 
 export const MOCK_USER: UserProfile = {
@@ -843,7 +590,7 @@ export const formatDateEnglish = (date: Date = new Date()): string => {
 };
 
 // =============================================================================
-// MOCK_DETAIL_V2 - HealthKit 対応版
+// MOCK_DETAIL - HealthKit 対応版
 // =============================================================================
 
 import {
@@ -864,12 +611,12 @@ import { toBarChartData, calculateDeviationPercent } from '../utils/healthDataTr
 /**
  * HealthKit 対応版の詳細データ構造
  *
- * 従来の MOCK_DETAIL との違い:
+ * 特徴:
  * - rawHistory: Date 型を含む HealthKit 形式のデータ
- * - history: レガシー形式（BarChart 互換）への変換ゲッター
+ * - history: BarChart 互換形式への変換ゲッター
  * - ベースライン・典型範囲を含む
  */
-export interface MockDetailV2Recovery {
+export interface MockDetailRecovery {
   score: number;
   status: string;
   hrv: { value: number; unit: string; change: number; baseline: number };
@@ -885,7 +632,7 @@ export interface MockDetailV2Recovery {
   weeklyAverage: number;
 }
 
-export interface MockDetailV2Sleep {
+export interface MockDetailSleep {
   score: number;
   duration: { hours: number; minutes: number; percentage: number };
   quality: { percentage: number };
@@ -903,7 +650,7 @@ export interface MockDetailV2Sleep {
   };
 }
 
-export interface MockDetailV2Rhythm {
+export interface MockDetailRhythm {
   score: number;
   status: string;
   analysis: string;
@@ -926,7 +673,7 @@ export interface MockDetailV2Rhythm {
   };
 }
 
-export interface MockDetailV2Energy {
+export interface MockDetailEnergy {
   score: number;
   status: string;
   analysis: string;
@@ -946,18 +693,18 @@ export interface MockDetailV2Energy {
   };
 }
 
-export interface MockDetailV2 {
-  recovery: MockDetailV2Recovery;
-  sleep: MockDetailV2Sleep;
-  rhythm: MockDetailV2Rhythm;
-  energy: MockDetailV2Energy;
+export interface MockDetail {
+  recovery: MockDetailRecovery;
+  sleep: MockDetailSleep;
+  rhythm: MockDetailRhythm;
+  energy: MockDetailEnergy;
 }
 
 /**
  * HealthKit 対応版のモックデータを生成
- * rawHistory は Date を含む HealthKit 形式、history はレガシー形式
+ * rawHistory は Date を含む HealthKit 形式、history は BarChart 互換形式
  */
-const createMockDetailV2 = (): MockDetailV2 => {
+const createMockDetail = (): MockDetail => {
   const scoreHistories = getAllScoreHistories('60D');
 
   return {
@@ -1115,7 +862,7 @@ const createMockDetailV2 = (): MockDetailV2 => {
 };
 
 /** HealthKit 対応版のモック詳細データ */
-export const MOCK_DETAIL_V2 = createMockDetailV2();
+export const MOCK_DETAIL = createMockDetail();
 
 // =============================================================================
 // モック日次スナップショット / リアルタイムメトリクス

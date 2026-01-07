@@ -16,6 +16,7 @@ export { MetricGridCard } from './MetricGridCard';
 export { CircularProgress } from './CircularProgress';
 export { TimeframeSelector, type Timeframe } from './TimeframeSelector';
 export { BarChart } from './BarChart';
+export { MiniBarChart, type MiniBarChartData, type MiniBarChartProps } from './MiniBarChart';
 export { DualRingProgress } from './DualRingProgress';
 export { SleepStagesBar } from './SleepStagesBar';
 

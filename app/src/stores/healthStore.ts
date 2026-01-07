@@ -7,6 +7,8 @@ import {
   HRVMetrics,
   ActivityMetrics,
   SimpleWeatherData,
+  DailySnapshot,
+  RealtimeMetrics,
 } from '../domain/models';
 import { apiClient } from '../api/client';
 import {
@@ -15,7 +17,10 @@ import {
   MOCK_ACTIVITY_METRICS,
   MOCK_RHYTHM_ANALYSIS,
   MOCK_WEATHER,
+  createMockDailySnapshot,
+  createMockRealtimeMetrics,
 } from '../constants/mockData';
+import { formatDateString } from '../constants/mockDataFactory';
 import {
   TempoScoreResult,
   calculateTempoScore,
@@ -41,6 +46,13 @@ interface HealthMetricsV2 {
   activity: NewActivityMetrics | null;
 }
 
+/**
+ * HealthStore の状態インターフェース
+ *
+ * データ更新タイミング:
+ * - dailySnapshot: 朝1回算出（起床時刻連動）、その日は固定
+ * - realtimeMetrics: アプリ起動ごとにリアルタイム更新
+ */
 interface HealthState {
   // Health metrics
   sleepMetrics: SleepMetrics | null;
@@ -75,6 +87,14 @@ interface HealthState {
   isLoading: boolean;
   error: string | null;
 
+  // HealthKit 対応: 更新タイミング別データ
+  /** 朝1回算出、その日は固定のスコア */
+  dailySnapshot: DailySnapshot | null;
+  /** 最後にスナップショットを算出した日付 (YYYY-MM-DD) */
+  lastSnapshotDate: string | null;
+  /** リアルタイム更新されるヘルスメトリクス */
+  realtimeMetrics: RealtimeMetrics | null;
+
   // Actions
   fetchTodayMetrics: () => Promise<void>;
   fetchWeather: (latitude: number, longitude: number) => Promise<void>;
@@ -93,6 +113,14 @@ interface HealthState {
   setLoading: (isLoading: boolean) => void;
   setError: (error: string | null) => void;
   reset: () => void;
+
+  // HealthKit 対応: 新規アクション
+  /** 今日のスナップショットが算出済みかを判定 */
+  shouldCalculateSnapshot: () => boolean;
+  /** 日次スナップショットを算出（朝1回のみ） */
+  calculateDailySnapshot: () => Promise<void>;
+  /** リアルタイムメトリクスを取得（アプリ起動ごと） */
+  fetchRealtimeMetrics: () => Promise<void>;
 }
 
 const initialState = {
@@ -109,6 +137,10 @@ const initialState = {
   calibrationDaysCompleted: 0,
   isLoading: false,
   error: null,
+  // HealthKit 対応
+  dailySnapshot: null,
+  lastSnapshotDate: null,
+  realtimeMetrics: null,
 };
 
 export const useHealthStore = create<HealthState>()(
@@ -283,6 +315,72 @@ export const useHealthStore = create<HealthState>()(
       setError: (error) => set({ error }),
 
       reset: () => set(initialState),
+
+      // HealthKit 対応: 新規アクション実装
+      shouldCalculateSnapshot: (): boolean => {
+        const { lastSnapshotDate } = get();
+        const today = formatDateString(new Date());
+        return lastSnapshotDate !== today;
+      },
+
+      calculateDailySnapshot: async (): Promise<void> => {
+        const state = get();
+
+        // 今日すでに算出済みの場合はスキップ
+        if (!state.shouldCalculateSnapshot()) {
+          return;
+        }
+
+        set({ isLoading: true, error: null });
+
+        try {
+          // TODO: Replace with actual HealthKit data fetch and score calculation
+          // For now, use mock data
+          await new Promise((resolve) => setTimeout(resolve, 300));
+
+          const snapshot = createMockDailySnapshot();
+
+          set({
+            dailySnapshot: snapshot,
+            lastSnapshotDate: snapshot.date,
+            isLoading: false,
+          });
+        } catch (error) {
+          set({
+            isLoading: false,
+            error:
+              error instanceof Error
+                ? error.message
+                : 'Failed to calculate daily snapshot',
+          });
+        }
+      },
+
+      fetchRealtimeMetrics: async (): Promise<void> => {
+        set({ isLoadingMetrics: true, metricsError: null });
+
+        try {
+          // TODO: Replace with actual HealthKit data fetch
+          // For now, use mock data
+          await new Promise((resolve) => setTimeout(resolve, 200));
+
+          const metrics = createMockRealtimeMetrics();
+
+          set({
+            realtimeMetrics: metrics,
+            isLoadingMetrics: false,
+            lastMetricsUpdate: new Date(),
+          });
+        } catch (error) {
+          set({
+            isLoadingMetrics: false,
+            metricsError:
+              error instanceof Error
+                ? error.message
+                : 'Failed to fetch realtime metrics',
+          });
+        }
+      },
     }),
     {
       name: 'tempo-health-storage',
@@ -290,6 +388,9 @@ export const useHealthStore = create<HealthState>()(
       partialize: (state) => ({
         calibrationStartDate: state.calibrationStartDate,
         calibrationDaysCompleted: state.calibrationDaysCompleted,
+        // DailySnapshot も永続化（日付変更まで保持）
+        dailySnapshot: state.dailySnapshot,
+        lastSnapshotDate: state.lastSnapshotDate,
       }),
     }
   )
@@ -313,3 +414,16 @@ export const selectCurrentPhase = (state: HealthState): RhythmPhase | null =>
 
 export const selectCalibrationProgress = (state: HealthState): number =>
   state.calibrationDaysCompleted / 7;
+
+// HealthKit 対応: 新規セレクター
+export const selectDailySnapshot = (state: HealthState): DailySnapshot | null =>
+  state.dailySnapshot;
+
+export const selectRealtimeMetrics = (
+  state: HealthState
+): RealtimeMetrics | null => state.realtimeMetrics;
+
+export const selectShouldCalculateSnapshot = (state: HealthState): boolean => {
+  const today = formatDateString(new Date());
+  return state.lastSnapshotDate !== today;
+};

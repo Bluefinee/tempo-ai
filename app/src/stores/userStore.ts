@@ -11,18 +11,32 @@ import {
   CALIBRATION_PERIOD_DAYS,
 } from '../domain/models';
 
+// 新規: Types
+type Goal = 'better_sleep' | 'more_energy' | 'less_stress' | 'peak_performance';
+
+interface UserPreferences {
+  gentleNudges: boolean;
+  hapticFeedback: boolean;
+}
+
 interface UserState {
-  // User profile
+  // User profile (既存)
   profile: UserProfile | null;
 
-  // Onboarding state
+  // Onboarding state (既存)
   isOnboardingComplete: boolean;
   onboardingStep: number;
 
-  // Draft profile during onboarding
+  // Draft profile during onboarding (既存)
   draftProfile: Partial<UserProfile>;
 
-  // Actions
+  // 新規: Preferences
+  preferences: UserPreferences;
+
+  // 新規: Onboarding
+  onboardingCompleted: boolean;
+
+  // Actions (既存)
   setDraftNickname: (nickname: string) => void;
   setDraftBasicInfo: (info: {
     age?: number;
@@ -37,26 +51,30 @@ interface UserState {
     exerciseFrequency?: ExerciseFrequency;
     alcoholFrequency?: AlcoholFrequency;
   }) => void;
-
-  // Onboarding navigation
   nextOnboardingStep: () => void;
   previousOnboardingStep: () => void;
   setOnboardingStep: (step: number) => void;
-
-  // Complete onboarding
   completeOnboarding: () => void;
-
-  // Update profile after onboarding
   updateProfile: (updates: Partial<UserProfile>) => void;
-
-  // Calibration
   incrementCalibrationDay: () => void;
-
-  // Reset
   resetUser: () => void;
+
+  // 新規: Actions
+  setProfile: (profile: Partial<UserProfile & { goals?: Goal[]; wakeUpTime?: string; windDownTime?: string }>) => void;
+  setGoals: (goals: Goal[]) => void;
+  setWakeUpTime: (time: string) => void;
+  setWindDownTime: (time: string) => void;
+  setPreferences: (prefs: Partial<UserPreferences>) => void;
+  resetOnboarding: () => void;
+  reset: () => void;
 }
 
 const TOTAL_ONBOARDING_STEPS = 9;
+
+const initialPreferences: UserPreferences = {
+  gentleNudges: true,
+  hapticFeedback: true,
+};
 
 const createDefaultProfile = (draft: Partial<UserProfile>): UserProfile => ({
   id: `user_${Date.now()}`,
@@ -82,6 +100,8 @@ export const useUserStore = create<UserState>()(
       isOnboardingComplete: false,
       onboardingStep: 0,
       draftProfile: {},
+      preferences: initialPreferences,
+      onboardingCompleted: false,
 
       setDraftNickname: (nickname) =>
         set((state) => ({
@@ -159,6 +179,60 @@ export const useUserStore = create<UserState>()(
           onboardingStep: 0,
           draftProfile: {},
         }),
+
+      // 新規: Actions
+      setProfile: (partialProfile) => {
+        set((state) => ({
+          profile: state.profile
+            ? { ...state.profile, ...partialProfile }
+            : null,
+        }));
+      },
+
+      setGoals: (goals) => {
+        set((state) => ({
+          profile: state.profile
+            ? { ...state.profile, goals: goals as unknown as string[] }
+            : null,
+        }));
+      },
+
+      setWakeUpTime: (time) => {
+        set((state) => ({
+          profile: state.profile
+            ? { ...state.profile, wakeUpTime: time as unknown as string }
+            : null,
+        }));
+      },
+
+      setWindDownTime: (time) => {
+        set((state) => ({
+          profile: state.profile
+            ? { ...state.profile, windDownTime: time as unknown as string }
+            : null,
+        }));
+      },
+
+      setPreferences: (prefs) => {
+        set((state) => ({
+          preferences: { ...state.preferences, ...prefs },
+        }));
+      },
+
+      resetOnboarding: () => {
+        set({
+          onboardingCompleted: false,
+          profile: null,
+        });
+      },
+
+      reset: () => {
+        set({
+          profile: null,
+          preferences: initialPreferences,
+          onboardingCompleted: false,
+        });
+      },
     }),
     {
       name: 'tempo-user-storage',
@@ -171,7 +245,7 @@ export const useUserStore = create<UserState>()(
   )
 );
 
-// Selectors
+// Selectors (既存)
 export const selectIsCalibrating = (state: UserState): boolean =>
   state.profile !== null &&
   state.profile.calibrationDaysCompleted < CALIBRATION_PERIOD_DAYS;
@@ -180,3 +254,19 @@ export const selectCalibrationProgress = (state: UserState): number =>
   state.profile
     ? (state.profile.calibrationDaysCompleted / CALIBRATION_PERIOD_DAYS) * 100
     : 0;
+
+// 新規: Selectors
+export const selectNickname = (state: UserState): string =>
+  state.profile?.nickname ?? '';
+
+export const selectGoals = (state: UserState): Goal[] =>
+  (state.profile as unknown as { goals?: Goal[] })?.goals ?? [];
+
+export const selectWakeUpTime = (state: UserState): string =>
+  (state.profile as unknown as { wakeUpTime?: string })?.wakeUpTime ?? '07:00';
+
+export const selectWindDownTime = (state: UserState): string =>
+  (state.profile as unknown as { windDownTime?: string })?.windDownTime ?? '23:00';
+
+export const selectHapticEnabled = (state: UserState): boolean =>
+  state.preferences.hapticFeedback;

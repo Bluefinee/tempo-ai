@@ -1,141 +1,123 @@
 /**
  * AdviceRequest構築ヘルパー
- * ストアの状態からAPIリクエストを構築
+ * ストアの状態からAPIリクエストを構築（新形式）
  */
 
-import type { AdviceRequest } from '../types';
-import { useUserStore } from '../../stores/userStore';
-import { useHealthStore } from '../../stores/healthStore';
-import { useInsightStore } from '../../stores/insightStore';
+import type { AdviceRequest, HealthMetrics, UserProfile, WeatherData, ScoresData, RhythmPhases } from '../types';
 
-/** 曜日名の配列（英語） */
-const DAY_NAMES = [
-  'Sunday',
-  'Monday',
-  'Tuesday',
-  'Wednesday',
-  'Thursday',
-  'Friday',
-  'Saturday',
-] as const;
+interface BuildAdviceRequestParams {
+  healthStore: {
+    metrics: {
+      sleep: {
+        durationMinutes: number;
+        deepSleepMinutes: number;
+        deepSleepPercent?: number;
+        remSleepMinutes: number;
+        remSleepPercent?: number;
+        bedtime?: string;
+        wakeTime?: string;
+      } | null;
+      hrv: { current?: number; baseline?: number; baseline30d?: number } | null;
+      rhr?: { current: number; baseline: number } | null;
+    };
+    // 4スコア（将来的に実装）
+    recoveryScore?: number;
+    sleepScore?: number;
+    rhythmScore?: number;
+    energyScore?: number;
+  };
+  userStore: {
+    profile: { goals?: unknown; wakeUpTime?: unknown; windDownTime?: unknown } | null;
+  };
+  weather: WeatherData;
+}
 
 /**
- * 現在のストア状態からAdviceRequestを構築
- * @returns AdviceRequest または null（プロファイルがない場合）
+ * アドバイスAPIリクエストを構築
  */
-export const buildAdviceRequest = (): AdviceRequest | null => {
-  const userState = useUserStore.getState();
-  const healthState = useHealthStore.getState();
-  const insightState = useInsightStore.getState();
+export const buildAdviceRequest = ({
+  healthStore,
+  userStore,
+  weather,
+}: BuildAdviceRequestParams): AdviceRequest => {
+  const profile = userStore.profile;
+  const goals = (profile?.goals as string[]) ?? ['better_sleep'];
+  const wakeUpTime = (profile?.wakeUpTime as string) ?? '07:00';
+  const windDownTime = (profile?.windDownTime as string) ?? '23:00';
 
-  const { profile } = userState;
-  if (!profile) {
-    console.warn('buildAdviceRequest: profile is null');
-    return null;
-  }
+  const user: UserProfile = {
+    goals: goals as ('better_sleep' | 'more_energy' | 'less_stress' | 'peak_performance')[],
+    wakeUpTime,
+    windDownTime,
+  };
 
-  const {
-    sleepMetrics,
-    hrvMetrics,
-    activityMetrics,
-    dailyScores,
-    rhythmAnalysis,
+  // 4スコア（現在はモックデータ、将来的にhealthStoreから取得）
+  const scores: ScoresData = {
+    recovery: healthStore.recoveryScore ?? 70,
+    sleep: healthStore.sleepScore ?? 85,
+    rhythm: healthStore.rhythmScore ?? 92,
+    energy: healthStore.energyScore ?? 78,
+  };
+
+  const sleep = healthStore.metrics.sleep;
+  const hrv = healthStore.metrics.hrv;
+  const rhr = healthStore.metrics.rhr;
+
+  // 睡眠データの計算
+  const durationMinutes = sleep?.durationMinutes ?? 428;
+  const deepSleepMinutes = sleep?.deepSleepMinutes ?? 105;
+  const remSleepMinutes = sleep?.remSleepMinutes ?? 95;
+  const deepSleepPercent = sleep?.deepSleepPercent ?? (durationMinutes > 0 ? Math.round((deepSleepMinutes / durationMinutes) * 100) : 23);
+  const remSleepPercent = sleep?.remSleepPercent ?? (durationMinutes > 0 ? Math.round((remSleepMinutes / durationMinutes) * 100) : 22);
+
+  const healthMetrics: HealthMetrics = {
+    hrv: {
+      current: hrv?.current ?? hrv?.baseline30d ?? 82,
+      baseline: hrv?.baseline ?? hrv?.baseline30d ?? 77,
+      deviation: hrv?.current && hrv?.baseline ? ((hrv.current - hrv.baseline) / hrv.baseline * 100) : 6,
+    },
+    rhr: {
+      current: rhr?.current ?? 59,
+      baseline: rhr?.baseline ?? 59,
+    },
+    sleep: {
+      durationMinutes,
+      deepSleepMinutes,
+      deepSleepPercent,
+      remSleepMinutes,
+      remSleepPercent,
+      bedtime: sleep?.bedtime ?? '23:15',
+      wakeTime: sleep?.wakeTime ?? '06:45',
+      vsTargetBedtime: '+15min', // TODO: 実際の計算を実装
+    },
+  };
+
+  // RhythmPhases（現在はモックデータ、将来的に計算）
+  const rhythmPhases: RhythmPhases = {
+    peakFocus: {
+      start: '09:00',
+      end: '12:00',
+    },
+    afternoonDip: {
+      start: '14:00',
+      end: '16:00',
+    },
+    secondWind: {
+      start: '17:00',
+      end: '19:00',
+    },
+    windDown: {
+      start: '21:00',
+      end: '23:00',
+    },
+  };
+
+  return {
+    user,
+    scores,
+    healthMetrics,
     weather,
-  } = healthState;
-
-  const { todayMood, todayMode } = insightState;
-
-  // 現在時刻情報
-  const now = new Date();
-  const hours = now.getHours().toString().padStart(2, '0');
-  const minutes = now.getMinutes().toString().padStart(2, '0');
-  const currentTime = `${hours}:${minutes}`;
-  const dayOfWeek = DAY_NAMES[now.getDay()];
-
-  // スコアのデフォルト値
-  const scores = dailyScores || {
-    autonomic: 0,
-    sleep: 0,
-    rhythm: 0,
-    activity: 0,
+    rhythmPhases,
+    locale: 'ja',
   };
-
-  // リズム分析のデフォルト値
-  const rhythm = rhythmAnalysis || {
-    bedtimeStddevMinutes: 0,
-    wakeTimeStddevMinutes: 0,
-    consecutiveStableDays: 0,
-    status: 'unstable' as const,
-  };
-
-  const request: AdviceRequest = {
-    profile: {
-      nickname: profile.nickname,
-      age: profile.age,
-      gender: profile.gender,
-      chronotype: profile.chronotype,
-      occupation: profile.occupation,
-      exerciseFrequency: profile.exerciseFrequency,
-      targetBedtime: profile.targetBedtime,
-    },
-    healthData: {
-      sleep: sleepMetrics
-        ? {
-            bedtime: sleepMetrics.bedtime.toISOString(),
-            wakeTime: sleepMetrics.wakeTime.toISOString(),
-            durationHours: sleepMetrics.durationMinutes / 60,
-            deepSleepMinutes: sleepMetrics.deepSleepMinutes,
-            remSleepMinutes: sleepMetrics.remSleepMinutes,
-            deepSleepRatio:
-              sleepMetrics.durationMinutes > 0
-                ? sleepMetrics.deepSleepMinutes / sleepMetrics.durationMinutes
-                : 0,
-          }
-        : undefined,
-      hrv: hrvMetrics
-        ? {
-            value: hrvMetrics.value,
-            baseline30d: hrvMetrics.baseline30d,
-            deviationPercent:
-              hrvMetrics.baseline30d > 0
-                ? ((hrvMetrics.value - hrvMetrics.baseline30d) /
-                    hrvMetrics.baseline30d) *
-                  100
-                : 0,
-          }
-        : undefined,
-      activity: activityMetrics
-        ? {
-            stepsYesterday: activityMetrics.stepsYesterday,
-            activeMinutesYesterday: activityMetrics.activeMinutesYesterday,
-          }
-        : undefined,
-      scores,
-      rhythmAnalysis: rhythm,
-    },
-    location: {
-      // TODO: 実際の位置情報を使用
-      latitude: 35.6762,
-      longitude: 139.6503,
-      city: '東京',
-    },
-    context: {
-      currentTime,
-      dayOfWeek,
-      mood: todayMood ?? undefined,
-      todayMode: todayMode || 'normal',
-    },
-    weather: weather
-      ? {
-          temperature: weather.temp,
-          humidity: healthState.weatherHumidity ?? 50,
-          pressure: weather.pressure,
-          weatherCode: healthState.weatherCode ?? 0,
-          uvIndexMax: weather.uv,
-        }
-      : undefined,
-  };
-
-  return request;
 };
-

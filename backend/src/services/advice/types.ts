@@ -5,134 +5,121 @@ import { z } from 'zod';
 // ========================================
 
 export const UserProfileSchema = z.object({
-  nickname: z.string().min(1),
-  age: z.number().int().min(1).max(120),
-  gender: z.enum(['male', 'female', 'other', 'preferNotToSay']),
-  chronotype: z.enum(['morning', 'intermediate', 'evening']),
-  occupation: z.enum(['deskWork', 'standingWork', 'physicalWork', 'hybrid', 'other']).optional(),
-  exerciseFrequency: z.enum(['rarely', 'onceWeek', 'twiceWeek', 'threeOrMore', 'daily']).optional(),
-  targetBedtime: z.string(), // HH:mm format
+  goals: z.array(z.enum(['better_sleep', 'more_energy', 'less_stress', 'peak_performance'])),
+  wakeUpTime: z.string().regex(/^\d{2}:\d{2}$/), // HH:mm format
+  windDownTime: z.string().regex(/^\d{2}:\d{2}$/), // HH:mm format
 });
 
 export type UserProfile = z.infer<typeof UserProfileSchema>;
 
+export type UserGoal = 'better_sleep' | 'more_energy' | 'less_stress' | 'peak_performance';
+
 // ========================================
-// Health Data Schemas
+// Scores Schema (新規追加)
+// ========================================
+
+export const ScoresDataSchema = z.object({
+  recovery: z.number().min(0).max(100),
+  sleep: z.number().min(0).max(100),
+  rhythm: z.number().min(0).max(100),
+  energy: z.number().min(0).max(100),
+});
+
+export type ScoresData = z.infer<typeof ScoresDataSchema>;
+
+// ========================================
+// Health Metrics Schema
 // ========================================
 
 export const SleepDataSchema = z.object({
-  bedtime: z.string(),
-  wakeTime: z.string(),
-  durationHours: z.number().min(0).max(24),
+  durationMinutes: z.number().int().min(0),
   deepSleepMinutes: z.number().int().min(0),
+  deepSleepPercent: z.number().min(0).max(100),
   remSleepMinutes: z.number().int().min(0),
-  deepSleepRatio: z.number().min(0).max(1),
+  remSleepPercent: z.number().min(0).max(100),
+  bedtime: z.string().optional(),
+  wakeTime: z.string().optional(),
+  vsTargetBedtime: z.string().optional(), // "+15min" or "-10min"
 });
 
 export type SleepData = z.infer<typeof SleepDataSchema>;
 
 export const HRVDataSchema = z.object({
-  value: z.number().min(0),
-  baseline30d: z.number().min(0),
-  deviationPercent: z.number(),
+  current: z.number().min(0),
+  baseline: z.number().min(0),
+  deviation: z.number().optional(),
 });
 
 export type HRVData = z.infer<typeof HRVDataSchema>;
 
-export const ActivityDataSchema = z.object({
-  stepsYesterday: z.number().int().min(0),
-  activeMinutesYesterday: z.number().int().min(0),
+export const RHRDataSchema = z.object({
+  current: z.number().min(0),
+  baseline: z.number().min(0),
 });
 
-export type ActivityData = z.infer<typeof ActivityDataSchema>;
+export type RHRData = z.infer<typeof RHRDataSchema>;
 
-export const RhythmAnalysisSchema = z.object({
-  bedtimeStddevMinutes: z.number().min(0),
-  wakeTimeStddevMinutes: z.number().min(0),
-  consecutiveStableDays: z.number().int().min(0),
-  status: z.enum(['stable', 'recovering', 'unstable']),
+export const HealthMetricsSchema = z.object({
+  hrv: HRVDataSchema,
+  rhr: RHRDataSchema,
+  sleep: SleepDataSchema,
 });
 
-export type RhythmAnalysis = z.infer<typeof RhythmAnalysisSchema>;
-
-export const AuxiliaryDataSchema = z
-  .object({
-    daylightMinutesYesterday: z.number().int().min(0).optional(),
-    wristTemperatureDeviation: z.number().optional(),
-  })
-  .optional();
-
-export type AuxiliaryData = z.infer<typeof AuxiliaryDataSchema>;
-
-export const ScoresSchema = z.object({
-  autonomic: z.number().int().min(0).max(100),
-  sleep: z.number().int().min(0).max(100),
-  rhythm: z.number().int().min(0).max(100),
-  activity: z.number().int().min(0).max(100),
-});
-
-export type Scores = z.infer<typeof ScoresSchema>;
-
-export const HealthDataSchema = z.object({
-  sleep: SleepDataSchema.optional(),
-  hrv: HRVDataSchema.optional(),
-  activity: ActivityDataSchema.optional(),
-  scores: ScoresSchema,
-  rhythmAnalysis: RhythmAnalysisSchema,
-  auxiliary: AuxiliaryDataSchema,
-});
-
-export type HealthData = z.infer<typeof HealthDataSchema>;
-
-// ========================================
-// Location Schema
-// ========================================
-
-export const LocationSchema = z.object({
-  latitude: z.number().min(-90).max(90),
-  longitude: z.number().min(-180).max(180),
-  city: z.string(),
-});
-
-export type Location = z.infer<typeof LocationSchema>;
-
-// ========================================
-// Context Schema
-// ========================================
-
-export const ContextSchema = z.object({
-  currentTime: z.string(),
-  dayOfWeek: z.string(),
-  mood: z.number().int().min(1).max(5).optional(),
-  todayMode: z.enum(['normal', 'challenge', 'holiday']).default('normal'),
-});
-
-export type Context = z.infer<typeof ContextSchema>;
+export type HealthMetrics = z.infer<typeof HealthMetricsSchema>;
 
 // ========================================
 // Weather Schema
 // ========================================
 
-export const WeatherSchema = z.object({
+export const WeatherDataSchema = z.object({
   temperature: z.number(),
-  humidity: z.number().min(0).max(100),
   pressure: z.number().min(0),
-  weatherCode: z.number().int(),
-  uvIndexMax: z.number().min(0),
+  pressureTrend: z.enum(['rising', 'stable', 'falling']),
+  sunrise: z.string().regex(/^\d{2}:\d{2}$/),
+  sunset: z.string().regex(/^\d{2}:\d{2}$/),
+  description: z.string().optional(),
+  location: z.string().optional(),
 });
 
-export type Weather = z.infer<typeof WeatherSchema>;
+export type WeatherData = z.infer<typeof WeatherDataSchema>;
+export type PressureTrend = 'rising' | 'stable' | 'falling';
 
 // ========================================
-// Full Request Schema
+// Rhythm Phases Schema (新規追加)
+// ========================================
+
+export const RhythmPhasesSchema = z.object({
+  peakFocus: z.object({
+    start: z.string().regex(/^\d{2}:\d{2}$/),
+    end: z.string().regex(/^\d{2}:\d{2}$/),
+  }),
+  afternoonDip: z.object({
+    start: z.string().regex(/^\d{2}:\d{2}$/),
+    end: z.string().regex(/^\d{2}:\d{2}$/),
+  }),
+  secondWind: z.object({
+    start: z.string().regex(/^\d{2}:\d{2}$/),
+    end: z.string().regex(/^\d{2}:\d{2}$/),
+  }),
+  windDown: z.object({
+    start: z.string().regex(/^\d{2}:\d{2}$/),
+    end: z.string().regex(/^\d{2}:\d{2}$/),
+  }),
+});
+
+export type RhythmPhases = z.infer<typeof RhythmPhasesSchema>;
+
+// ========================================
+// Request Schema
 // ========================================
 
 export const AdviceRequestSchema = z.object({
-  profile: UserProfileSchema,
-  healthData: HealthDataSchema,
-  location: LocationSchema,
-  context: ContextSchema,
-  weather: WeatherSchema.optional(),
+  user: UserProfileSchema,
+  scores: ScoresDataSchema,
+  healthMetrics: HealthMetricsSchema,
+  weather: WeatherDataSchema,
+  rhythmPhases: RhythmPhasesSchema,
+  locale: z.string().optional().default('ja'),
 });
 
 export type AdviceRequest = z.infer<typeof AdviceRequestSchema>;
@@ -141,48 +128,61 @@ export type AdviceRequest = z.infer<typeof AdviceRequestSchema>;
 // Response Types
 // ========================================
 
-/** 推奨アクションのタイプ */
-export type RecommendedActionType = 'breathing' | 'morning_light' | 'rest' | 'activity';
+export type OneThingIcon = 'walking' | 'breathing' | 'rest' | 'coffee' | 'sun';
 
-/** 推奨アクション */
-export interface RecommendedAction {
-  type: RecommendedActionType;
-  message: string;
+export interface WhyThisMattersItem {
+  headline: string;
+  explanation: string;
 }
 
-/** インサイトの7セクション */
-export interface InsightSections {
-  /** 挨拶（1文） */
-  greeting: string;
-  /** 今日のコンディション総評（2-3文） */
-  condition: string;
-  /** 睡眠分析（3-4文） */
-  sleep: string;
-  /** リズム分析（2-3文） */
-  rhythm: string;
-  /** 環境影響予測（2-3文） */
-  environment: string;
-  /** 今日の過ごし方提案（3-4文） */
-  advice: string;
-  /** クロージング（1文） */
-  closing: string;
+export interface TodayInsight {
+  title: string; // 英語、詩的（2-4語）
+  summary: string; // 日本語、100-150文字
+  whyThisMatters: {
+    hrv: WhyThisMattersItem;
+    sleep: WhyThisMattersItem;
+    rhythm: WhyThisMattersItem;
+  };
+  whatThisMeansForToday: string; // 日本語、80-120文字
 }
 
-/** AI生成アドバイスのレスポンス */
+export interface TodayOneThing {
+  icon: OneThingIcon;
+  action: string; // 20文字以内
+  summary: string; // 40文字以内
+  time: string; // HH:MM形式
+  whyThisAction: string; // 3-4文
+  benefits: string[]; // 各15文字以内
+  howToDoIt: string[]; // 各20文字以内
+  expectedBenefit: {
+    text: string;
+    source: string;
+  };
+}
+
+export interface RelatedInsight {
+  label: string; // "Research Finding"
+  text: string; // 30文字以内
+  source: string;
+}
+
 export interface AdviceResponse {
-  /** ホーム画面に表示する要約（100-150文字） */
-  summary: string;
-  /** 詳細画面に表示する7セクション形式のインサイト */
-  insight: InsightSections;
-  /** 推奨アクション */
-  recommendedAction: RecommendedAction;
+  todayInsight: TodayInsight;
+  todayOneThing: TodayOneThing;
+  relatedInsight: RelatedInsight;
+}
+
+// Claude API出力形式
+export interface ClaudeAdviceOutput {
+  todayInsight: TodayInsight;
+  todayOneThing: TodayOneThing;
+  relatedInsight: RelatedInsight;
 }
 
 // ========================================
 // Error Types
 // ========================================
 
-/** エラーコード */
 export type AdviceErrorCode =
   | 'INVALID_REQUEST'
   | 'AI_API_ERROR'
@@ -190,9 +190,58 @@ export type AdviceErrorCode =
   | 'NETWORK_ERROR'
   | 'PARSE_ERROR';
 
-/** エラー型 */
 export interface AdviceError {
   code: AdviceErrorCode;
   message: string;
   details?: unknown;
 }
+
+// ========================================
+// Validation & Fallback
+// ========================================
+
+export const isValidAdviceRequest = (data: unknown): data is AdviceRequest => {
+  const result = AdviceRequestSchema.safeParse(data);
+  return result.success;
+};
+
+export const createFallbackResponse = (): AdviceResponse => ({
+  todayInsight: {
+    title: 'New Day',
+    summary:
+      '今日も新しい1日が始まりました。身体の声に耳を傾けながら、自分のペースで過ごしましょう。',
+    whyThisMatters: {
+      hrv: {
+        headline: 'データを分析中',
+        explanation: 'しばらくお待ちください。',
+      },
+      sleep: {
+        headline: 'データを分析中',
+        explanation: 'しばらくお待ちください。',
+      },
+      rhythm: {
+        headline: 'データを分析中',
+        explanation: 'しばらくお待ちください。',
+      },
+    },
+    whatThisMeansForToday: '無理のない範囲で、今日のタスクに取り組みましょう。',
+  },
+  todayOneThing: {
+    icon: 'breathing',
+    action: '深呼吸で1日をスタート',
+    summary: '心と身体を整えます',
+    time: '07:00',
+    whyThisAction: '深呼吸は自律神経を整え、1日の良いスタートを切る助けになります。',
+    benefits: ['心を落ち着ける', '集中力を高める', 'ストレスを軽減'],
+    howToDoIt: ['楽な姿勢で座る', '4秒かけて吸う', '7秒止めて8秒で吐く'],
+    expectedBenefit: {
+      text: '呼吸法は自律神経のバランスを整えます',
+      source: '一般的な知見',
+    },
+  },
+  relatedInsight: {
+    label: 'Tip',
+    text: '規則正しい生活がリズムを整えます',
+    source: '一般的な知見',
+  },
+});

@@ -3,7 +3,7 @@
  */
 
 // 気圧トレンド
-export type PressureTrend = 'up' | 'stable' | 'down';
+export type PressureTrend = 'rising' | 'stable' | 'falling';
 
 // 天気データ
 export interface WeatherData {
@@ -64,11 +64,11 @@ export const getWeatherCondition = (code: number): string => {
  */
 export const getPressureTrendLabel = (trend: PressureTrend): string => {
   switch (trend) {
-    case 'up':
+    case 'rising':
       return '上昇中';
     case 'stable':
       return '安定';
-    case 'down':
+    case 'falling':
       return '下降中';
   }
 };
@@ -80,11 +80,11 @@ export const getPressureTrendLabel = (trend: PressureTrend): string => {
  */
 export const getPressureTrendIcon = (trend: PressureTrend): string => {
   switch (trend) {
-    case 'up':
+    case 'rising':
       return '↑';
     case 'stable':
       return '→';
-    case 'down':
+    case 'falling':
       return '↓';
   }
 };
@@ -134,5 +134,5 @@ export const PRESSURE_DROP_ALERT_THRESHOLD = -10; // hPa/24h
  * @returns 低下中の場合true
  */
 export const isPressureDropping = (trend: PressureTrend): boolean => {
-  return trend === 'down';
+  return trend === 'falling';
 };

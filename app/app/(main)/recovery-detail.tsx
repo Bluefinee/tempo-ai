@@ -18,6 +18,7 @@ import {
 import { colors, FontFamily } from '../../src/theme';
 import { t } from '../../src/i18n';
 import { MOCK_DETAIL } from '../../src/constants/mockData';
+import { useHealthStore } from '../../src/stores/healthStore';
 
 // スコアに応じたステータスを取得
 const getRecoveryStatus = (score: number): string => {
@@ -31,6 +32,11 @@ export default function RecoveryDetailScreen(): React.ReactElement {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const [timeframe, setTimeframe] = useState<Timeframe>('7D');
+  const { dailySnapshot } = useHealthStore();
+  
+  // healthStoreから計算済みのスコアを取得
+  const recoveryScore = dailySnapshot?.scores?.recovery ?? 0;
+  
   const data = MOCK_DETAIL.recovery;
 
   const handleBack = () => {
@@ -88,19 +94,19 @@ export default function RecoveryDetailScreen(): React.ReactElement {
                 <CircularProgress
                   size={192}
                   strokeWidth={16}
-                  progress={data.score}
+                  progress={recoveryScore}
                   color={colors.emerald[500]}
                   backgroundColor={colors.stone[200]}
                 />
                 <View className="absolute items-center">
                   <Text className="text-xs font-bold text-stone-400 uppercase tracking-widest mb-1">
-                    {getRecoveryStatus(data.score)}
+                    {getRecoveryStatus(recoveryScore)}
                   </Text>
                   <Text
                     className="text-5xl font-bold text-stone-900"
                     style={{ fontFamily: FontFamily.serif }}
                   >
-                    {data.score}%
+                    {Math.round(recoveryScore)}%
                   </Text>
                 </View>
               </View>

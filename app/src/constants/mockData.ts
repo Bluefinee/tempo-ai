@@ -11,11 +11,9 @@ import { Sun, Moon } from "lucide-react-native";
 import { Colors } from "../theme";
 import {
   UserProfile,
-  DailyScores,
   SimpleWeatherData,
   QuickAction,
   RecommendedAction,
-  DailyAdvice,
   HealthMetrics,
   SleepMetrics,
   HRVMetrics,
@@ -367,12 +365,8 @@ export const MOCK_USER: UserProfile = {
   updatedAt: new Date(),
 };
 
-export const MOCK_SCORES: DailyScores = {
-  autonomic: 85,
-  sleep: 72,
-  rhythm: 94,
-  activity: 78,
-};
+// MOCK_SCORES は削除（計算結果を使用するため不要）
+// スコアは healthStore.calculateDailyScores() で計算される
 
 export const MOCK_WEATHER: SimpleWeatherData = {
   temp: 8,
@@ -443,58 +437,58 @@ export const MOCK_WEEKLY_SCORES: DailyScoreSnapshot[] = [
   {
     id: "1",
     date: new Date("2025-01-01"),
-    autonomicScore: 78,
+    recoveryScore: 78,
     sleepScore: 65,
     rhythmScore: 82,
-    activityScore: 70,
+    energyScore: 70,
   },
   {
     id: "2",
     date: new Date("2025-01-02"),
-    autonomicScore: 80,
+    recoveryScore: 80,
     sleepScore: 70,
     rhythmScore: 85,
-    activityScore: 75,
+    energyScore: 75,
   },
   {
     id: "3",
     date: new Date("2025-01-03"),
-    autonomicScore: 75,
+    recoveryScore: 75,
     sleepScore: 68,
     rhythmScore: 88,
-    activityScore: 65,
+    energyScore: 65,
   },
   {
     id: "4",
     date: new Date("2025-01-04"),
-    autonomicScore: 82,
+    recoveryScore: 82,
     sleepScore: 74,
     rhythmScore: 90,
-    activityScore: 78,
+    energyScore: 78,
   },
   {
     id: "5",
     date: new Date("2025-01-05"),
-    autonomicScore: 85,
+    recoveryScore: 85,
     sleepScore: 72,
     rhythmScore: 94,
-    activityScore: 80,
+    energyScore: 80,
   },
   {
     id: "6",
     date: new Date("2025-01-06"),
-    autonomicScore: 85,
+    recoveryScore: 85,
     sleepScore: 72,
     rhythmScore: 94,
-    activityScore: 82,
+    energyScore: 82,
   },
   {
     id: "7",
     date: new Date("2025-01-07"),
-    autonomicScore: 88,
+    recoveryScore: 88,
     sleepScore: 76,
     rhythmScore: 95,
-    activityScore: 85,
+    energyScore: 85,
   },
 ];
 

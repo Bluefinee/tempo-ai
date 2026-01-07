@@ -1,3 +1,8 @@
-export { Colors, getScoreColor, getScoreBackgroundColor } from './colors';
-export { Spacing, BorderRadius, ScreenPadding } from './spacing';
-export { Typography, FontWeight } from './typography';
+export * from './colors';
+export * from './spacing';
+export * from './typography';
+export * from './shadows';
+export * from './animations';
+
+// Alias for lowercase colors
+export { Colors as colors } from './colors';

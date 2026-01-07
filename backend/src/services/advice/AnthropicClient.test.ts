@@ -51,19 +51,49 @@ describe('AnthropicClient', () => {
   });
 
   const validJsonResponse = JSON.stringify({
-    summary: 'テストサマリーです。今日のコンディションは良好です。',
-    insight: {
-      greeting: 'マサさん、おはようございます。',
-      condition: '今日のコンディションは全体的に良好です。',
-      sleep: '昨夜の睡眠は目標通りで、深い睡眠も十分に取れています。',
-      rhythm: 'リズムは安定しています。',
-      environment: '今日の天気は良好です。',
-      advice: '午前中に軽い運動をすることをおすすめします。',
-      closing: '今日も良い一日になりますように。',
+    todayInsight: {
+      title: 'A Quiet Harmony',
+      summary:
+        '今日のあなたは穏やかな波のように整っています。昨夜の深い眠りが、心と身体をしっかりと回復させてくれました。',
+      whyThisMatters: {
+        hrv: {
+          headline: 'HRVがベースラインより6%高い',
+          explanation:
+            '自律神経がしっかり回復しています。今日は集中力を要するタスクに向いています。',
+        },
+        sleep: {
+          headline: '深い睡眠が1時間45分（23%）',
+          explanation: '身体の修復に理想的な範囲でした。ホルモンバランスの回復も十分です。',
+        },
+        rhythm: {
+          headline: '就寝時刻が目標の15分遅れ',
+          explanation: '今日のコンディションへの影響はありません。この程度のズレは許容範囲です。',
+        },
+      },
+      whatThisMeansForToday: '午前中のPeak Focus時間帯（9時〜12時）は特に集中力が高まります。',
     },
-    recommended_action: {
-      type: 'breathing',
-      message: '深呼吸を3回してみましょう',
+    todayOneThing: {
+      icon: 'walking',
+      action: '14時頃に5分の散歩',
+      summary: '夕方のリズムが整い、夜の眠りの質が向上します',
+      time: '14:00',
+      whyThisAction:
+        'あなたのAfternoon Dip（自然なエネルギー低下）は14時〜16時頃に訪れます。この時間帯に軽い動きを入れることで、カフェインに頼らずに午後の集中力を回復できます。',
+      benefits: [
+        'カフェインなしで覚醒度を回復',
+        '夜のメラトニン分泌を改善',
+        '体温リズムを安定させる',
+      ],
+      howToDoIt: ['可能であれば外に出る', '5分程度、軽いペースで歩く', '自然光を浴びると効果的'],
+      expectedBenefit: {
+        text: '午後の軽い運動は睡眠の質を10-20%改善する傾向があります',
+        source: 'サーカディアンリズム研究に基づく',
+      },
+    },
+    relatedInsight: {
+      label: 'Research Finding',
+      text: '23時前就寝で深い睡眠が20-25%増加',
+      source: '睡眠科学研究に基づく',
     },
   });
 
@@ -77,11 +107,17 @@ describe('AnthropicClient', () => {
 
       expect(result.ok).toBe(true);
       if (result.ok) {
-        expect(result.data.summary).toBe('テストサマリーです。今日のコンディションは良好です。');
-        expect(result.data.insight.greeting).toBe('マサさん、おはようございます。');
-        expect(result.data.insight.condition).toBe('今日のコンディションは全体的に良好です。');
-        expect(result.data.recommendedAction.type).toBe('breathing');
-        expect(result.data.recommendedAction.message).toBe('深呼吸を3回してみましょう');
+        expect(result.data.todayInsight.title).toBe('A Quiet Harmony');
+        expect(result.data.todayInsight.summary).toBeTruthy();
+        expect(result.data.todayInsight.whyThisMatters.hrv.headline).toBeTruthy();
+        expect(result.data.todayInsight.whyThisMatters.sleep.headline).toBeTruthy();
+        expect(result.data.todayInsight.whyThisMatters.rhythm.headline).toBeTruthy();
+        expect(result.data.todayOneThing.icon).toBe('walking');
+        expect(result.data.todayOneThing.action).toBe('14時頃に5分の散歩');
+        expect(result.data.todayOneThing.benefits).toHaveLength(3);
+        expect(result.data.todayOneThing.howToDoIt).toHaveLength(3);
+        expect(result.data.relatedInsight.label).toBe('Research Finding');
+        expect(result.data.relatedInsight.text).toBeTruthy();
       }
     });
 
@@ -116,7 +152,7 @@ describe('AnthropicClient', () => {
 
       expect(result.ok).toBe(true);
       if (result.ok) {
-        expect(result.data.summary).toBe('テストサマリーです。今日のコンディションは良好です。');
+        expect(result.data.todayInsight.title).toBe('A Quiet Harmony');
       }
     });
 
@@ -178,175 +214,103 @@ describe('AnthropicClient', () => {
       }
     });
 
-    it('should return PARSE_ERROR when summary is missing', async () => {
+    it('should return PARSE_ERROR when todayInsight is missing', async () => {
       const client = new AnthropicClient('test-api-key');
       const mockCreate = vi.fn().mockResolvedValue(
         createMockResponse(
           JSON.stringify({
-            insight: {
-              greeting: 'greeting',
-              condition: 'condition',
-              sleep: 'sleep',
-              rhythm: 'rhythm',
-              environment: 'environment',
-              advice: 'advice',
-              closing: 'closing',
-            },
-            recommended_action: { type: 'breathing', message: 'msg' },
-          }),
-        ),
-      );
-      client['client'].beta.promptCaching.messages.create = mockCreate;
-
-      const result = await client.generateAdvice(systemPrompt, userDataXml);
-
-      expect(result.ok).toBe(false);
-      if (!result.ok) {
-        expect(result.error.code).toBe('PARSE_ERROR');
-        expect(result.error.message).toBe('Missing or invalid summary field');
-      }
-    });
-
-    it('should return PARSE_ERROR when insight is missing', async () => {
-      const client = new AnthropicClient('test-api-key');
-      const mockCreate = vi.fn().mockResolvedValue(
-        createMockResponse(
-          JSON.stringify({
-            summary: 'summary',
-            recommended_action: { type: 'breathing', message: 'msg' },
-          }),
-        ),
-      );
-      client['client'].beta.promptCaching.messages.create = mockCreate;
-
-      const result = await client.generateAdvice(systemPrompt, userDataXml);
-
-      expect(result.ok).toBe(false);
-      if (!result.ok) {
-        expect(result.error.code).toBe('PARSE_ERROR');
-        expect(result.error.message).toBe('Missing or invalid insight field');
-      }
-    });
-
-    it('should return PARSE_ERROR when recommended_action is missing', async () => {
-      const client = new AnthropicClient('test-api-key');
-      const mockCreate = vi.fn().mockResolvedValue(
-        createMockResponse(
-          JSON.stringify({
-            summary: 'summary',
-            insight: {
-              greeting: 'greeting',
-              condition: 'condition',
-              sleep: 'sleep',
-              rhythm: 'rhythm',
-              environment: 'environment',
-              advice: 'advice',
-              closing: 'closing',
-            },
-          }),
-        ),
-      );
-      client['client'].beta.promptCaching.messages.create = mockCreate;
-
-      const result = await client.generateAdvice(systemPrompt, userDataXml);
-
-      expect(result.ok).toBe(false);
-      if (!result.ok) {
-        expect(result.error.code).toBe('PARSE_ERROR');
-        expect(result.error.message).toBe('Missing or invalid recommended_action field');
-      }
-    });
-
-    it('should return PARSE_ERROR when action type is invalid', async () => {
-      const client = new AnthropicClient('test-api-key');
-      const mockCreate = vi.fn().mockResolvedValue(
-        createMockResponse(
-          JSON.stringify({
-            summary: 'summary',
-            insight: {
-              greeting: 'greeting',
-              condition: 'condition',
-              sleep: 'sleep',
-              rhythm: 'rhythm',
-              environment: 'environment',
-              advice: 'advice',
-              closing: 'closing',
-            },
-            recommended_action: { type: 'invalid_type', message: 'msg' },
-          }),
-        ),
-      );
-      client['client'].beta.promptCaching.messages.create = mockCreate;
-
-      const result = await client.generateAdvice(systemPrompt, userDataXml);
-
-      expect(result.ok).toBe(false);
-      if (!result.ok) {
-        expect(result.error.code).toBe('PARSE_ERROR');
-        expect(result.error.message).toContain('Invalid recommended_action.type');
-      }
-    });
-
-    it('should return PARSE_ERROR when action message is missing', async () => {
-      const client = new AnthropicClient('test-api-key');
-      const mockCreate = vi.fn().mockResolvedValue(
-        createMockResponse(
-          JSON.stringify({
-            summary: 'summary',
-            insight: {
-              greeting: 'greeting',
-              condition: 'condition',
-              sleep: 'sleep',
-              rhythm: 'rhythm',
-              environment: 'environment',
-              advice: 'advice',
-              closing: 'closing',
-            },
-            recommended_action: { type: 'breathing' },
-          }),
-        ),
-      );
-      client['client'].beta.promptCaching.messages.create = mockCreate;
-
-      const result = await client.generateAdvice(systemPrompt, userDataXml);
-
-      expect(result.ok).toBe(false);
-      if (!result.ok) {
-        expect(result.error.code).toBe('PARSE_ERROR');
-        expect(result.error.message).toBe('Missing or invalid recommended_action.message field');
-      }
-    });
-
-    it('should handle all valid action types', async () => {
-      const client = new AnthropicClient('test-api-key');
-      const actionTypes = ['breathing', 'morning_light', 'rest', 'activity'] as const;
-
-      for (const actionType of actionTypes) {
-        const mockCreate = vi.fn().mockResolvedValue(
-          createMockResponse(
-            JSON.stringify({
+            todayOneThing: {
+              icon: 'walking',
+              action: 'action',
               summary: 'summary',
-              insight: {
-                greeting: 'greeting',
-                condition: 'condition',
-                sleep: 'sleep',
-                rhythm: 'rhythm',
-                environment: 'environment',
-                advice: 'advice',
-                closing: 'closing',
+              time: '14:00',
+              whyThisAction: 'why',
+              benefits: ['b1', 'b2', 'b3'],
+              howToDoIt: ['h1', 'h2', 'h3'],
+              expectedBenefit: { text: 'text', source: 'source' },
+            },
+            relatedInsight: { label: 'label', text: 'text', source: 'source' },
+          }),
+        ),
+      );
+      client['client'].beta.promptCaching.messages.create = mockCreate;
+
+      const result = await client.generateAdvice(systemPrompt, userDataXml);
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error.code).toBe('PARSE_ERROR');
+        expect(result.error.message).toContain('todayInsight');
+      }
+    });
+
+    it('should return PARSE_ERROR when todayOneThing is missing', async () => {
+      const client = new AnthropicClient('test-api-key');
+      const mockCreate = vi.fn().mockResolvedValue(
+        createMockResponse(
+          JSON.stringify({
+            todayInsight: {
+              title: 'title',
+              summary: 'summary',
+              whyThisMatters: {
+                hrv: { headline: 'h', explanation: 'e' },
+                sleep: { headline: 'h', explanation: 'e' },
+                rhythm: { headline: 'h', explanation: 'e' },
               },
-              recommended_action: { type: actionType, message: 'msg' },
-            }),
-          ),
-        );
-        client['client'].beta.promptCaching.messages.create = mockCreate;
+              whatThisMeansForToday: 'what',
+            },
+            relatedInsight: { label: 'label', text: 'text', source: 'source' },
+          }),
+        ),
+      );
+      client['client'].beta.promptCaching.messages.create = mockCreate;
 
-        const result = await client.generateAdvice(systemPrompt, userDataXml);
+      const result = await client.generateAdvice(systemPrompt, userDataXml);
 
-        expect(result.ok).toBe(true);
-        if (result.ok) {
-          expect(result.data.recommendedAction.type).toBe(actionType);
-        }
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error.code).toBe('PARSE_ERROR');
+        expect(result.error.message).toContain('todayOneThing');
+      }
+    });
+
+    it('should return PARSE_ERROR when icon is invalid', async () => {
+      const client = new AnthropicClient('test-api-key');
+      const mockCreate = vi.fn().mockResolvedValue(
+        createMockResponse(
+          JSON.stringify({
+            todayInsight: {
+              title: 'title',
+              summary: 'summary',
+              whyThisMatters: {
+                hrv: { headline: 'h', explanation: 'e' },
+                sleep: { headline: 'h', explanation: 'e' },
+                rhythm: { headline: 'h', explanation: 'e' },
+              },
+              whatThisMeansForToday: 'what',
+            },
+            todayOneThing: {
+              icon: 'invalid_icon',
+              action: 'action',
+              summary: 'summary',
+              time: '14:00',
+              whyThisAction: 'why',
+              benefits: ['b1', 'b2', 'b3'],
+              howToDoIt: ['h1', 'h2', 'h3'],
+              expectedBenefit: { text: 'text', source: 'source' },
+            },
+            relatedInsight: { label: 'label', text: 'text', source: 'source' },
+          }),
+        ),
+      );
+      client['client'].beta.promptCaching.messages.create = mockCreate;
+
+      const result = await client.generateAdvice(systemPrompt, userDataXml);
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error.code).toBe('PARSE_ERROR');
+        expect(result.error.message).toContain('todayOneThing.icon');
       }
     });
   });

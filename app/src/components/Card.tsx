@@ -1,3 +1,8 @@
+/**
+ * Card - 共通カードコンポーネント
+ * 浮遊感のあるカードデザインを提供
+ */
+
 import React from 'react';
 import {
   View,
@@ -6,16 +11,17 @@ import {
   ViewStyle,
   StyleProp,
 } from 'react-native';
-import { Colors, BorderRadius, Spacing } from '../theme';
+import { Colors, Shadows } from '../theme';
 
 export interface CardProps {
   children: React.ReactNode;
   style?: StyleProp<ViewStyle>;
   onPress?: () => void;
+  noPadding?: boolean;
 }
 
-export const Card: React.FC<CardProps> = ({ children, style, onPress }) => {
-  const cardStyle = [styles.card, style];
+export const Card: React.FC<CardProps> = ({ children, style, onPress, noPadding }) => {
+  const cardStyle = [styles.card, noPadding && styles.noPadding, style];
 
   if (onPress) {
     return (
@@ -36,12 +42,11 @@ export const Card: React.FC<CardProps> = ({ children, style, onPress }) => {
 const styles = StyleSheet.create({
   card: {
     backgroundColor: Colors.white,
-    borderRadius: BorderRadius.xxl,
-    padding: Spacing.xl,
-    shadowColor: Colors.slate[900],
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 3,
+    borderRadius: 16,
+    padding: 16,
+    ...Shadows.card,
+  },
+  noPadding: {
+    padding: 0,
   },
 });

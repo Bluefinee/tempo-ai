@@ -15,21 +15,21 @@ export interface Score {
 
 // 日次スコア（メイン4項目）
 export interface DailyScores {
-  autonomic: number; // 0-100
+  recovery: number; // 0-100 (旧: autonomic)
   sleep: number; // 0-100
   rhythm: number; // 0-100
-  activity: number; // 0-100
+  energy: number; // 0-100 (旧: activity)
 }
 
 // コンディション評価（全4項目）
 export interface ConditionAssessment {
   sleepScore: Score;
-  autonomicScore: Score;
+  recoveryScore: Score; // 旧: autonomicScore
   rhythmScore: Score;
-  activityScore: Score;
+  energyScore: Score; // 旧: activityScore
   averageScore: number;
   overallStatus: ScoreStatus;
-  weakestArea: 'sleep' | 'autonomic' | 'rhythm' | 'activity' | null;
+  weakestArea: 'sleep' | 'recovery' | 'rhythm' | 'energy' | null;
 }
 
 // リズム分析

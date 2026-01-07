@@ -12,7 +12,7 @@ export const LoadingView: React.FC<LoadingViewProps> = ({
 }): JSX.Element => {
   return (
     <View style={styles.container}>
-      <ActivityIndicator size="large" color={Colors.primary[500]} />
+      <ActivityIndicator size="large" color={Colors.indigo[500]} />
       <Text style={styles.message}>{message}</Text>
     </View>
   );
@@ -23,11 +23,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: Colors.slate[50],
+    backgroundColor: Colors.offWhite,
   },
   message: {
     ...Typography.body,
-    color: Colors.slate[500],
+    color: Colors.stone[500],
     marginTop: Spacing.lg,
   },
 });

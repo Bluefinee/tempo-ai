@@ -19,6 +19,7 @@ import {
 import { colors, FontFamily } from '../../src/theme';
 import { t } from '../../src/i18n';
 import { MOCK_DETAIL } from '../../src/constants/mockData';
+import { useHealthStore } from '../../src/stores/healthStore';
 
 // スコアに応じたステータスを取得
 const getSleepStatus = (score: number): string => {
@@ -32,6 +33,11 @@ export default function SleepDetailScreen(): React.ReactElement {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const [timeframe, setTimeframe] = useState<Timeframe>('7D');
+  const { dailySnapshot } = useHealthStore();
+  
+  // healthStoreから計算済みのスコアを取得
+  const sleepScore = dailySnapshot?.scores?.sleep ?? 0;
+  
   const data = MOCK_DETAIL.sleep;
 
   const handleBack = () => {
@@ -84,10 +90,10 @@ export default function SleepDetailScreen(): React.ReactElement {
                     className="text-3xl font-bold text-stone-900"
                     style={{ fontFamily: FontFamily.serif }}
                   >
-                    {data.score}%
+                    {Math.round(sleepScore)}%
                   </Text>
                   <Text className="text-[10px] font-bold text-indigo-500 uppercase tracking-widest">
-                    {getSleepStatus(data.score)}
+                    {getSleepStatus(sleepScore)}
                   </Text>
                 </View>
               </View>

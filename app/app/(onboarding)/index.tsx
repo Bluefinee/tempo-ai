@@ -1,132 +1,147 @@
-import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView } from 'react-native';
-import { useRouter } from 'expo-router';
-import { Sun } from 'lucide-react-native';
-import { Colors, Spacing, Typography } from '../../src/theme';
-import { PrimaryButton } from '../../src/components';
-import type { JSX } from 'react';
+/**
+ * WelcomeScreen - オンボーディング開始画面
+ * sozai/new/screens/OnboardingScreen.tsx のスタイルを React Native で再現
+ * 9ステップのオンボーディングフローを維持
+ */
+
+import React from "react";
+import { View, Text, StyleSheet, Dimensions } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
+import { Colors, Spacing, BorderRadius, FontFamily } from "../../src/theme";
+import { PrimaryButton } from "../../src/components";
+import type { JSX } from "react";
+
+const { width, height } = Dimensions.get("window");
 
 export default function WelcomeScreen(): JSX.Element {
   const router = useRouter();
 
   const handleStart = () => {
-    router.push('/(onboarding)/healthkit');
+    router.push("/(onboarding)/healthkit");
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
-        <View style={styles.iconContainer}>
-          <Sun size={64} color={Colors.primary[500]} strokeWidth={1.5} />
+    <View style={styles.container}>
+      {/* Decorative background blobs matching sozai */}
+      <View style={styles.blobTopRight} />
+      <View style={styles.blobBottomLeft} />
+
+      <SafeAreaView style={styles.safeArea}>
+        {/* Progress Bar - Step 1 of 9 */}
+        <View style={styles.progressContainer}>
+          {[...Array(9)].map((_, idx) => (
+            <View
+              key={idx}
+              style={[
+                styles.progressSegment,
+                idx === 0 ? styles.progressActive : styles.progressInactive,
+              ]}
+            />
+          ))}
         </View>
 
-        <Text style={styles.title}>TempoAI</Text>
-        <Text style={styles.subtitle}>あなたの毎日を科学的にサポート</Text>
-
-        <View style={styles.features}>
-          <FeatureItem
-            emoji="🌙"
-            title="睡眠分析"
-            description="Apple Watchの睡眠データを分析"
-          />
-          <FeatureItem
-            emoji="💚"
-            title="自律神経"
-            description="HRVから回復度を可視化"
-          />
-          <FeatureItem
-            emoji="🎯"
-            title="パーソナルAI"
-            description="あなたに合ったアドバイス"
-          />
+        {/* Content */}
+        <View style={styles.content}>
+          <Text style={styles.emoji}>👋</Text>
+          <Text style={styles.title}>Welcome to Tempo</Text>
+          <Text style={styles.description}>
+            A new way to understand your body&apos;s hidden rhythms without the
+            overwhelm of numbers.
+          </Text>
         </View>
-      </View>
 
-      <View style={styles.footer}>
-        <PrimaryButton onPress={handleStart}>はじめる</PrimaryButton>
-      </View>
-    </SafeAreaView>
+        {/* Button */}
+        <View style={styles.footer}>
+          <PrimaryButton onPress={handleStart}>Continue</PrimaryButton>
+        </View>
+      </SafeAreaView>
+    </View>
   );
 }
-
-const FeatureItem: React.FC<{
-  emoji: string;
-  title: string;
-  description: string;
-}> = ({ emoji, title, description }): JSX.Element => (
-  <View style={styles.featureItem}>
-    <Text style={styles.featureEmoji}>{emoji}</Text>
-    <View style={styles.featureText}>
-      <Text style={styles.featureTitle}>{title}</Text>
-      <Text style={styles.featureDescription}>{description}</Text>
-    </View>
-  </View>
-);
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.slate[50],
+    backgroundColor: Colors.stone[50],
+    overflow: "hidden",
   },
+  safeArea: {
+    flex: 1,
+  },
+  // Decorative blobs
+  blobTopRight: {
+    position: "absolute",
+    top: -height * 0.15,
+    right: -width * 0.2,
+    width: 256, // w-64
+    height: 256, // h-64
+    backgroundColor: Colors.amber[100],
+    borderRadius: 128,
+    // blur effect approximation
+    opacity: 0.4,
+  },
+  blobBottomLeft: {
+    position: "absolute",
+    bottom: -height * 0.1,
+    left: -width * 0.15,
+    width: 320, // w-80
+    height: 320, // h-80
+    backgroundColor: Colors.indigo[100],
+    borderRadius: 160,
+    opacity: 0.4,
+  },
+  // Progress bar
+  progressContainer: {
+    flexDirection: "row",
+    paddingHorizontal: 32, // px-8
+    paddingTop: 48, // top-12
+    gap: 8, // space-x-2
+  },
+  progressSegment: {
+    flex: 1,
+    height: 4, // h-1
+    borderRadius: 2, // rounded-full
+  },
+  progressActive: {
+    backgroundColor: Colors.indigo[500],
+  },
+  progressInactive: {
+    backgroundColor: Colors.stone[200],
+  },
+  // Content
   content: {
     flex: 1,
-    paddingHorizontal: Spacing.xxl,
-    paddingTop: Spacing.giant,
-    alignItems: 'center',
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 32,
+    maxWidth: 320, // max-w-xs
+    alignSelf: "center",
   },
-  iconContainer: {
-    width: 120,
-    height: 120,
-    borderRadius: 30,
-    backgroundColor: Colors.primary[50],
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: Spacing.xxl,
+  emoji: {
+    fontSize: 60, // text-6xl
+    marginBottom: 32, // mb-8
   },
   title: {
-    ...Typography.h1,
-    color: Colors.slate[800],
-    marginBottom: Spacing.sm,
+    fontFamily: FontFamily.serif,
+    fontSize: 24, // text-2xl
+    fontWeight: "700", // font-bold
+    color: Colors.stone[900],
+    textAlign: "center",
+    letterSpacing: -0.5, // tracking-tight
+    marginBottom: 16, // mb-4
   },
-  subtitle: {
-    ...Typography.body,
-    color: Colors.slate[500],
-    marginBottom: Spacing.huge,
+  description: {
+    fontFamily: FontFamily.regular,
+    fontSize: 16,
+    color: Colors.stone[500],
+    textAlign: "center",
+    lineHeight: 26, // leading-relaxed
   },
-  features: {
-    width: '100%',
-    gap: Spacing.lg,
-  },
-  featureItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: Colors.white,
-    borderRadius: 16,
-    padding: Spacing.lg,
-    shadowColor: Colors.slate[900],
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  featureEmoji: {
-    fontSize: 32,
-    marginRight: Spacing.lg,
-  },
-  featureText: {
-    flex: 1,
-  },
-  featureTitle: {
-    ...Typography.bodyMedium,
-    color: Colors.slate[800],
-    marginBottom: 2,
-  },
-  featureDescription: {
-    ...Typography.bodySmall,
-    color: Colors.slate[500],
-  },
+  // Footer
   footer: {
-    paddingHorizontal: Spacing.xxl,
-    paddingBottom: Spacing.xxxl,
+    paddingHorizontal: 32,
+    paddingBottom: 48, // bottom-12
+    alignItems: "center",
   },
 });

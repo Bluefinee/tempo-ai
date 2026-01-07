@@ -1,15 +1,22 @@
+/**
+ * LifestyleScreen - ライフスタイル選択画面
+ * sozai/new のスタイルを React Native で再現
+ * Step 7 of 9
+ */
+
 import React, { useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   TouchableOpacity,
+  Dimensions,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Briefcase, Dumbbell, Wine } from 'lucide-react-native';
-import { Colors, Spacing, Typography, BorderRadius } from '../../src/theme';
+import { Colors, Spacing, BorderRadius, FontFamily } from '../../src/theme';
 import { PrimaryButton, SecondaryButton } from '../../src/components';
 import {
   Occupation,
@@ -19,29 +26,33 @@ import {
 import { useUserStore } from '../../src/stores';
 import type { JSX } from 'react';
 
+const { width, height } = Dimensions.get('window');
+const CURRENT_STEP = 7;
+const TOTAL_STEPS = 9;
+
 const OCCUPATIONS: { value: Occupation; label: string }[] = [
-  { value: 'deskWork', label: 'デスクワーク' },
-  { value: 'standingWork', label: '立ち仕事' },
-  { value: 'physicalWork', label: '肉体労働' },
-  { value: 'hybrid', label: 'ハイブリッド' },
-  { value: 'other', label: 'その他' },
+  { value: 'deskWork', label: 'Desk Work' },
+  { value: 'standingWork', label: 'Standing Work' },
+  { value: 'physicalWork', label: 'Physical Labor' },
+  { value: 'hybrid', label: 'Hybrid' },
+  { value: 'other', label: 'Other' },
 ];
 
 const EXERCISE_OPTIONS: { value: ExerciseFrequency; label: string }[] = [
-  { value: 'rarely', label: 'ほとんどしない' },
-  { value: 'onceWeek', label: '週1回' },
-  { value: 'twiceWeek', label: '週2回' },
-  { value: 'threeOrMore', label: '週3回以上' },
-  { value: 'daily', label: '毎日' },
+  { value: 'rarely', label: 'Rarely' },
+  { value: 'onceWeek', label: '1x/week' },
+  { value: 'twiceWeek', label: '2x/week' },
+  { value: 'threeOrMore', label: '3+/week' },
+  { value: 'daily', label: 'Daily' },
 ];
 
 const ALCOHOL_OPTIONS: { value: AlcoholFrequency; label: string }[] = [
-  { value: 'never', label: '飲まない' },
-  { value: 'rarely', label: 'ほとんど飲まない' },
-  { value: 'onceWeek', label: '週1回' },
-  { value: 'twiceWeek', label: '週2-3回' },
-  { value: 'threeOrMore', label: '週4回以上' },
-  { value: 'daily', label: '毎日' },
+  { value: 'never', label: 'Never' },
+  { value: 'rarely', label: 'Rarely' },
+  { value: 'onceWeek', label: '1x/week' },
+  { value: 'twiceWeek', label: '2-3x/week' },
+  { value: 'threeOrMore', label: '4+/week' },
+  { value: 'daily', label: 'Daily' },
 ];
 
 export default function LifestyleScreen(): JSX.Element {
@@ -73,182 +84,287 @@ export default function LifestyleScreen(): JSX.Element {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-      >
-        <Text style={styles.title}>ライフスタイル</Text>
-        <Text style={styles.description}>
-          より精度の高いアドバイスのために{'\n'}
-          教えてください（任意）
-        </Text>
+    <View style={styles.container}>
+      {/* Decorative background blobs */}
+      <View style={styles.blobTopRight} />
+      <View style={styles.blobBottomLeft} />
 
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Briefcase size={20} color={Colors.slate[500]} />
-            <Text style={styles.sectionTitle}>職業タイプ</Text>
-          </View>
-          <View style={styles.options}>
-            {OCCUPATIONS.map((opt) => (
-              <TouchableOpacity
-                key={opt.value}
-                style={[
-                  styles.chip,
-                  occupation === opt.value && styles.chipSelected,
-                ]}
-                onPress={() => setOccupation(opt.value)}
-              >
-                <Text
-                  style={[
-                    styles.chipText,
-                    occupation === opt.value && styles.chipTextSelected,
-                  ]}
-                >
-                  {opt.label}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
+      <SafeAreaView style={styles.safeArea}>
+        {/* Progress Bar */}
+        <View style={styles.progressContainer}>
+          {[...Array(TOTAL_STEPS)].map((_, idx) => (
+            <View
+              key={idx}
+              style={[
+                styles.progressSegment,
+                idx < CURRENT_STEP ? styles.progressActive : styles.progressInactive,
+              ]}
+            />
+          ))}
         </View>
 
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Dumbbell size={20} color={Colors.slate[500]} />
-            <Text style={styles.sectionTitle}>運動頻度</Text>
-          </View>
-          <View style={styles.options}>
-            {EXERCISE_OPTIONS.map((opt) => (
-              <TouchableOpacity
-                key={opt.value}
-                style={[
-                  styles.chip,
-                  exercise === opt.value && styles.chipSelected,
-                ]}
-                onPress={() => setExercise(opt.value)}
-              >
-                <Text
-                  style={[
-                    styles.chipText,
-                    exercise === opt.value && styles.chipTextSelected,
-                  ]}
-                >
-                  {opt.label}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Content */}
+          <View style={styles.content}>
+            <Text style={styles.emoji}>🏃</Text>
+            <Text style={styles.title}>Daily Rhythms</Text>
+            <Text style={styles.description}>
+              Help us understand your lifestyle for more personalized insights. (Optional)
+            </Text>
 
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Wine size={20} color={Colors.slate[500]} />
-            <Text style={styles.sectionTitle}>飲酒頻度</Text>
-          </View>
-          <View style={styles.options}>
-            {ALCOHOL_OPTIONS.map((opt) => (
-              <TouchableOpacity
-                key={opt.value}
-                style={[
-                  styles.chip,
-                  alcohol === opt.value && styles.chipSelected,
-                ]}
-                onPress={() => setAlcohol(opt.value)}
-              >
-                <Text
-                  style={[
-                    styles.chipText,
-                    alcohol === opt.value && styles.chipTextSelected,
-                  ]}
-                >
-                  {opt.label}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-      </ScrollView>
+            {/* Occupation Section */}
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <View style={styles.sectionIconContainer}>
+                  <Briefcase size={18} color={Colors.indigo[500]} />
+                </View>
+                <Text style={styles.sectionTitle}>Work Type</Text>
+              </View>
+              <View style={styles.options}>
+                {OCCUPATIONS.map((opt) => (
+                  <TouchableOpacity
+                    key={opt.value}
+                    style={[
+                      styles.chip,
+                      occupation === opt.value && styles.chipSelected,
+                    ]}
+                    onPress={() => setOccupation(opt.value)}
+                  >
+                    <Text
+                      style={[
+                        styles.chipText,
+                        occupation === opt.value && styles.chipTextSelected,
+                      ]}
+                    >
+                      {opt.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
 
-      <View style={styles.footer}>
-        <PrimaryButton onPress={handleNext}>次へ</PrimaryButton>
-        <SecondaryButton onPress={handleSkip} style={styles.skipButton}>
-          スキップ
-        </SecondaryButton>
-      </View>
-    </SafeAreaView>
+            {/* Exercise Section */}
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <View style={styles.sectionIconContainer}>
+                  <Dumbbell size={18} color={Colors.indigo[500]} />
+                </View>
+                <Text style={styles.sectionTitle}>Exercise Frequency</Text>
+              </View>
+              <View style={styles.options}>
+                {EXERCISE_OPTIONS.map((opt) => (
+                  <TouchableOpacity
+                    key={opt.value}
+                    style={[
+                      styles.chip,
+                      exercise === opt.value && styles.chipSelected,
+                    ]}
+                    onPress={() => setExercise(opt.value)}
+                  >
+                    <Text
+                      style={[
+                        styles.chipText,
+                        exercise === opt.value && styles.chipTextSelected,
+                      ]}
+                    >
+                      {opt.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+
+            {/* Alcohol Section */}
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <View style={styles.sectionIconContainer}>
+                  <Wine size={18} color={Colors.indigo[500]} />
+                </View>
+                <Text style={styles.sectionTitle}>Alcohol Consumption</Text>
+              </View>
+              <View style={styles.options}>
+                {ALCOHOL_OPTIONS.map((opt) => (
+                  <TouchableOpacity
+                    key={opt.value}
+                    style={[
+                      styles.chip,
+                      alcohol === opt.value && styles.chipSelected,
+                    ]}
+                    onPress={() => setAlcohol(opt.value)}
+                  >
+                    <Text
+                      style={[
+                        styles.chipText,
+                        alcohol === opt.value && styles.chipTextSelected,
+                      ]}
+                    >
+                      {opt.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+          </View>
+        </ScrollView>
+
+        {/* Footer */}
+        <View style={styles.footer}>
+          <PrimaryButton onPress={handleNext}>
+            Continue
+          </PrimaryButton>
+          <SecondaryButton onPress={handleSkip} style={styles.skipButton}>
+            Skip for Now
+          </SecondaryButton>
+        </View>
+      </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.slate[50],
+    backgroundColor: Colors.stone[50],
+    overflow: 'hidden',
+  },
+  safeArea: {
+    flex: 1,
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: Spacing.xxl,
-    paddingTop: Spacing.huge,
-    paddingBottom: Spacing.lg,
+    paddingBottom: 24,
+  },
+  // Decorative blobs
+  blobTopRight: {
+    position: 'absolute',
+    top: -height * 0.15,
+    right: -width * 0.2,
+    width: 256,
+    height: 256,
+    backgroundColor: Colors.indigo[100],
+    borderRadius: 128,
+    opacity: 0.4,
+  },
+  blobBottomLeft: {
+    position: 'absolute',
+    bottom: -height * 0.1,
+    left: -width * 0.15,
+    width: 320,
+    height: 320,
+    backgroundColor: Colors.amber[100],
+    borderRadius: 160,
+    opacity: 0.4,
+  },
+  // Progress bar
+  progressContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: 32,
+    paddingTop: 48,
+    gap: 8,
+  },
+  progressSegment: {
+    flex: 1,
+    height: 4,
+    borderRadius: 2,
+  },
+  progressActive: {
+    backgroundColor: Colors.indigo[500],
+  },
+  progressInactive: {
+    backgroundColor: Colors.stone[200],
+  },
+  // Content
+  content: {
+    alignItems: 'center',
+    paddingHorizontal: 32,
+    paddingTop: 32,
+  },
+  emoji: {
+    fontSize: 60,
+    marginBottom: 24,
   },
   title: {
-    ...Typography.h2,
-    color: Colors.slate[800],
-    marginBottom: Spacing.md,
+    fontFamily: FontFamily.serif,
+    fontSize: 24,
+    fontWeight: '700',
+    color: Colors.stone[900],
     textAlign: 'center',
+    letterSpacing: -0.5,
+    marginBottom: 12,
   },
   description: {
-    ...Typography.body,
-    color: Colors.slate[500],
+    fontFamily: FontFamily.regular,
+    fontSize: 16,
+    color: Colors.stone[500],
     textAlign: 'center',
-    marginBottom: Spacing.xxl,
-    lineHeight: 24,
+    lineHeight: 26,
+    marginBottom: 32,
   },
+  // Sections
   section: {
-    marginBottom: Spacing.xxl,
+    width: '100%',
+    marginBottom: 24,
   },
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: Spacing.md,
+    marginBottom: 12,
+  },
+  sectionIconContainer: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: Colors.indigo[50],
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
   },
   sectionTitle: {
-    ...Typography.bodyMedium,
-    color: Colors.slate[700],
-    marginLeft: Spacing.sm,
+    fontFamily: FontFamily.semibold,
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.stone[700],
   },
   options: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: Spacing.sm,
+    gap: 8,
   },
   chip: {
-    paddingVertical: Spacing.sm,
-    paddingHorizontal: Spacing.lg,
-    borderRadius: BorderRadius.full,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 999,
     backgroundColor: Colors.white,
     borderWidth: 1,
-    borderColor: Colors.slate[100],
+    borderColor: Colors.stone[200],
   },
   chipSelected: {
-    backgroundColor: Colors.primary[50],
-    borderColor: Colors.primary[500],
+    backgroundColor: Colors.indigo[50],
+    borderColor: Colors.indigo[500],
   },
   chipText: {
-    ...Typography.bodySmall,
-    color: Colors.slate[600],
+    fontFamily: FontFamily.medium,
+    fontSize: 13,
+    fontWeight: '500',
+    color: Colors.stone[600],
   },
   chipTextSelected: {
-    color: Colors.primary[600],
-    fontWeight: '600',
+    color: Colors.indigo[600],
   },
+  // Footer
   footer: {
-    paddingHorizontal: Spacing.xxl,
-    paddingBottom: Spacing.xxxl,
-    gap: Spacing.md,
+    paddingHorizontal: 32,
+    paddingBottom: 48,
+    alignItems: 'center',
+    gap: 12,
   },
   skipButton: {
-    marginTop: Spacing.xs,
+    marginTop: 4,
   },
 });

@@ -21,6 +21,7 @@ import {
   createMockRealtimeMetrics,
 } from '../constants/mockData';
 import { formatDateString } from '../constants/mockDataFactory';
+import { dataSourceAdapter } from '../services/dataSourceAdapter';
 import {
   TempoScoreResult,
   calculateTempoScore,
@@ -38,6 +39,13 @@ import {
   calculateCircadianRhythm,
   calculateEnergyCurve,
 } from '../domain/services/rhythmCalculator';
+import {
+  calculateRecoveryScore,
+  calculateSleepScore,
+  calculateRhythmScore,
+  calculateEnergyScore,
+} from '../domain/services/scoreCalculator';
+import { DailyScores } from '../domain/models/score';
 
 interface HealthMetricsV2 {
   hrv: NewHrvMetrics | null;
@@ -121,6 +129,10 @@ interface HealthState {
   calculateDailySnapshot: () => Promise<void>;
   /** リアルタイムメトリクスを取得（アプリ起動ごと） */
   fetchRealtimeMetrics: () => Promise<void>;
+  /** 4つの独立スコアを計算 */
+  calculateDailyScores: () => void;
+  /** アプリ起動時に呼び出す初期化関数 */
+  initialize: () => Promise<void>;
 }
 
 const initialState = {
@@ -165,15 +177,18 @@ export const useHealthStore = create<HealthState>()(
     set({ isLoadingMetrics: true, metricsError: null });
 
     try {
-      // TODO: Replace with actual HealthKit/Health Connect integration
-      // For now, simulate a delay and use mock data
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      const [sleep, hrv, activity, rhythm] = await Promise.all([
+        dataSourceAdapter.getSleepMetrics(),
+        dataSourceAdapter.getHRVMetrics(),
+        dataSourceAdapter.getActivityMetrics(),
+        dataSourceAdapter.getRhythmAnalysis(),
+      ]);
 
       set({
-        sleepMetrics: MOCK_SLEEP_METRICS,
-        hrvMetrics: MOCK_HRV_METRICS,
-        activityMetrics: MOCK_ACTIVITY_METRICS,
-        rhythmAnalysis: MOCK_RHYTHM_ANALYSIS,
+        sleepMetrics: sleep,
+        hrvMetrics: hrv,
+        activityMetrics: activity,
+        rhythmAnalysis: rhythm,
         isLoadingMetrics: false,
         lastMetricsUpdate: new Date(),
       });
@@ -189,35 +204,12 @@ export const useHealthStore = create<HealthState>()(
     set({ isLoadingWeather: true, weatherError: null });
 
     try {
-      const response = await apiClient.getWeather(latitude, longitude);
-
-      if (!response.success || !response.data) {
-        const errorMessage = response.success === false ? response.error?.message : 'Failed to fetch weather';
-        throw new Error(errorMessage || 'Failed to fetch weather');
-      }
-
-      const { temperature, pressure, pressureTrend: apiPressureTrend, description, location } = response.data;
-
-      // PressureTrend型を変換 ('rising' | 'stable' | 'falling' -> 'up' | 'stable' | 'down')
-      const pressureTrend: SimpleWeatherData['pressureTrend'] = 
-        apiPressureTrend === 'rising' ? 'up' : 
-        apiPressureTrend === 'falling' ? 'down' : 
-        'stable';
-
-      // SimpleWeatherData形式に変換
-      const weather: SimpleWeatherData = {
-        temp: temperature,
-        condition: description || 'sunny',
-        pressure,
-        pressureTrend,
-        uv: 0, // TODO: UV index is not available in WeatherResponse
-        location: location || '現在地',
-      };
+      const weather = await dataSourceAdapter.getWeather(latitude, longitude);
 
       set({
         weather,
-        weatherCode: null, // WeatherResponseにはweatherCodeがない
-        weatherHumidity: null, // WeatherResponseにはhumidityがない
+        weatherCode: null,
+        weatherHumidity: null,
         isLoadingWeather: false,
         lastWeatherUpdate: new Date(),
       });
@@ -354,6 +346,88 @@ export const useHealthStore = create<HealthState>()(
                 : 'Failed to calculate daily snapshot',
           });
         }
+      },
+
+      /**
+       * 4つの独立スコアを計算
+       */
+      calculateDailyScores: () => {
+        const { sleepMetrics, hrvMetrics, activityMetrics, rhythmAnalysis, weather } = get();
+
+        if (!sleepMetrics || !hrvMetrics || !activityMetrics || !rhythmAnalysis) {
+          console.warn('Missing metrics for score calculation');
+          return;
+        }
+
+        // 1. Sleep Score計算（先に計算する必要がある）
+        const sleepScore = calculateSleepScore({
+          duration: {
+            minutes: sleepMetrics.durationMinutes,
+            targetMinutes: 450, // TODO: userProfileから取得
+          },
+          stages: {
+            deepMinutes: sleepMetrics.deepSleepMinutes,
+            remMinutes: sleepMetrics.remSleepMinutes,
+            lightMinutes: sleepMetrics.durationMinutes - sleepMetrics.deepSleepMinutes - sleepMetrics.remSleepMinutes,
+            awakeMinutes: 0, // TODO: HealthKitから取得
+          },
+          // timingは後で実装（HealthKitから就寝・起床時刻を取得）
+        });
+
+        // 2. Recovery Score計算
+        const recoveryScore = calculateRecoveryScore({
+          hrv: {
+            current: hrvMetrics.value,
+            baseline: hrvMetrics.baseline30d,
+          },
+          rhr: {
+            current: 60, // TODO: 実際のRHRを取得
+            baseline: 60, // TODO: RHRベースラインを計算
+          },
+          sleepQuality: sleepScore,
+        });
+
+        // 3. Rhythm Score計算
+        const rhythmScore = calculateRhythmScore({
+          bedtimeStddevMinutes: rhythmAnalysis.bedtimeStddevMinutes,
+          wakeTimeStddevMinutes: rhythmAnalysis.wakeTimeStddevMinutes,
+        });
+
+        // 4. Energy Score計算
+        const energyScore = calculateEnergyScore({
+          recovery: recoveryScore,
+          sleep: sleepScore,
+          weather: {
+            pressure: weather?.pressure ?? 1013,
+            pressureTrend: weather?.pressureTrend ?? 'stable',
+          },
+        });
+
+        // 5. DailyScoresとして保存
+        const dailyScores: DailyScores = {
+          recovery: recoveryScore,
+          sleep: sleepScore,
+          rhythm: rhythmScore,
+          energy: energyScore,
+        };
+
+        const currentSnapshot = get().dailySnapshot;
+        set({
+          dailySnapshot: {
+            ...currentSnapshot,
+            date: formatDateString(new Date()),
+            scores: dailyScores,
+          } as DailySnapshot,
+        });
+      },
+
+      /**
+       * アプリ起動時に呼び出す初期化関数
+       */
+      initialize: async () => {
+        await get().fetchTodayMetrics();
+        await get().fetchWeather(35.6762, 139.6503); // TODO: 実際の位置情報を取得
+        get().calculateDailyScores();
       },
 
       fetchRealtimeMetrics: async (): Promise<void> => {

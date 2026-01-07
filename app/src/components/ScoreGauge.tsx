@@ -51,10 +51,10 @@ const styles = StyleSheet.create({
   },
   label: {
     ...Typography.caption,
-    color: Colors.slate[500],
+    color: Colors.stone[500],
   },
   value: {
-    ...Typography.scoreMedium,
+    ...Typography.scoreMD,
     marginBottom: Spacing.sm,
   },
 });

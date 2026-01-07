@@ -1,21 +1,20 @@
 import { describe, expect, it } from 'vitest';
 import {
   AdviceRequestSchema,
-  ContextSchema,
-  HealthDataSchema,
-  LocationSchema,
-  ScoresSchema,
+  HealthMetricsSchema,
+  RhythmPhasesSchema,
+  ScoresDataSchema,
   UserProfileSchema,
-  WeatherSchema,
+  WeatherDataSchema,
+  createFallbackResponse,
+  isValidAdviceRequest,
 } from './types';
 
-describe('UserProfileSchema', () => {
+describe('UserProfileSchema (新形式)', () => {
   const validProfile = {
-    nickname: 'マサ',
-    age: 28,
-    gender: 'male' as const,
-    chronotype: 'morning' as const,
-    targetBedtime: '23:00',
+    goals: ['better_sleep', 'more_energy'] as const,
+    wakeUpTime: '07:00',
+    windDownTime: '23:00',
   };
 
   it('should validate a valid profile', () => {
@@ -23,290 +22,158 @@ describe('UserProfileSchema', () => {
     expect(result.success).toBe(true);
   });
 
-  it('should validate a profile with optional fields', () => {
+  it('should reject invalid goal', () => {
     const result = UserProfileSchema.safeParse({
       ...validProfile,
-      occupation: 'deskWork',
-      exerciseFrequency: 'twiceWeek',
-    });
-    expect(result.success).toBe(true);
-  });
-
-  it('should reject empty nickname', () => {
-    const result = UserProfileSchema.safeParse({
-      ...validProfile,
-      nickname: '',
+      goals: ['invalid_goal'],
     });
     expect(result.success).toBe(false);
   });
 
-  it('should reject age 0', () => {
+  it('should reject invalid time format', () => {
     const result = UserProfileSchema.safeParse({
       ...validProfile,
-      age: 0,
-    });
-    expect(result.success).toBe(false);
-  });
-
-  it('should reject age 121', () => {
-    const result = UserProfileSchema.safeParse({
-      ...validProfile,
-      age: 121,
-    });
-    expect(result.success).toBe(false);
-  });
-
-  it('should reject invalid gender', () => {
-    const result = UserProfileSchema.safeParse({
-      ...validProfile,
-      gender: 'invalid',
-    });
-    expect(result.success).toBe(false);
-  });
-
-  it('should reject invalid chronotype', () => {
-    const result = UserProfileSchema.safeParse({
-      ...validProfile,
-      chronotype: 'invalid',
-    });
-    expect(result.success).toBe(false);
-  });
-
-  it('should reject invalid occupation', () => {
-    const result = UserProfileSchema.safeParse({
-      ...validProfile,
-      occupation: 'invalid',
+      wakeUpTime: '7:00', // 2桁の時間が必要
     });
     expect(result.success).toBe(false);
   });
 });
 
-describe('ScoresSchema', () => {
+describe('ScoresDataSchema', () => {
+  const validScores = {
+    recovery: 70,
+    sleep: 85,
+    rhythm: 92,
+    energy: 78,
+  };
+
   it('should validate valid scores', () => {
-    const result = ScoresSchema.safeParse({
-      autonomic: 85,
-      sleep: 78,
-      rhythm: 88,
-      activity: 68,
-    });
+    const result = ScoresDataSchema.safeParse(validScores);
     expect(result.success).toBe(true);
   });
 
-  it('should reject score below 0', () => {
-    const result = ScoresSchema.safeParse({
-      autonomic: -1,
-      sleep: 78,
-      rhythm: 88,
-      activity: 68,
+  it('should reject score over 100', () => {
+    const result = ScoresDataSchema.safeParse({
+      ...validScores,
+      recovery: 101,
     });
     expect(result.success).toBe(false);
   });
 
-  it('should reject score above 100', () => {
-    const result = ScoresSchema.safeParse({
-      autonomic: 101,
-      sleep: 78,
-      rhythm: 88,
-      activity: 68,
+  it('should reject negative score', () => {
+    const result = ScoresDataSchema.safeParse({
+      ...validScores,
+      sleep: -1,
     });
     expect(result.success).toBe(false);
   });
 });
 
-describe('LocationSchema', () => {
-  it('should validate valid location', () => {
-    const result = LocationSchema.safeParse({
-      latitude: 35.6762,
-      longitude: 139.6503,
-      city: 'Tokyo',
-    });
-    expect(result.success).toBe(true);
-  });
-
-  it('should reject latitude below -90', () => {
-    const result = LocationSchema.safeParse({
-      latitude: -91,
-      longitude: 139.6503,
-      city: 'Tokyo',
-    });
-    expect(result.success).toBe(false);
-  });
-
-  it('should reject latitude above 90', () => {
-    const result = LocationSchema.safeParse({
-      latitude: 91,
-      longitude: 139.6503,
-      city: 'Tokyo',
-    });
-    expect(result.success).toBe(false);
-  });
-
-  it('should reject longitude below -180', () => {
-    const result = LocationSchema.safeParse({
-      latitude: 35.6762,
-      longitude: -181,
-      city: 'Tokyo',
-    });
-    expect(result.success).toBe(false);
-  });
-
-  it('should reject longitude above 180', () => {
-    const result = LocationSchema.safeParse({
-      latitude: 35.6762,
-      longitude: 181,
-      city: 'Tokyo',
-    });
-    expect(result.success).toBe(false);
-  });
-});
-
-describe('ContextSchema', () => {
-  it('should validate valid context', () => {
-    const result = ContextSchema.safeParse({
-      currentTime: '07:15',
-      dayOfWeek: '水曜日',
-      todayMode: 'normal',
-    });
-    expect(result.success).toBe(true);
-  });
-
-  it('should use default todayMode when not provided', () => {
-    const result = ContextSchema.safeParse({
-      currentTime: '07:15',
-      dayOfWeek: '水曜日',
-    });
-    expect(result.success).toBe(true);
-    if (result.success) {
-      expect(result.data.todayMode).toBe('normal');
-    }
-  });
-
-  it('should validate mood in range 1-5', () => {
-    const result = ContextSchema.safeParse({
-      currentTime: '07:15',
-      dayOfWeek: '水曜日',
-      mood: 4,
-    });
-    expect(result.success).toBe(true);
-  });
-
-  it('should reject mood below 1', () => {
-    const result = ContextSchema.safeParse({
-      currentTime: '07:15',
-      dayOfWeek: '水曜日',
-      mood: 0,
-    });
-    expect(result.success).toBe(false);
-  });
-
-  it('should reject mood above 5', () => {
-    const result = ContextSchema.safeParse({
-      currentTime: '07:15',
-      dayOfWeek: '水曜日',
-      mood: 6,
-    });
-    expect(result.success).toBe(false);
-  });
-
-  it('should reject invalid todayMode', () => {
-    const result = ContextSchema.safeParse({
-      currentTime: '07:15',
-      dayOfWeek: '水曜日',
-      todayMode: 'invalid',
-    });
-    expect(result.success).toBe(false);
-  });
-});
-
-describe('WeatherSchema', () => {
-  it('should validate valid weather', () => {
-    const result = WeatherSchema.safeParse({
-      temperature: 20.5,
-      humidity: 65,
-      pressure: 1013.25,
-      weatherCode: 0,
-      uvIndexMax: 5.2,
-    });
-    expect(result.success).toBe(true);
-  });
-
-  it('should reject humidity above 100', () => {
-    const result = WeatherSchema.safeParse({
-      temperature: 20.5,
-      humidity: 101,
-      pressure: 1013.25,
-      weatherCode: 0,
-      uvIndexMax: 5.2,
-    });
-    expect(result.success).toBe(false);
-  });
-
-  it('should reject negative pressure', () => {
-    const result = WeatherSchema.safeParse({
-      temperature: 20.5,
-      humidity: 65,
-      pressure: -1,
-      weatherCode: 0,
-      uvIndexMax: 5.2,
-    });
-    expect(result.success).toBe(false);
-  });
-});
-
-describe('HealthDataSchema', () => {
-  const validHealthData = {
-    scores: {
-      autonomic: 85,
-      sleep: 78,
-      rhythm: 88,
-      activity: 68,
+describe('HealthMetricsSchema', () => {
+  const validMetrics = {
+    hrv: {
+      current: 82,
+      baseline: 77,
+      deviation: 6,
     },
-    rhythmAnalysis: {
-      bedtimeStddevMinutes: 22,
-      wakeTimeStddevMinutes: 18,
-      consecutiveStableDays: 5,
-      status: 'stable' as const,
+    rhr: {
+      current: 59,
+      baseline: 59,
+    },
+    sleep: {
+      durationMinutes: 428,
+      deepSleepMinutes: 105,
+      deepSleepPercent: 23,
+      remSleepMinutes: 95,
+      remSleepPercent: 22,
+      bedtime: '23:15',
+      wakeTime: '06:45',
+      vsTargetBedtime: '+15min',
     },
   };
 
-  it('should validate minimal health data (scores and rhythmAnalysis only)', () => {
-    const result = HealthDataSchema.safeParse(validHealthData);
+  it('should validate valid health metrics', () => {
+    const result = HealthMetricsSchema.safeParse(validMetrics);
     expect(result.success).toBe(true);
   });
 
-  it('should validate health data with sleep', () => {
-    const result = HealthDataSchema.safeParse({
-      ...validHealthData,
+  it('should reject negative duration', () => {
+    const result = HealthMetricsSchema.safeParse({
+      ...validMetrics,
       sleep: {
-        bedtime: '23:15',
-        wakeTime: '06:45',
-        durationHours: 7.5,
-        deepSleepMinutes: 105,
-        remSleepMinutes: 95,
-        deepSleepRatio: 0.23,
+        ...validMetrics.sleep,
+        durationMinutes: -1,
       },
     });
+    expect(result.success).toBe(false);
+  });
+
+  it('should reject invalid sleep percent', () => {
+    const result = HealthMetricsSchema.safeParse({
+      ...validMetrics,
+      sleep: {
+        ...validMetrics.sleep,
+        deepSleepPercent: 101,
+      },
+    });
+    expect(result.success).toBe(false);
+  });
+});
+
+describe('WeatherDataSchema (新形式)', () => {
+  const validWeather = {
+    temperature: 20.5,
+    pressure: 1013.25,
+    pressureTrend: 'stable' as const,
+    sunrise: '06:50',
+    sunset: '16:48',
+  };
+
+  it('should validate valid weather data', () => {
+    const result = WeatherDataSchema.safeParse(validWeather);
     expect(result.success).toBe(true);
   });
 
-  it('should validate health data with HRV', () => {
-    const result = HealthDataSchema.safeParse({
-      ...validHealthData,
-      hrv: {
-        value: 68,
-        baseline30d: 62,
-        deviationPercent: 9.7,
-      },
+  it('should reject invalid pressure trend', () => {
+    const result = WeatherDataSchema.safeParse({
+      ...validWeather,
+      pressureTrend: 'invalid',
     });
+    expect(result.success).toBe(false);
+  });
+});
+
+describe('RhythmPhasesSchema', () => {
+  const validPhases = {
+    peakFocus: {
+      start: '09:00',
+      end: '12:00',
+    },
+    afternoonDip: {
+      start: '14:00',
+      end: '16:00',
+    },
+    secondWind: {
+      start: '17:00',
+      end: '19:00',
+    },
+    windDown: {
+      start: '21:00',
+      end: '23:00',
+    },
+  };
+
+  it('should validate valid rhythm phases', () => {
+    const result = RhythmPhasesSchema.safeParse(validPhases);
     expect(result.success).toBe(true);
   });
 
-  it('should reject invalid rhythm status', () => {
-    const result = HealthDataSchema.safeParse({
-      ...validHealthData,
-      rhythmAnalysis: {
-        ...validHealthData.rhythmAnalysis,
-        status: 'invalid',
+  it('should reject invalid time format', () => {
+    const result = RhythmPhasesSchema.safeParse({
+      ...validPhases,
+      peakFocus: {
+        start: '9:00', // 2桁必要
+        end: '12:00',
       },
     });
     expect(result.success).toBe(false);
@@ -315,36 +182,66 @@ describe('HealthDataSchema', () => {
 
 describe('AdviceRequestSchema', () => {
   const validRequest = {
-    profile: {
-      nickname: 'マサ',
-      age: 28,
-      gender: 'male' as const,
-      chronotype: 'morning' as const,
-      targetBedtime: '23:00',
+    user: {
+      goals: ['better_sleep'] as const,
+      wakeUpTime: '07:00',
+      windDownTime: '23:00',
     },
-    healthData: {
-      scores: {
-        autonomic: 85,
-        sleep: 78,
-        rhythm: 88,
-        activity: 68,
+    scores: {
+      recovery: 70,
+      sleep: 85,
+      rhythm: 92,
+      energy: 78,
+    },
+    healthMetrics: {
+      hrv: {
+        current: 82,
+        baseline: 77,
+        deviation: 6,
       },
-      rhythmAnalysis: {
-        bedtimeStddevMinutes: 22,
-        wakeTimeStddevMinutes: 18,
-        consecutiveStableDays: 5,
-        status: 'stable' as const,
+      rhr: {
+        current: 59,
+        baseline: 59,
+      },
+      sleep: {
+        durationMinutes: 428,
+        deepSleepMinutes: 105,
+        deepSleepPercent: 23,
+        remSleepMinutes: 95,
+        remSleepPercent: 22,
+        bedtime: '23:15',
+        wakeTime: '06:45',
+        vsTargetBedtime: '+15min',
       },
     },
-    location: {
-      latitude: 35.6762,
-      longitude: 139.6503,
-      city: 'Tokyo',
+    weather: {
+      temperature: 8,
+      pressure: 1018,
+      pressureTrend: 'stable' as const,
+      sunrise: '06:50',
+      sunset: '16:48',
+      description: '晴れ',
+      location: 'Tokyo',
     },
-    context: {
-      currentTime: '07:15',
-      dayOfWeek: '水曜日',
+    rhythmPhases: {
+      peakFocus: {
+        start: '09:00',
+        end: '12:00',
+      },
+      afternoonDip: {
+        start: '14:00',
+        end: '16:00',
+      },
+      secondWind: {
+        start: '17:00',
+        end: '19:00',
+      },
+      windDown: {
+        start: '21:00',
+        end: '23:00',
+      },
     },
+    locale: 'ja',
   };
 
   it('should validate a valid request', () => {
@@ -352,89 +249,85 @@ describe('AdviceRequestSchema', () => {
     expect(result.success).toBe(true);
   });
 
-  it('should validate a request with weather', () => {
-    const result = AdviceRequestSchema.safeParse({
-      ...validRequest,
-      weather: {
-        temperature: 20.5,
-        humidity: 65,
-        pressure: 1013.25,
-        weatherCode: 0,
-        uvIndexMax: 5.2,
-      },
-    });
+  it('should use default locale when not provided', () => {
+    const { locale: _, ...requestWithoutLocale } = validRequest;
+    const result = AdviceRequestSchema.safeParse(requestWithoutLocale);
     expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.locale).toBe('ja');
+    }
   });
 
-  it('should validate a request with all optional fields', () => {
-    const result = AdviceRequestSchema.safeParse({
-      ...validRequest,
-      profile: {
-        ...validRequest.profile,
-        occupation: 'deskWork',
-        exerciseFrequency: 'twiceWeek',
+  it('should reject request missing required fields', () => {
+    const { user: _, ...requestWithoutUser } = validRequest;
+    const result = AdviceRequestSchema.safeParse(requestWithoutUser);
+    expect(result.success).toBe(false);
+  });
+
+  it('should reject request missing scores', () => {
+    const { scores: _, ...requestWithoutScores } = validRequest;
+    const result = AdviceRequestSchema.safeParse(requestWithoutScores);
+    expect(result.success).toBe(false);
+  });
+});
+
+describe('isValidAdviceRequest', () => {
+  it('should return true for valid request', () => {
+    const validRequest = {
+      user: {
+        goals: ['better_sleep'],
+        wakeUpTime: '07:00',
+        windDownTime: '23:00',
       },
-      healthData: {
-        ...validRequest.healthData,
+      scores: {
+        recovery: 70,
+        sleep: 85,
+        rhythm: 92,
+        energy: 78,
+      },
+      healthMetrics: {
+        hrv: { current: 82, baseline: 77 },
+        rhr: { current: 59, baseline: 59 },
         sleep: {
-          bedtime: '23:15',
-          wakeTime: '06:45',
-          durationHours: 7.5,
+          durationMinutes: 428,
           deepSleepMinutes: 105,
+          deepSleepPercent: 23,
           remSleepMinutes: 95,
-          deepSleepRatio: 0.23,
+          remSleepPercent: 22,
         },
-        hrv: {
-          value: 68,
-          baseline30d: 62,
-          deviationPercent: 9.7,
-        },
-        activity: {
-          stepsYesterday: 8200,
-          activeMinutesYesterday: 35,
-        },
-        auxiliary: {
-          daylightMinutesYesterday: 45,
-          wristTemperatureDeviation: 0.1,
-        },
-      },
-      context: {
-        ...validRequest.context,
-        mood: 4,
-        todayMode: 'challenge',
       },
       weather: {
-        temperature: 20.5,
-        humidity: 65,
-        pressure: 1013.25,
-        weatherCode: 0,
-        uvIndexMax: 5.2,
+        temperature: 8,
+        pressure: 1018,
+        pressureTrend: 'stable' as const,
+        sunrise: '06:50',
+        sunset: '16:48',
       },
-    });
-    expect(result.success).toBe(true);
+      rhythmPhases: {
+        peakFocus: { start: '09:00', end: '12:00' },
+        afternoonDip: { start: '14:00', end: '16:00' },
+        secondWind: { start: '17:00', end: '19:00' },
+        windDown: { start: '21:00', end: '23:00' },
+      },
+    };
+    expect(isValidAdviceRequest(validRequest)).toBe(true);
   });
 
-  it('should reject request missing required profile field', () => {
-    const { profile: _, ...requestWithoutProfile } = validRequest;
-    const result = AdviceRequestSchema.safeParse(requestWithoutProfile);
-    expect(result.success).toBe(false);
+  it('should return false for invalid request', () => {
+    expect(isValidAdviceRequest(null)).toBe(false);
+    expect(isValidAdviceRequest({})).toBe(false);
   });
+});
 
-  it('should reject request missing required healthData field', () => {
-    const { healthData: _, ...requestWithoutHealthData } = validRequest;
-    const result = AdviceRequestSchema.safeParse(requestWithoutHealthData);
-    expect(result.success).toBe(false);
-  });
-
-  it('should reject request missing required location field', () => {
-    const { location: _, ...requestWithoutLocation } = validRequest;
-    const result = AdviceRequestSchema.safeParse(requestWithoutLocation);
-    expect(result.success).toBe(false);
-  });
-
-  it('should reject request missing required context field', () => {
-    const { context: _, ...requestWithoutContext } = validRequest;
-    const result = AdviceRequestSchema.safeParse(requestWithoutContext);
-    expect(result.success).toBe(false);
+describe('createFallbackResponse', () => {
+  it('should create fallback response with new format', () => {
+    const response = createFallbackResponse();
+    expect(response.todayInsight.title).toBe('New Day');
+    expect(response.todayInsight.summary).toBeTruthy();
+    expect(response.todayOneThing.icon).toBe('breathing');
+    expect(response.todayOneThing.action).toBeTruthy();
+    expect(response.todayOneThing.benefits).toHaveLength(3);
+    expect(response.todayOneThing.howToDoIt).toHaveLength(3);
+    expect(response.relatedInsight.label).toBe('Tip');
   });
 });

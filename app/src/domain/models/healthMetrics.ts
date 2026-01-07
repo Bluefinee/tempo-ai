@@ -109,8 +109,8 @@ export interface HealthMetrics {
 export interface DailyScoreSnapshot {
   id: string;
   date: Date;
-  autonomicScore: number;
+  recoveryScore: number; // 旧: autonomicScore
   sleepScore: number;
   rhythmScore: number;
-  activityScore: number;
+  energyScore: number; // 旧: activityScore
 }

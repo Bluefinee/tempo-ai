@@ -104,8 +104,8 @@ const styles = StyleSheet.create({
   // Decorative blobs
   blobTopRight: {
     position: 'absolute',
-    top: -height * 0.15,
-    right: -width * 0.2,
+    top: -100,
+    right: -80,
     width: 256,
     height: 256,
     backgroundColor: Colors.emerald[100],
@@ -114,8 +114,8 @@ const styles = StyleSheet.create({
   },
   blobBottomLeft: {
     position: 'absolute',
-    bottom: -height * 0.1,
-    left: -width * 0.15,
+    bottom: -80,
+    left: -60,
     width: 320,
     height: 320,
     backgroundColor: Colors.indigo[100],

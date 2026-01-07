@@ -72,7 +72,7 @@ export const MiniBarChart = ({
   gap = 4,
   borderRadius = 2,
   style,
-}): MiniBarChartProps => {
+}: MiniBarChartProps): React.ReactElement => {
   const chartHeight = showLabels ? height - 20 : height;
   const lastIndex = data.length - 1;
 

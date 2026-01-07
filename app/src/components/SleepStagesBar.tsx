@@ -31,7 +31,7 @@ const stageLabels = {
   awake: 'Awake',
 };
 
-export const SleepStagesBar = ({ stages }): SleepStagesBarProps => {
+export const SleepStagesBar = ({ stages }: SleepStagesBarProps): React.ReactElement => {
   return (
     <View style={styles.container}>
       {/* Bar */}

@@ -92,7 +92,7 @@ export const HealthMetricDetail = ({
   baseline,
   baselineTrend,
   delay = 0,
-}): HealthMetricDetailProps => {
+}: HealthMetricDetailProps): React.ReactElement => {
   const [timeframe, setTimeframe] = useState<Timeframe>('7D');
 
   const timeframes: Timeframe[] = ['7D', '30D', '60D'];

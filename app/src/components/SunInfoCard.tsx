@@ -47,7 +47,7 @@ export const SunInfoCard = ({
   label,
   delay = 0,
   onPress,
-}): SunInfoCardProps => {
+}: SunInfoCardProps): React.ReactElement => {
   const config = getTypeConfig(type);
   const displayLabel = label ?? config.defaultLabel;
 

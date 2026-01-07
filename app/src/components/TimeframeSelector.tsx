@@ -24,7 +24,7 @@ const timeframes: Timeframe[] = ['7D', '30D', '60D'];
 export const TimeframeSelector = ({
   selected,
   onSelect,
-}): TimeframeSelectorProps => {
+}: TimeframeSelectorProps): React.ReactElement => {
   const selectedIndex = timeframes.indexOf(selected);
 
   const indicatorStyle = useAnimatedStyle(() => {

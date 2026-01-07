@@ -25,6 +25,8 @@ import {
   Wind,
   Droplets,
   Thermometer,
+  Target,
+  Footprints,
 } from "lucide-react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 

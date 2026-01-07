@@ -53,7 +53,7 @@ export const WindowCard = ({
   isActive = false,
   delay = 0,
   onPress,
-}): WindowCardProps => {
+}: WindowCardProps): React.ReactElement => {
   const config = getThemeConfig(theme);
   const IconComponent = icon ?? (iconType === 'moon' ? Moon : Sun);
 

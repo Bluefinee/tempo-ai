@@ -30,7 +30,7 @@ export const MetricGridCard = ({
   chartData,
   onPress,
   delay = 0,
-}): MetricGridCardProps => {
+}: MetricGridCardProps): React.ReactElement => {
   return (
     <AnimatedPressable
       entering={FadeInDown.delay(delay).duration(400)}

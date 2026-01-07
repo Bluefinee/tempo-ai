@@ -48,7 +48,7 @@ export const RhythmInteractiveChart = ({
   currentHour,
   width: propWidth,
   height = 280,
-}): RhythmInteractiveChartProps => {
+}: RhythmInteractiveChartProps): React.ReactElement => {
   const screenWidth = useWindowDimensions().width;
   const width = propWidth ?? screenWidth;
   const chartWidth = width - PADDING_LEFT - PADDING_RIGHT;

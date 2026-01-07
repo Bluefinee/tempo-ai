@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useCallback, useMemo, useRef } from 'react';
-import { View, Text, Dimensions, StyleSheet, PanResponder } from 'react-native';
+import { View, Text, useWindowDimensions, StyleSheet, PanResponder } from 'react-native';
 import Svg, {
   Path,
   Defs,
@@ -49,7 +49,7 @@ export const RhythmInteractiveChart: React.FC<RhythmInteractiveChartProps> = ({
   width: propWidth,
   height = 280,
 }) => {
-  const screenWidth = Dimensions.get('window').width;
+  const screenWidth = useWindowDimensions().width;
   const width = propWidth ?? screenWidth;
   const chartWidth = width - PADDING_LEFT - PADDING_RIGHT;
   const chartHeight = height - PADDING_TOP - PADDING_BOTTOM;

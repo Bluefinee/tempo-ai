@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useRef, useCallback, useMemo } from 'react';
-import { View, Text, ScrollView, Pressable, Dimensions } from 'react-native';
+import { View, Text, ScrollView, Pressable, useWindowDimensions } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import {
@@ -297,7 +297,7 @@ export default function HealthDetailScreen(): React.ReactElement {
     setTimeframes((prev) => ({ ...prev, [id]: tf }));
 
   // 画面幅を取得
-  const screenWidth = Dimensions.get('window').width;
+  const screenWidth = useWindowDimensions().width;
 
   // Temperatureカード用（横長レイアウト）- アイコン付き
   const renderTemperatureCard = (metric: MetricData, onPress: () => void) => {

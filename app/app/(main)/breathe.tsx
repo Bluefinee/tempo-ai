@@ -5,7 +5,7 @@
  */
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { View, Text, Pressable, Dimensions } from 'react-native';
+import { View, Text, Pressable, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { X, Play, Pause, Wind } from 'lucide-react-native';
@@ -23,7 +23,7 @@ import { TAB_BAR_HEIGHT } from './_layout';
 import { t } from '../../src/i18n';
 
 const DEEP_NAVY = '#0F172A';
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = useWindowDimensions();
 
 // Responsive circle size
 const CIRCLE_SIZE = Math.min(SCREEN_WIDTH * 0.65, 280);

@@ -4,7 +4,7 @@
  */
 
 import React, { useMemo, useState } from 'react';
-import { View, Text, Dimensions, PanResponder, GestureResponderEvent } from 'react-native';
+import { View, Text, useWindowDimensions, PanResponder, GestureResponderEvent } from 'react-native';
 import Svg, {
   Path,
   Defs,
@@ -46,7 +46,7 @@ export const HealthAreaChart: React.FC<HealthAreaChartProps> = ({
   width: propWidth,
   height = 200,
 }) => {
-  const screenWidth = Dimensions.get('window').width;
+  const screenWidth = useWindowDimensions().width;
   const width = propWidth ?? screenWidth - 48;
   const chartWidth = width - PADDING_LEFT - PADDING_RIGHT;
   const chartHeight = height - PADDING_TOP - PADDING_BOTTOM;

@@ -5,14 +5,14 @@
  */
 
 import React from 'react';
-import { View, Text, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Colors, Spacing, BorderRadius, FontFamily } from '../../src/theme';
 import { PrimaryButton, SecondaryButton } from '../../src/components';
 import type { JSX } from 'react';
 
-const { width, height } = Dimensions.get('window');
+const { width, height } = useWindowDimensions();
 const CURRENT_STEP = 2;
 const TOTAL_STEPS = 9;
 

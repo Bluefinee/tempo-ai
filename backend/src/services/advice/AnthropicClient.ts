@@ -267,16 +267,16 @@ export class AnthropicClient {
           summary: parsed.todayInsight.summary,
           whyThisMatters: {
             hrv: {
-              headline: parsed.todayInsight.whyThisMatters.hrv?.headline!,
-              explanation: parsed.todayInsight.whyThisMatters.hrv?.explanation!,
+              headline: parsed.todayInsight.whyThisMatters.hrv?.headline ?? '',
+              explanation: parsed.todayInsight.whyThisMatters.hrv?.explanation ?? '',
             },
             sleep: {
-              headline: parsed.todayInsight.whyThisMatters.sleep?.headline!,
-              explanation: parsed.todayInsight.whyThisMatters.sleep?.explanation!,
+              headline: parsed.todayInsight.whyThisMatters.sleep?.headline ?? '',
+              explanation: parsed.todayInsight.whyThisMatters.sleep?.explanation ?? '',
             },
             rhythm: {
-              headline: parsed.todayInsight.whyThisMatters.rhythm?.headline!,
-              explanation: parsed.todayInsight.whyThisMatters.rhythm?.explanation!,
+              headline: parsed.todayInsight.whyThisMatters.rhythm?.headline ?? '',
+              explanation: parsed.todayInsight.whyThisMatters.rhythm?.explanation ?? '',
             },
           },
           whatThisMeansForToday: parsed.todayInsight.whatThisMeansForToday,
@@ -290,8 +290,8 @@ export class AnthropicClient {
           benefits: parsed.todayOneThing.benefits,
           howToDoIt: parsed.todayOneThing.howToDoIt,
           expectedBenefit: {
-            text: parsed.todayOneThing.expectedBenefit.text!,
-            source: parsed.todayOneThing.expectedBenefit.source!,
+            text: parsed.todayOneThing.expectedBenefit.text ?? '',
+            source: parsed.todayOneThing.expectedBenefit.source ?? '',
           },
         },
         relatedInsight: {

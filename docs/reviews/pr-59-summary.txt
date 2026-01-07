@@ -1,0 +1,157 @@
+================================================================================
+PR #59 CodeRabbit レビューコメント サマリー
+================================================================================
+
+生成日時: $(date '+%Y-%m-%d %H:%M:%S')
+PR URL: https://github.com/Bluefinee/tempo-ai/pull/59
+PR タイトル: feat: Phase 0-5 Complete Implementation
+
+================================================================================
+統計情報
+================================================================================
+
+総コメント数: 126件
+- ファイル別の詳細コメント: 122件
+- 一般コメント: 3件
+- レビュー全体コメント: 1件
+
+レビュー状態: CHANGES_REQUESTED
+
+================================================================================
+優先度別の分類
+================================================================================
+
+重要度ラベルの抽出:
+  58 _⚠️ Potential issue_
+  43 _🧹 Nitpick_
+  43 _🔵 Trivial_
+   3 _🔴 Critical_
+
+================================================================================
+ファイル別コメント数（上位50件）
+================================================================================
+
+   6 app/src/components/RhythmInteractiveChart.tsx
+   5 app/app/(main)/health-detail.tsx
+   4 app/src/stores/healthStore.ts
+   4 app/src/components/DualRingProgress.tsx
+   4 app/src/components/BarChart.tsx
+   4 app/app/(main)/rhythm.tsx
+   4 app/app/(main)/breathe.tsx
+   3 app/src/services/dataSourceAdapter.ts
+   3 app/src/i18n/index.ts
+   3 app/src/hooks/useAdvice.ts
+   3 app/src/domain/services/energyCurveGenerator.ts
+   3 app/src/constants/mockData.ts
+   3 app/src/components/MiniBarChart.tsx
+   3 app/src/components/HealthMetricDetail.tsx
+   3 app/src/api/helpers/adviceRequestBuilder.ts
+   3 app/app/(main)/sleep-detail.tsx
+   3 app/app/(main)/settings.tsx
+   3 app/app/(main)/rhythm-detail.tsx
+   3 app/app/(main)/insights.tsx
+   3 app/app/(main)/index.tsx
+   3 app/app/(main)/energy-detail.tsx
+   3 app/app/(main)/action-detail.tsx
+   2 app/src/stores/insightStore.ts
+   2 app/src/stores/breatheStore.ts
+   2 app/src/hooks/useFadeIn.ts
+   2 app/src/domain/services/tempoScoreCalculator.ts
+   2 app/src/domain/services/rhythmCalculator.ts
+   2 app/src/components/SunInfoCard.tsx
+   2 app/src/components/PrimaryButton.tsx
+   2 app/src/components/MetricGridCard.tsx
+   2 app/src/components/HealthMetricCard.tsx
+   2 app/src/components/HealthAreaChart.tsx
+   2 app/package.json
+   2 app/app/(main)/recovery-detail.tsx
+   1 app/src/hooks/useWeather.ts
+   1 app/src/domain/services/scoreCalculator.ts
+   1 app/src/domain/services/alertGenerator.ts
+   1 app/src/domain/models/weather.ts
+   1 app/src/domain/models/rhythm.ts
+   1 app/src/domain/models/insight.ts
+   1 app/src/domain/models/index.ts
+   1 app/src/constants/mockDataFactory.test.ts
+   1 app/src/config/dataSource.ts
+   1 app/src/components/WindowCard.tsx
+   1 app/src/components/SleepStagesBar.tsx
+   1 app/src/components/CircularProgress.tsx
+   1 app/src/api/client.ts
+   1 app/app/(onboarding)/nickname.tsx
+   1 app/app/(onboarding)/location.tsx
+   1 app/app/(onboarding)/lifestyle.tsx
+
+================================================================================
+主要な指摘カテゴリ
+================================================================================
+
+1. コーディング規約違反
+   - 400行制限超過（複数ファイル）
+   - function宣言の使用（arrow functionを使うべき）
+   - 明示的な戻り値型の欠如
+   - React.FCの使用
+
+2. 型安全性の問題
+   - any型の使用
+   - 型アサーションの不適切な使用
+   - 明示的な型注釈の欠如
+
+3. 重複コード
+   - useFadeIn hookの重複定義
+   - seededRandom関数の重複
+   - Timeframe型の重複定義
+
+4. ハードコーディング
+   - 絶対パスの使用
+   - 日本語文字列のハードコーディング（i18n未対応）
+   - モックデータの値がハードコード
+
+5. 未使用コード
+   - 未使用のimport
+   - 未使用の変数
+   - 未使用の関数
+
+6. パフォーマンス/メモ化の問題
+   - レンダー毎の再計算
+   - useMemoやuseCallbackの不足
+
+7. 実装の不完全性
+   - onPressハンドラが未実装
+   - TODOコメントが残っている
+   - モックデータと実データの混在
+
+================================================================================
+推奨アクション
+================================================================================
+
+高優先度（Critical 🔴）:
+1. 400行を超えるファイルをリファクタリング
+   - app/app/(main)/index.tsx (617行)
+   - app/src/constants/mockData.ts (918行)
+   - app/src/stores/healthStore.ts (503行)
+   - その他複数ファイル
+
+2. 型安全性の向上
+   - any型の排除
+   - 明示的な型注釈の追加
+   - 型アサーションの見直し
+
+中優先度（Potential issue ⚠️）:
+1. 重複コードの統合
+2. ハードコーディングされた文字列のi18n化
+3. 未使用コードの削除
+
+低優先度（Nitpick 🧹）:
+1. コーディングスタイルの統一
+2. コメントの追加/改善
+3. 命名の改善
+
+================================================================================
+ファイル一覧
+================================================================================
+
+詳細なレビューコメントは以下のファイルに記載されています:
+- pr-59-coderabbit-reviews-complete.txt: 全コメントの完全版
+- pr-59-coderabbit-reviews.txt: ファイル別コメント（122件）
+

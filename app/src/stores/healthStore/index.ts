@@ -281,11 +281,17 @@ export const useHealthStore = create<HealthState>()(
 
         const currentSnapshot = get().dailySnapshot;
         set({
-          dailySnapshot: {
-            ...currentSnapshot,
-            date: formatDateString(new Date()),
-            scores: dailyScores,
-          } as DailySnapshot,
+          dailySnapshot: currentSnapshot
+            ? {
+                ...currentSnapshot,
+                date: formatDateString(new Date()),
+                scores: dailyScores,
+              }
+            : ({
+                date: formatDateString(new Date()),
+                scores: dailyScores,
+                calculatedAt: new Date(),
+              } as DailySnapshot),
         });
       },
 

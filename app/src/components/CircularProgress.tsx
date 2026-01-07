@@ -41,7 +41,7 @@ export const CircularProgress = ({
       duration,
       easing: Easing.bezier(0.25, 0.1, 0.25, 1),
     });
-  }, [progress, duration, progressValue]);
+  }, [progress, duration]);
 
   const animatedProps = useAnimatedProps(() => {
     const strokeDashoffset = circumference - (progressValue.value / 100) * circumference;

@@ -49,7 +49,11 @@ const RHYTHM_DATA: RhythmDataPoint[] = [
   { time: '12 AM', hour: 24, energy: 10 },
 ];
 
-// 気圧トレンドのアイコンを取得
+/**
+ * 気圧トレンドのアイコンを取得
+ * @param trend - トレンドタイプ（rising/stable/falling）
+ * @returns 矢印アイコン文字（↑/→/↓）
+ */
 const getPressureTrendIcon = (trend: 'rising' | 'stable' | 'falling'): string => {
   switch (trend) {
     case 'rising':

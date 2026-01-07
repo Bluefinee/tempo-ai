@@ -22,7 +22,11 @@ import { t } from '../../src/i18n';
 import { MOCK_DETAIL } from "../../src/constants/mockData";
 import { useHealthStore } from '../../src/stores/healthStore';
 
-// スコアに応じたステータスを取得
+/**
+ * スコアに応じたステータスを取得
+ * @param score - エネルギースコア (0-100)
+ * @returns ステータス文字列（excellent/good/fair/low）
+ */
 const getEnergyStatus = (score: number): string => {
   if (score >= 85) return t('score.energy.status.excellent');
   if (score >= 65) return t('score.energy.status.good');

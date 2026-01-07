@@ -79,7 +79,10 @@ const getMetricCards = (scores?: { recovery: number; sleep: number; rhythm: numb
   },
 ];
 
-// Health Summary カードのデータを取得（i18n対応）
+/**
+ * Health Summary カードのデータを取得（i18n対応）
+ * @returns HealthCard配列（HRV, RHR, 呼吸数, SpO2, 体温）
+ */
 const getHealthCards = (): HealthCard[] => [
   {
     id: "hrv",

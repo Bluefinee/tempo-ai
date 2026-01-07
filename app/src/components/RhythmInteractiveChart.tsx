@@ -257,10 +257,6 @@ export const RhythmInteractiveChart = ({
     transform: [{ scale: tooltipScale.value }],
   }));
 
-  const cursorAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: cursorOpacity.value,
-  }));
-
   // タッチ中のポイントのY座標を計算
   const touchedPoint = touchedIndex !== null ? points[touchedIndex] : null;
 

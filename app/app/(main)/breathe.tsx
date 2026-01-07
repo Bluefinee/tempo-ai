@@ -37,7 +37,7 @@ const formatTime = (seconds: number): string => {
   return `${mins.toString().padStart(2, '0')}:${secs < 10 ? '0' : ''}${secs}`;
 };
 
-export default function BreatheScreen(): React.ReactElement {
+const BreatheScreen = (): React.ReactElement => {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = useWindowDimensions();
@@ -427,3 +427,5 @@ export default function BreatheScreen(): React.ReactElement {
     </View>
   );
 }
+
+export default BreatheScreen;

@@ -55,7 +55,7 @@ const ALCOHOL_OPTIONS: { value: AlcoholFrequency; label: string }[] = [
   { value: 'daily', label: 'Daily' },
 ];
 
-export default function LifestyleScreen(): JSX.Element {
+const LifestyleScreen = (): JSX.Element => {
   const router = useRouter();
   const setDraftLifestyle = useUserStore((state) => state.setDraftLifestyle);
   const draftProfile = useUserStore((state) => state.draftProfile);
@@ -368,3 +368,5 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
 });
+
+export default LifestyleScreen;

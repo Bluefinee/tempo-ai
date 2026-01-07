@@ -94,7 +94,7 @@ const AlertItem: React.FC<{ alert: AlertConfig; delay: number }> = ({ alert, del
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-export default function InsightsScreen(): React.ReactElement {
+const InsightsScreen = (): React.ReactElement => {
   const insets = useSafeAreaInsets();
 
   return (
@@ -258,3 +258,5 @@ export default function InsightsScreen(): React.ReactElement {
     </View>
   );
 }
+
+export default InsightsScreen;

@@ -81,7 +81,7 @@ const FactorCard = ({
   );
 };
 
-export default function RhythmDetailScreen(): React.ReactElement {
+const RhythmDetailScreen = (): React.ReactElement => {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { dailySnapshot } = useHealthStore();
@@ -383,3 +383,5 @@ export default function RhythmDetailScreen(): React.ReactElement {
     </View>
   );
 }
+
+export default RhythmDetailScreen;

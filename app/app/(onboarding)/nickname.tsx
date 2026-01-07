@@ -16,7 +16,7 @@ import type { JSX } from 'react';
 const CURRENT_STEP = 3;
 const TOTAL_STEPS = 9;
 
-export default function NicknameScreen(): JSX.Element {
+const NicknameScreen = (): JSX.Element => {
   const router = useRouter();
   const { width, height } = useWindowDimensions();
   const setDraftNickname = useUserStore((state) => state.setDraftNickname);
@@ -189,3 +189,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
+
+export default NicknameScreen;

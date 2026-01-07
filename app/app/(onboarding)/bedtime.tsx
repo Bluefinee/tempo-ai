@@ -33,7 +33,7 @@ const parseTime = (timeStr: string): { hour: number; minute: number } => {
   return { hour: normalizedHour, minute: m };
 };
 
-export default function BedtimeScreen(): JSX.Element {
+const BedtimeScreen = (): JSX.Element => {
   const router = useRouter();
   const setDraftTargetBedtime = useUserStore((state) => state.setDraftTargetBedtime);
   const draftBedtime = useUserStore((state) => state.draftProfile.targetBedtime);
@@ -318,3 +318,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
+
+export default BedtimeScreen;

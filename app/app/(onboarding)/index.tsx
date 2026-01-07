@@ -12,7 +12,7 @@ import { Colors, FontFamily } from "../../src/theme";
 import { PrimaryButton } from "../../src/components";
 import type { JSX } from "react";
 
-export default function WelcomeScreen(): JSX.Element {
+const WelcomeScreen = (): JSX.Element => {
   const router = useRouter();
   const { width, height } = useWindowDimensions();
 
@@ -144,3 +144,5 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 });
+
+export default WelcomeScreen;

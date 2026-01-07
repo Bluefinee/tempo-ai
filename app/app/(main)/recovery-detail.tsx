@@ -28,7 +28,7 @@ const getRecoveryStatus = (score: number): string => {
   return t('score.recovery.status.needsRest');
 };
 
-export default function RecoveryDetailScreen(): React.ReactElement {
+const RecoveryDetailScreen = (): React.ReactElement => {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const [timeframe, setTimeframe] = useState<Timeframe>('7D');
@@ -267,3 +267,5 @@ export default function RecoveryDetailScreen(): React.ReactElement {
   );
 }
 
+
+export default RecoveryDetailScreen;

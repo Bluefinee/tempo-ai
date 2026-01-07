@@ -21,7 +21,7 @@ const handleTabPress = (): void => {
   }
 };
 
-export default function MainLayout(): React.ReactElement {
+const MainLayout = (): React.ReactElement => {
   const insets = useSafeAreaInsets();
   const tabBarHeight = TAB_BAR_BASE_HEIGHT + insets.bottom;
 
@@ -213,3 +213,5 @@ const styles = StyleSheet.create({
 
 // Export tab bar height for use in other screens
 export const TAB_BAR_HEIGHT = TAB_BAR_BASE_HEIGHT;
+
+export default MainLayout;

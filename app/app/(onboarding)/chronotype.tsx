@@ -49,7 +49,7 @@ const CHRONOTYPE_OPTIONS: ChronotypeOption[] = [
   },
 ];
 
-export default function ChronotypeScreen(): JSX.Element {
+const ChronotypeScreen = (): JSX.Element => {
   const router = useRouter();
   const setDraftChronotype = useUserStore((state) => state.setDraftChronotype);
   const draftChronotype = useUserStore((state) => state.draftProfile.chronotype);
@@ -250,3 +250,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
+
+export default ChronotypeScreen;

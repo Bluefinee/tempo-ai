@@ -200,7 +200,7 @@ const getMetrics = (): MetricData[] => [
   },
 ];
 
-export default function HealthDetailScreen(): React.ReactElement {
+const HealthDetailScreen = (): React.ReactElement => {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const scrollViewRef = useRef<ScrollView>(null);
@@ -732,3 +732,5 @@ export default function HealthDetailScreen(): React.ReactElement {
     </View>
   );
 }
+
+export default HealthDetailScreen;

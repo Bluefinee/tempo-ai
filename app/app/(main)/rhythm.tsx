@@ -84,7 +84,7 @@ const formatDate = (date: Date): string => {
   return `${day}, ${month} ${dateNum}`;
 };
 
-export default function RhythmScreen(): React.ReactElement {
+const RhythmScreen = (): React.ReactElement => {
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
@@ -440,3 +440,5 @@ export default function RhythmScreen(): React.ReactElement {
     </View>
   );
 }
+
+export default RhythmScreen;

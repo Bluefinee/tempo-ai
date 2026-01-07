@@ -86,7 +86,7 @@ const FactorCard = ({
   );
 };
 
-export default function EnergyDetailScreen(): React.ReactElement {
+const EnergyDetailScreen = (): React.ReactElement => {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const [timeframe, setTimeframe] = useState<Timeframe>('7D');
@@ -381,3 +381,5 @@ export default function EnergyDetailScreen(): React.ReactElement {
     </View>
   );
 }
+
+export default EnergyDetailScreen;

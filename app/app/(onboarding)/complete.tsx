@@ -17,7 +17,7 @@ import type { JSX } from 'react';
 const CURRENT_STEP = 9;
 const TOTAL_STEPS = 9;
 
-export default function CompleteScreen(): JSX.Element {
+const CompleteScreen = (): JSX.Element => {
   const router = useRouter();
   const { width, height } = useWindowDimensions();
   const completeOnboarding = useUserStore((state) => state.completeOnboarding);
@@ -257,3 +257,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
+
+export default CompleteScreen;

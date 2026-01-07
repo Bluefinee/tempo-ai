@@ -29,7 +29,7 @@ const getSleepStatus = (score: number): string => {
   return t('score.sleep.status.poor');
 };
 
-export default function SleepDetailScreen(): React.ReactElement {
+const SleepDetailScreen = (): React.ReactElement => {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const [timeframe, setTimeframe] = useState<Timeframe>('7D');
@@ -239,3 +239,5 @@ export default function SleepDetailScreen(): React.ReactElement {
   );
 }
 
+
+export default SleepDetailScreen;

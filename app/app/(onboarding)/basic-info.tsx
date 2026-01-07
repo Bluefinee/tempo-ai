@@ -26,7 +26,7 @@ const CURRENT_STEP = 4;
 const TOTAL_STEPS = 9;
 const GENDERS: Gender[] = ['male', 'female', 'other', 'preferNotToSay'];
 
-export default function BasicInfoScreen(): JSX.Element {
+const BasicInfoScreen = (): JSX.Element => {
   const router = useRouter();
   const setDraftBasicInfo = useUserStore((state) => state.setDraftBasicInfo);
   const draftProfile = useUserStore((state) => state.draftProfile);
@@ -301,3 +301,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
+
+export default BasicInfoScreen;

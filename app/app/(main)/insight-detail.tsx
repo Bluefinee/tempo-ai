@@ -43,7 +43,7 @@ const useFadeIn = (delay: number = 0) => {
   }));
 };
 
-export default function InsightDetailScreen(): React.ReactElement {
+const InsightDetailScreen = (): React.ReactElement => {
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
@@ -172,3 +172,5 @@ export default function InsightDetailScreen(): React.ReactElement {
     </View>
   );
 }
+
+export default InsightDetailScreen;

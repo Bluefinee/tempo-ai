@@ -16,7 +16,7 @@ import type { JSX } from 'react';
 // Prevent splash screen from auto-hiding
 SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout(): JSX.Element | null {
+const RootLayout = (): JSX.Element | null => {
   const [fontsLoaded, fontError] = useFonts({
     PlusJakartaSans_400Regular,
     PlusJakartaSans_500Medium,
@@ -53,3 +53,5 @@ export default function RootLayout(): JSX.Element | null {
     </SafeAreaProvider>
   );
 }
+
+export default RootLayout;

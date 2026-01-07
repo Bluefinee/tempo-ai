@@ -133,7 +133,7 @@ const getHealthCards = () => [
 ];
 
 
-export default function TodayScreen(): React.ReactElement {
+const TodayScreen = (): React.ReactElement => {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { dailySnapshot, isLoading, initialize } = useHealthStore();
@@ -387,4 +387,6 @@ export default function TodayScreen(): React.ReactElement {
       </SafeAreaView>
     </View>
   );
-}
+};
+
+export default TodayScreen;

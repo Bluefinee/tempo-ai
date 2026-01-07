@@ -179,7 +179,7 @@ const ToggleRow: React.FC<ToggleRowProps> = ({
   </View>
 );
 
-export default function SettingsScreen(): React.ReactElement {
+const SettingsScreen = (): React.ReactElement => {
   const insets = useSafeAreaInsets();
   const [notifications, setNotifications] = useState(true);
   const [haptic, setHaptic] = useState(true);
@@ -349,3 +349,5 @@ export default function SettingsScreen(): React.ReactElement {
     </View>
   );
 }
+
+export default SettingsScreen;

@@ -2,7 +2,7 @@ import { Redirect } from 'expo-router';
 import { useUserStore } from '../src/stores';
 import type { JSX } from 'react';
 
-export default function Index(): JSX.Element {
+const Index = (): JSX.Element => {
   const isOnboardingComplete = useUserStore((state) => state.isOnboardingComplete);
 
   // Zustand persist middleware handles hydration automatically
@@ -15,3 +15,5 @@ export default function Index(): JSX.Element {
 
   return <Redirect href="/(onboarding)" />;
 }
+
+export default Index;

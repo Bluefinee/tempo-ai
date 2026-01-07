@@ -15,7 +15,7 @@ import type { JSX } from 'react';
 const CURRENT_STEP = 8;
 const TOTAL_STEPS = 9;
 
-export default function LocationScreen(): JSX.Element {
+const LocationScreen = (): JSX.Element => {
   const router = useRouter();
   const { width, height } = useWindowDimensions();
 
@@ -219,3 +219,5 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
 });
+
+export default LocationScreen;

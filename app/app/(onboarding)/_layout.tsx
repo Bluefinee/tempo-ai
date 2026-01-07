@@ -1,7 +1,7 @@
 import { Stack } from 'expo-router';
 import type { JSX } from 'react';
 
-export default function OnboardingLayout(): JSX.Element {
+const OnboardingLayout = (): JSX.Element => {
   return (
     <Stack
       screenOptions={{
@@ -22,3 +22,5 @@ export default function OnboardingLayout(): JSX.Element {
     </Stack>
   );
 }
+
+export default OnboardingLayout;

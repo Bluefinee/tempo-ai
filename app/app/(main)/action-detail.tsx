@@ -34,7 +34,7 @@ import { useFadeIn } from '../../src/hooks/useFadeIn';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-export default function ActionDetailScreen(): React.ReactElement {
+const ActionDetailScreen = (): React.ReactElement => {
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
@@ -253,3 +253,5 @@ export default function ActionDetailScreen(): React.ReactElement {
     </View>
   );
 }
+
+export default ActionDetailScreen;

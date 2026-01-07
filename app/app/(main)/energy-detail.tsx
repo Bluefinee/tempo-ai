@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from 'react';
-import { View, Text, ScrollView, Pressable } from 'react-native';
+import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { ChevronLeft, Activity, Moon, Zap, ThermometerSun } from 'lucide-react-native';
@@ -103,7 +103,6 @@ const EnergyDetailScreen = (): React.ReactElement => {
 
   // Daily Curve SVGをレンダリング
   const renderDailyCurve = () => {
-    const chartWidth = 300;
     const chartHeight = 100;
 
     // エネルギー曲線のパス（朝に上昇、昼にピーク、午後に下降、夕方に少し回復）

@@ -26,10 +26,11 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 import { HealthAreaChart, type ChartDataPoint } from '../../src/components';
 import { colors } from '../../src/theme';
 import { t } from '../../src/i18n';
+import { seededRandom } from '../../src/constants/mockDataFactory';
+import { type Timeframe } from '../../src/components/TimeframeSelector';
 
 export type IconType = 'activity' | 'heart' | 'wind' | 'droplet' | 'thermometer';
 export type MetricStatus = 'in-range' | 'out-of-range';
-export type Timeframe = '7D' | '30D' | '60D';
 export type BaselineTrend = 'up' | 'down' | 'neutral';
 
 // メトリクスデータ型
@@ -242,11 +243,6 @@ export default function HealthDetailScreen(): React.ReactElement {
       const baseValue =
         typeof baseData[0]?.value === 'number' ? baseData[0].value : typicalRange.min;
       const range = typicalRange.max - typicalRange.min;
-
-      const seededRandom = (seed: number): number => {
-        const x = Math.sin(seed * 12.9898 + seed * 78.233) * 43758.5453;
-        return x - Math.floor(x);
-      };
 
       const generateValue = (index: number, seed: number): number => {
         const variance = range * 0.4;

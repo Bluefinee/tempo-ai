@@ -1,52 +1,32 @@
 /**
  * useFadeIn - フェードインアニメーション用カスタムフック
- * sozai/new/new2/tempoaiの.fade-inクラスを再現
+ * react-native-reanimated版
  */
 
-import { useEffect, useRef } from 'react';
-import { Animated, Easing } from 'react-native';
-
-interface UseFadeInOptions {
-  delay?: number;
-  duration?: number;
-}
-
-export const useFadeIn = (options: UseFadeInOptions = {}) => {
-  const { delay = 0, duration = 600 } = options;
-  const opacity = useRef(new Animated.Value(0)).current;
-  const translateY = useRef(new Animated.Value(10)).current;
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      Animated.parallel([
-        Animated.timing(opacity, {
-          toValue: 1,
-          duration,
-          easing: Easing.out(Easing.ease),
-          useNativeDriver: true,
-        }),
-        Animated.timing(translateY, {
-          toValue: 0,
-          duration,
-          easing: Easing.out(Easing.ease),
-          useNativeDriver: true,
-        }),
-      ]).start();
-    }, delay);
-
-    return () => clearTimeout(timeout);
-  }, [delay, duration, opacity, translateY]);
-
-  return {
-    opacity,
-    transform: [{ translateY }],
-  };
-};
+import { useEffect } from 'react';
+import {
+  useSharedValue,
+  useAnimatedStyle,
+  withDelay,
+  withTiming,
+} from 'react-native-reanimated';
 
 /**
- * FadeInView - フェードインアニメーション付きのViewラッパー
+ * フェードインアニメーションフック
+ * @param delay アニメーション開始までの遅延時間（ミリ秒）
+ * @returns アニメーションスタイル
  */
-export const createFadeInStyle = (opacity: Animated.Value, translateY: Animated.Value) => ({
-  opacity,
-  transform: [{ translateY }],
-});
+export const useFadeIn = (delay: number = 0) => {
+  const opacity = useSharedValue(0);
+  const translateY = useSharedValue(10);
+
+  useEffect(() => {
+    opacity.value = withDelay(delay, withTiming(1, { duration: 600 }));
+    translateY.value = withDelay(delay, withTiming(0, { duration: 600 }));
+  }, [opacity, translateY, delay]);
+
+  return useAnimatedStyle(() => ({
+    opacity: opacity.value,
+    transform: [{ translateY: translateY.value }],
+  }));
+};

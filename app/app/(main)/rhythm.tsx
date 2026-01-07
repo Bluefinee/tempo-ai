@@ -24,7 +24,7 @@ import { TAB_BAR_HEIGHT } from './_layout';
 import { RhythmInteractiveChart, type RhythmDataPoint } from '../../src/components';
 import { colors, FontFamily } from '../../src/theme';
 import { t } from '../../src/i18n';
-import { getEnvironmentData } from '../../src/constants/mockData';
+import { getEnvironmentData } from "../../src/constants/mockData";
 
 // モックデータ: 24時間分のエネルギーレベル (sozai版と同じデータ形式)
 const RHYTHM_DATA: RhythmDataPoint[] = [

@@ -8,7 +8,7 @@ import React from "react";
 import { View, Text, StyleSheet, Dimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { Colors, Spacing, BorderRadius, FontFamily } from "../../src/theme";
+import { Colors, FontFamily } from "../../src/theme";
 import { PrimaryButton } from "../../src/components";
 import type { JSX } from "react";
 

@@ -14,7 +14,7 @@ import Svg, { Rect, Line } from 'react-native-svg';
 import { CircularProgress } from '../../src/components';
 import { colors, FontFamily } from '../../src/theme';
 import { t } from '../../src/i18n';
-import { MOCK_DETAIL } from '../../src/constants/mockData';
+import { MOCK_DETAIL } from "../../src/constants/mockData";
 import { useHealthStore } from '../../src/stores/healthStore';
 
 // スコアに応じたステータスを取得

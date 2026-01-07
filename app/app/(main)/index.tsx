@@ -35,12 +35,8 @@ import Svg, { Polyline, Circle } from "react-native-svg";
 import { TAB_BAR_HEIGHT } from "./_layout";
 import { colors, FontFamily } from "../../src/theme";
 import { t } from "../../src/i18n";
-import {
-  MOCK_TODAY,
-  MOCK_SETTINGS,
-  getGreeting,
-  formatDate,
-} from "../../src/constants/mockData";
+import { MOCK_TODAY, MOCK_SETTINGS } from "../../src/constants/mockData";
+import { getGreeting, formatDate } from "../../src/utils/dateFormatters";
 import { useHealthStore } from "../../src/stores/healthStore";
 
 // 4つの指標カードのデータ（i18n対応）

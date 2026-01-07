@@ -9,7 +9,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useRouter } from 'expo-router';
 import { ChevronLeft, Activity, Moon, Zap, ThermometerSun } from 'lucide-react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
-import Svg, { Path, Line, Circle, Defs, LinearGradient, Stop } from 'react-native-svg';
+import Svg, { Path, Defs, LinearGradient, Stop } from 'react-native-svg';
 
 import {
   CircularProgress,
@@ -19,7 +19,7 @@ import {
 } from '../../src/components';
 import { colors, FontFamily } from '../../src/theme';
 import { t } from '../../src/i18n';
-import { MOCK_DETAIL } from '../../src/constants/mockData';
+import { MOCK_DETAIL } from "../../src/constants/mockData";
 import { useHealthStore } from '../../src/stores/healthStore';
 
 // スコアに応じたステータスを取得

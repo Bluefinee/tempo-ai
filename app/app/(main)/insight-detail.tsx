@@ -17,7 +17,8 @@ import Animated, {
 
 import { t } from '../../src/i18n';
 import { FontFamily } from '../../src/theme';
-import { MOCK_AI_RESPONSE, formatDate } from '../../src/constants/mockData';
+import { MOCK_AI_RESPONSE } from "../../src/constants/mockData";
+import { formatDate } from "../../src/utils/dateFormatters";
 
 // アイコン設定（UI表示用）
 const DATA_POINT_ICONS = [

@@ -144,7 +144,7 @@
       "Bash(npx wrangler:*)",
       "Bash(tree:*)",
       "Bash(cut:*)",
-      "Bash(for file in /Users/masakazuiwahara/Development/tempo-ai/app/src/domain/services/*.ts)",
+      "Bash(for file in ./app/src/domain/services/*.ts)",
       "Bash(do if [[ ! \"$file\" =~ index.ts$ ]])",
       "Bash(done)",
       "Bash(npx jest:*)"

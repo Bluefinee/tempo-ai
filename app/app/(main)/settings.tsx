@@ -41,21 +41,8 @@ const MOCK_DATA = {
   targetWakeUp: '6:30',
 };
 
-// Fade-in animation hook
-const useFadeIn = (delay: number = 0) => {
-  const opacity = useSharedValue(0);
-  const translateY = useSharedValue(10);
-
-  useEffect(() => {
-    opacity.value = withDelay(delay, withTiming(1, { duration: 600 }));
-    translateY.value = withDelay(delay, withTiming(0, { duration: 600 }));
-  }, [opacity, translateY, delay]);
-
-  return useAnimatedStyle(() => ({
-    opacity: opacity.value,
-    transform: [{ translateY: translateY.value }],
-  }));
-};
+// Import shared fade-in hook
+import { useFadeIn } from '../../src/hooks/useFadeIn';
 
 // Toggle Switch Component
 const ToggleSwitch: React.FC<{

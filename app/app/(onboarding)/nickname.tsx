@@ -8,7 +8,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, Dimensions, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { Colors, Spacing, BorderRadius, FontFamily } from '../../src/theme';
+import { Colors, FontFamily } from '../../src/theme';
 import { PrimaryButton, InputField } from '../../src/components';
 import { useUserStore } from '../../src/stores';
 import type { JSX } from 'react';

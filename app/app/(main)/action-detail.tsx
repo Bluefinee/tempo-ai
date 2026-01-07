@@ -20,7 +20,7 @@ import Animated, {
 
 import { t } from '../../src/i18n';
 import { colors, FontFamily } from '../../src/theme';
-import { MOCK_AI_RESPONSE } from '../../src/constants/mockData';
+import { MOCK_AI_RESPONSE } from "../../src/constants/mockData";
 
 // アイコン設定（UI表示用）
 const BENEFIT_ICONS = [
@@ -29,21 +29,8 @@ const BENEFIT_ICONS = [
   { icon: Battery, iconColor: colors.emerald[500], iconBg: colors.emerald[50] },
 ];
 
-// Fade-in animation hook
-const useFadeIn = (delay: number = 0) => {
-  const opacity = useSharedValue(0);
-  const translateY = useSharedValue(10);
-
-  useEffect(() => {
-    opacity.value = withDelay(delay, withTiming(1, { duration: 600 }));
-    translateY.value = withDelay(delay, withTiming(0, { duration: 600 }));
-  }, [opacity, translateY, delay]);
-
-  return useAnimatedStyle(() => ({
-    opacity: opacity.value,
-    transform: [{ translateY: translateY.value }],
-  }));
-};
+// Import shared fade-in hook
+import { useFadeIn } from '../../src/hooks/useFadeIn';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 

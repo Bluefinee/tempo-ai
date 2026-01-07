@@ -3,15 +3,15 @@
  * スコア表示用のサークルプログレス
  */
 
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import Svg, { Circle } from 'react-native-svg';
+import React from "react";
+import { View, StyleSheet } from "react-native";
+import Svg, { Circle } from "react-native-svg";
 import Animated, {
   useAnimatedProps,
   useSharedValue,
   withTiming,
   Easing,
-} from 'react-native-reanimated';
+} from "react-native-reanimated";
 
 interface CircularProgressProps {
   size: number;
@@ -29,7 +29,7 @@ export const CircularProgress = ({
   strokeWidth,
   progress,
   color,
-  backgroundColor = '#E7E5E4',
+  backgroundColor = "#E7E5E4",
   duration = 1000,
 }: CircularProgressProps): React.ReactElement => {
   const radius = (size - strokeWidth) / 2;
@@ -44,7 +44,8 @@ export const CircularProgress = ({
   }, [progress, duration, progressValue]);
 
   const animatedProps = useAnimatedProps(() => {
-    const strokeDashoffset = circumference - (progressValue.value / 100) * circumference;
+    const strokeDashoffset =
+      circumference - (progressValue.value / 100) * circumference;
     return {
       strokeDashoffset,
     };
@@ -83,8 +84,7 @@ export const CircularProgress = ({
 
 const styles = StyleSheet.create({
   container: {
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
-

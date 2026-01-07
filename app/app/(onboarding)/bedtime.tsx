@@ -4,7 +4,7 @@
  * Step 6 of 9
  */
 
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -12,15 +12,15 @@ import {
   TouchableOpacity,
   Dimensions,
   ScrollView,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
-import { Colors, Spacing, BorderRadius, FontFamily } from '../../src/theme';
-import { PrimaryButton } from '../../src/components';
-import { useUserStore } from '../../src/stores';
-import type { JSX } from 'react';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
+import { Colors, Spacing, BorderRadius, FontFamily } from "../../src/theme";
+import { PrimaryButton } from "../../src/components";
+import { useUserStore } from "../../src/stores";
+import type { JSX } from "react";
 
-const { width, height } = Dimensions.get('window');
+const { width, height } = Dimensions.get("window");
 const CURRENT_STEP = 6;
 const TOTAL_STEPS = 9;
 
@@ -28,28 +28,34 @@ const HOURS = Array.from({ length: 6 }, (_, i) => 20 + i); // 20:00 - 01:00
 const MINUTES = [0, 15, 30, 45];
 
 const parseTime = (timeStr: string): { hour: number; minute: number } => {
-  const [h, m] = timeStr.split(':').map(Number);
+  const [h, m] = timeStr.split(":").map(Number);
   const normalizedHour = h < 20 ? h + 24 : h;
   return { hour: normalizedHour, minute: m };
 };
 
 const BedtimeScreen = (): JSX.Element => {
   const router = useRouter();
-  const setDraftTargetBedtime = useUserStore((state) => state.setDraftTargetBedtime);
-  const draftBedtime = useUserStore((state) => state.draftProfile.targetBedtime);
+  const setDraftTargetBedtime = useUserStore(
+    (state) => state.setDraftTargetBedtime,
+  );
+  const draftBedtime = useUserStore(
+    (state) => state.draftProfile.targetBedtime,
+  );
 
-  const initialTime = draftBedtime ? parseTime(draftBedtime) : { hour: 23, minute: 0 };
+  const initialTime = draftBedtime
+    ? parseTime(draftBedtime)
+    : { hour: 23, minute: 0 };
   const [hour, setHour] = useState(initialTime.hour);
   const [minute, setMinute] = useState(initialTime.minute);
 
   const formatTime = (h: number, m: number): string => {
     const displayHour = h >= 24 ? h - 24 : h;
-    return `${displayHour.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+    return `${displayHour.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
   };
 
   const handleNext = (): void => {
     setDraftTargetBedtime(formatTime(hour, minute));
-    router.push('/(onboarding)/lifestyle');
+    router.push("/(onboarding)/lifestyle");
   };
 
   return (
@@ -66,7 +72,9 @@ const BedtimeScreen = (): JSX.Element => {
               key={idx}
               style={[
                 styles.progressSegment,
-                idx < CURRENT_STEP ? styles.progressActive : styles.progressInactive,
+                idx < CURRENT_STEP
+                  ? styles.progressActive
+                  : styles.progressInactive,
               ]}
             />
           ))}
@@ -82,7 +90,8 @@ const BedtimeScreen = (): JSX.Element => {
             <Text style={styles.emoji}>🛏️</Text>
             <Text style={styles.title}>Restful Ritual</Text>
             <Text style={styles.description}>
-              Set your ideal bedtime. This becomes the anchor for your circadian rhythm analysis.
+              Set your ideal bedtime. This becomes the anchor for your circadian
+              rhythm analysis.
             </Text>
 
             {/* Time Display */}
@@ -135,7 +144,7 @@ const BedtimeScreen = (): JSX.Element => {
                           minute === m && styles.pickerItemTextSelected,
                         ]}
                       >
-                        {m.toString().padStart(2, '0')}
+                        {m.toString().padStart(2, "0")}
                       </Text>
                     </TouchableOpacity>
                   ))}
@@ -151,20 +160,18 @@ const BedtimeScreen = (): JSX.Element => {
 
         {/* Footer */}
         <View style={styles.footer}>
-          <PrimaryButton onPress={handleNext}>
-            Continue
-          </PrimaryButton>
+          <PrimaryButton onPress={handleNext}>Continue</PrimaryButton>
         </View>
       </SafeAreaView>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.stone[50],
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   safeArea: {
     flex: 1,
@@ -177,7 +184,7 @@ const styles = StyleSheet.create({
   },
   // Decorative blobs
   blobTopRight: {
-    position: 'absolute',
+    position: "absolute",
     top: -height * 0.15,
     right: -width * 0.2,
     width: 256,
@@ -187,7 +194,7 @@ const styles = StyleSheet.create({
     opacity: 0.4,
   },
   blobBottomLeft: {
-    position: 'absolute',
+    position: "absolute",
     bottom: -height * 0.1,
     left: -width * 0.15,
     width: 320,
@@ -198,7 +205,7 @@ const styles = StyleSheet.create({
   },
   // Progress bar
   progressContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     paddingHorizontal: 32,
     paddingTop: 48,
     gap: 8,
@@ -216,7 +223,7 @@ const styles = StyleSheet.create({
   },
   // Content
   content: {
-    alignItems: 'center',
+    alignItems: "center",
     paddingHorizontal: 32,
     paddingTop: 32,
   },
@@ -227,9 +234,9 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: FontFamily.serif,
     fontSize: 24,
-    fontWeight: '700',
+    fontWeight: "700",
     color: Colors.stone[900],
-    textAlign: 'center',
+    textAlign: "center",
     letterSpacing: -0.5,
     marginBottom: 12,
   },
@@ -237,7 +244,7 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.regular,
     fontSize: 16,
     color: Colors.stone[500],
-    textAlign: 'center',
+    textAlign: "center",
     lineHeight: 26,
     marginBottom: 32,
   },
@@ -254,31 +261,31 @@ const styles = StyleSheet.create({
   timeText: {
     fontFamily: FontFamily.bold,
     fontSize: 48,
-    fontWeight: '700',
+    fontWeight: "700",
     color: Colors.indigo[600],
     letterSpacing: 2,
   },
   // Picker
   pickerContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 48,
     marginBottom: 24,
   },
   pickerColumn: {
-    alignItems: 'center',
+    alignItems: "center",
   },
   pickerLabel: {
     fontFamily: FontFamily.medium,
     fontSize: 10,
-    fontWeight: '500',
+    fontWeight: "500",
     color: Colors.stone[400],
     letterSpacing: 1.5,
     marginBottom: 12,
   },
   pickerOptions: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
     gap: 8,
     maxWidth: 140,
   },
@@ -287,8 +294,8 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 22,
     backgroundColor: Colors.white,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     borderWidth: 1,
     borderColor: Colors.stone[200],
   },
@@ -299,7 +306,7 @@ const styles = StyleSheet.create({
   pickerItemText: {
     fontFamily: FontFamily.semibold,
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
     color: Colors.stone[600],
   },
   pickerItemTextSelected: {
@@ -309,13 +316,13 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.regular,
     fontSize: 12,
     color: Colors.stone[400],
-    textAlign: 'center',
+    textAlign: "center",
   },
   // Footer
   footer: {
     paddingHorizontal: 32,
     paddingBottom: 48,
-    alignItems: 'center',
+    alignItems: "center",
   },
 });
 

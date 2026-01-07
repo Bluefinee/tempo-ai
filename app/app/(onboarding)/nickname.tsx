@@ -4,14 +4,20 @@
  * Step 3 of 9
  */
 
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
-import { Colors, FontFamily } from '../../src/theme';
-import { PrimaryButton, InputField } from '../../src/components';
-import { useUserStore } from '../../src/stores';
-import type { JSX } from 'react';
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
+import { Colors, FontFamily } from "../../src/theme";
+import { PrimaryButton, InputField } from "../../src/components";
+import { useUserStore } from "../../src/stores";
+import type { JSX } from "react";
 
 const CURRENT_STEP = 3;
 const TOTAL_STEPS = 9;
@@ -20,20 +26,20 @@ const NicknameScreen = (): JSX.Element => {
   const router = useRouter();
   const setDraftNickname = useUserStore((state) => state.setDraftNickname);
   const draftNickname = useUserStore((state) => state.draftProfile.nickname);
-  const [nickname, setNickname] = useState(draftNickname || '');
-  const [error, setError] = useState('');
+  const [nickname, setNickname] = useState(draftNickname || "");
+  const [error, setError] = useState("");
 
   const handleNext = (): void => {
     if (!nickname.trim()) {
-      setError('Please enter a nickname');
+      setError("Please enter a nickname");
       return;
     }
     if (nickname.length > 20) {
-      setError('Nickname must be 20 characters or less');
+      setError("Nickname must be 20 characters or less");
       return;
     }
     setDraftNickname(nickname.trim());
-    router.push('/(onboarding)/basic-info');
+    router.push("/(onboarding)/basic-info");
   };
 
   return (
@@ -44,7 +50,7 @@ const NicknameScreen = (): JSX.Element => {
 
       <SafeAreaView style={styles.safeArea}>
         <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
           style={styles.keyboardView}
         >
           {/* Progress Bar */}
@@ -54,7 +60,9 @@ const NicknameScreen = (): JSX.Element => {
                 key={idx}
                 style={[
                   styles.progressSegment,
-                  idx < CURRENT_STEP ? styles.progressActive : styles.progressInactive,
+                  idx < CURRENT_STEP
+                    ? styles.progressActive
+                    : styles.progressInactive,
                 ]}
               />
             ))}
@@ -65,7 +73,8 @@ const NicknameScreen = (): JSX.Element => {
             <Text style={styles.emoji}>🤖</Text>
             <Text style={styles.title}>Warm AI Guidance</Text>
             <Text style={styles.description}>
-              No robotic charts. Just gentle, poetic advice to help you feel your best.
+              No robotic charts. Just gentle, poetic advice to help you feel
+              your best.
             </Text>
 
             <View style={styles.inputWrapper}>
@@ -74,7 +83,7 @@ const NicknameScreen = (): JSX.Element => {
                 value={nickname}
                 onChangeText={(text) => {
                   setNickname(text);
-                  setError('');
+                  setError("");
                 }}
                 placeholder="Enter your name"
                 autoFocus
@@ -86,10 +95,7 @@ const NicknameScreen = (): JSX.Element => {
 
           {/* Footer */}
           <View style={styles.footer}>
-            <PrimaryButton
-              onPress={handleNext}
-              disabled={!nickname.trim()}
-            >
+            <PrimaryButton onPress={handleNext} disabled={!nickname.trim()}>
               Continue
             </PrimaryButton>
           </View>
@@ -97,13 +103,13 @@ const NicknameScreen = (): JSX.Element => {
       </SafeAreaView>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.stone[50],
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   safeArea: {
     flex: 1,
@@ -113,7 +119,7 @@ const styles = StyleSheet.create({
   },
   // Decorative blobs
   blobTopRight: {
-    position: 'absolute',
+    position: "absolute",
     top: -100,
     right: -80,
     width: 256,
@@ -123,7 +129,7 @@ const styles = StyleSheet.create({
     opacity: 0.4,
   },
   blobBottomLeft: {
-    position: 'absolute',
+    position: "absolute",
     bottom: -80,
     left: -60,
     width: 320,
@@ -134,7 +140,7 @@ const styles = StyleSheet.create({
   },
   // Progress bar
   progressContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     paddingHorizontal: 32,
     paddingTop: 48,
     gap: 8,
@@ -153,8 +159,8 @@ const styles = StyleSheet.create({
   // Content
   content: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     paddingHorizontal: 32,
   },
   emoji: {
@@ -164,9 +170,9 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: FontFamily.serif,
     fontSize: 24,
-    fontWeight: '700',
+    fontWeight: "700",
     color: Colors.stone[900],
-    textAlign: 'center',
+    textAlign: "center",
     letterSpacing: -0.5,
     marginBottom: 16,
   },
@@ -174,18 +180,18 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.regular,
     fontSize: 16,
     color: Colors.stone[500],
-    textAlign: 'center',
+    textAlign: "center",
     lineHeight: 26,
     marginBottom: 32,
   },
   inputWrapper: {
-    width: '100%',
+    width: "100%",
   },
   // Footer
   footer: {
     paddingHorizontal: 32,
     paddingBottom: 48,
-    alignItems: 'center',
+    alignItems: "center",
   },
 });
 

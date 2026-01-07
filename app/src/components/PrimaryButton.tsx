@@ -3,7 +3,7 @@
  * sozai/new のスタイルを React Native で再現
  */
 
-import React from 'react';
+import React from "react";
 import {
   TouchableOpacity,
   Text,
@@ -12,10 +12,10 @@ import {
   StyleProp,
   ActivityIndicator,
   View,
-} from 'react-native';
-import { ChevronRight, Check } from 'lucide-react-native';
-import { Colors, FontFamily } from '../theme';
-import type { ReactElement } from 'react';
+} from "react-native";
+import { ChevronRight, Check } from "lucide-react-native";
+import { Colors, FontFamily } from "../theme";
+import type { ReactElement } from "react";
 
 interface PrimaryButtonProps {
   onPress: () => void;
@@ -41,24 +41,23 @@ export const PrimaryButton = ({
       onPress={onPress}
       disabled={disabled || loading}
       activeOpacity={0.85}
-      style={[
-        styles.button,
-        (disabled || loading) && styles.disabled,
-        style,
-      ]}
+      style={[styles.button, (disabled || loading) && styles.disabled, style]}
     >
       {loading ? (
         <ActivityIndicator color={Colors.white} />
       ) : (
         <View style={styles.content}>
           <Text style={styles.text}>{children}</Text>
-          {showIcon && (
-            isLast ? (
+          {showIcon &&
+            (isLast ? (
               <Check size={20} color={Colors.white} style={styles.icon} />
             ) : (
-              <ChevronRight size={20} color={Colors.white} style={styles.icon} />
-            )
-          )}
+              <ChevronRight
+                size={20}
+                color={Colors.white}
+                style={styles.icon}
+              />
+            ))}
         </View>
       )}
     </TouchableOpacity>
@@ -72,8 +71,8 @@ const styles = StyleSheet.create({
     paddingVertical: 16, // py-4
     paddingLeft: 32, // pl-8
     paddingRight: 24, // pr-6
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     // shadow-xl shadow-indigo-900/20
     shadowColor: Colors.indigo[900],
     shadowOffset: { width: 0, height: 8 },
@@ -85,13 +84,13 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   content: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   text: {
     fontFamily: FontFamily.semibold,
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
     color: Colors.white,
   },
   icon: {

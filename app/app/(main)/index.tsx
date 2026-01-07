@@ -37,10 +37,21 @@ import { t } from "../../src/i18n";
 import { MOCK_TODAY, MOCK_SETTINGS } from "../../src/constants/mockData";
 import { getGreeting, formatDate } from "../../src/utils/dateFormatters";
 import { useHealthStore } from "../../src/stores/healthStore";
-import { MetricGridCard, type MetricCard } from "../../src/components/today/MetricGridCard";
-import { HealthSummaryCard, type HealthCard } from "../../src/components/today/HealthSummaryCard";
+import {
+  MetricGridCard,
+  type MetricCard,
+} from "../../src/components/today/MetricGridCard";
+import {
+  HealthSummaryCard,
+  type HealthCard,
+} from "../../src/components/today/HealthSummaryCard";
 
-const getMetricCards = (scores?: { recovery: number; sleep: number; rhythm: number; energy: number }): MetricCard[] => [
+const getMetricCards = (scores?: {
+  recovery: number;
+  sleep: number;
+  rhythm: number;
+  energy: number;
+}): MetricCard[] => [
   {
     id: "recovery",
     title: t("score.recovery.label"),
@@ -136,26 +147,25 @@ const getHealthCards = (): HealthCard[] => [
   },
 ];
 
-
 const TodayScreen = (): React.ReactElement => {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { dailySnapshot, isLoading, initialize } = useHealthStore();
-  
+
   // 初回レンダリング時に初期化（データ取得 + 計算）
   useEffect(() => {
     initialize();
   }, [initialize]);
-  
+
   // healthStoreから計算済みのスコアを取得
   const scores = dailySnapshot?.scores;
-  
+
   const healthCards = getHealthCards();
   const metricCards = getMetricCards(scores);
 
   const greeting = getGreeting(MOCK_SETTINGS.profile.name);
   const today = formatDate();
-  
+
   // ローディング表示
   if (isLoading) {
     return (
@@ -163,16 +173,12 @@ const TodayScreen = (): React.ReactElement => {
         <SafeAreaView style={styles.loadingSafeArea}>
           <View style={styles.loadingContent}>
             <ActivityIndicator size="large" color={colors.stone[900]} />
-            <Text style={styles.loadingText}>
-              {t("common.loading")}
-            </Text>
+            <Text style={styles.loadingText}>{t("common.loading")}</Text>
           </View>
         </SafeAreaView>
       </View>
     );
   }
-
-
 
   return (
     <View className="flex-1 bg-stone-50">
@@ -231,7 +237,10 @@ const TodayScreen = (): React.ReactElement => {
               entering={FadeInDown.delay(200).duration(400)}
               style={styles.sectionContainer}
             >
-              <View className="flex-row items-center px-1" style={styles.sectionHeader}>
+              <View
+                className="flex-row items-center px-1"
+                style={styles.sectionHeader}
+              >
                 <Sparkles size={18} color={colors.indigo[500]} />
                 <Text
                   className="text-sm font-bold text-stone-400 uppercase"
@@ -256,7 +265,10 @@ const TodayScreen = (): React.ReactElement => {
                 <Text className="text-sm text-stone-600 leading-relaxed mb-4">
                   {MOCK_TODAY.aiMessage.body}
                 </Text>
-                <View className="flex-row items-center" style={styles.viewAnalysisContainer}>
+                <View
+                  className="flex-row items-center"
+                  style={styles.viewAnalysisContainer}
+                >
                   <Text className="text-xs font-bold text-indigo-600">
                     {t("screen.today.viewAnalysis")}
                   </Text>
@@ -270,7 +282,10 @@ const TodayScreen = (): React.ReactElement => {
               entering={FadeInDown.delay(300).duration(400)}
               style={styles.sectionContainer}
             >
-              <View className="flex-row items-center px-1" style={styles.sectionHeader}>
+              <View
+                className="flex-row items-center px-1"
+                style={styles.sectionHeader}
+              >
                 <Target size={18} color={colors.amber[500]} />
                 <Text
                   className="text-sm font-bold text-stone-400 uppercase"
@@ -326,7 +341,10 @@ const TodayScreen = (): React.ReactElement => {
               style={styles.sectionContainer}
             >
               <View className="flex-row items-center justify-between px-1">
-                <View className="flex-row items-center" style={styles.sectionHeader}>
+                <View
+                  className="flex-row items-center"
+                  style={styles.sectionHeader}
+                >
                   <Activity size={18} color={colors.rose[500]} />
                   <Text
                     className="text-sm font-bold text-stone-400 uppercase"

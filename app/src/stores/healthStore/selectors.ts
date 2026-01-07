@@ -2,10 +2,10 @@
  * HealthStore セレクター関数
  */
 
-import type { HealthState } from './types';
-import type { DailySnapshot, RealtimeMetrics } from '../../domain/models';
-import type { RhythmPhase } from '../../domain/models/rhythm';
-import { formatDateString } from '../../constants/mockDataFactory';
+import type { HealthState } from "./types";
+import type { DailySnapshot, RealtimeMetrics } from "../../domain/models";
+import type { RhythmPhase } from "../../domain/models/rhythm";
+import { formatDateString } from "../../constants/mockDataFactory";
 
 export const selectIsHealthDataStale = (state: HealthState): boolean => {
   if (!state.lastMetricsUpdate) return true;
@@ -31,11 +31,10 @@ export const selectDailySnapshot = (state: HealthState): DailySnapshot | null =>
   state.dailySnapshot;
 
 export const selectRealtimeMetrics = (
-  state: HealthState
+  state: HealthState,
 ): RealtimeMetrics | null => state.realtimeMetrics;
 
 export const selectShouldCalculateSnapshot = (state: HealthState): boolean => {
   const today = formatDateString(new Date());
   return state.lastSnapshotDate !== today;
 };
-

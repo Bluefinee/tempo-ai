@@ -4,25 +4,31 @@
  * フルスクリーンモーダル風デザイン
  */
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { View, Text, Pressable, useWindowDimensions, StyleSheet } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
-import { X, Play, Pause, Wind } from 'lucide-react-native';
-import Svg, { Circle } from 'react-native-svg';
-import { LinearGradient } from 'expo-linear-gradient';
-import * as Haptics from 'expo-haptics';
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import {
+  View,
+  Text,
+  Pressable,
+  useWindowDimensions,
+  StyleSheet,
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
+import { X, Play, Pause, Wind } from "lucide-react-native";
+import Svg, { Circle } from "react-native-svg";
+import { LinearGradient } from "expo-linear-gradient";
+import * as Haptics from "expo-haptics";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
   Easing,
-} from 'react-native-reanimated';
+} from "react-native-reanimated";
 
-import { TAB_BAR_HEIGHT } from './_layout';
-import { t } from '../../src/i18n';
+import { TAB_BAR_HEIGHT } from "./_layout";
+import { t } from "../../src/i18n";
 
-const DEEP_NAVY = '#0F172A';
+const DEEP_NAVY = "#0F172A";
 
 // 4-4-4 Box breathing: 4s inhale, 4s hold, 4s exhale (12s cycle)
 const PHASE_DURATIONS = {
@@ -34,7 +40,7 @@ const PHASE_DURATIONS = {
 const formatTime = (seconds: number): string => {
   const mins = Math.floor(seconds / 60);
   const secs = seconds % 60;
-  return `${mins.toString().padStart(2, '0')}:${secs < 10 ? '0' : ''}${secs}`;
+  return `${mins.toString().padStart(2, "0")}:${secs < 10 ? "0" : ""}${secs}`;
 };
 
 const BreatheScreen = (): React.ReactElement => {
@@ -42,7 +48,9 @@ const BreatheScreen = (): React.ReactElement => {
   const insets = useSafeAreaInsets();
   const { width: SCREEN_WIDTH } = useWindowDimensions();
   const [isActive, setIsActive] = useState(false);
-  const [phase, setPhase] = useState<'idle' | 'inhale' | 'hold' | 'exhale'>('idle');
+  const [phase, setPhase] = useState<"idle" | "inhale" | "hold" | "exhale">(
+    "idle",
+  );
   const [timeLeft, setTimeLeft] = useState(60);
 
   const previousPhaseRef = useRef(phase);
@@ -71,7 +79,7 @@ const BreatheScreen = (): React.ReactElement => {
         setTimeLeft((prev) => {
           if (prev <= 1) {
             setIsActive(false);
-            setPhase('idle');
+            setPhase("idle");
             return 0;
           }
           return prev - 1;
@@ -94,20 +102,20 @@ const BreatheScreen = (): React.ReactElement => {
   // Phase cycling effect
   useEffect(() => {
     if (!isActive) {
-      setPhase('idle');
+      setPhase("idle");
       return;
     }
 
     const runCycle = (): void => {
-      setPhase('inhale');
+      setPhase("inhale");
 
       phaseTimeoutRef.current = setTimeout(() => {
         if (!isActive) return;
-        setPhase('hold');
+        setPhase("hold");
 
         phaseTimeoutRef.current = setTimeout(() => {
           if (!isActive) return;
-          setPhase('exhale');
+          setPhase("exhale");
 
           phaseTimeoutRef.current = setTimeout(() => {
             if (!isActive) return;
@@ -128,9 +136,14 @@ const BreatheScreen = (): React.ReactElement => {
 
   // Animation effect based on phase
   useEffect(() => {
-    const targetScale = phase === 'exhale' ? 0.5 : phase === 'inhale' || phase === 'hold' ? 1 : 0.75;
-    const targetGlow = phase === 'inhale' || phase === 'hold' ? 0.4 : 0.2;
-    const targetGlowScale = phase === 'inhale' || phase === 'hold' ? 1.25 : 1;
+    const targetScale =
+      phase === "exhale"
+        ? 0.5
+        : phase === "inhale" || phase === "hold"
+          ? 1
+          : 0.75;
+    const targetGlow = phase === "inhale" || phase === "hold" ? 0.4 : 0.2;
+    const targetGlowScale = phase === "inhale" || phase === "hold" ? 1.25 : 1;
 
     scale.value = withTiming(targetScale, {
       duration: 4000,
@@ -156,14 +169,14 @@ const BreatheScreen = (): React.ReactElement => {
 
   const getInstruction = (): string => {
     switch (phase) {
-      case 'inhale':
-        return t('screen.breathe.instruction.inhale');
-      case 'hold':
-        return t('screen.breathe.instruction.hold');
-      case 'exhale':
-        return t('screen.breathe.instruction.exhale');
+      case "inhale":
+        return t("screen.breathe.instruction.inhale");
+      case "hold":
+        return t("screen.breathe.instruction.hold");
+      case "exhale":
+        return t("screen.breathe.instruction.exhale");
       default:
-        return t('screen.breathe.instruction.ready');
+        return t("screen.breathe.instruction.ready");
     }
   };
 
@@ -192,10 +205,14 @@ const BreatheScreen = (): React.ReactElement => {
 
   const getPhaseColor = (): string => {
     switch (phase) {
-      case 'inhale': return '#818CF8';
-      case 'hold': return '#A78BFA';
-      case 'exhale': return '#6366F1';
-      default: return '#6366F1';
+      case "inhale":
+        return "#818CF8";
+      case "hold":
+        return "#A78BFA";
+      case "exhale":
+        return "#6366F1";
+      default:
+        return "#6366F1";
     }
   };
 
@@ -203,18 +220,17 @@ const BreatheScreen = (): React.ReactElement => {
     <View className="flex-1" style={styles.container}>
       {/* Background gradient overlay */}
       <LinearGradient
-        colors={['rgba(99, 102, 241, 0.15)', 'transparent', 'rgba(99, 102, 241, 0.1)']}
+        colors={[
+          "rgba(99, 102, 241, 0.15)",
+          "transparent",
+          "rgba(99, 102, 241, 0.1)",
+        ]}
         locations={[0, 0.5, 1]}
         style={styles.backgroundGradient}
       />
 
       {/* Background ambient glow */}
-      <Animated.View
-        style={[
-          glowStyle,
-          styles.ambientGlow,
-        ]}
-      />
+      <Animated.View style={[glowStyle, styles.ambientGlow]} />
 
       {/* Header */}
       <View
@@ -222,15 +238,16 @@ const BreatheScreen = (): React.ReactElement => {
         style={{ paddingTop: insets.top + 12 }}
       >
         <View className="flex-row items-center" style={styles.headerLeft}>
-          <View
-            className="p-2 rounded-xl"
-            style={styles.headerIconBg}
-          >
+          <View className="p-2 rounded-xl" style={styles.headerIconBg}>
             <Wind size={20} color="#A5B4FC" />
           </View>
           <View>
-            <Text className="text-lg font-semibold tracking-wide text-white">{t('screen.breathe.title')}</Text>
-            <Text className="text-xs text-indigo-300">{t('screen.breathe.subtitle')}</Text>
+            <Text className="text-lg font-semibold tracking-wide text-white">
+              {t("screen.breathe.title")}
+            </Text>
+            <Text className="text-xs text-indigo-300">
+              {t("screen.breathe.subtitle")}
+            </Text>
           </View>
         </View>
         <Pressable
@@ -321,7 +338,7 @@ const BreatheScreen = (): React.ReactElement => {
             ]}
           >
             <LinearGradient
-              colors={['#818CF8', '#6366F1', '#4F46E5']}
+              colors={["#818CF8", "#6366F1", "#4F46E5"]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={styles.coreGradient}
@@ -346,7 +363,13 @@ const BreatheScreen = (): React.ReactElement => {
               style={styles.phaseBadge}
             >
               <Text className="text-xs font-medium text-indigo-200 tracking-widest">
-                {phase === 'inhale' ? t('screen.breathe.phase.inhale') : phase === 'hold' ? t('screen.breathe.phase.hold') : phase === 'exhale' ? t('screen.breathe.phase.exhale') : ''}
+                {phase === "inhale"
+                  ? t("screen.breathe.phase.inhale")
+                  : phase === "hold"
+                    ? t("screen.breathe.phase.hold")
+                    : phase === "exhale"
+                      ? t("screen.breathe.phase.exhale")
+                      : ""}
               </Text>
             </View>
           )}
@@ -370,7 +393,9 @@ const BreatheScreen = (): React.ReactElement => {
             {formatTime(timeLeft)}
           </Text>
           <Text className="text-xs text-indigo-300 mt-1">
-            {isActive ? t('screen.breathe.sessionInProgress') : t('screen.breathe.tapToBegin')}
+            {isActive
+              ? t("screen.breathe.sessionInProgress")
+              : t("screen.breathe.tapToBegin")}
           </Text>
         </View>
 
@@ -383,7 +408,12 @@ const BreatheScreen = (): React.ReactElement => {
           {isActive ? (
             <Pause size={28} color="#4F46E5" fill="#4F46E5" />
           ) : (
-            <Play size={28} color="#4F46E5" fill="#4F46E5" style={styles.playIcon} />
+            <Play
+              size={28}
+              color="#4F46E5"
+              fill="#4F46E5"
+              style={styles.playIcon}
+            />
           )}
         </Pressable>
       </View>
@@ -396,53 +426,53 @@ const styles = StyleSheet.create({
     backgroundColor: DEEP_NAVY,
   },
   backgroundGradient: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
   },
   ambientGlow: {
-    position: 'absolute',
-    top: '35%',
-    left: '50%',
+    position: "absolute",
+    top: "35%",
+    left: "50%",
     width: 400,
     height: 400,
     marginLeft: -200,
     marginTop: -200,
-    backgroundColor: '#6366F1',
+    backgroundColor: "#6366F1",
     borderRadius: 200,
   },
   headerLeft: {
     gap: 12,
   },
   headerIconBg: {
-    backgroundColor: 'rgba(99, 102, 241, 0.3)',
+    backgroundColor: "rgba(99, 102, 241, 0.3)",
   },
   closeButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
   },
   mainContent: {
     marginTop: -20,
   },
   svgAbsolute: {
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
+    position: "absolute",
+    width: "100%",
+    height: "100%",
   },
   outerRingBase: {
-    position: 'absolute',
+    position: "absolute",
     borderWidth: 1,
-    borderColor: 'rgba(99, 102, 241, 0.25)',
+    borderColor: "rgba(99, 102, 241, 0.25)",
   },
   middleRingBase: {
-    position: 'absolute',
+    position: "absolute",
     borderWidth: 1,
-    borderColor: 'rgba(129, 140, 248, 0.2)',
+    borderColor: "rgba(129, 140, 248, 0.2)",
   },
   coreCircleBase: {
-    overflow: 'hidden',
-    shadowColor: '#6366F1',
+    overflow: "hidden",
+    shadowColor: "#6366F1",
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.6,
     shadowRadius: 30,
@@ -450,17 +480,17 @@ const styles = StyleSheet.create({
   },
   coreGradient: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   innerGlow: {
-    width: '60%',
-    height: '60%',
+    width: "60%",
+    height: "60%",
     borderRadius: 100,
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    backgroundColor: "rgba(255, 255, 255, 0.15)",
   },
   phaseBadge: {
-    backgroundColor: 'rgba(99, 102, 241, 0.3)',
+    backgroundColor: "rgba(99, 102, 241, 0.3)",
   },
   controlsContainer: {
     gap: 20,
@@ -473,8 +503,8 @@ const styles = StyleSheet.create({
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: '#FFFFFF',
-    shadowColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
+    shadowColor: "#FFFFFF",
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.3,
     shadowRadius: 16,

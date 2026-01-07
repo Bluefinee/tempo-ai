@@ -3,24 +3,33 @@
  * Contributing Factors（4要素グリッド）とDaily Curve（エネルギー曲線）を含む
  */
 
-import React, { useState } from 'react';
-import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
-import { ChevronLeft, Activity, Moon, Zap, ThermometerSun } from 'lucide-react-native';
-import Animated, { FadeInDown } from 'react-native-reanimated';
-import Svg, { Path, Defs, LinearGradient, Stop } from 'react-native-svg';
+import React, { useState } from "react";
+import { View, Text, ScrollView, Pressable, StyleSheet } from "react-native";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
+import {
+  ChevronLeft,
+  Activity,
+  Moon,
+  Zap,
+  ThermometerSun,
+} from "lucide-react-native";
+import Animated, { FadeInDown } from "react-native-reanimated";
+import Svg, { Path, Defs, LinearGradient, Stop } from "react-native-svg";
 
 import {
   CircularProgress,
   TimeframeSelector,
   MiniBarChart,
   type Timeframe,
-} from '../../src/components';
-import { colors, FontFamily } from '../../src/theme';
-import { t } from '../../src/i18n';
+} from "../../src/components";
+import { colors, FontFamily } from "../../src/theme";
+import { t } from "../../src/i18n";
 import { MOCK_DETAIL } from "../../src/constants/mockData";
-import { useHealthStore } from '../../src/stores/healthStore';
+import { useHealthStore } from "../../src/stores/healthStore";
 
 /**
  * スコアに応じたステータスを取得
@@ -28,10 +37,10 @@ import { useHealthStore } from '../../src/stores/healthStore';
  * @returns ステータス文字列（excellent/good/fair/low）
  */
 const getEnergyStatus = (score: number): string => {
-  if (score >= 85) return t('score.energy.status.excellent');
-  if (score >= 65) return t('score.energy.status.good');
-  if (score >= 45) return t('score.energy.status.fair');
-  return t('score.energy.status.low');
+  if (score >= 85) return t("score.energy.status.excellent");
+  if (score >= 65) return t("score.energy.status.good");
+  if (score >= 45) return t("score.energy.status.fair");
+  return t("score.energy.status.low");
 };
 
 // Contributing Factor カードコンポーネント（詳細版）
@@ -42,7 +51,7 @@ interface FactorCardProps {
   label: string;
   value: number;
   trend: string;
-  trendDirection: 'up' | 'down' | 'stable';
+  trendDirection: "up" | "down" | "stable";
   detail: string;
 }
 
@@ -57,8 +66,8 @@ const FactorCard = ({
   detail,
 }: FactorCardProps): React.ReactElement => {
   const getTrendColor = () => {
-    if (trendDirection === 'up') return colors.emerald[500];
-    if (trendDirection === 'down') return colors.rose[500];
+    if (trendDirection === "up") return colors.emerald[500];
+    if (trendDirection === "down") return colors.rose[500];
     return colors.stone[400];
   };
 
@@ -72,7 +81,9 @@ const FactorCard = ({
           <View className="p-2 rounded-xl" style={{ backgroundColor: iconBg }}>
             <Icon size={16} color={iconColor} />
           </View>
-          <Text className="text-xs font-bold text-stone-500 uppercase">{label}</Text>
+          <Text className="text-xs font-bold text-stone-500 uppercase">
+            {label}
+          </Text>
         </View>
         <Text className="text-xs font-bold" style={{ color: getTrendColor() }}>
           {trend}
@@ -87,12 +98,12 @@ const FactorCard = ({
 const EnergyDetailScreen = (): React.ReactElement => {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const [timeframe, setTimeframe] = useState<Timeframe>('7D');
+  const [timeframe, setTimeframe] = useState<Timeframe>("7D");
   const { dailySnapshot } = useHealthStore();
-  
+
   // healthStoreから計算済みのスコアを取得
   const energyScore = dailySnapshot?.scores?.energy ?? 0;
-  
+
   const data = MOCK_DETAIL.energy;
 
   const handleBack = () => {
@@ -117,7 +128,10 @@ const EnergyDetailScreen = (): React.ReactElement => {
     const now = new Date();
     const currentHour = now.getHours() + now.getMinutes() / 60;
     // 6時〜22時を0〜100%にマッピング
-    const currentPosition = Math.max(0, Math.min(100, ((currentHour - 6) / 16) * 100));
+    const currentPosition = Math.max(
+      0,
+      Math.min(100, ((currentHour - 6) / 16) * 100),
+    );
 
     return (
       <View
@@ -125,7 +139,7 @@ const EnergyDetailScreen = (): React.ReactElement => {
         style={styles.chartCard}
       >
         <Text className="text-xs font-bold text-stone-400 uppercase mb-2">
-          {t('detail.energy.dailyCurve')}
+          {t("detail.energy.dailyCurve")}
         </Text>
 
         {/* Peak Focus と Afternoon Dip のラベル */}
@@ -133,23 +147,38 @@ const EnergyDetailScreen = (): React.ReactElement => {
           <View className="flex-row items-center" style={styles.labelRow}>
             <View className="w-2 h-2 rounded-full bg-amber-500" />
             <Text className="text-[10px] text-stone-500">
-              {t('detail.energy.peakFocus')} {data.peakFocus.start}-{data.peakFocus.end}
+              {t("detail.energy.peakFocus")} {data.peakFocus.start}-
+              {data.peakFocus.end}
             </Text>
           </View>
           <View className="flex-row items-center" style={styles.labelRow}>
             <View className="w-2 h-2 rounded-full bg-stone-300" />
             <Text className="text-[10px] text-stone-500">
-              {t('detail.energy.afternoonDip')} {data.afternoonDip.start}-{data.afternoonDip.end}
+              {t("detail.energy.afternoonDip")} {data.afternoonDip.start}-
+              {data.afternoonDip.end}
             </Text>
           </View>
         </View>
 
         <View style={styles.dailyCurveContainer}>
-          <Svg width="100%" height={chartHeight} viewBox={`0 0 100 ${chartHeight}`} preserveAspectRatio="none">
+          <Svg
+            width="100%"
+            height={chartHeight}
+            viewBox={`0 0 100 ${chartHeight}`}
+            preserveAspectRatio="none"
+          >
             <Defs>
               <LinearGradient id="curveGradient" x1="0" y1="0" x2="0" y2="1">
-                <Stop offset="0" stopColor={colors.amber[500]} stopOpacity="0.3" />
-                <Stop offset="1" stopColor={colors.amber[500]} stopOpacity="0" />
+                <Stop
+                  offset="0"
+                  stopColor={colors.amber[500]}
+                  stopOpacity="0.3"
+                />
+                <Stop
+                  offset="1"
+                  stopColor={colors.amber[500]}
+                  stopOpacity="0"
+                />
               </LinearGradient>
             </Defs>
 
@@ -170,16 +199,10 @@ const EnergyDetailScreen = (): React.ReactElement => {
 
           {/* 現在時刻マーカー */}
           <View
-            style={[
-              styles.currentTimeMarker,
-              { left: `${currentPosition}%` }
-            ]}
+            style={[styles.currentTimeMarker, { left: `${currentPosition}%` }]}
           />
           <View
-            style={[
-              styles.currentTimeDot,
-              { left: `${currentPosition}%` }
-            ]}
+            style={[styles.currentTimeDot, { left: `${currentPosition}%` }]}
           />
 
           {/* 時間軸ラベル */}
@@ -199,19 +222,21 @@ const EnergyDetailScreen = (): React.ReactElement => {
 
   return (
     <View className="flex-1 bg-stone-100">
-      <SafeAreaView className="flex-1" edges={['top']}>
+      <SafeAreaView className="flex-1" edges={["top"]}>
         {/* Header */}
         <View className="flex-row items-center px-6 py-4 border-b border-stone-100 bg-stone-100">
           <Pressable
             onPress={handleBack}
             className="w-10 h-10 items-center justify-center rounded-full"
             style={({ pressed }) => [
-              { backgroundColor: pressed ? colors.stone[100] : 'transparent' },
+              { backgroundColor: pressed ? colors.stone[100] : "transparent" },
             ]}
           >
             <ChevronLeft size={24} color={colors.stone[600]} />
           </Pressable>
-          <Text className="text-lg font-bold text-stone-900 ml-4">{t('score.energy.label')}</Text>
+          <Text className="text-lg font-bold text-stone-900 ml-4">
+            {t("score.energy.label")}
+          </Text>
         </View>
 
         <ScrollView
@@ -254,9 +279,12 @@ const EnergyDetailScreen = (): React.ReactElement => {
             </Animated.View>
 
             {/* Contributing Factors */}
-            <Animated.View entering={FadeInDown.delay(100).duration(400)} style={styles.contributingFactorsContainer}>
+            <Animated.View
+              entering={FadeInDown.delay(100).duration(400)}
+              style={styles.contributingFactorsContainer}
+            >
               <Text className="text-xs font-bold text-stone-400 uppercase tracking-widest">
-                {t('detail.energy.contributingFactors')}
+                {t("detail.energy.contributingFactors")}
               </Text>
               <View className="flex-row flex-wrap" style={styles.factorGrid}>
                 <View style={styles.factorCardWrapper}>
@@ -267,7 +295,9 @@ const EnergyDetailScreen = (): React.ReactElement => {
                     label={data.contributingFactors.recovery.label}
                     value={data.contributingFactors.recovery.value}
                     trend={data.contributingFactors.recovery.trend}
-                    trendDirection={data.contributingFactors.recovery.trendDirection}
+                    trendDirection={
+                      data.contributingFactors.recovery.trendDirection
+                    }
                     detail={data.contributingFactors.recovery.detail}
                   />
                 </View>
@@ -279,7 +309,9 @@ const EnergyDetailScreen = (): React.ReactElement => {
                     label={data.contributingFactors.sleep.label}
                     value={data.contributingFactors.sleep.value}
                     trend={data.contributingFactors.sleep.trend}
-                    trendDirection={data.contributingFactors.sleep.trendDirection}
+                    trendDirection={
+                      data.contributingFactors.sleep.trendDirection
+                    }
                     detail={data.contributingFactors.sleep.detail}
                   />
                 </View>
@@ -291,7 +323,9 @@ const EnergyDetailScreen = (): React.ReactElement => {
                     label={data.contributingFactors.activity.label}
                     value={data.contributingFactors.activity.value}
                     trend={data.contributingFactors.activity.trend}
-                    trendDirection={data.contributingFactors.activity.trendDirection}
+                    trendDirection={
+                      data.contributingFactors.activity.trendDirection
+                    }
                     detail={data.contributingFactors.activity.detail}
                   />
                 </View>
@@ -303,7 +337,9 @@ const EnergyDetailScreen = (): React.ReactElement => {
                     label={data.contributingFactors.weather.label}
                     value={data.contributingFactors.weather.value}
                     trend={data.contributingFactors.weather.trend}
-                    trendDirection={data.contributingFactors.weather.trendDirection}
+                    trendDirection={
+                      data.contributingFactors.weather.trendDirection
+                    }
                     detail={data.contributingFactors.weather.detail}
                   />
                 </View>
@@ -337,13 +373,13 @@ const EnergyDetailScreen = (): React.ReactElement => {
                 style={styles.chartCard}
               >
                 <Text className="text-xs font-bold text-stone-400 uppercase mb-4">
-                  {t('detail.energy.history')}
+                  {t("detail.energy.history")}
                 </Text>
                 <MiniBarChart
                   data={data.history[timeframe]}
                   color={colors.amber[500]}
                   height={120}
-                  showLabels={timeframe === '7D'}
+                  showLabels={timeframe === "7D"}
                   animated
                 />
               </View>
@@ -353,7 +389,7 @@ const EnergyDetailScreen = (): React.ReactElement => {
       </SafeAreaView>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   factorCardShadow: {
@@ -376,7 +412,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   factorCardWrapper: {
-    width: '48%',
+    width: "48%",
   },
   contentContainer: {
     gap: 24,
@@ -393,18 +429,18 @@ const styles = StyleSheet.create({
   },
   dailyCurveContainer: {
     height: 120,
-    position: 'relative',
+    position: "relative",
   },
   currentTimeMarker: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     bottom: 20,
     width: 2,
     backgroundColor: colors.amber[400],
-    borderStyle: 'dashed',
+    borderStyle: "dashed",
   },
   currentTimeDot: {
-    position: 'absolute',
+    position: "absolute",
     top: -4,
     width: 8,
     height: 8,

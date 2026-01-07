@@ -3,14 +3,14 @@
  * StyleSheet.createのみ使用（NativeWind排除）
  */
 
-import React from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
-import { Sunrise, Sunset } from 'lucide-react-native';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+import React from "react";
+import { View, Text, Pressable, StyleSheet } from "react-native";
+import { Sunrise, Sunset } from "lucide-react-native";
+import Animated, { FadeInDown } from "react-native-reanimated";
 
-import { Colors } from '../theme';
+import { Colors } from "../theme";
 
-type SunType = 'sunrise' | 'sunset';
+type SunType = "sunrise" | "sunset";
 
 interface SunInfoCardProps {
   type: SunType;
@@ -22,22 +22,30 @@ interface SunInfoCardProps {
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-const getTypeConfig = (type: SunType): { Icon: React.ComponentType<any>; iconColor: string; iconBgColor: string; labelColor: string; defaultLabel: string } => {
-  if (type === 'sunrise') {
+const getTypeConfig = (
+  type: SunType,
+): {
+  Icon: React.ComponentType<any>;
+  iconColor: string;
+  iconBgColor: string;
+  labelColor: string;
+  defaultLabel: string;
+} => {
+  if (type === "sunrise") {
     return {
       Icon: Sunrise,
       iconColor: Colors.amber[500],
-      iconBgColor: 'rgba(251, 191, 36, 0.12)',
+      iconBgColor: "rgba(251, 191, 36, 0.12)",
       labelColor: Colors.stone[400],
-      defaultLabel: 'Sunrise',
+      defaultLabel: "Sunrise",
     };
   }
   return {
     Icon: Sunset,
     iconColor: Colors.indigo[500],
-    iconBgColor: 'rgba(99, 102, 241, 0.12)',
+    iconBgColor: "rgba(99, 102, 241, 0.12)",
     labelColor: Colors.stone[400],
-    defaultLabel: 'Sunset',
+    defaultLabel: "Sunset",
   };
 };
 
@@ -56,10 +64,7 @@ export const SunInfoCard = ({
       <AnimatedPressable
         entering={FadeInDown.delay(delay).duration(400)}
         onPress={onPress}
-        style={({ pressed }) => [
-          styles.card,
-          pressed && styles.cardPressed,
-        ]}
+        style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
       >
         {/* Content - horizontal layout */}
         <View style={styles.content}>
@@ -74,7 +79,12 @@ export const SunInfoCard = ({
           </View>
 
           {/* Icon with background */}
-          <View style={[styles.iconWrapper, { backgroundColor: config.iconBgColor }]}>
+          <View
+            style={[
+              styles.iconWrapper,
+              { backgroundColor: config.iconBgColor },
+            ]}
+          >
             <config.Icon size={22} color={config.iconColor} strokeWidth={2} />
           </View>
         </View>
@@ -88,11 +98,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderRadius: 20,
     padding: 16,
     // シャドウ（iOS）
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.12,
     shadowRadius: 16,
@@ -104,30 +114,30 @@ const styles = StyleSheet.create({
     transform: [{ scale: 0.98 }],
   },
   content: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   textContent: {
     flex: 1,
   },
   label: {
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: "600",
     letterSpacing: 1,
     marginBottom: 6,
   },
   time: {
     fontSize: 24,
-    fontWeight: '700',
-    color: '#1C1917',
+    fontWeight: "700",
+    color: "#1C1917",
     letterSpacing: -0.5,
   },
   iconWrapper: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

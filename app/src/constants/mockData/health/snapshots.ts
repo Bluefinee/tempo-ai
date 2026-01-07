@@ -12,9 +12,7 @@ import {
   formatDateString,
   getAllHealthMetricHistories,
 } from "../../mockDataFactory";
-import {
-  calculateDeviationPercent,
-} from "../../../utils/healthDataTransformer";
+import { calculateDeviationPercent } from "../../../utils/healthDataTransformer";
 
 /**
  * モック日次スナップショットを生成
@@ -44,7 +42,7 @@ export const createMockRealtimeMetrics = (): RealtimeMetrics => {
   const createMetric = (
     value: number,
     unit: string,
-    baseline: number
+    baseline: number,
   ): RealtimeHealthMetric => ({
     value,
     unit,
@@ -70,4 +68,3 @@ export const MOCK_REALTIME_METRICS = createMockRealtimeMetrics();
 
 /** すべてのヘルスメトリクス履歴（60日分） */
 export const MOCK_HEALTH_METRIC_HISTORIES = getAllHealthMetricHistories("60D");
-

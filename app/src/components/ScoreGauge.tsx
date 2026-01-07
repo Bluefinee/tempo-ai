@@ -1,9 +1,9 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { Colors, Spacing, Typography } from '../theme';
-import { getScoreColor, getScoreBackgroundColor } from '../theme/colors';
-import { ProgressBar } from './ProgressBar';
-import type { ReactElement } from 'react';
+import React from "react";
+import { View, Text, StyleSheet } from "react-native";
+import { Colors, Spacing, Typography } from "../theme";
+import { getScoreColor, getScoreBackgroundColor } from "../theme/colors";
+import { ProgressBar } from "./ProgressBar";
+import type { ReactElement } from "react";
 
 interface ScoreGaugeProps {
   label: string;
@@ -18,7 +18,7 @@ export const ScoreGauge = ({
   icon,
   isCalibrating = false,
 }: ScoreGaugeProps): ReactElement => {
-  const displayValue = isCalibrating ? '---' : String(value);
+  const displayValue = isCalibrating ? "---" : String(value);
   const scoreColor = getScoreColor(value);
   const bgColor = getScoreBackgroundColor(value);
 
@@ -29,7 +29,10 @@ export const ScoreGauge = ({
         <Text style={styles.label}>{label}</Text>
       </View>
       <Text style={[styles.value, { color: scoreColor }]}>{displayValue}</Text>
-      <ProgressBar value={isCalibrating ? 0 : value} showAnimation={!isCalibrating} />
+      <ProgressBar
+        value={isCalibrating ? 0 : value}
+        showAnimation={!isCalibrating}
+      />
     </View>
   );
 };
@@ -41,8 +44,8 @@ const styles = StyleSheet.create({
     minWidth: 100,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: Spacing.xs,
   },
   icon: {

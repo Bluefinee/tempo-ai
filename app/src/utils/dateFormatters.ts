@@ -86,4 +86,3 @@ export const formatDateEnglish = (date: Date = new Date()): string => {
   ];
   return `${days[date.getDay()]}, ${months[date.getMonth()]} ${date.getDate()}`;
 };
-

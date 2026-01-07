@@ -15,14 +15,20 @@ export type MetricCard = {
   colorText: string;
   colorAccent: string;
   chartData: number[];
-  route: "/recovery-detail" | "/sleep-detail" | "/rhythm-detail" | "/energy-detail";
+  route:
+    | "/recovery-detail"
+    | "/sleep-detail"
+    | "/rhythm-detail"
+    | "/energy-detail";
 };
 
 interface MetricGridCardProps {
   metric: MetricCard;
 }
 
-export const MetricGridCard = ({ metric }: MetricGridCardProps): React.ReactElement => {
+export const MetricGridCard = ({
+  metric,
+}: MetricGridCardProps): React.ReactElement => {
   const router = useRouter();
 
   return (
@@ -77,4 +83,3 @@ export const MetricGridCard = ({ metric }: MetricGridCardProps): React.ReactElem
     </Pressable>
   );
 };
-

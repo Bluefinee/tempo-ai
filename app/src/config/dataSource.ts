@@ -20,4 +20,3 @@ export const getDataSourceConfig = () => {
 
   return DATA_SOURCE_CONFIG;
 };
-

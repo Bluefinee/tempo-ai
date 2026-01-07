@@ -7,12 +7,8 @@ import type {
   HealthMetricHistory,
   BarChartDataPoint,
 } from "../../../domain/models/healthHistory";
-import {
-  getAllScoreHistories,
-} from "../../mockDataFactory";
-import {
-  toBarChartData,
-} from "../../../utils/healthDataTransformer";
+import { getAllScoreHistories } from "../../mockDataFactory";
+import { toBarChartData } from "../../../utils/healthDataTransformer";
 export interface MockDetailRecovery {
   score: number;
   status: string;

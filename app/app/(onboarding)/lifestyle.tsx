@@ -4,7 +4,7 @@
  * Step 7 of 9
  */
 
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -12,47 +12,47 @@ import {
   ScrollView,
   TouchableOpacity,
   Dimensions,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
-import { Briefcase, Dumbbell, Wine } from 'lucide-react-native';
-import { Colors, FontFamily } from '../../src/theme';
-import { PrimaryButton, SecondaryButton } from '../../src/components';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
+import { Briefcase, Dumbbell, Wine } from "lucide-react-native";
+import { Colors, FontFamily } from "../../src/theme";
+import { PrimaryButton, SecondaryButton } from "../../src/components";
 import {
   Occupation,
   ExerciseFrequency,
   AlcoholFrequency,
-} from '../../src/domain/models';
-import { useUserStore } from '../../src/stores';
-import type { JSX } from 'react';
+} from "../../src/domain/models";
+import { useUserStore } from "../../src/stores";
+import type { JSX } from "react";
 
-const { width, height } = Dimensions.get('window');
+const { width, height } = Dimensions.get("window");
 const CURRENT_STEP = 7;
 const TOTAL_STEPS = 9;
 
 const OCCUPATIONS: { value: Occupation; label: string }[] = [
-  { value: 'deskWork', label: 'Desk Work' },
-  { value: 'standingWork', label: 'Standing Work' },
-  { value: 'physicalWork', label: 'Physical Labor' },
-  { value: 'hybrid', label: 'Hybrid' },
-  { value: 'other', label: 'Other' },
+  { value: "deskWork", label: "Desk Work" },
+  { value: "standingWork", label: "Standing Work" },
+  { value: "physicalWork", label: "Physical Labor" },
+  { value: "hybrid", label: "Hybrid" },
+  { value: "other", label: "Other" },
 ];
 
 const EXERCISE_OPTIONS: { value: ExerciseFrequency; label: string }[] = [
-  { value: 'rarely', label: 'Rarely' },
-  { value: 'onceWeek', label: '1x/week' },
-  { value: 'twiceWeek', label: '2x/week' },
-  { value: 'threeOrMore', label: '3+/week' },
-  { value: 'daily', label: 'Daily' },
+  { value: "rarely", label: "Rarely" },
+  { value: "onceWeek", label: "1x/week" },
+  { value: "twiceWeek", label: "2x/week" },
+  { value: "threeOrMore", label: "3+/week" },
+  { value: "daily", label: "Daily" },
 ];
 
 const ALCOHOL_OPTIONS: { value: AlcoholFrequency; label: string }[] = [
-  { value: 'never', label: 'Never' },
-  { value: 'rarely', label: 'Rarely' },
-  { value: 'onceWeek', label: '1x/week' },
-  { value: 'twiceWeek', label: '2-3x/week' },
-  { value: 'threeOrMore', label: '4+/week' },
-  { value: 'daily', label: 'Daily' },
+  { value: "never", label: "Never" },
+  { value: "rarely", label: "Rarely" },
+  { value: "onceWeek", label: "1x/week" },
+  { value: "twiceWeek", label: "2-3x/week" },
+  { value: "threeOrMore", label: "4+/week" },
+  { value: "daily", label: "Daily" },
 ];
 
 const LifestyleScreen = (): JSX.Element => {
@@ -61,13 +61,13 @@ const LifestyleScreen = (): JSX.Element => {
   const draftProfile = useUserStore((state) => state.draftProfile);
 
   const [occupation, setOccupation] = useState<Occupation | null>(
-    draftProfile.occupation || null
+    draftProfile.occupation || null,
   );
   const [exercise, setExercise] = useState<ExerciseFrequency | null>(
-    draftProfile.exerciseFrequency || null
+    draftProfile.exerciseFrequency || null,
   );
   const [alcohol, setAlcohol] = useState<AlcoholFrequency | null>(
-    draftProfile.alcoholFrequency || null
+    draftProfile.alcoholFrequency || null,
   );
 
   const handleNext = (): void => {
@@ -76,11 +76,11 @@ const LifestyleScreen = (): JSX.Element => {
       exerciseFrequency: exercise || undefined,
       alcoholFrequency: alcohol || undefined,
     });
-    router.push('/(onboarding)/location');
+    router.push("/(onboarding)/location");
   };
 
   const handleSkip = (): void => {
-    router.push('/(onboarding)/location');
+    router.push("/(onboarding)/location");
   };
 
   return (
@@ -97,7 +97,9 @@ const LifestyleScreen = (): JSX.Element => {
               key={idx}
               style={[
                 styles.progressSegment,
-                idx < CURRENT_STEP ? styles.progressActive : styles.progressInactive,
+                idx < CURRENT_STEP
+                  ? styles.progressActive
+                  : styles.progressInactive,
               ]}
             />
           ))}
@@ -113,7 +115,8 @@ const LifestyleScreen = (): JSX.Element => {
             <Text style={styles.emoji}>🏃</Text>
             <Text style={styles.title}>Daily Rhythms</Text>
             <Text style={styles.description}>
-              Help us understand your lifestyle for more personalized insights. (Optional)
+              Help us understand your lifestyle for more personalized insights.
+              (Optional)
             </Text>
 
             {/* Occupation Section */}
@@ -213,9 +216,7 @@ const LifestyleScreen = (): JSX.Element => {
 
         {/* Footer */}
         <View style={styles.footer}>
-          <PrimaryButton onPress={handleNext}>
-            Continue
-          </PrimaryButton>
+          <PrimaryButton onPress={handleNext}>Continue</PrimaryButton>
           <SecondaryButton onPress={handleSkip} style={styles.skipButton}>
             Skip for Now
           </SecondaryButton>
@@ -223,13 +224,13 @@ const LifestyleScreen = (): JSX.Element => {
       </SafeAreaView>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.stone[50],
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   safeArea: {
     flex: 1,
@@ -242,7 +243,7 @@ const styles = StyleSheet.create({
   },
   // Decorative blobs
   blobTopRight: {
-    position: 'absolute',
+    position: "absolute",
     top: -height * 0.15,
     right: -width * 0.2,
     width: 256,
@@ -252,7 +253,7 @@ const styles = StyleSheet.create({
     opacity: 0.4,
   },
   blobBottomLeft: {
-    position: 'absolute',
+    position: "absolute",
     bottom: -height * 0.1,
     left: -width * 0.15,
     width: 320,
@@ -263,7 +264,7 @@ const styles = StyleSheet.create({
   },
   // Progress bar
   progressContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     paddingHorizontal: 32,
     paddingTop: 48,
     gap: 8,
@@ -281,7 +282,7 @@ const styles = StyleSheet.create({
   },
   // Content
   content: {
-    alignItems: 'center',
+    alignItems: "center",
     paddingHorizontal: 32,
     paddingTop: 32,
   },
@@ -292,9 +293,9 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: FontFamily.serif,
     fontSize: 24,
-    fontWeight: '700',
+    fontWeight: "700",
     color: Colors.stone[900],
-    textAlign: 'center',
+    textAlign: "center",
     letterSpacing: -0.5,
     marginBottom: 12,
   },
@@ -302,18 +303,18 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.regular,
     fontSize: 16,
     color: Colors.stone[500],
-    textAlign: 'center',
+    textAlign: "center",
     lineHeight: 26,
     marginBottom: 32,
   },
   // Sections
   section: {
-    width: '100%',
+    width: "100%",
     marginBottom: 24,
   },
   sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 12,
   },
   sectionIconContainer: {
@@ -321,19 +322,19 @@ const styles = StyleSheet.create({
     height: 32,
     borderRadius: 16,
     backgroundColor: Colors.indigo[50],
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginRight: 10,
   },
   sectionTitle: {
     fontFamily: FontFamily.semibold,
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: "600",
     color: Colors.stone[700],
   },
   options: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: 8,
   },
   chip: {
@@ -351,7 +352,7 @@ const styles = StyleSheet.create({
   chipText: {
     fontFamily: FontFamily.medium,
     fontSize: 13,
-    fontWeight: '500',
+    fontWeight: "500",
     color: Colors.stone[600],
   },
   chipTextSelected: {
@@ -361,7 +362,7 @@ const styles = StyleSheet.create({
   footer: {
     paddingHorizontal: 32,
     paddingBottom: 48,
-    alignItems: 'center',
+    alignItems: "center",
     gap: 12,
   },
   skipButton: {

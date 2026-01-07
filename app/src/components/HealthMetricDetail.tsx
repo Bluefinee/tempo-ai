@@ -3,16 +3,16 @@
  * sozai/tempoai-health-summary/components/DetailSection.tsx を再現
  */
 
-import React, { useState, useMemo } from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
-import { ArrowUp, ArrowDown, CheckCircle2 } from 'lucide-react-native';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+import React, { useState, useMemo } from "react";
+import { View, Text, Pressable, StyleSheet } from "react-native";
+import { ArrowUp, ArrowDown, CheckCircle2 } from "lucide-react-native";
+import Animated, { FadeInDown } from "react-native-reanimated";
 
-import { colors } from '../theme';
-import { HealthAreaChart, type ChartDataPoint } from './HealthAreaChart';
-import { type Timeframe } from './TimeframeSelector';
+import { colors } from "../theme";
+import { HealthAreaChart, type ChartDataPoint } from "./HealthAreaChart";
+import { type Timeframe } from "./TimeframeSelector";
 
-export type BaselineTrend = 'up' | 'down' | 'neutral';
+export type BaselineTrend = "up" | "down" | "neutral";
 
 interface HealthMetricDetailProps {
   id: string;
@@ -31,9 +31,12 @@ interface HealthMetricDetailProps {
 const generateTimeframeData = (
   baseData: ChartDataPoint[],
   timeframe: Timeframe,
-  typicalRange: { min: number; max: number }
+  typicalRange: { min: number; max: number },
 ): ChartDataPoint[] => {
-  const baseValue = typeof baseData[0]?.value === 'number' ? baseData[0].value : typicalRange.min;
+  const baseValue =
+    typeof baseData[0]?.value === "number"
+      ? baseData[0].value
+      : typicalRange.min;
   const range = typicalRange.max - typicalRange.min;
 
   // シード値を基にした擬似ランダム生成
@@ -46,33 +49,46 @@ const generateTimeframeData = (
     const variance = range * 0.4;
     const random = seededRandom(index + seed);
     const value = baseValue + (random - 0.5) * variance * 2;
-    return Math.round(Math.max(typicalRange.min * 0.85, Math.min(typicalRange.max * 1.15, value)) * 10) / 10;
+    return (
+      Math.round(
+        Math.max(
+          typicalRange.min * 0.85,
+          Math.min(typicalRange.max * 1.15, value),
+        ) * 10,
+      ) / 10
+    );
   };
 
   switch (timeframe) {
-    case '7D':
+    case "7D":
       // 7日間: 元のデータをそのまま使用
       return baseData;
 
-    case '30D': {
+    case "30D": {
       // 30日間: 週単位のラベルで5データポイント
-      const labels = ['W1', 'W2', 'W3', 'W4', 'Now'];
+      const labels = ["W1", "W2", "W3", "W4", "Now"];
       return labels.map((label, i) => ({
         day: label,
-        value: i === labels.length - 1
-          ? (typeof baseData[baseData.length - 1]?.value === 'number' ? baseData[baseData.length - 1].value : baseValue)
-          : generateValue(i, 30),
+        value:
+          i === labels.length - 1
+            ? typeof baseData[baseData.length - 1]?.value === "number"
+              ? baseData[baseData.length - 1].value
+              : baseValue
+            : generateValue(i, 30),
       }));
     }
 
-    case '60D': {
+    case "60D": {
       // 60日間: 2週間単位のラベルで5データポイント
-      const labels = ['6w', '4w', '2w', '1w', 'Now'];
+      const labels = ["6w", "4w", "2w", "1w", "Now"];
       return labels.map((label, i) => ({
         day: label,
-        value: i === labels.length - 1
-          ? (typeof baseData[baseData.length - 1]?.value === 'number' ? baseData[baseData.length - 1].value : baseValue)
-          : generateValue(i, 60),
+        value:
+          i === labels.length - 1
+            ? typeof baseData[baseData.length - 1]?.value === "number"
+              ? baseData[baseData.length - 1].value
+              : baseValue
+            : generateValue(i, 60),
       }));
     }
 
@@ -93,18 +109,21 @@ export const HealthMetricDetail = ({
   baselineTrend,
   delay = 0,
 }: HealthMetricDetailProps): React.ReactElement => {
-  const [timeframe, setTimeframe] = useState<Timeframe>('7D');
+  const [timeframe, setTimeframe] = useState<Timeframe>("7D");
 
-  const timeframes: Timeframe[] = ['7D', '30D', '60D'];
+  const timeframes: Timeframe[] = ["7D", "30D", "60D"];
 
   // タイムフレームに応じたチャートデータを生成
   const displayChartData = useMemo(
     () => generateTimeframeData(chartData, timeframe, typicalRange),
-    [chartData, timeframe, typicalRange]
+    [chartData, timeframe, typicalRange],
   );
 
   return (
-    <Animated.View entering={FadeInDown.delay(delay).duration(400)} style={styles.container}>
+    <Animated.View
+      entering={FadeInDown.delay(delay).duration(400)}
+      style={styles.container}
+    >
       {/* Section Header with Left Border */}
       <View style={[styles.sectionHeader, { borderLeftColor: colorHex }]}>
         <Text style={styles.sectionTitle}>{name}</Text>
@@ -128,8 +147,10 @@ export const HealthMetricDetail = ({
             <Text style={styles.statLabel}>Baseline</Text>
             <View style={styles.baselineRow}>
               <Text style={styles.baselineValue}>{baseline}</Text>
-              {baselineTrend === 'up' && <ArrowUp size={16} color={colorHex} />}
-              {baselineTrend === 'down' && <ArrowDown size={16} color={colorHex} />}
+              {baselineTrend === "up" && <ArrowUp size={16} color={colorHex} />}
+              {baselineTrend === "down" && (
+                <ArrowDown size={16} color={colorHex} />
+              )}
             </View>
           </View>
         </View>
@@ -141,10 +162,16 @@ export const HealthMetricDetail = ({
               <Pressable
                 key={tf}
                 onPress={() => setTimeframe(tf)}
-                style={[styles.timeframePill, timeframe === tf && styles.timeframePillActive]}
+                style={[
+                  styles.timeframePill,
+                  timeframe === tf && styles.timeframePillActive,
+                ]}
               >
                 <Text
-                  style={[styles.timeframePillText, timeframe === tf && styles.timeframePillTextActive]}
+                  style={[
+                    styles.timeframePillText,
+                    timeframe === tf && styles.timeframePillTextActive,
+                  ]}
                 >
                   {tf}
                 </Text>
@@ -168,7 +195,8 @@ export const HealthMetricDetail = ({
         <View style={styles.legend}>
           <CheckCircle2 size={16} color={colorHex} />
           <Text style={styles.legendText}>
-            Typical Range: {typicalRange.min}-{typicalRange.max} {unit.replace(' ', '')}
+            Typical Range: {typicalRange.min}-{typicalRange.max}{" "}
+            {unit.replace(" ", "")}
           </Text>
         </View>
       </View>
@@ -181,15 +209,15 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 16,
     paddingLeft: 16,
     borderLeftWidth: 4,
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
     color: colors.stone[900],
   },
   card: {
@@ -203,52 +231,52 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   statsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-end',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-end",
     marginBottom: 24,
   },
   statLabel: {
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: "600",
     color: colors.stone[400],
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
     letterSpacing: 0.5,
     marginBottom: 4,
   },
   valueRow: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
+    flexDirection: "row",
+    alignItems: "baseline",
     gap: 4,
   },
   value: {
     fontSize: 36,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   unit: {
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: "500",
     color: colors.stone[500],
   },
   baselineSection: {
-    alignItems: 'flex-end',
+    alignItems: "flex-end",
   },
   baselineRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 4,
   },
   baselineValue: {
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: "500",
     color: colors.stone[600],
   },
   timeframeContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 24,
   },
   timeframePills: {
-    flexDirection: 'row',
+    flexDirection: "row",
     backgroundColor: colors.stone[100],
     padding: 4,
     borderRadius: 999,
@@ -269,7 +297,7 @@ const styles = StyleSheet.create({
   },
   timeframePillText: {
     fontSize: 12,
-    fontWeight: '500',
+    fontWeight: "500",
     color: colors.stone[500],
   },
   timeframePillTextActive: {
@@ -279,8 +307,8 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   legend: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 8,
     paddingTop: 8,
     borderTopWidth: 1,
@@ -288,7 +316,7 @@ const styles = StyleSheet.create({
   },
   legendText: {
     fontSize: 12,
-    fontWeight: '500',
+    fontWeight: "500",
     color: colors.stone[500],
   },
 });

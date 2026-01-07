@@ -24,10 +24,12 @@ interface HealthSummaryCardProps {
   card: HealthCard;
 }
 
-export const HealthSummaryCard = ({ card }: HealthSummaryCardProps): React.ReactElement => {
+export const HealthSummaryCard = ({
+  card,
+}: HealthSummaryCardProps): React.ReactElement => {
   const router = useRouter();
   const { Icon, chartData, lineColor } = card;
-  
+
   const min = Math.min(...chartData);
   const max = Math.max(...chartData);
   const range = max - min || 1;
@@ -132,4 +134,3 @@ export const HealthSummaryCard = ({ card }: HealthSummaryCardProps): React.React
     </View>
   );
 };
-

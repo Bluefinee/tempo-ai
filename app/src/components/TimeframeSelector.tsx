@@ -3,23 +3,23 @@
  * 期間選択用のセグメントコントロール
  */
 
-import React from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import React from "react";
+import { View, Text, Pressable, StyleSheet } from "react-native";
 import Animated, {
   useAnimatedStyle,
   withTiming,
   Easing,
-} from 'react-native-reanimated';
-import { colors } from '../theme';
+} from "react-native-reanimated";
+import { colors } from "../theme";
 
-export type Timeframe = '7D' | '30D' | '60D';
+export type Timeframe = "7D" | "30D" | "60D";
 
 interface TimeframeSelectorProps {
   selected: Timeframe;
   onSelect: (timeframe: Timeframe) => void;
 }
 
-const timeframes: Timeframe[] = ['7D', '30D', '60D'];
+const timeframes: Timeframe[] = ["7D", "30D", "60D"];
 
 export const TimeframeSelector = ({
   selected,
@@ -50,10 +50,7 @@ export const TimeframeSelector = ({
           style={styles.button}
         >
           <Text
-            style={[
-              styles.text,
-              selected === timeframe && styles.textSelected,
-            ]}
+            style={[styles.text, selected === timeframe && styles.textSelected]}
           >
             {timeframe}
           </Text>
@@ -65,14 +62,14 @@ export const TimeframeSelector = ({
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
+    flexDirection: "row",
     backgroundColor: colors.stone[100],
     borderRadius: 12,
     padding: 4,
-    position: 'relative',
+    position: "relative",
   },
   indicator: {
-    position: 'absolute',
+    position: "absolute",
     left: 4,
     top: 4,
     bottom: 4,
@@ -89,18 +86,17 @@ const styles = StyleSheet.create({
   button: {
     width: 60,
     height: 32,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     zIndex: 1,
   },
   text: {
     fontSize: 13,
-    fontWeight: '600',
+    fontWeight: "600",
     color: colors.stone[400],
   },
   textSelected: {
     color: colors.stone[900],
-    fontWeight: '700',
+    fontWeight: "700",
   },
 });
-

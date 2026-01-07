@@ -13,17 +13,17 @@ import {
   BarChartDataPoint,
   AreaChartDataPoint,
   TrendDirection,
-} from '../domain/models/healthHistory';
+} from "../domain/models/healthHistory";
 
 // =============================================================================
 // 定数
 // =============================================================================
 
 /** 日本語の曜日ラベル（日曜始まり） */
-const JAPANESE_WEEKDAYS = ['日', '月', '火', '水', '木', '金', '土'] as const;
+const JAPANESE_WEEKDAYS = ["日", "月", "火", "水", "木", "金", "土"] as const;
 
 /** 英語の曜日ラベル（日曜始まり） */
-const ENGLISH_WEEKDAYS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'] as const;
+const ENGLISH_WEEKDAYS = ["S", "M", "T", "W", "T", "F", "S"] as const;
 
 // =============================================================================
 // BarChart 用変換
@@ -44,11 +44,11 @@ const ENGLISH_WEEKDAYS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'] as const;
 export const toBarChartData = (
   samples: DailyHealthSample[],
   timeRange: HealthTimeRange,
-  locale: 'ja' | 'en' = 'ja'
+  locale: "ja" | "en" = "ja",
 ): BarChartDataPoint[] => {
-  const weekdays = locale === 'ja' ? JAPANESE_WEEKDAYS : ENGLISH_WEEKDAYS;
+  const weekdays = locale === "ja" ? JAPANESE_WEEKDAYS : ENGLISH_WEEKDAYS;
 
-  if (timeRange === '7D') {
+  if (timeRange === "7D") {
     // 7日間: 曜日ラベル
     const relevantSamples = samples.slice(-7);
     return relevantSamples.map((sample) => ({
@@ -81,9 +81,9 @@ export const toBarChartData = (
  */
 export const toAreaChartData = (
   samples: DailyHealthSample[],
-  timeRange: HealthTimeRange
+  timeRange: HealthTimeRange,
 ): AreaChartDataPoint[] => {
-  if (timeRange === '7D') {
+  if (timeRange === "7D") {
     // 7日間: 英語曜日ラベル
     const relevantSamples = samples.slice(-7);
     return relevantSamples.map((sample) => ({
@@ -92,18 +92,18 @@ export const toAreaChartData = (
     }));
   }
 
-  if (timeRange === '30D') {
+  if (timeRange === "30D") {
     // 30日間: 週ラベルに集約
     const weeklyData = aggregateByWeek(samples);
     return weeklyData.map((week, index) => ({
-      day: index === weeklyData.length - 1 ? 'Now' : `W${index + 1}`,
+      day: index === weeklyData.length - 1 ? "Now" : `W${index + 1}`,
       value: week.value,
     }));
   }
 
   // 60D: 2週間ラベルに集約
   const biWeeklyData = aggregateByBiWeek(samples);
-  const labels = ['8w', '6w', '4w', '2w', 'Now'];
+  const labels = ["8w", "6w", "4w", "2w", "Now"];
   return biWeeklyData.map((period, index) => ({
     day: labels[index] || `${8 - index * 2}w`,
     value: period.value,
@@ -119,9 +119,7 @@ export const toAreaChartData = (
  * @param samples - サンプル配列
  * @returns 週ごとの平均値配列
  */
-const aggregateByWeek = (
-  samples: DailyHealthSample[]
-): { value: number }[] => {
+const aggregateByWeek = (samples: DailyHealthSample[]): { value: number }[] => {
   const weeks: number[][] = [];
   let currentWeek: number[] = [];
 
@@ -145,7 +143,7 @@ const aggregateByWeek = (
  * @returns 2週間ごとの平均値配列
  */
 const aggregateByBiWeek = (
-  samples: DailyHealthSample[]
+  samples: DailyHealthSample[],
 ): { value: number }[] => {
   const periods: number[][] = [];
   let currentPeriod: number[] = [];
@@ -178,26 +176,26 @@ const aggregateByBiWeek = (
  * @returns トレンド方向
  */
 export const calculateTrendFromSamples = (
-  samples: DailyHealthSample[]
+  samples: DailyHealthSample[],
 ): TrendDirection => {
-  if (samples.length < 7) return 'stable';
+  if (samples.length < 7) return "stable";
 
   const recent = samples.slice(-7);
   const previous = samples.slice(-14, -7);
 
-  if (previous.length === 0) return 'stable';
+  if (previous.length === 0) return "stable";
 
   const recentAvg = recent.reduce((a, b) => a + b.value, 0) / recent.length;
   const previousAvg =
     previous.reduce((a, b) => a + b.value, 0) / previous.length;
 
-  if (previousAvg === 0) return 'stable';
+  if (previousAvg === 0) return "stable";
 
   const changePercent = ((recentAvg - previousAvg) / previousAvg) * 100;
 
-  if (changePercent > 5) return 'improving';
-  if (changePercent < -5) return 'declining';
-  return 'stable';
+  if (changePercent > 5) return "improving";
+  if (changePercent < -5) return "declining";
+  return "stable";
 };
 
 /**
@@ -207,18 +205,18 @@ export const calculateTrendFromSamples = (
  */
 export const getTrendLabel = (
   trend: TrendDirection,
-  locale: 'ja' | 'en' = 'ja'
+  locale: "ja" | "en" = "ja",
 ): string => {
   const labels = {
     ja: {
-      improving: '上昇傾向',
-      stable: '安定',
-      declining: '下降傾向',
+      improving: "上昇傾向",
+      stable: "安定",
+      declining: "下降傾向",
     },
     en: {
-      improving: 'Improving',
-      stable: 'Stable',
-      declining: 'Declining',
+      improving: "Improving",
+      stable: "Stable",
+      declining: "Declining",
     },
   };
   return labels[locale][trend];
@@ -237,9 +235,9 @@ export const getTrendLabel = (
  */
 export const filterByTimeRange = (
   samples: DailyHealthSample[],
-  timeRange: HealthTimeRange
+  timeRange: HealthTimeRange,
 ): DailyHealthSample[] => {
-  const days = timeRange === '7D' ? 7 : timeRange === '30D' ? 30 : 60;
+  const days = timeRange === "7D" ? 7 : timeRange === "30D" ? 30 : 60;
   return samples.slice(-days);
 };
 
@@ -249,7 +247,7 @@ export const filterByTimeRange = (
  * @returns 日数
  */
 export const timeRangeToDays = (timeRange: HealthTimeRange): number => {
-  return timeRange === '7D' ? 7 : timeRange === '30D' ? 30 : 60;
+  return timeRange === "7D" ? 7 : timeRange === "30D" ? 30 : 60;
 };
 
 // =============================================================================
@@ -295,7 +293,7 @@ export const findMaxValue = (samples: DailyHealthSample[]): number => {
  */
 export const calculateDeviationPercent = (
   currentValue: number,
-  baseline: number
+  baseline: number,
 ): number => {
   if (baseline === 0) return 0;
   return Math.round(((currentValue - baseline) / baseline) * 100 * 10) / 10;
@@ -309,5 +307,5 @@ export const calculateDeviationPercent = (
 export const formatDeviationPercent = (deviationPercent: number): string => {
   if (deviationPercent > 0) return `+${deviationPercent}%`;
   if (deviationPercent < 0) return `${deviationPercent}%`;
-  return '0%';
+  return "0%";
 };

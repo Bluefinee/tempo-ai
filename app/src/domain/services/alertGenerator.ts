@@ -3,8 +3,8 @@
  * @see docs/specs/metrics_spec.md Section 4
  */
 
-import { Alert, AlertPriority } from '../models/insight';
-import { HrvMetrics, ActivityMetrics } from './tempoScoreCalculator';
+import { Alert, AlertPriority } from "../models/insight";
+import { HrvMetrics, ActivityMetrics } from "./tempoScoreCalculator";
 
 // ========================================
 // Types
@@ -40,12 +40,12 @@ export const generateAlerts = (input: AlertInput): readonly Alert[] => {
     if (input.hrv.current < input.hrv.baseline30d * 0.8) {
       alerts.push({
         id: generateId(),
-        type: 'recovery_needed',
-        icon: '⚠️',
-        title: 'Recovery Needed',
-        message: 'Your HRV is lower than usual. Consider taking it easy today.',
+        type: "recovery_needed",
+        icon: "⚠️",
+        title: "Recovery Needed",
+        message: "Your HRV is lower than usual. Consider taking it easy today.",
         timestamp: now,
-        priority: 'high',
+        priority: "high",
       });
     }
 
@@ -53,12 +53,12 @@ export const generateAlerts = (input: AlertInput): readonly Alert[] => {
     if (input.hrv.current > input.hrv.baseline30d * 1.15) {
       alerts.push({
         id: generateId(),
-        type: 'recovery_complete',
-        icon: '✓',
-        title: 'Recovery Complete',
+        type: "recovery_complete",
+        icon: "✓",
+        title: "Recovery Complete",
         message: "Your recovery looks great. You're ready for challenges.",
         timestamp: now,
-        priority: 'low',
+        priority: "low",
       });
     }
   }
@@ -69,12 +69,12 @@ export const generateAlerts = (input: AlertInput): readonly Alert[] => {
     const mins = input.sleep.durationMinutes % 60;
     alerts.push({
       id: generateId(),
-      type: 'sleep_deficit',
-      icon: '🌙',
-      title: 'Sleep Deficit',
+      type: "sleep_deficit",
+      icon: "🌙",
+      title: "Sleep Deficit",
       message: `Only ${hours}h ${mins}m of sleep. Try to rest earlier tonight.`,
       timestamp: now,
-      priority: 'high',
+      priority: "high",
     });
   }
 
@@ -86,12 +86,13 @@ export const generateAlerts = (input: AlertInput): readonly Alert[] => {
     if (bedtimeDelay > 60) {
       alerts.push({
         id: generateId(),
-        type: 'late_bedtime',
-        icon: '⏰',
-        title: 'Late Bedtime',
-        message: 'You went to bed later than your target. Try to wind down earlier.',
+        type: "late_bedtime",
+        icon: "⏰",
+        title: "Late Bedtime",
+        message:
+          "You went to bed later than your target. Try to wind down earlier.",
         timestamp: now,
-        priority: 'medium',
+        priority: "medium",
       });
     }
   }
@@ -100,12 +101,13 @@ export const generateAlerts = (input: AlertInput): readonly Alert[] => {
   if (input.rhythmData && input.rhythmData.weekendWakeShiftMinutes > 120) {
     alerts.push({
       id: generateId(),
-      type: 'weekend_jetlag',
-      icon: '📅',
-      title: 'Weekend Jetlag',
-      message: 'Weekend sleep schedule shift detected. This may affect Monday energy.',
+      type: "weekend_jetlag",
+      icon: "📅",
+      title: "Weekend Jetlag",
+      message:
+        "Weekend sleep schedule shift detected. This may affect Monday energy.",
       timestamp: now,
-      priority: 'medium',
+      priority: "medium",
     });
   }
 
@@ -113,12 +115,13 @@ export const generateAlerts = (input: AlertInput): readonly Alert[] => {
   if (input.activity && input.activity.steps < 3000) {
     alerts.push({
       id: generateId(),
-      type: 'low_activity',
-      icon: '🚶',
-      title: 'Low Activity',
-      message: 'Low activity yesterday. A short walk today can help your rhythm.',
+      type: "low_activity",
+      icon: "🚶",
+      title: "Low Activity",
+      message:
+        "Low activity yesterday. A short walk today can help your rhythm.",
       timestamp: now,
-      priority: 'low',
+      priority: "low",
     });
   }
 
@@ -130,7 +133,6 @@ export const generateAlerts = (input: AlertInput): readonly Alert[] => {
   };
 
   return alerts.sort(
-    (a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]
+    (a, b) => priorityOrder[a.priority] - priorityOrder[b.priority],
   );
 };
-

@@ -2,4 +2,4 @@
  * ユーティリティ関数 - 一括エクスポート
  */
 
-export * from './healthDataTransformer';
+export * from "./healthDataTransformer";

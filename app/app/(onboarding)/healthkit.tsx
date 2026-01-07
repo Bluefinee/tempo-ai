@@ -4,13 +4,13 @@
  * Step 2 of 9
  */
 
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
-import { Colors, Spacing, BorderRadius, FontFamily } from '../../src/theme';
-import { PrimaryButton, SecondaryButton } from '../../src/components';
-import type { JSX } from 'react';
+import React from "react";
+import { View, Text, StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
+import { Colors, Spacing, BorderRadius, FontFamily } from "../../src/theme";
+import { PrimaryButton, SecondaryButton } from "../../src/components";
+import type { JSX } from "react";
 
 const CURRENT_STEP = 2;
 const TOTAL_STEPS = 9;
@@ -20,11 +20,11 @@ const HealthKitScreen = (): JSX.Element => {
 
   const handleAllow = () => {
     // TODO: HealthKit permission request
-    router.push('/(onboarding)/nickname');
+    router.push("/(onboarding)/nickname");
   };
 
   const handleSkip = () => {
-    router.push('/(onboarding)/nickname');
+    router.push("/(onboarding)/nickname");
   };
 
   return (
@@ -41,7 +41,9 @@ const HealthKitScreen = (): JSX.Element => {
               key={idx}
               style={[
                 styles.progressSegment,
-                idx < CURRENT_STEP ? styles.progressActive : styles.progressInactive,
+                idx < CURRENT_STEP
+                  ? styles.progressActive
+                  : styles.progressInactive,
               ]}
             />
           ))}
@@ -52,7 +54,8 @@ const HealthKitScreen = (): JSX.Element => {
           <Text style={styles.emoji}>❤️</Text>
           <Text style={styles.title}>Heart Rate Variability</Text>
           <Text style={styles.description}>
-            We measure the tiny variations in your heartbeat to understand how recovered and ready you are.
+            We measure the tiny variations in your heartbeat to understand how
+            recovered and ready you are.
           </Text>
 
           {/* Data info box */}
@@ -72,9 +75,7 @@ const HealthKitScreen = (): JSX.Element => {
 
         {/* Footer */}
         <View style={styles.footer}>
-          <PrimaryButton onPress={handleAllow}>
-            Allow Access
-          </PrimaryButton>
+          <PrimaryButton onPress={handleAllow}>Allow Access</PrimaryButton>
           <SecondaryButton onPress={handleSkip} style={styles.skipButton}>
             Set Up Later
           </SecondaryButton>
@@ -82,9 +83,12 @@ const HealthKitScreen = (): JSX.Element => {
       </SafeAreaView>
     </View>
   );
-}
+};
 
-const DataItem: React.FC<{ emoji: string; text: string }> = ({ emoji, text }): JSX.Element => (
+const DataItem: React.FC<{ emoji: string; text: string }> = ({
+  emoji,
+  text,
+}): JSX.Element => (
   <View style={styles.dataItem}>
     <Text style={styles.dataEmoji}>{emoji}</Text>
     <Text style={styles.dataText}>{text}</Text>
@@ -95,14 +99,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.stone[50],
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   safeArea: {
     flex: 1,
   },
   // Decorative blobs
   blobTopRight: {
-    position: 'absolute',
+    position: "absolute",
     top: -100,
     right: -80,
     width: 256,
@@ -112,7 +116,7 @@ const styles = StyleSheet.create({
     opacity: 0.4,
   },
   blobBottomLeft: {
-    position: 'absolute',
+    position: "absolute",
     bottom: -80,
     left: -60,
     width: 320,
@@ -123,7 +127,7 @@ const styles = StyleSheet.create({
   },
   // Progress bar
   progressContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     paddingHorizontal: 32,
     paddingTop: 48,
     gap: 8,
@@ -142,8 +146,8 @@ const styles = StyleSheet.create({
   // Content
   content: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     paddingHorizontal: 32,
   },
   emoji: {
@@ -153,9 +157,9 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: FontFamily.serif,
     fontSize: 24,
-    fontWeight: '700',
+    fontWeight: "700",
     color: Colors.stone[900],
-    textAlign: 'center',
+    textAlign: "center",
     letterSpacing: -0.5,
     marginBottom: 16,
   },
@@ -163,13 +167,13 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.regular,
     fontSize: 16,
     color: Colors.stone[500],
-    textAlign: 'center',
+    textAlign: "center",
     lineHeight: 26,
     marginBottom: 32,
   },
   // Info box
   infoBox: {
-    width: '100%',
+    width: "100%",
     backgroundColor: Colors.white,
     borderRadius: BorderRadius.lg,
     padding: Spacing.lg,
@@ -180,7 +184,7 @@ const styles = StyleSheet.create({
   infoTitle: {
     fontFamily: FontFamily.bold,
     fontSize: 14,
-    fontWeight: '700',
+    fontWeight: "700",
     color: Colors.stone[700],
     marginBottom: 12,
   },
@@ -188,8 +192,8 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   dataItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   dataEmoji: {
     fontSize: 18,
@@ -205,13 +209,13 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.regular,
     fontSize: 12,
     color: Colors.stone[400],
-    textAlign: 'center',
+    textAlign: "center",
   },
   // Footer
   footer: {
     paddingHorizontal: 32,
     paddingBottom: 48,
-    alignItems: 'center',
+    alignItems: "center",
     gap: 12,
   },
   skipButton: {

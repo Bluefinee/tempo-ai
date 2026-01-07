@@ -3,10 +3,13 @@
  * sozai/tempoai/screens/InsightsScreen.tsx を React Native で完全再現
  */
 
-import React from 'react';
-import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
+import React from "react";
+import { View, Text, ScrollView, Pressable, StyleSheet } from "react-native";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
+import { LinearGradient } from "expo-linear-gradient";
 import {
   TrendingUp,
   Calendar,
@@ -14,12 +17,12 @@ import {
   CheckCircle2,
   ArrowRight,
   LucideIcon,
-} from 'lucide-react-native';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+} from "lucide-react-native";
+import Animated, { FadeInDown } from "react-native-reanimated";
 
-import { TAB_BAR_HEIGHT } from './_layout';
-import { colors, FontFamily } from '../../src/theme';
-import { t } from '../../src/i18n';
+import { TAB_BAR_HEIGHT } from "./_layout";
+import { colors, FontFamily } from "../../src/theme";
+import { t } from "../../src/i18n";
 
 // モックデータ
 const MOCK_DATA = {
@@ -28,7 +31,7 @@ const MOCK_DATA = {
   weeklyScores: [40, 60, 75, 45, 80, 90, 70],
 };
 
-const WEEKDAYS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+const WEEKDAYS = ["M", "T", "W", "T", "F", "S", "S"];
 
 // Alert configurations
 interface AlertConfig {
@@ -46,30 +49,33 @@ const getAlerts = (): AlertConfig[] => [
     Icon: CheckCircle2,
     color: colors.emerald[500],
     bg: colors.emerald[50],
-    title: t('alert.recoveryComplete.title'),
-    desc: t('alert.recoveryComplete.description'),
-    time: t('alert.recoveryComplete.time'),
+    title: t("alert.recoveryComplete.title"),
+    desc: t("alert.recoveryComplete.description"),
+    time: t("alert.recoveryComplete.time"),
   },
   {
     Icon: AlertCircle,
     color: colors.amber[500],
     bg: colors.amber[50],
-    title: t('alert.lateCaffeine.title'),
-    desc: t('alert.lateCaffeine.description'),
-    time: t('alert.lateCaffeine.time'),
+    title: t("alert.lateCaffeine.title"),
+    desc: t("alert.lateCaffeine.description"),
+    time: t("alert.lateCaffeine.time"),
   },
   {
     Icon: Calendar,
     color: colors.indigo[500],
     bg: colors.indigo[50],
-    title: t('alert.weekendJetlag.title'),
-    desc: t('alert.weekendJetlag.description'),
-    time: t('alert.weekendJetlag.time'),
+    title: t("alert.weekendJetlag.title"),
+    desc: t("alert.weekendJetlag.description"),
+    time: t("alert.weekendJetlag.time"),
   },
 ];
 
 // Alert Item Component
-const AlertItem: React.FC<{ alert: AlertConfig; delay: number }> = ({ alert, delay }) => {
+const AlertItem: React.FC<{ alert: AlertConfig; delay: number }> = ({
+  alert,
+  delay,
+}) => {
   const { Icon, color, bg, title, desc, time } = alert;
 
   return (
@@ -99,7 +105,7 @@ const InsightsScreen = (): React.ReactElement => {
 
   return (
     <View className="flex-1 bg-stone-100">
-      <SafeAreaView className="flex-1" edges={['top']}>
+      <SafeAreaView className="flex-1" edges={["top"]}>
         <ScrollView
           contentContainerStyle={[
             styles.scrollContent,
@@ -108,14 +114,19 @@ const InsightsScreen = (): React.ReactElement => {
           showsVerticalScrollIndicator={false}
         >
           {/* Header */}
-          <Animated.View entering={FadeInDown.duration(400)} className="pt-14 px-6 mb-6">
+          <Animated.View
+            entering={FadeInDown.duration(400)}
+            className="pt-14 px-6 mb-6"
+          >
             <Text
               className="text-3xl text-stone-900 tracking-tight mb-1"
               style={styles.headerTitle}
             >
               Insights
             </Text>
-            <Text className="text-sm text-stone-500">{t('screen.insights.subtitle')}</Text>
+            <Text className="text-sm text-stone-500">
+              {t("screen.insights.subtitle")}
+            </Text>
           </Animated.View>
 
           <View className="px-6" style={styles.mainContainer}>
@@ -126,26 +137,37 @@ const InsightsScreen = (): React.ReactElement => {
               style={styles.weeklyCard}
             >
               <View className="flex-row justify-between items-center mb-4">
-                <Text className="text-sm font-bold text-stone-800">{t('screen.insights.thisWeek')}</Text>
+                <Text className="text-sm font-bold text-stone-800">
+                  {t("screen.insights.thisWeek")}
+                </Text>
                 <View className="bg-indigo-50 px-2 py-1 rounded-md">
                   <Text className="text-xs font-medium text-indigo-500">
-                    {t('screen.insights.avgScore')}: {MOCK_DATA.avgScore}
+                    {t("screen.insights.avgScore")}: {MOCK_DATA.avgScore}
                   </Text>
                 </View>
               </View>
 
-              <View className="flex-row justify-between items-end pb-2" style={styles.barContainerHeight}>
+              <View
+                className="flex-row justify-between items-end pb-2"
+                style={styles.barContainerHeight}
+              >
                 {MOCK_DATA.weeklyScores.map((score, i) => {
                   const isToday = i === MOCK_DATA.todayIndex;
                   return (
-                    <View key={i} className="flex-1 items-center h-full" style={styles.barItem}>
+                    <View
+                      key={i}
+                      className="flex-1 items-center h-full"
+                      style={styles.barItem}
+                    >
                       {/* Bar Track */}
                       <View className="flex-1 w-2 bg-stone-100 rounded-full overflow-hidden justify-end">
                         <View
                           className="w-full rounded-full"
                           style={{
                             height: `${score}%`,
-                            backgroundColor: isToday ? colors.indigo[500] : colors.indigo[300],
+                            backgroundColor: isToday
+                              ? colors.indigo[500]
+                              : colors.indigo[300],
                             opacity: isToday ? 1 : 0.6,
                           }}
                         />
@@ -154,7 +176,11 @@ const InsightsScreen = (): React.ReactElement => {
                       <View className="items-center h-4 justify-start">
                         <Text
                           className="text-[10px] font-bold leading-none"
-                          style={{ color: isToday ? colors.indigo[600] : colors.stone[400] }}
+                          style={{
+                            color: isToday
+                              ? colors.indigo[600]
+                              : colors.stone[400],
+                          }}
                         >
                           {WEEKDAYS[i]}
                         </Text>
@@ -182,31 +208,36 @@ const InsightsScreen = (): React.ReactElement => {
                 end={{ x: 1, y: 1 }}
                 style={styles.discoveryGradient}
               >
-                <View className="flex-row items-center mb-4" style={styles.discoveryHeader}>
+                <View
+                  className="flex-row items-center mb-4"
+                  style={styles.discoveryHeader}
+                >
                   <View style={styles.discoveryIconBg}>
                     <TrendingUp size={16} color="#FFFFFF" />
                   </View>
                   <Text className="text-xs font-bold text-white/90 uppercase tracking-wider">
-                    {t('screen.insights.topDiscovery')}
+                    {t("screen.insights.topDiscovery")}
                   </Text>
                 </View>
                 <Text
                   className="text-[22px] font-bold text-white mb-3"
                   style={styles.discoveryTitle}
                 >
-                  {t('screen.insights.topDiscoveryTitle')}
+                  {t("screen.insights.topDiscoveryTitle")}
                 </Text>
                 <Text
                   className="text-sm text-white/80 mb-5"
                   style={styles.discoveryDescription}
                 >
-                  {t('screen.insights.topDiscoveryDescription')}
+                  {t("screen.insights.topDiscoveryDescription")}
                 </Text>
                 <View
                   className="flex-row items-center self-start"
                   style={styles.discoveryButton}
                 >
-                  <Text className="text-sm font-semibold text-white mr-2">{t('screen.insights.viewDetails')}</Text>
+                  <Text className="text-sm font-semibold text-white mr-2">
+                    {t("screen.insights.viewDetails")}
+                  </Text>
                   <ArrowRight size={14} color="#FFFFFF" />
                 </View>
               </LinearGradient>
@@ -216,12 +247,16 @@ const InsightsScreen = (): React.ReactElement => {
             <View className="pt-2">
               <Animated.View entering={FadeInDown.delay(300).duration(400)}>
                 <Text className="text-sm font-bold text-stone-900 uppercase tracking-wide mb-4">
-                  {t('screen.insights.recentAlerts')}
+                  {t("screen.insights.recentAlerts")}
                 </Text>
               </Animated.View>
               <View style={styles.alertsContainer}>
                 {getAlerts().map((alert, index) => (
-                  <AlertItem key={index} alert={alert} delay={350 + index * 50} />
+                  <AlertItem
+                    key={index}
+                    alert={alert}
+                    delay={350 + index * 50}
+                  />
                 ))}
               </View>
             </View>
@@ -257,7 +292,7 @@ const styles = StyleSheet.create({
   },
   discoveryCardPressable: {
     borderRadius: 24,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   discoveryCardPressed: {
     transform: [{ scale: 0.98 }],
@@ -275,7 +310,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   discoveryIconBg: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
     padding: 8,
     borderRadius: 10,
   },
@@ -286,7 +321,7 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   discoveryButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    backgroundColor: "rgba(255, 255, 255, 0.15)",
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 12,

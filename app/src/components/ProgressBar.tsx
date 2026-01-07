@@ -1,8 +1,8 @@
-import React, { useEffect, useRef } from 'react';
-import { View, StyleSheet, Animated } from 'react-native';
-import { Colors, BorderRadius } from '../theme';
-import { getScoreColor } from '../theme/colors';
-import type { ReactElement } from 'react';
+import React, { useEffect, useRef } from "react";
+import { View, StyleSheet, Animated } from "react-native";
+import { Colors, BorderRadius } from "../theme";
+import { getScoreColor } from "../theme/colors";
+import type { ReactElement } from "react";
 
 interface ProgressBarProps {
   value: number; // 0-100
@@ -35,7 +35,7 @@ export const ProgressBar = ({
 
   const widthInterpolated = animatedWidth.interpolate({
     inputRange: [0, 100],
-    outputRange: ['0%', '100%'],
+    outputRange: ["0%", "100%"],
   });
 
   return (
@@ -57,8 +57,8 @@ export const ProgressBar = ({
 const styles = StyleSheet.create({
   container: {
     borderRadius: BorderRadius.full,
-    overflow: 'hidden',
-    width: '100%',
+    overflow: "hidden",
+    width: "100%",
   },
   fill: {
     borderRadius: BorderRadius.full,

@@ -3,13 +3,13 @@
  * react-native-reanimated版
  */
 
-import { useEffect } from 'react';
+import { useEffect } from "react";
 import {
   useSharedValue,
   useAnimatedStyle,
   withDelay,
   withTiming,
-} from 'react-native-reanimated';
+} from "react-native-reanimated";
 
 /**
  * フェードインアニメーションフック

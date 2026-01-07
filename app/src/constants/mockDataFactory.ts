@@ -14,7 +14,7 @@ import {
   HealthTimeRange,
   DEFAULT_TYPICAL_RANGES,
   TrendDirection,
-} from '../domain/models/healthHistory';
+} from "../domain/models/healthHistory";
 
 // =============================================================================
 // 日付生成ユーティリティ
@@ -45,8 +45,8 @@ export const generateDateRange = (days: number): Date[] => {
  */
 export const formatDateString = (date: Date): string => {
   const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
 };
 
@@ -75,7 +75,7 @@ export const seededRandom = (seed: number): number => {
 export const seededRandomInRange = (
   seed: number,
   min: number,
-  max: number
+  max: number,
 ): number => {
   return min + seededRandom(seed) * (max - min);
 };
@@ -100,7 +100,7 @@ export const generateDailySamples = (
   baseValue: number,
   variance: number,
   days: number,
-  seed: number = 42
+  seed: number = 42,
 ): DailyHealthSample[] => {
   const dates = generateDateRange(days);
 
@@ -129,7 +129,7 @@ export const generateDailySamples = (
  */
 export const calculateBaseline = (
   samples: DailyHealthSample[],
-  days: number
+  days: number,
 ): number => {
   const relevantSamples = samples.slice(-days);
   if (relevantSamples.length === 0) return 0;
@@ -150,10 +150,10 @@ export const calculateBaseline = (
  */
 export const calculateTypicalRange = (
   samples: DailyHealthSample[],
-  defaultRange: { min: number; max: number }
-): { min: number; max: number; source: 'personal' | 'default' } => {
+  defaultRange: { min: number; max: number },
+): { min: number; max: number; source: "personal" | "default" } => {
   if (samples.length < 14) {
-    return { ...defaultRange, source: 'default' };
+    return { ...defaultRange, source: "default" };
   }
 
   const values = samples.map((s) => s.value).sort((a, b) => a - b);
@@ -163,7 +163,7 @@ export const calculateTypicalRange = (
   return {
     min: Math.round(values[p5Index] * 10) / 10,
     max: Math.round(values[p95Index] * 10) / 10,
-    source: 'personal',
+    source: "personal",
   };
 };
 
@@ -176,24 +176,27 @@ export const calculateTypicalRange = (
  * @param samples - サンプル配列
  * @returns トレンド方向
  */
-export const calculateTrend = (samples: DailyHealthSample[]): TrendDirection => {
-  if (samples.length < 7) return 'stable';
+export const calculateTrend = (
+  samples: DailyHealthSample[],
+): TrendDirection => {
+  if (samples.length < 7) return "stable";
 
   const recent = samples.slice(-7);
   const previous = samples.slice(-14, -7);
 
-  if (previous.length === 0) return 'stable';
+  if (previous.length === 0) return "stable";
 
   const recentAvg = recent.reduce((a, b) => a + b.value, 0) / recent.length;
-  const previousAvg = previous.reduce((a, b) => a + b.value, 0) / previous.length;
+  const previousAvg =
+    previous.reduce((a, b) => a + b.value, 0) / previous.length;
 
-  if (previousAvg === 0) return 'stable';
+  if (previousAvg === 0) return "stable";
 
   const changePercent = ((recentAvg - previousAvg) / previousAvg) * 100;
 
-  if (changePercent > 5) return 'improving';
-  if (changePercent < -5) return 'declining';
-  return 'stable';
+  if (changePercent > 5) return "improving";
+  if (changePercent < -5) return "declining";
+  return "stable";
 };
 
 // =============================================================================
@@ -239,9 +242,9 @@ const MOCK_GENERATOR_CONFIG: Record<
  */
 export const getMockMetricHistory = (
   metricType: HealthMetricType,
-  timeRange: HealthTimeRange = '60D'
+  timeRange: HealthTimeRange = "60D",
 ): HealthMetricHistory => {
-  const days = timeRange === '7D' ? 7 : timeRange === '30D' ? 30 : 60;
+  const days = timeRange === "7D" ? 7 : timeRange === "30D" ? 30 : 60;
   const config = MOCK_GENERATOR_CONFIG[metricType];
 
   if (!config) {
@@ -252,7 +255,7 @@ export const getMockMetricHistory = (
     config.baseValue,
     config.variance,
     days,
-    config.seed
+    config.seed,
   );
 
   const defaultRange = DEFAULT_TYPICAL_RANGES[metricType];
@@ -273,16 +276,16 @@ export const getMockMetricHistory = (
  * @returns スコア種別をキーとした HealthMetricHistory のオブジェクト
  */
 export const getAllScoreHistories = (
-  timeRange: HealthTimeRange = '60D'
+  timeRange: HealthTimeRange = "60D",
 ): Record<
-  'recoveryScore' | 'sleepScore' | 'rhythmScore' | 'energyScore',
+  "recoveryScore" | "sleepScore" | "rhythmScore" | "energyScore",
   HealthMetricHistory
 > => {
   return {
-    recoveryScore: getMockMetricHistory('recoveryScore', timeRange),
-    sleepScore: getMockMetricHistory('sleepScore', timeRange),
-    rhythmScore: getMockMetricHistory('rhythmScore', timeRange),
-    energyScore: getMockMetricHistory('energyScore', timeRange),
+    recoveryScore: getMockMetricHistory("recoveryScore", timeRange),
+    sleepScore: getMockMetricHistory("sleepScore", timeRange),
+    rhythmScore: getMockMetricHistory("rhythmScore", timeRange),
+    energyScore: getMockMetricHistory("energyScore", timeRange),
   };
 };
 
@@ -293,13 +296,16 @@ export const getAllScoreHistories = (
  * @returns メトリクス種別をキーとした HealthMetricHistory のオブジェクト
  */
 export const getAllHealthMetricHistories = (
-  timeRange: HealthTimeRange = '60D'
-): Record<'hrv' | 'rhr' | 'respiratory' | 'spo2' | 'wristTemp', HealthMetricHistory> => {
+  timeRange: HealthTimeRange = "60D",
+): Record<
+  "hrv" | "rhr" | "respiratory" | "spo2" | "wristTemp",
+  HealthMetricHistory
+> => {
   return {
-    hrv: getMockMetricHistory('hrv', timeRange),
-    rhr: getMockMetricHistory('rhr', timeRange),
-    respiratory: getMockMetricHistory('respiratory', timeRange),
-    spo2: getMockMetricHistory('spo2', timeRange),
-    wristTemp: getMockMetricHistory('wristTemp', timeRange),
+    hrv: getMockMetricHistory("hrv", timeRange),
+    rhr: getMockMetricHistory("rhr", timeRange),
+    respiratory: getMockMetricHistory("respiratory", timeRange),
+    spo2: getMockMetricHistory("spo2", timeRange),
+    wristTemp: getMockMetricHistory("wristTemp", timeRange),
   };
 };

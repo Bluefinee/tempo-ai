@@ -4,7 +4,7 @@
  * Step 4 of 9
  */
 
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -12,37 +12,48 @@ import {
   ScrollView,
   TouchableOpacity,
   Dimensions,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
-import { Colors, Spacing, FontFamily } from '../../src/theme';
-import { PrimaryButton, InputField } from '../../src/components';
-import { Gender, getGenderLabel } from '../../src/domain/models';
-import { useUserStore } from '../../src/stores';
-import type { JSX } from 'react';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
+import { Colors, Spacing, FontFamily } from "../../src/theme";
+import { PrimaryButton, InputField } from "../../src/components";
+import { Gender, getGenderLabel } from "../../src/domain/models";
+import { useUserStore } from "../../src/stores";
+import type { JSX } from "react";
 
-const { width, height } = Dimensions.get('window');
+const { width, height } = Dimensions.get("window");
 const CURRENT_STEP = 4;
 const TOTAL_STEPS = 9;
-const GENDERS: Gender[] = ['male', 'female', 'other', 'preferNotToSay'];
+const GENDERS: Gender[] = ["male", "female", "other", "preferNotToSay"];
 
 const BasicInfoScreen = (): JSX.Element => {
   const router = useRouter();
   const setDraftBasicInfo = useUserStore((state) => state.setDraftBasicInfo);
   const draftProfile = useUserStore((state) => state.draftProfile);
 
-  const [age, setAge] = useState(draftProfile.age?.toString() || '');
-  const [gender, setGender] = useState<Gender>(draftProfile.gender || 'preferNotToSay');
-  const [heightVal, setHeightVal] = useState(draftProfile.heightCm?.toString() || '');
-  const [weight, setWeight] = useState(draftProfile.weightKg?.toString() || '');
+  const [age, setAge] = useState(draftProfile.age?.toString() || "");
+  const [gender, setGender] = useState<Gender>(
+    draftProfile.gender || "preferNotToSay",
+  );
+  const [heightVal, setHeightVal] = useState(
+    draftProfile.heightCm?.toString() || "",
+  );
+  const [weight, setWeight] = useState(draftProfile.weightKg?.toString() || "");
 
   const parsedAge = parseInt(age, 10);
   const parsedHeight = parseInt(heightVal, 10);
   const parsedWeight = parseInt(weight, 10);
   const isValid =
-    age && !isNaN(parsedAge) && parsedAge > 0 && parsedAge < 150 &&
-    heightVal && !isNaN(parsedHeight) && parsedHeight > 0 &&
-    weight && !isNaN(parsedWeight) && parsedWeight > 0;
+    age &&
+    !isNaN(parsedAge) &&
+    parsedAge > 0 &&
+    parsedAge < 150 &&
+    heightVal &&
+    !isNaN(parsedHeight) &&
+    parsedHeight > 0 &&
+    weight &&
+    !isNaN(parsedWeight) &&
+    parsedWeight > 0;
 
   const handleNext = (): void => {
     if (isValid) {
@@ -52,7 +63,7 @@ const BasicInfoScreen = (): JSX.Element => {
         heightCm: parsedHeight,
         weightKg: parsedWeight,
       });
-      router.push('/(onboarding)/chronotype');
+      router.push("/(onboarding)/chronotype");
     }
   };
 
@@ -70,7 +81,9 @@ const BasicInfoScreen = (): JSX.Element => {
               key={idx}
               style={[
                 styles.progressSegment,
-                idx < CURRENT_STEP ? styles.progressActive : styles.progressInactive,
+                idx < CURRENT_STEP
+                  ? styles.progressActive
+                  : styles.progressInactive,
               ]}
             />
           ))}
@@ -87,7 +100,8 @@ const BasicInfoScreen = (): JSX.Element => {
             <Text style={styles.emoji}>🌊</Text>
             <Text style={styles.title}>Your Body is an Ocean</Text>
             <Text style={styles.description}>
-              Your energy isn&apos;t a straight line. It flows like a tide. Tell us a bit about yourself.
+              Your energy isn&apos;t a straight line. It flows like a tide. Tell
+              us a bit about yourself.
             </Text>
 
             {/* Form */}
@@ -161,13 +175,13 @@ const BasicInfoScreen = (): JSX.Element => {
       </SafeAreaView>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.stone[50],
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   safeArea: {
     flex: 1,
@@ -180,7 +194,7 @@ const styles = StyleSheet.create({
   },
   // Decorative blobs
   blobTopRight: {
-    position: 'absolute',
+    position: "absolute",
     top: -height * 0.15,
     right: -width * 0.2,
     width: 256,
@@ -190,7 +204,7 @@ const styles = StyleSheet.create({
     opacity: 0.4,
   },
   blobBottomLeft: {
-    position: 'absolute',
+    position: "absolute",
     bottom: -height * 0.1,
     left: -width * 0.15,
     width: 320,
@@ -201,7 +215,7 @@ const styles = StyleSheet.create({
   },
   // Progress bar
   progressContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     paddingHorizontal: 32,
     paddingTop: 48,
     gap: 8,
@@ -219,7 +233,7 @@ const styles = StyleSheet.create({
   },
   // Content
   content: {
-    alignItems: 'center',
+    alignItems: "center",
     paddingHorizontal: 32,
     paddingTop: 32,
   },
@@ -230,9 +244,9 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: FontFamily.serif,
     fontSize: 24,
-    fontWeight: '700',
+    fontWeight: "700",
     color: Colors.stone[900],
-    textAlign: 'center',
+    textAlign: "center",
     letterSpacing: -0.5,
     marginBottom: 12,
   },
@@ -240,13 +254,13 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.regular,
     fontSize: 16,
     color: Colors.stone[500],
-    textAlign: 'center',
+    textAlign: "center",
     lineHeight: 26,
     marginBottom: 32,
   },
   // Form
   form: {
-    width: '100%',
+    width: "100%",
   },
   genderSection: {
     marginBottom: Spacing.lg,
@@ -254,16 +268,16 @@ const styles = StyleSheet.create({
   label: {
     fontFamily: FontFamily.medium,
     fontSize: 12,
-    fontWeight: '500',
+    fontWeight: "500",
     color: Colors.stone[500],
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
     letterSpacing: 1,
     marginBottom: 8,
     marginLeft: 4,
   },
   genderOptions: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: 8,
   },
   genderOption: {
@@ -281,14 +295,14 @@ const styles = StyleSheet.create({
   genderText: {
     fontFamily: FontFamily.medium,
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: "500",
     color: Colors.stone[600],
   },
   genderTextSelected: {
     color: Colors.indigo[600],
   },
   row: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 16,
   },
   halfInput: {
@@ -298,7 +312,7 @@ const styles = StyleSheet.create({
   footer: {
     paddingHorizontal: 32,
     paddingBottom: 48,
-    alignItems: 'center',
+    alignItems: "center",
   },
 });
 

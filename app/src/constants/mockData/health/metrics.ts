@@ -174,4 +174,3 @@ export const MOCK_WEEKLY_SCORES: DailyScoreSnapshot[] = [
  * - history: BarChart 互換形式への変換ゲッター
  * - ベースライン・典型範囲を含む
  */
-

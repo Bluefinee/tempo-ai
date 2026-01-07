@@ -4,16 +4,16 @@
  */
 
 export type AlertType =
-  | 'recovery_needed'
-  | 'recovery_complete'
-  | 'sleep_deficit'
-  | 'late_bedtime'
-  | 'weekend_jetlag'
-  | 'low_activity';
+  | "recovery_needed"
+  | "recovery_complete"
+  | "sleep_deficit"
+  | "late_bedtime"
+  | "weekend_jetlag"
+  | "low_activity";
 
-export type AlertPriority = 'high' | 'medium' | 'low';
+export type AlertPriority = "high" | "medium" | "low";
 
-export type AlertIcon = '⚠️' | '✓' | '🌙' | '⏰' | '📅' | '🚶';
+export type AlertIcon = "⚠️" | "✓" | "🌙" | "⏰" | "📅" | "🚶";
 
 export interface Alert {
   readonly id: string;
@@ -37,8 +37,3 @@ export interface WeeklyInsight {
   readonly topDiscovery: TopDiscovery | null;
   readonly recentAlerts: readonly Alert[];
 }
-
-
-
-
-

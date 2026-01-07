@@ -3,13 +3,13 @@
  * @see docs/specs/product_spec.md
  */
 
-import { create } from 'zustand';
+import { create } from "zustand";
 
 // ========================================
 // Types
 // ========================================
 
-type BreathePhase = 'idle' | 'inhale' | 'hold' | 'exhale';
+type BreathePhase = "idle" | "inhale" | "hold" | "exhale";
 
 interface BreatheState {
   // Session State
@@ -18,9 +18,9 @@ interface BreatheState {
   phase: BreathePhase;
 
   // Timing
-  sessionDuration: number;      // 総セッション時間（秒）
-  elapsedTime: number;          // 経過時間（秒）
-  phaseTimeRemaining: number;   // 現在フェーズ残り時間（ミリ秒）
+  sessionDuration: number; // 総セッション時間（秒）
+  elapsedTime: number; // 経過時間（秒）
+  phaseTimeRemaining: number; // 現在フェーズ残り時間（ミリ秒）
 
   // Settings
   hapticEnabled: boolean;
@@ -59,7 +59,7 @@ export const useBreatheStore = create<BreatheState>((set, get) => ({
   // Initial State
   isActive: false,
   isPaused: false,
-  phase: 'idle',
+  phase: "idle",
   sessionDuration: DEFAULT_SESSION_DURATION,
   elapsedTime: 0,
   phaseTimeRemaining: 0,
@@ -71,7 +71,7 @@ export const useBreatheStore = create<BreatheState>((set, get) => ({
     set({
       isActive: true,
       isPaused: false,
-      phase: 'inhale',
+      phase: "inhale",
       elapsedTime: 0,
     });
   },
@@ -88,7 +88,7 @@ export const useBreatheStore = create<BreatheState>((set, get) => ({
     set({
       isActive: false,
       isPaused: false,
-      phase: 'idle',
+      phase: "idle",
       elapsedTime: 0,
       phaseTimeRemaining: 0,
     });
@@ -98,7 +98,7 @@ export const useBreatheStore = create<BreatheState>((set, get) => ({
     set({
       isActive: true,
       isPaused: false,
-      phase: 'inhale',
+      phase: "inhale",
       elapsedTime: 0,
     });
   },
@@ -115,7 +115,7 @@ export const useBreatheStore = create<BreatheState>((set, get) => ({
     set({
       isActive: false,
       isPaused: false,
-      phase: 'idle',
+      phase: "idle",
       elapsedTime: 0,
       phaseTimeRemaining: 0,
     });
@@ -148,7 +148,7 @@ export const useBreatheStore = create<BreatheState>((set, get) => ({
     set({
       isActive: false,
       isPaused: false,
-      phase: 'idle',
+      phase: "idle",
       elapsedTime: 0,
       phaseTimeRemaining: 0,
     });
@@ -168,6 +168,5 @@ export const selectSessionProgress = (state: BreatheState): number =>
 export const selectFormattedElapsedTime = (state: BreatheState): string => {
   const minutes = Math.floor(state.elapsedTime / 60);
   const seconds = state.elapsedTime % 60;
-  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 };
-

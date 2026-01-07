@@ -3,8 +3,14 @@
  * スムーズなドラッグ操作でツールチップ表示
  */
 
-import React, { useState, useCallback, useMemo, useRef } from 'react';
-import { View, Text, useWindowDimensions, StyleSheet, PanResponder } from 'react-native';
+import React, { useState, useCallback, useMemo, useRef } from "react";
+import {
+  View,
+  Text,
+  useWindowDimensions,
+  StyleSheet,
+  PanResponder,
+} from "react-native";
 import Svg, {
   Path,
   Defs,
@@ -13,16 +19,16 @@ import Svg, {
   Line,
   Circle,
   Text as SvgText,
-} from 'react-native-svg';
+} from "react-native-svg";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
   withTiming,
   runOnJS,
-} from 'react-native-reanimated';
+} from "react-native-reanimated";
 
-import { Colors } from '../theme';
+import { Colors } from "../theme";
 
 export interface RhythmDataPoint {
   time: string;
@@ -80,7 +86,7 @@ export const RhythmInteractiveChart = ({
   // Catmull-Rom スプラインを三次ベジェ曲線に変換して滑らかな曲線を生成
   const generateSmoothPath = useCallback(
     (pts: typeof points, closePath: boolean) => {
-      if (pts.length < 2) return '';
+      if (pts.length < 2) return "";
 
       // Catmull-Rom to Bezier conversion
       const tension = 0.3; // 曲線の張り具合（0-1、小さいほど滑らか）
@@ -106,12 +112,12 @@ export const RhythmInteractiveChart = ({
         // エリアを閉じる
         path += ` L ${pts[pts.length - 1].x} ${PADDING_TOP + chartHeight}`;
         path += ` L ${pts[0].x} ${PADDING_TOP + chartHeight}`;
-        path += ' Z';
+        path += " Z";
       }
 
       return path;
     },
-    [chartHeight]
+    [chartHeight],
   );
 
   // SVGパスを生成（スムーズな曲線）
@@ -135,17 +141,25 @@ export const RhythmInteractiveChart = ({
 
     // 現在時刻に最も近いデータポイントのエネルギーを取得
     const closestPoint = data.reduce((prev, curr) => {
-      return Math.abs(curr.hour - currentHour) < Math.abs(prev.hour - currentHour) ? curr : prev;
+      return Math.abs(curr.hour - currentHour) <
+        Math.abs(prev.hour - currentHour)
+        ? curr
+        : prev;
     });
-    const y = PADDING_TOP + chartHeight - (closestPoint.energy / 100) * chartHeight;
+    const y =
+      PADDING_TOP + chartHeight - (closestPoint.energy / 100) * chartHeight;
 
     return { x, y, energy: closestPoint.energy };
   }, [data, currentHour, chartWidth, chartHeight]);
 
   // ピークとディップの位置を取得
   const annotations = useMemo(() => {
-    const peak = points.find((p) => p.data.label === 'Peak' || p.data.label === 'ピーク');
-    const dip = points.find((p) => p.data.label === 'Dip' || p.data.label === '低迷期');
+    const peak = points.find(
+      (p) => p.data.label === "Peak" || p.data.label === "ピーク",
+    );
+    const dip = points.find(
+      (p) => p.data.label === "Dip" || p.data.label === "低迷期",
+    );
     return { peak, dip };
   }, [points]);
 
@@ -167,7 +181,7 @@ export const RhythmInteractiveChart = ({
 
       return closest;
     },
-    [points]
+    [points],
   );
 
   // ツールチップを表示
@@ -182,7 +196,7 @@ export const RhythmInteractiveChart = ({
       tooltipScale.value = withSpring(1, { damping: 15, stiffness: 400 });
       cursorOpacity.value = withTiming(1, { duration: 100 });
     },
-    [tooltipOpacity, tooltipScale, cursorOpacity]
+    [tooltipOpacity, tooltipScale, cursorOpacity],
   );
 
   // ツールチップを非表示
@@ -224,13 +238,13 @@ export const RhythmInteractiveChart = ({
           runOnJS(hideTooltip)();
         },
       }),
-    [findClosestPoint, showTooltip, hideTooltip, touchedIndex]
+    [findClosestPoint, showTooltip, hideTooltip, touchedIndex],
   );
 
   // X軸ラベル
   const xAxisLabels = useMemo(() => {
     if (data.length === 0) return [];
-    const labels = ['6 AM', '12 PM', '6 PM', '12 AM'];
+    const labels = ["6 AM", "12 PM", "6 PM", "12 AM"];
     const minHour = Math.min(...data.map((d) => d.hour));
     const maxHour = Math.max(...data.map((d) => d.hour));
     const hourRange = maxHour - minHour || 1;
@@ -246,9 +260,9 @@ export const RhythmInteractiveChart = ({
   const formatCurrentTime = () => {
     const hours = Math.floor(currentHour);
     const minutes = Math.round((currentHour - hours) * 60);
-    const period = hours >= 12 ? 'PM' : 'AM';
+    const period = hours >= 12 ? "PM" : "AM";
     const displayHours = hours > 12 ? hours - 12 : hours === 0 ? 12 : hours;
-    return `${displayHours}:${minutes.toString().padStart(2, '0')} ${period}`;
+    return `${displayHours}:${minutes.toString().padStart(2, "0")} ${period}`;
   };
 
   // アニメーションスタイル
@@ -266,16 +280,32 @@ export const RhythmInteractiveChart = ({
         <Svg width={width} height={height}>
           <Defs>
             <LinearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
-              <Stop offset="0%" stopColor={Colors.indigo[400]} stopOpacity={0.3} />
-              <Stop offset="100%" stopColor={Colors.indigo[400]} stopOpacity={0.02} />
+              <Stop
+                offset="0%"
+                stopColor={Colors.indigo[400]}
+                stopOpacity={0.3}
+              />
+              <Stop
+                offset="100%"
+                stopColor={Colors.indigo[400]}
+                stopOpacity={0.02}
+              />
             </LinearGradient>
             <LinearGradient id="lineGradient" x1="0" y1="0" x2="1" y2="0">
               <Stop offset="0%" stopColor={Colors.indigo[400]} />
               <Stop offset="100%" stopColor={Colors.indigo[500]} />
             </LinearGradient>
             <LinearGradient id="cursorGradient" x1="0" y1="0" x2="0" y2="1">
-              <Stop offset="0%" stopColor={Colors.indigo[400]} stopOpacity={0.8} />
-              <Stop offset="100%" stopColor={Colors.indigo[400]} stopOpacity={0.1} />
+              <Stop
+                offset="0%"
+                stopColor={Colors.indigo[400]}
+                stopOpacity={0.8}
+              />
+              <Stop
+                offset="100%"
+                stopColor={Colors.indigo[400]}
+                stopOpacity={0.1}
+              />
             </LinearGradient>
           </Defs>
 
@@ -283,7 +313,12 @@ export const RhythmInteractiveChart = ({
           <Path d={areaPath} fill="url(#areaGradient)" />
 
           {/* ライン */}
-          <Path d={linePath} stroke="url(#lineGradient)" strokeWidth={3.5} fill="none" />
+          <Path
+            d={linePath}
+            stroke="url(#lineGradient)"
+            strokeWidth={3.5}
+            fill="none"
+          />
 
           {/* 現在時刻のインジケーター */}
           {!isDragging && (
@@ -397,7 +432,10 @@ export const RhythmInteractiveChart = ({
             style={[
               styles.nowLabel,
               {
-                left: Math.max(8, Math.min(currentTimePosition.x - 55, width - 120)),
+                left: Math.max(
+                  8,
+                  Math.min(currentTimePosition.x - 55, width - 120),
+                ),
                 top: 8,
               },
             ]}
@@ -414,7 +452,10 @@ export const RhythmInteractiveChart = ({
             style={[
               styles.badge,
               {
-                left: Math.max(8, Math.min(annotations.peak.x - 40, width - 90)),
+                left: Math.max(
+                  8,
+                  Math.min(annotations.peak.x - 40, width - 90),
+                ),
                 top: annotations.peak.y + 15,
               },
             ]}
@@ -431,7 +472,10 @@ export const RhythmInteractiveChart = ({
             style={[
               styles.badge,
               {
-                left: Math.max(8, Math.min(annotations.dip.x - 48, width - 110)),
+                left: Math.max(
+                  8,
+                  Math.min(annotations.dip.x - 48, width - 110),
+                ),
                 top: annotations.dip.y + 15,
               },
             ]}
@@ -465,7 +509,9 @@ export const RhythmInteractiveChart = ({
                     ]}
                   />
                 </View>
-                <Text style={styles.tooltipEnergy}>{data[touchedIndex].energy}%</Text>
+                <Text style={styles.tooltipEnergy}>
+                  {data[touchedIndex].energy}%
+                </Text>
               </View>
             </View>
           </Animated.View>
@@ -480,10 +526,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   chartContainer: {
-    position: 'relative',
+    position: "relative",
   },
   nowLabel: {
-    position: 'absolute',
+    position: "absolute",
   },
   nowLabelInner: {
     backgroundColor: Colors.amber[400],
@@ -499,17 +545,17 @@ const styles = StyleSheet.create({
   nowLabelText: {
     color: Colors.white,
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   badge: {
-    position: 'absolute',
+    position: "absolute",
   },
   badgeInner: {
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 14,
     borderWidth: 1,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.08,
     shadowRadius: 3,
@@ -522,7 +568,7 @@ const styles = StyleSheet.create({
   peakBadgeText: {
     color: Colors.indigo[600],
     fontSize: 11,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   dipBadge: {
     backgroundColor: Colors.stone[50],
@@ -531,19 +577,19 @@ const styles = StyleSheet.create({
   dipBadgeText: {
     color: Colors.stone[500],
     fontSize: 11,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   tooltip: {
-    position: 'absolute',
+    position: "absolute",
   },
   tooltipInner: {
-    backgroundColor: 'rgba(255, 255, 255, 0.98)',
+    backgroundColor: "rgba(255, 255, 255, 0.98)",
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderRadius: 16,
     borderWidth: 1,
     borderColor: Colors.stone[100],
-    alignItems: 'center',
+    alignItems: "center",
     shadowColor: Colors.indigo[500],
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.2,
@@ -554,12 +600,12 @@ const styles = StyleSheet.create({
   tooltipTime: {
     color: Colors.stone[800],
     fontSize: 15,
-    fontWeight: '700',
+    fontWeight: "700",
     marginBottom: 8,
   },
   tooltipEnergyContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 8,
   },
   tooltipEnergyBar: {
@@ -567,16 +613,16 @@ const styles = StyleSheet.create({
     height: 6,
     backgroundColor: Colors.stone[100],
     borderRadius: 3,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   tooltipEnergyFill: {
-    height: '100%',
+    height: "100%",
     backgroundColor: Colors.indigo[500],
     borderRadius: 3,
   },
   tooltipEnergy: {
     color: Colors.indigo[500],
     fontSize: 13,
-    fontWeight: '700',
+    fontWeight: "700",
   },
 });

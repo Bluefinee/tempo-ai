@@ -30,21 +30,21 @@ export interface DailyHealthSample {
  * 時間範囲
  * グラフ表示で使用する期間の指定
  */
-export type HealthTimeRange = '7D' | '30D' | '60D';
+export type HealthTimeRange = "7D" | "30D" | "60D";
 
 /**
  * ヘルスメトリクスの種類
  */
 export type HealthMetricType =
-  | 'hrv'
-  | 'rhr'
-  | 'respiratory'
-  | 'spo2'
-  | 'wristTemp'
-  | 'recoveryScore'
-  | 'sleepScore'
-  | 'rhythmScore'
-  | 'energyScore';
+  | "hrv"
+  | "rhr"
+  | "respiratory"
+  | "spo2"
+  | "wristTemp"
+  | "recoveryScore"
+  | "sleepScore"
+  | "rhythmScore"
+  | "energyScore";
 
 // =============================================================================
 // 履歴データ型
@@ -65,7 +65,7 @@ export interface HealthMetricHistory {
     min: number;
     max: number;
     /** 14日以上のデータがあれば 'personal'、なければ 'default' */
-    source: 'personal' | 'default';
+    source: "personal" | "default";
   };
   lastUpdated: Date;
 }
@@ -74,7 +74,7 @@ export interface HealthMetricHistory {
  * トレンド方向
  * 直近の変化傾向を表す
  */
-export type TrendDirection = 'improving' | 'stable' | 'declining';
+export type TrendDirection = "improving" | "stable" | "declining";
 
 // =============================================================================
 // 更新タイミング別データ型
@@ -180,13 +180,13 @@ export const DEFAULT_TYPICAL_RANGES: Record<
  * メトリクス種別ごとの単位
  */
 export const METRIC_UNITS: Record<HealthMetricType, string> = {
-  hrv: 'ms',
-  rhr: 'bpm',
-  respiratory: 'rpm',
-  spo2: '%',
-  wristTemp: '°C',
-  recoveryScore: '',
-  sleepScore: '',
-  rhythmScore: '',
-  energyScore: '',
+  hrv: "ms",
+  rhr: "bpm",
+  respiratory: "rpm",
+  spo2: "%",
+  wristTemp: "°C",
+  recoveryScore: "",
+  sleepScore: "",
+  rhythmScore: "",
+  energyScore: "",
 };

@@ -3,15 +3,15 @@
  * 2つの指標を同時に表示するサーキュラープログレス
  */
 
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import Svg, { Circle } from 'react-native-svg';
+import React from "react";
+import { View, StyleSheet } from "react-native";
+import Svg, { Circle } from "react-native-svg";
 import Animated, {
   useAnimatedProps,
   useSharedValue,
   withTiming,
   Easing,
-} from 'react-native-reanimated';
+} from "react-native-reanimated";
 
 interface DualRingProgressProps {
   size: number;
@@ -33,7 +33,7 @@ export const DualRingProgress = ({
   outerProgress,
   innerColor,
   outerColor,
-  backgroundColor = '#E7E5E4',
+  backgroundColor = "#E7E5E4",
   duration = 1000,
 }: DualRingProgressProps): React.ReactElement => {
   const innerRadius = (size - strokeWidth * 3) / 2;
@@ -53,11 +53,18 @@ export const DualRingProgress = ({
       duration,
       easing: Easing.bezier(0.25, 0.1, 0.25, 1),
     });
-  }, [innerProgress, outerProgress, duration, innerProgressValue, outerProgressValue]);
+  }, [
+    innerProgress,
+    outerProgress,
+    duration,
+    innerProgressValue,
+    outerProgressValue,
+  ]);
 
   const innerAnimatedProps = useAnimatedProps(() => {
     const strokeDashoffset =
-      innerCircumference - (innerProgressValue.value / 100) * innerCircumference;
+      innerCircumference -
+      (innerProgressValue.value / 100) * innerCircumference;
     return {
       strokeDashoffset,
     };
@@ -65,7 +72,8 @@ export const DualRingProgress = ({
 
   const outerAnimatedProps = useAnimatedProps(() => {
     const strokeDashoffset =
-      outerCircumference - (outerProgressValue.value / 100) * outerCircumference;
+      outerCircumference -
+      (outerProgressValue.value / 100) * outerCircumference;
     return {
       strokeDashoffset,
     };
@@ -128,8 +136,7 @@ export const DualRingProgress = ({
 
 const styles = StyleSheet.create({
   container: {
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
-

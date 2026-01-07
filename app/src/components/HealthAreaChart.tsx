@@ -3,8 +3,14 @@
  * sozai/tempoai-health-summary/components/DetailSection.tsx のチャートを再現
  */
 
-import React, { useMemo, useState } from 'react';
-import { View, Text, useWindowDimensions, PanResponder, GestureResponderEvent } from 'react-native';
+import React, { useMemo, useState, useCallback } from "react";
+import {
+  View,
+  Text,
+  useWindowDimensions,
+  PanResponder,
+  GestureResponderEvent,
+} from "react-native";
 import Svg, {
   Path,
   Defs,
@@ -14,10 +20,10 @@ import Svg, {
   Circle,
   Line,
   Text as SvgText,
-} from 'react-native-svg';
-import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
+} from "react-native-svg";
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 
-import { colors } from '../theme';
+import { colors } from "../theme";
 
 export interface ChartDataPoint {
   day: string;
@@ -68,14 +74,15 @@ export const HealthAreaChart = ({
   const points = useMemo(() => {
     return data.map((d, index) => {
       const x = PADDING_LEFT + (index / (data.length - 1)) * chartWidth;
-      const y = PADDING_TOP + chartHeight - ((d.value - minY) / yRange) * chartHeight;
+      const y =
+        PADDING_TOP + chartHeight - ((d.value - minY) / yRange) * chartHeight;
       return { x, y, data: d, index };
     });
   }, [data, chartWidth, chartHeight, minY, yRange]);
 
   // SVGパスを生成（スムーズな曲線）
   const areaPath = useMemo(() => {
-    if (points.length < 2) return '';
+    if (points.length < 2) return "";
 
     let path = `M ${points[0].x} ${points[0].y}`;
 
@@ -90,14 +97,14 @@ export const HealthAreaChart = ({
     // エリアを閉じる
     path += ` L ${points[points.length - 1].x} ${PADDING_TOP + chartHeight}`;
     path += ` L ${points[0].x} ${PADDING_TOP + chartHeight}`;
-    path += ' Z';
+    path += " Z";
 
     return path;
   }, [points, chartHeight]);
 
   // ラインパスを生成
   const linePath = useMemo(() => {
-    if (points.length < 2) return '';
+    if (points.length < 2) return "";
 
     let path = `M ${points[0].x} ${points[0].y}`;
 
@@ -114,33 +121,45 @@ export const HealthAreaChart = ({
 
   // Typical Rangeのバンド位置
   const typicalRangeBand = useMemo(() => {
-    const y1 = PADDING_TOP + chartHeight - ((typicalRange.max - minY) / yRange) * chartHeight;
-    const y2 = PADDING_TOP + chartHeight - ((typicalRange.min - minY) / yRange) * chartHeight;
+    const y1 =
+      PADDING_TOP +
+      chartHeight -
+      ((typicalRange.max - minY) / yRange) * chartHeight;
+    const y2 =
+      PADDING_TOP +
+      chartHeight -
+      ((typicalRange.min - minY) / yRange) * chartHeight;
     return { y1, y2, height: y2 - y1 };
   }, [typicalRange, chartHeight, minY, yRange]);
 
   // タッチハンドリング
-  const findClosestPoint = (touchX: number) => {
-    let closest = points[0];
-    let minDist = Math.abs(touchX - points[0].x);
+  const findClosestPoint = useCallback(
+    (touchX: number) => {
+      let closest = points[0];
+      let minDist = Math.abs(touchX - points[0].x);
 
-    for (const point of points) {
-      const dist = Math.abs(touchX - point.x);
-      if (dist < minDist) {
-        minDist = dist;
-        closest = point;
+      for (const point of points) {
+        const dist = Math.abs(touchX - point.x);
+        if (dist < minDist) {
+          minDist = dist;
+          closest = point;
+        }
       }
-    }
 
-    return closest;
-  };
+      return closest;
+    },
+    [points],
+  );
 
-  const handleTouch = (evt: GestureResponderEvent) => {
-    const touchX = evt.nativeEvent.locationX;
-    const closest = findClosestPoint(touchX);
-    setTouchedIndex(closest.index);
-    setTooltipPosition({ x: closest.x, y: closest.y });
-  };
+  const handleTouch = useCallback(
+    (evt: GestureResponderEvent) => {
+      const touchX = evt.nativeEvent.locationX;
+      const closest = findClosestPoint(touchX);
+      setTouchedIndex(closest.index);
+      setTooltipPosition({ x: closest.x, y: closest.y });
+    },
+    [findClosestPoint],
+  );
 
   const panResponder = useMemo(
     () =>
@@ -152,7 +171,7 @@ export const HealthAreaChart = ({
         onPanResponderRelease: () => setTouchedIndex(null),
         onPanResponderTerminate: () => setTouchedIndex(null),
       }),
-    [points, handleTouch]
+    [handleTouch],
   );
 
   const chartId = `healthChart_${Math.random().toString(36).substr(2, 9)}`;
@@ -162,7 +181,13 @@ export const HealthAreaChart = ({
       <View {...panResponder.panHandlers}>
         <Svg width={width} height={height}>
           <Defs>
-            <LinearGradient id={`areaGradient_${chartId}`} x1="0" y1="0" x2="0" y2="1">
+            <LinearGradient
+              id={`areaGradient_${chartId}`}
+              x1="0"
+              y1="0"
+              x2="0"
+              y2="1"
+            >
               <Stop offset="5%" stopColor={colorHex} stopOpacity={0.1} />
               <Stop offset="95%" stopColor={colorHex} stopOpacity={0} />
             </LinearGradient>
@@ -244,7 +269,7 @@ export const HealthAreaChart = ({
           <View
             className="bg-white p-2 rounded-lg border border-stone-100 items-center"
             style={{
-              shadowColor: '#000',
+              shadowColor: "#000",
               shadowOffset: { width: 0, height: 4 },
               shadowOpacity: 0.1,
               shadowRadius: 12,

@@ -3,23 +3,30 @@
  * MOCK_AI_RESPONSE からデータを取得し、Today画面と共有
  */
 
-import React from 'react';
-import { View, Text, ScrollView, Pressable } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
-import { ChevronLeft, Footprints, Sun, Battery, Moon, Bell } from 'lucide-react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import * as Haptics from 'expo-haptics';
+import React from "react";
+import { View, Text, ScrollView, Pressable } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
+import {
+  ChevronLeft,
+  Footprints,
+  Sun,
+  Battery,
+  Moon,
+  Bell,
+} from "lucide-react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import * as Haptics from "expo-haptics";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
-} from 'react-native-reanimated';
+} from "react-native-reanimated";
 
-import { t } from '../../src/i18n';
-import { colors, FontFamily } from '../../src/theme';
+import { t } from "../../src/i18n";
+import { colors, FontFamily } from "../../src/theme";
 import { MOCK_AI_RESPONSE } from "../../src/constants/mockData";
-import { useFadeIn } from '../../src/hooks/useFadeIn';
+import { useFadeIn } from "../../src/hooks/useFadeIn";
 
 // アイコン設定（UI表示用）
 const BENEFIT_ICONS = [
@@ -63,7 +70,7 @@ const ActionDetailScreen = (): React.ReactElement => {
         className="flex-row items-center px-6 pb-4 border-b border-stone-100 z-20"
         style={{
           paddingTop: insets.top + 16,
-          backgroundColor: 'rgba(250, 250, 249, 0.9)',
+          backgroundColor: "rgba(250, 250, 249, 0.9)",
           gap: 16,
         }}
       >
@@ -74,7 +81,7 @@ const ActionDetailScreen = (): React.ReactElement => {
           <ChevronLeft size={24} color="#57534E" />
         </Pressable>
         <Text className="text-sm font-bold text-stone-400 uppercase tracking-widest">
-          {t('screen.actionDetail.header')}
+          {t("screen.actionDetail.header")}
         </Text>
       </View>
 
@@ -108,14 +115,14 @@ const ActionDetailScreen = (): React.ReactElement => {
           >
             {todayOneThing.action}
           </Text>
-          <Text className="text-stone-500 font-medium text-center">{todayOneThing.summary}</Text>
+          <Text className="text-stone-500 font-medium text-center">
+            {todayOneThing.summary}
+          </Text>
         </Animated.View>
 
         {/* Section 1: Why This Action - 説明文のみ、タイトルなし */}
         <Animated.View style={[whyFadeIn, { marginTop: 32 }]}>
-          <View
-            className="bg-amber-50 rounded-2xl p-5 border border-amber-100"
-          >
+          <View className="bg-amber-50 rounded-2xl p-5 border border-amber-100">
             <Text className="text-stone-700 text-sm leading-relaxed">
               {todayOneThing.whyThisAction}
             </Text>
@@ -145,7 +152,9 @@ const ActionDetailScreen = (): React.ReactElement => {
                 }}
               >
                 <IconComponent size={14} color={iconConfig.iconColor} />
-                <Text className="text-xs font-medium text-stone-700 ml-2">{benefit}</Text>
+                <Text className="text-xs font-medium text-stone-700 ml-2">
+                  {benefit}
+                </Text>
               </View>
             );
           })}
@@ -154,7 +163,7 @@ const ActionDetailScreen = (): React.ReactElement => {
         {/* Section 3: How To Do It - シンプルなリスト */}
         <Animated.View style={[howFadeIn, { marginTop: 32 }]}>
           <Text className="text-xs font-bold text-stone-400 uppercase tracking-widest mb-4">
-            {t('screen.actionDetail.howToDoIt')}
+            {t("screen.actionDetail.howToDoIt")}
           </Text>
           <View style={{ gap: 12 }}>
             {todayOneThing.howToDoIt.map((step, index) => (
@@ -167,9 +176,16 @@ const ActionDetailScreen = (): React.ReactElement => {
                   className="w-6 h-6 rounded-full items-center justify-center"
                   style={{ backgroundColor: colors.amber[100] }}
                 >
-                  <Text className="text-xs font-bold" style={{ color: colors.amber[600] }}>{index + 1}</Text>
+                  <Text
+                    className="text-xs font-bold"
+                    style={{ color: colors.amber[600] }}
+                  >
+                    {index + 1}
+                  </Text>
                 </View>
-                <Text className="text-sm text-stone-700 flex-1 leading-relaxed">{step}</Text>
+                <Text className="text-sm text-stone-700 flex-1 leading-relaxed">
+                  {step}
+                </Text>
               </View>
             ))}
           </View>
@@ -178,7 +194,7 @@ const ActionDetailScreen = (): React.ReactElement => {
         {/* Section 4: Expected Benefit */}
         <Animated.View style={[benefitFadeIn, { marginTop: 32 }]}>
           <Text className="text-xs font-bold text-stone-400 uppercase tracking-widest mb-3">
-            {t('screen.actionDetail.expectedBenefit')}
+            {t("screen.actionDetail.expectedBenefit")}
           </Text>
           <View
             className="bg-white p-5 rounded-2xl border border-stone-100"
@@ -205,7 +221,7 @@ const ActionDetailScreen = (): React.ReactElement => {
         style={[
           buttonFadeIn,
           {
-            position: 'absolute',
+            position: "absolute",
             bottom: 0,
             left: 0,
             right: 0,
@@ -216,23 +232,31 @@ const ActionDetailScreen = (): React.ReactElement => {
         ]}
       >
         <LinearGradient
-          colors={['rgba(250, 250, 249, 0)', 'rgba(250, 250, 249, 0.95)', 'rgba(250, 250, 249, 1)']}
+          colors={[
+            "rgba(250, 250, 249, 0)",
+            "rgba(250, 250, 249, 0.95)",
+            "rgba(250, 250, 249, 1)",
+          ]}
           locations={[0, 0.4, 1]}
-          style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+          style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }}
         />
         <AnimatedPressable
           onPress={handleReminder}
-          onPressIn={() => { buttonScale.value = withSpring(0.98); }}
-          onPressOut={() => { buttonScale.value = withSpring(1); }}
+          onPressIn={() => {
+            buttonScale.value = withSpring(0.98);
+          }}
+          onPressOut={() => {
+            buttonScale.value = withSpring(1);
+          }}
           style={[
             buttonPressStyle,
             {
               backgroundColor: colors.amber[500],
               paddingVertical: 16,
               borderRadius: 16,
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'center',
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "center",
               gap: 8,
               shadowColor: colors.amber[600],
               shadowOffset: { width: 0, height: 6 },
@@ -243,11 +267,13 @@ const ActionDetailScreen = (): React.ReactElement => {
           ]}
         >
           <Bell size={20} color="#FFFFFF" />
-          <Text className="text-white font-bold">{todayOneThing.time}にリマインド</Text>
+          <Text className="text-white font-bold">
+            {todayOneThing.time}にリマインド
+          </Text>
         </AnimatedPressable>
       </Animated.View>
     </View>
   );
-}
+};
 
 export default ActionDetailScreen;

@@ -1,17 +1,17 @@
-import '../global.css';
-import { useEffect, useCallback } from 'react';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { useFonts } from 'expo-font';
+import "../global.css";
+import { useEffect, useCallback } from "react";
+import { Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { useFonts } from "expo-font";
 import {
   PlusJakartaSans_400Regular,
   PlusJakartaSans_500Medium,
   PlusJakartaSans_600SemiBold,
   PlusJakartaSans_700Bold,
-} from '@expo-google-fonts/plus-jakarta-sans';
-import * as SplashScreen from 'expo-splash-screen';
-import type { JSX } from 'react';
+} from "@expo-google-fonts/plus-jakarta-sans";
+import * as SplashScreen from "expo-splash-screen";
+import type { JSX } from "react";
 
 // Prevent splash screen from auto-hiding
 SplashScreen.preventAutoHideAsync();
@@ -44,7 +44,7 @@ const RootLayout = (): JSX.Element | null => {
       <Stack
         screenOptions={{
           headerShown: false,
-          animation: 'slide_from_right',
+          animation: "slide_from_right",
         }}
       >
         <Stack.Screen name="(onboarding)" />
@@ -52,6 +52,6 @@ const RootLayout = (): JSX.Element | null => {
       </Stack>
     </SafeAreaProvider>
   );
-}
+};
 
 export default RootLayout;

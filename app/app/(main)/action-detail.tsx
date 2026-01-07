@@ -3,7 +3,7 @@
  * MOCK_AI_RESPONSE からデータを取得し、Today画面と共有
  */
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { View, Text, ScrollView, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -13,8 +13,6 @@ import * as Haptics from 'expo-haptics';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
-  withDelay,
-  withTiming,
   withSpring,
 } from 'react-native-reanimated';
 

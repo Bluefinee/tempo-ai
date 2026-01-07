@@ -56,7 +56,7 @@ const WelcomeScreen = (): JSX.Element => {
       </SafeAreaView>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {

@@ -24,8 +24,6 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
-  withDelay,
-  withTiming,
 } from 'react-native-reanimated';
 
 import { TAB_BAR_HEIGHT } from './_layout';

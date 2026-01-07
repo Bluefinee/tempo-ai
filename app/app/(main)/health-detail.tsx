@@ -60,22 +60,6 @@ const ICON_MAP = {
   thermometer: Thermometer,
 };
 
-// ステータスラベルを動的に生成するヘルパー
-const getStatusLabel = (
-  status: MetricStatus,
-  typicalRange: { min: number; max: number },
-  value: number | string
-): string => {
-  if (status === 'in-range') {
-    return `${t('metric.health.status.within')} ${typicalRange.min}-${typicalRange.max}`;
-  }
-  const numValue = typeof value === 'number' ? value : parseFloat(value);
-  if (numValue < typicalRange.min) {
-    return `Low < ${typicalRange.min}`;
-  }
-  return `High > ${typicalRange.max}`;
-};
-
 // モックデータ - sozai/tempoai-health-summary と同じ（i18n対応）
 const getMetrics = (): MetricData[] => [
   {

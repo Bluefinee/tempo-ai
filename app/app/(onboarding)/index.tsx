@@ -5,7 +5,7 @@
  */
 
 import React from "react";
-import { View, Text, StyleSheet, useWindowDimensions } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Colors, FontFamily } from "../../src/theme";
@@ -14,7 +14,6 @@ import type { JSX } from "react";
 
 const WelcomeScreen = (): JSX.Element => {
   const router = useRouter();
-  const { width, height } = useWindowDimensions();
 
   const handleStart = () => {
     router.push("/(onboarding)/healthkit");

@@ -40,7 +40,7 @@ const formatTime = (seconds: number): string => {
 const BreatheScreen = (): React.ReactElement => {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = useWindowDimensions();
+  const { width: SCREEN_WIDTH } = useWindowDimensions();
   const [isActive, setIsActive] = useState(false);
   const [phase, setPhase] = useState<'idle' | 'inhale' | 'hold' | 'exhale'>('idle');
   const [timeLeft, setTimeLeft] = useState(60);
@@ -58,7 +58,6 @@ const BreatheScreen = (): React.ReactElement => {
   const scale = useSharedValue(0.75);
   const glowOpacity = useSharedValue(0.2);
   const glowScale = useSharedValue(1);
-  const breatheRingOpacity = useSharedValue(0.3);
 
   // Progress calculation
   const totalTime = 60;

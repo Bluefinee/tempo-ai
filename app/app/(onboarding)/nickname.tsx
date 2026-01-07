@@ -5,7 +5,7 @@
  */
 
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, useWindowDimensions, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Colors, FontFamily } from '../../src/theme';
@@ -18,7 +18,6 @@ const TOTAL_STEPS = 9;
 
 const NicknameScreen = (): JSX.Element => {
   const router = useRouter();
-  const { width, height } = useWindowDimensions();
   const setDraftNickname = useUserStore((state) => state.setDraftNickname);
   const draftNickname = useUserStore((state) => state.draftProfile.nickname);
   const [nickname, setNickname] = useState(draftNickname || '');

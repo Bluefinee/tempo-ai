@@ -121,7 +121,6 @@ const EnergyDetailScreen = (): React.ReactElement => {
     const currentHour = now.getHours() + now.getMinutes() / 60;
     // 6時〜22時を0〜100%にマッピング
     const currentPosition = Math.max(0, Math.min(100, ((currentHour - 6) / 16) * 100));
-    const markerX = (currentPosition / 100) * chartWidth;
 
     return (
       <View

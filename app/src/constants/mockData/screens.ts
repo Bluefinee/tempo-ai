@@ -1,6 +1,6 @@
 /**
  * Mock Screen Data
- * 各画面で使用するモックデータ
+ * Mock data used by each screen
  */
 
 import { Sun, Moon } from "lucide-react-native";
@@ -8,57 +8,57 @@ import { Colors } from "../../theme";
 import { MOCK_AI_RESPONSE } from "./aiResponse";
 
 /**
- * 気圧トレンド型
+ * Pressure Trend Type
  */
 export type PressureTrend = "rising" | "stable" | "falling";
 
 /**
- * 環境データ型（API準備用）
- * 将来的にはWeather APIから動的に取得
+ * Environment Data Type (API ready)
+ * Will be dynamically fetched from Weather API in the future
  */
 export interface EnvironmentData {
-  // 日の出・日の入り
-  sunrise: string; // "6:50" 形式
-  sunset: string; // "16:48" 形式
-  sunriseTime: Date; // フルDate（計算用）
-  sunsetTime: Date; // フルDate（計算用）
-  dayLengthMinutes: number; // 日照時間（分）
+  // Sunrise/Sunset
+  sunrise: string; // "6:50" format
+  sunset: string; // "16:48" format
+  sunriseTime: Date; // Full Date (for calculations)
+  sunsetTime: Date; // Full Date (for calculations)
+  dayLengthMinutes: number; // Daylight duration (minutes)
   location: string;
-  // 天気
+  // Weather
   weather: {
-    condition: string; // 天気状態（晴れ、曇り等）
-    temperature: number; // 気温 °C
-    humidity: number; // 湿度 %
+    condition: string; // Weather condition (Clear, Cloudy, etc.)
+    temperature: number; // Temperature °C
+    humidity: number; // Humidity %
   };
-  // 気圧
+  // Pressure
   pressure: {
-    value: number; // 気圧 hPa
-    trend: PressureTrend; // トレンド
-    change24h: number; // 24時間変化 hPa
+    value: number; // Pressure hPa
+    trend: PressureTrend; // Trend
+    change24h: number; // 24h change hPa
   };
-  // UV指数
+  // UV Index
   uv: {
-    index: number; // UVインデックス (0-11+)
-    level: string; // レベル（弱い、中程度等）
+    index: number; // UV Index (0-11+)
+    level: string; // Level (Low, Moderate, etc.)
   };
-  // 月齢
+  // Moon Phase
   moonPhase: {
-    phase: string; // 月相（新月、満月等）
-    illumination: number; // 輝面比 0-100%
+    phase: string; // Moon phase (New Moon, Full Moon, etc.)
+    illumination: number; // Illumination 0-100%
   };
 }
 
 /**
- * 環境データを取得（現在はモック、将来API対応）
- * @param _latitude 緯度（将来のAPI用）
- * @param _longitude 経度（将来のAPI用）
- * @returns 環境データ
+ * Get environment data (currently mock, will support API in the future)
+ * @param _latitude Latitude (for future API)
+ * @param _longitude Longitude (for future API)
+ * @returns Environment data
  */
 export const getEnvironmentData = (
   _latitude?: number,
   _longitude?: number,
 ): EnvironmentData => {
-  // TODO: 実APIからの取得に置き換え
+  // TODO: Replace with actual API fetch
   // const response = await fetch(`/api/environment?lat=${latitude}&lon=${longitude}`);
   const today = new Date();
   const sunriseTime = new Date(today);
@@ -67,7 +67,7 @@ export const getEnvironmentData = (
   sunsetTime.setHours(16, 48, 0, 0);
 
   return {
-    // 日の出・日の入り
+    // Sunrise/Sunset
     sunrise: "6:50",
     sunset: "16:48",
     sunriseTime,
@@ -75,27 +75,27 @@ export const getEnvironmentData = (
     dayLengthMinutes: Math.round(
       (sunsetTime.getTime() - sunriseTime.getTime()) / 60000,
     ),
-    location: "東京",
-    // 天気
+    location: "Tokyo",
+    // Weather
     weather: {
-      condition: "晴れ",
+      condition: "Clear",
       temperature: 8,
       humidity: 45,
     },
-    // 気圧
+    // Pressure
     pressure: {
       value: 1018,
       trend: "stable",
       change24h: 2,
     },
-    // UV指数
+    // UV Index
     uv: {
       index: 3,
-      level: "中程度",
+      level: "Moderate",
     },
-    // 月齢
+    // Moon Phase
     moonPhase: {
-      phase: "上弦の月",
+      phase: "First Quarter",
       illumination: 48,
     },
   };
@@ -103,42 +103,42 @@ export const getEnvironmentData = (
 
 /**
  * TODAY SCREEN MOCK DATA
- * 画面表示用に整形したデータ（MOCK_AI_RESPONSEから派生）
+ * Formatted data for screen display (derived from MOCK_AI_RESPONSE)
  */
 export const MOCK_TODAY = {
-  // AI Insight カード用
+  // AI Insight card
   aiMessage: {
     title: MOCK_AI_RESPONSE.todayInsight.title,
     body: MOCK_AI_RESPONSE.todayInsight.summary,
   },
-  // Today's One Thing 用
+  // Today's One Thing
   oneThing: {
     icon: MOCK_AI_RESPONSE.todayOneThing.icon,
     action: MOCK_AI_RESPONSE.todayOneThing.action,
     summary: MOCK_AI_RESPONSE.todayOneThing.summary,
     time: MOCK_AI_RESPONSE.todayOneThing.time,
   },
-  // Related Insight 用
+  // Related Insight
   insight: {
     label: MOCK_AI_RESPONSE.relatedInsight.label,
     text: MOCK_AI_RESPONSE.relatedInsight.text,
   },
-  // スコア（フロントエンド計算）
+  // Scores (frontend calculated)
   scores: {
     recovery: 70,
     sleep: 85,
     rhythm: 92,
     energy: 78,
   },
-  // Health指標（フロントエンド計算）
+  // Health metrics (frontend calculated)
   health: {
     hrv: { value: 82, unit: "ms", baseline: 77, deviation: "+6%" },
     rhr: { value: 59, unit: "bpm", baseline: 59, deviation: "0%" },
     sleep: {
-      duration: "7時間8分",
-      deepSleep: "1時間45分",
+      duration: "7h 8m",
+      deepSleep: "1h 45m",
       deepSleepPercent: 23,
-      remSleep: "1時間35分",
+      remSleep: "1h 35m",
       remSleepPercent: 22,
       bedtime: "23:15",
       wakeTime: "06:45",
@@ -150,7 +150,7 @@ export const MOCK_TODAY = {
  * RHYTHM SCREEN MOCK DATA
  */
 export const MOCK_RHYTHM = {
-  // 現在時刻インジケーター用
+  // Current time indicator
   currentTime: "10:42",
   // Upcoming Windows
   upcomingWindows: [
@@ -160,9 +160,9 @@ export const MOCK_RHYTHM = {
       iconBg: Colors.amber[100],
       iconColor: Colors.amber[600],
       title: "Peak Focus",
-      time: "現在 — 12:00",
+      time: "Now — 12:00",
       description:
-        "複雑な問題解決や集中力を要する作業にぜひ取り組んでみてください。認知パフォーマンスが最大化される時間帯です。",
+        "Great time for complex problem-solving and tasks requiring deep concentration. Your cognitive performance is at its peak.",
       active: true,
     },
     {
@@ -173,11 +173,11 @@ export const MOCK_RHYTHM = {
       title: "Wind Down",
       time: "21:30 — 7:00",
       description:
-        "照明を暗くし、画面を控えて睡眠の準備をしていきましょう。体が休息モードに入る時間帯です。",
+        "Dim the lights and reduce screen time to prepare for sleep. Your body is entering rest mode.",
       active: false,
     },
   ],
-  // 環境データ - getEnvironmentData()で動的取得推奨
+  // Environment data - recommend using getEnvironmentData() for dynamic fetch
   ...getEnvironmentData(),
 };
 
@@ -195,35 +195,35 @@ export type AlertType =
 export const MOCK_INSIGHTS = {
   weeklyScores: [40, 60, 75, 45, 80, 90, 70],
   avgScore: 74,
-  todayIndex: 1, // 火曜日 (0 = 月曜日)
-  // Top Discovery（AIが生成）
+  todayIndex: 1, // Tuesday (0 = Monday)
+  // Top Discovery (AI generated)
   topDiscovery: {
-    title: "18時以降のウォーキングで深い睡眠が向上",
+    title: "Evening walks improve deep sleep",
     description:
-      "夕方に15分以上歩いた日は、深い睡眠スコアが18%高くなる傾向があります。",
+      "On days when you walk more than 15 minutes after 6pm, your deep sleep score tends to be 18% higher.",
   },
-  // Recent Alerts（システム生成）
+  // Recent Alerts (system generated)
   recentAlerts: [
     {
       id: "1",
       type: "recovery_complete" as const,
-      title: "回復完了",
-      desc: "昨日のワークアウト後、HRVが基準値に戻りました。",
-      time: "今日",
+      title: "Recovery Complete",
+      desc: "Your HRV has returned to baseline after yesterday's workout.",
+      time: "Today",
     },
     {
       id: "2",
       type: "late_caffeine" as const,
-      title: "遅い時間のカフェイン",
-      desc: "16時のコーヒーが入眠を45分遅らせた可能性があります。午後のカフェインは控えめにしてみてください。",
-      time: "昨日",
+      title: "Late Caffeine",
+      desc: "Coffee at 4pm may have delayed sleep onset by 45 minutes. Consider limiting afternoon caffeine.",
+      time: "Yesterday",
     },
     {
       id: "3",
       type: "weekend_jetlag" as const,
-      title: "週末の時差ボケ",
-      desc: "今週末、起床時間が2時間ずれました。平日との差を少しずつ縮めていきましょう。",
-      time: "日曜",
+      title: "Weekend Jetlag",
+      desc: "Your wake time shifted 2 hours this weekend. Try to gradually align with weekday schedule.",
+      time: "Sunday",
     },
   ],
 };
@@ -233,9 +233,9 @@ export const MOCK_INSIGHTS = {
  */
 export const MOCK_SETTINGS = {
   profile: {
-    name: "太郎",
-    status: "キャリブレーション中...",
-    initials: "T",
+    name: "John",
+    status: "Calibrating...",
+    initials: "J",
   },
   rhythm: {
     targetBedtime: "23:00",
@@ -255,8 +255,8 @@ export const MOCK_SETTINGS = {
  */
 export const MOCK_BREATHE = {
   technique: {
-    name: "レゾナンス",
-    pattern: "4-7-8 カーム",
+    name: "Resonance",
+    pattern: "4-7-8 Calm",
   },
   phaseDurations: {
     inhale: 4,

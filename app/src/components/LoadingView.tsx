@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
 import { Colors, Spacing, Typography } from "../theme";
+import { t } from "../i18n";
 import type { JSX } from "react";
 
 interface LoadingViewProps {
@@ -8,7 +9,7 @@ interface LoadingViewProps {
 }
 
 export const LoadingView = ({
-  message = "読み込み中...",
+  message = t("common.loading"),
 }: LoadingViewProps): JSX.Element => {
   return (
     <View style={styles.container}>

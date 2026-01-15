@@ -1,15 +1,16 @@
 import { getLocales } from "expo-localization";
 import { I18n } from "i18n-js";
+import en from "./locales/en.json";
 import ja from "./locales/ja.json";
 
-const i18n = new I18n({ ja });
+const i18n = new I18n({ en, ja });
 
-// デバイスロケール取得
-const deviceLocale = getLocales()[0]?.languageCode ?? "ja";
+// Get device locale
+const deviceLocale = getLocales()[0]?.languageCode ?? "en";
 
-// 日本語のみサポート（将来英語追加）
-i18n.locale = deviceLocale === "ja" ? "ja" : "ja";
-i18n.defaultLocale = "ja";
+// Support English (default) and Japanese
+i18n.locale = deviceLocale === "ja" ? "ja" : "en";
+i18n.defaultLocale = "en";
 i18n.enableFallback = true;
 
 export const t = (key: string, options?: Record<string, unknown>): string => {

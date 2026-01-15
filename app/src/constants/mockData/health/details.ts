@@ -1,6 +1,6 @@
 /**
  * Mock Health Data
- * HealthKit関連のモックデータ
+ * HealthKit related mock data
  */
 
 import type {
@@ -145,8 +145,8 @@ export interface MockDetail {
 }
 
 /**
- * HealthKit 対応版のモックデータを生成
- * rawHistory は Date を含む HealthKit 形式、history は BarChart 互換形式
+ * Generate HealthKit compatible mock data
+ * rawHistory contains Date in HealthKit format, history is BarChart compatible format
  */
 const createMockDetail = (): MockDetail => {
   const scoreHistories = getAllScoreHistories("60D");
@@ -154,19 +154,19 @@ const createMockDetail = (): MockDetail => {
   return {
     recovery: {
       score: 70,
-      status: "トレーニング準備OK",
+      status: "Ready to Train",
       hrv: { value: 82, unit: "ms", change: 5, baseline: 77 },
       rhr: { value: 59, unit: "bpm", change: 0, baseline: 59 },
       analysis:
-        "回復スコアは、HRVの日中平均82ms（5:39に取得、60日平均の77msより6%高い）と、安静時心拍数59bpm（22:06に取得、60日平均の59bpmと同等）に基づいています。",
+        "Recovery score is based on daytime HRV average of 82ms (recorded at 5:39, 6% above 60-day average of 77ms) and resting heart rate of 59bpm (recorded at 22:06, equal to 60-day average of 59bpm).",
       calculatedAt: "5:39",
       rawHistory: scoreHistories.recoveryScore,
       get history() {
         const samples = this.rawHistory.samples;
         return {
-          "7D": toBarChartData(samples.slice(-7), "7D", "ja"),
-          "30D": toBarChartData(samples.slice(-30), "30D", "ja"),
-          "60D": toBarChartData(samples, "60D", "ja"),
+          "7D": toBarChartData(samples.slice(-7), "7D", "en"),
+          "30D": toBarChartData(samples.slice(-30), "30D", "en"),
+          "60D": toBarChartData(samples, "60D", "en"),
         };
       },
       weeklyAverage: 64,
@@ -176,7 +176,7 @@ const createMockDetail = (): MockDetail => {
       duration: { hours: 7, minutes: 8, percentage: 80 },
       quality: { percentage: 85 },
       analysis:
-        "睡眠時間は目標を下回りましたが、REMと深い睡眠は通常より多くなっています。身体が睡眠不足を補おうと、回復的なステージを優先しているようです。",
+        "Sleep duration was below target, but REM and deep sleep were higher than usual. Your body seems to be prioritizing restorative stages to compensate for the shorter sleep.",
       stages: [
         { stage: "deep" as const, percentage: 23 },
         { stage: "rem" as const, percentage: 22 },
@@ -184,110 +184,110 @@ const createMockDetail = (): MockDetail => {
         { stage: "awake" as const, percentage: 2 },
       ],
       timing: {
-        bedtime: { actual: "23:15", target: "23:00", diff: "15分遅れ" },
-        wakeTime: { actual: "06:45", target: "07:00", diff: "15分早起き" },
+        bedtime: { actual: "23:15", target: "23:00", diff: "15 min late" },
+        wakeTime: { actual: "06:45", target: "07:00", diff: "15 min early" },
       },
       rawHistory: scoreHistories.sleepScore,
       get history() {
         const samples = this.rawHistory.samples;
         return {
-          "7D": toBarChartData(samples.slice(-7), "7D", "ja"),
-          "30D": toBarChartData(samples.slice(-30), "30D", "ja"),
-          "60D": toBarChartData(samples, "60D", "ja"),
+          "7D": toBarChartData(samples.slice(-7), "7D", "en"),
+          "30D": toBarChartData(samples.slice(-30), "30D", "en"),
+          "60D": toBarChartData(samples, "60D", "en"),
         };
       },
     },
     rhythm: {
       score: 92,
-      status: "同期済み",
+      status: "In Sync",
       analysis:
-        "サーカディアンリズムが睡眠-覚醒サイクルとよく調和しています。この1週間、就寝時刻の一貫性が優れており、高いリズムスコアに貢献しています。",
+        "Your circadian rhythm is well aligned with your sleep-wake cycle. Your bedtime consistency has been excellent this week, contributing to a high rhythm score.",
       consistency: {
-        bedtime: { target: "23:00", deviation: "±12分" },
-        wakeTime: { target: "07:00", deviation: "±8分" },
+        bedtime: { target: "23:00", deviation: "±12 min" },
+        wakeTime: { target: "07:00", deviation: "±8 min" },
       },
       contributingFactors: {
         bedtimeVariance: {
           value: 95,
-          label: "就寝ばらつき",
+          label: "Bedtime Variance",
           trend: "+3%",
           trendDirection: "up" as const,
-          detail: "平均 ±12分 (目標±15分)",
+          detail: "Avg ±12 min (target ±15 min)",
         },
         wakeVariance: {
           value: 98,
-          label: "起床ばらつき",
+          label: "Wake Variance",
           trend: "+5%",
           trendDirection: "up" as const,
-          detail: "平均 ±8分 (目標±15分)",
+          detail: "Avg ±8 min (target ±15 min)",
         },
         weekendShift: {
           value: 85,
-          label: "週末シフト",
-          trend: "安定",
+          label: "Weekend Shift",
+          trend: "Stable",
           trendDirection: "stable" as const,
-          detail: "週末の遅れ 25分",
+          detail: "Weekend delay 25 min",
         },
         socialJetlag: {
           value: 90,
-          label: "社会的時差",
+          label: "Social Jetlag",
           trend: "-2%",
           trendDirection: "down" as const,
-          detail: "平日-週末差 32分",
+          detail: "Weekday-weekend gap 32 min",
         },
       },
       weeklyPattern: [
-        { day: "木", offset: 0 },
-        { day: "金", offset: -10 },
-        { day: "土", offset: 5 },
-        { day: "日", offset: 0 },
-        { day: "月", offset: 15 },
-        { day: "火", offset: 5 },
-        { day: "水", offset: 0 },
+        { day: "Thu", offset: 0 },
+        { day: "Fri", offset: -10 },
+        { day: "Sat", offset: 5 },
+        { day: "Sun", offset: 0 },
+        { day: "Mon", offset: 15 },
+        { day: "Tue", offset: 5 },
+        { day: "Wed", offset: 0 },
       ],
       rawHistory: scoreHistories.rhythmScore,
       get history() {
         const samples = this.rawHistory.samples;
         return {
-          "7D": toBarChartData(samples.slice(-7), "7D", "ja"),
-          "30D": toBarChartData(samples.slice(-30), "30D", "ja"),
-          "60D": toBarChartData(samples, "60D", "ja"),
+          "7D": toBarChartData(samples.slice(-7), "7D", "en"),
+          "30D": toBarChartData(samples.slice(-30), "30D", "en"),
+          "60D": toBarChartData(samples, "60D", "en"),
         };
       },
     },
     energy: {
       score: 78,
-      status: "適度なエネルギー",
+      status: "Moderate Energy",
       analysis:
-        "回復度と睡眠データに基づくと、今日は良好なエネルギーを保てそうです。Peak Focus時間帯は9:00〜12:00です。Afternoon Dip（14:00〜16:00）は軽めのタスクに切り替えるのがおすすめです。",
+        "Based on your recovery and sleep data, you should have good energy today. Peak Focus window is 9:00-12:00. Consider switching to lighter tasks during the Afternoon Dip (14:00-16:00).",
       contributingFactors: {
         recovery: {
           value: 70,
-          label: "回復",
+          label: "Recovery",
           trend: "+5%",
           trendDirection: "up" as const,
-          detail: "HRV 82ms (基準+6%)",
+          detail: "HRV 82ms (baseline +6%)",
         },
         sleep: {
           value: 85,
-          label: "睡眠",
+          label: "Sleep",
           trend: "+3%",
           trendDirection: "up" as const,
-          detail: "深い睡眠 1h45m",
+          detail: "Deep sleep 1h 45m",
         },
         activity: {
           value: 75,
-          label: "アクティビティ",
-          trend: "安定",
+          label: "Activity",
+          trend: "Stable",
           trendDirection: "stable" as const,
-          detail: "昨日 8,500歩",
+          detail: "Yesterday 8,500 steps",
         },
         weather: {
           value: 80,
-          label: "天気",
-          trend: "安定",
+          label: "Weather",
+          trend: "Stable",
           trendDirection: "stable" as const,
-          detail: "晴れ・気圧安定",
+          detail: "Clear, stable pressure",
         },
       },
       peakFocus: { start: "09:00", end: "12:00" },
@@ -296,14 +296,14 @@ const createMockDetail = (): MockDetail => {
       get history() {
         const samples = this.rawHistory.samples;
         return {
-          "7D": toBarChartData(samples.slice(-7), "7D", "ja"),
-          "30D": toBarChartData(samples.slice(-30), "30D", "ja"),
-          "60D": toBarChartData(samples, "60D", "ja"),
+          "7D": toBarChartData(samples.slice(-7), "7D", "en"),
+          "30D": toBarChartData(samples.slice(-30), "30D", "en"),
+          "60D": toBarChartData(samples, "60D", "en"),
         };
       },
     },
   };
 };
 
-/** HealthKit 対応版のモック詳細データ */
+/** HealthKit compatible mock detail data */
 export const MOCK_DETAIL = createMockDetail();

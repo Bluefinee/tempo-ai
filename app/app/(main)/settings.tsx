@@ -1,6 +1,6 @@
 /**
- * SettingsScreen - 設定画面
- * sozai/new/tempoai/screens/SettingsScreen.tsx を React Native で完全再現
+ * SettingsScreen - Settings Screen
+ * Full React Native reproduction of sozai/new/tempoai/screens/SettingsScreen.tsx
  */
 
 import React, { useState, useEffect } from "react";
@@ -34,10 +34,10 @@ import { t } from "../../src/i18n";
 import { FontFamily, colors } from "../../src/theme";
 import { useFadeIn } from "../../src/hooks/useFadeIn";
 
-// 日本語化されたMOCKデータ
+// Mock data
 const MOCK_DATA = {
-  nickname: "田中 太郎",
-  plan: "フリープラン",
+  nickname: "John Doe",
+  plan: "Free Plan",
   memberSince: "2024",
   targetBedtime: "22:30",
   targetWakeUp: "6:30",
@@ -243,7 +243,7 @@ const SettingsScreen = (): React.ReactElement => {
                   {MOCK_DATA.nickname}
                 </Text>
                 <Text className="text-xs text-stone-500">
-                  {MOCK_DATA.plan} • {MOCK_DATA.memberSince}年から利用
+                  {MOCK_DATA.plan} • {t("screen.settings.profile.memberSince", { year: MOCK_DATA.memberSince })}
                 </Text>
               </View>
               <Pressable className="p-2 rounded-full">

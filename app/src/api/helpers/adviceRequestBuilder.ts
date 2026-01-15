@@ -1,6 +1,6 @@
 /**
- * AdviceRequest構築ヘルパー
- * ストアの状態からAPIリクエストを構築（新形式）
+ * AdviceRequest Builder Helper
+ * Build API request from store state (new format)
  */
 
 import type {
@@ -11,6 +11,7 @@ import type {
   ScoresData,
   RhythmPhases,
 } from "../types";
+import { getLocale } from "../../i18n";
 
 interface BuildAdviceRequestParams {
   healthStore: {
@@ -145,6 +146,6 @@ export const buildAdviceRequest = ({
     healthMetrics,
     weather,
     rhythmPhases,
-    locale: "ja",
+    locale: getLocale() as "ja" | "en",
   };
 };

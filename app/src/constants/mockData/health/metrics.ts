@@ -1,6 +1,6 @@
 /**
  * Mock Health Data
- * HealthKit関連のモックデータ
+ * HealthKit related mock data
  */
 
 import type {
@@ -20,11 +20,11 @@ import type {
  */
 export const MOCK_WEATHER: SimpleWeatherData = {
   temp: 8,
-  condition: "晴れ",
+  condition: "Clear",
   pressure: 1018,
   pressureTrend: "stable",
   uv: 3,
-  location: "東京",
+  location: "Tokyo",
 };
 
 /**
@@ -34,10 +34,10 @@ export const MOCK_QUICK_ACTIONS: QuickAction[] = [
   {
     id: "1",
     type: "activity",
-    text: "昼食後に10分間の散歩",
+    text: "10-min walk after lunch",
     icon: "footprints",
   },
-  { id: "2", type: "breathing", text: "1分間の深呼吸", icon: "wind" },
+  { id: "2", type: "breathing", text: "1-min deep breathing", icon: "wind" },
 ];
 
 /**
@@ -45,9 +45,9 @@ export const MOCK_QUICK_ACTIONS: QuickAction[] = [
  */
 export const MOCK_RECOMMENDED_ACTION: RecommendedAction = {
   type: "activity",
-  message: "昼食後に10分間の散歩",
+  message: "10-min walk after lunch",
   icon: "footprints",
-  displayName: "活動",
+  displayName: "Activity",
 };
 
 /**

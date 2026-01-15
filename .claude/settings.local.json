@@ -147,7 +147,8 @@
       "Bash(for file in ./app/src/domain/services/*.ts)",
       "Bash(do if [[ ! \"$file\" =~ index.ts$ ]])",
       "Bash(done)",
-      "Bash(npx jest:*)"
+      "Bash(npx jest:*)",
+      "Bash(git -C /Users/masakazuiwahara/Development/tempo-ai log --oneline)"
     ],
     "deny": [],
     "ask": [],

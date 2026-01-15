@@ -1,0 +1,352 @@
+{
+  "common": {
+    "button": {
+      "save": "Save",
+      "cancel": "Cancel",
+      "continue": "Continue",
+      "start": "Start",
+      "close": "Close",
+      "viewTrend": "View Trend"
+    },
+    "loading": "Loading...",
+    "error": "Sorry, an error occurred.",
+    "last12Hours": "Last 12 hours of activity"
+  },
+  "screen": {
+    "today": {
+      "title": "Today",
+      "greeting": {
+        "morning": "Good Morning",
+        "afternoon": "Good Afternoon",
+        "evening": "Good Evening",
+        "night": "Good Night"
+      },
+      "tempoScore": "Tempo Score",
+      "aiInsight": "AI Insight",
+      "viewAnalysis": "View Analysis",
+      "todayOneThing": {
+        "title": "Today's One Thing",
+        "text": "A short walk around 2pm can help stabilize your evening rhythm."
+      },
+      "healthSummary": "Health Summary",
+      "normal": "Normal",
+      "insight": {
+        "label": "Insight",
+        "text": "Going to bed before 11pm tends to improve deep sleep by 24%"
+      },
+      "metrics": {
+        "sleep": "Sleep",
+        "hrv": "HRV",
+        "steps": "Steps"
+      }
+    },
+    "rhythm": {
+      "title": "Your Body Clock",
+      "subtitle": "Sync with your natural energy peaks",
+      "upcomingWindows": "Upcoming Windows",
+      "seeDetails": "See Details",
+      "environmentalData": "Environmental Data",
+      "phases": {
+        "peakEnergy": {
+          "title": "Peak Focus",
+          "time": "Now — 12:00",
+          "description": "Great time for complex problem-solving and tasks requiring deep concentration. Your cognitive performance is at its peak."
+        },
+        "melatoninWindow": {
+          "title": "Wind Down",
+          "time": "21:30 — 7:00",
+          "description": "Dim the lights and reduce screen time to prepare for sleep. Your body is entering rest mode."
+        }
+      },
+      "labels": {
+        "peak": "Peak",
+        "dip": "Dip",
+        "peakFocus": "Peak Focus",
+        "afternoonDip": "Afternoon Dip"
+      },
+      "sunrise": "Sunrise",
+      "sunset": "Sunset",
+      "environment": {
+        "weather": "Weather",
+        "temperature": "Temperature",
+        "humidity": "Humidity",
+        "pressure": "Pressure",
+        "pressureTrend": {
+          "rising": "Rising",
+          "stable": "Stable",
+          "falling": "Falling"
+        },
+        "uv": "UV Index",
+        "uvLevel": {
+          "low": "Low",
+          "moderate": "Moderate",
+          "high": "High",
+          "veryHigh": "Very High"
+        },
+        "moonPhase": "Moon Phase",
+        "phases": {
+          "newMoon": "New Moon",
+          "waxingCrescent": "Waxing Crescent",
+          "firstQuarter": "First Quarter",
+          "waxingGibbous": "Waxing Gibbous",
+          "fullMoon": "Full Moon",
+          "waningGibbous": "Waning Gibbous",
+          "lastQuarter": "Last Quarter",
+          "waningCrescent": "Waning Crescent"
+        }
+      }
+    },
+    "breathe": {
+      "title": "Breathe",
+      "subtitle": "Box Breathing • 4-4-4",
+      "instruction": {
+        "ready": "Ready?",
+        "inhale": "Breathe in...",
+        "hold": "Hold...",
+        "exhale": "Breathe out..."
+      },
+      "phase": {
+        "inhale": "Inhale",
+        "hold": "Hold",
+        "exhale": "Exhale"
+      },
+      "sessionInProgress": "Session in Progress",
+      "tapToBegin": "Tap to Begin"
+    },
+    "insights": {
+      "title": "Insights",
+      "subtitle": "Patterns discovered from your data",
+      "thisWeek": "This Week",
+      "avgScore": "Avg Score",
+      "topDiscovery": "Top Discovery",
+      "topDiscoveryTitle": "Evening walks improve deep sleep",
+      "topDiscoveryDescription": "On days when you walk more than 15 minutes after 6pm, your deep sleep score tends to be 18% higher.",
+      "viewDetails": "View Details",
+      "recentAlerts": "Recent Alerts",
+      "weeklyAverage": "Weekly Average Score",
+      "featuredDiscovery": "Featured Discovery",
+      "discoveryTitle": "Your recovery is improving",
+      "discoveryDescription": "Your HRV improved by 12% last week. Your consistent bedtime routine seems to be having a positive effect.",
+      "learnMore": "Learn More",
+      "noAlerts": "No alerts"
+    },
+    "insightDetail": {
+      "header": "Today's Insight",
+      "whyThisMatters": "Why This Matters",
+      "whatThisMeans": "What This Means For Today"
+    },
+    "actionDetail": {
+      "header": "Today's One Thing",
+      "howToDoIt": "How To Do It",
+      "expectedBenefit": "Expected Benefit"
+    },
+    "settings": {
+      "title": "Settings",
+      "subtitle": "Personalize your rhythm",
+      "profile": {
+        "plan": "Free Plan",
+        "memberSince": "Member since {{year}}"
+      },
+      "myRhythm": "My Rhythm",
+      "targetBedtime": "Target Bedtime",
+      "targetWakeUp": "Target Wake Up",
+      "preferences": "Preferences",
+      "gentleNudges": "Gentle Nudges",
+      "hapticFeedback": "Haptic Feedback",
+      "dataSource": "Data Source",
+      "appleHealth": "Apple Health",
+      "ouraRing": "Oura Ring",
+      "connected": "Connected",
+      "connect": "Connect",
+      "support": "Support",
+      "helpCenter": "Help Center",
+      "privacyPolicy": "Privacy Policy",
+      "resetSignOut": "Reset Onboarding / Sign Out",
+      "version": "TempoAI v1.0.2 (Build 402)"
+    }
+  },
+  "score": {
+    "recovery": {
+      "label": "Recovery",
+      "status": {
+        "excellent": "Fully Recovered",
+        "good": "Good Recovery",
+        "fair": "Fair",
+        "needsRest": "Needs Rest"
+      }
+    },
+    "sleep": {
+      "label": "Sleep",
+      "status": {
+        "excellent": "Excellent Sleep",
+        "good": "Good Sleep",
+        "fair": "Fair Sleep",
+        "poor": "Room for Improvement"
+      }
+    },
+    "rhythm": {
+      "label": "Rhythm",
+      "status": {
+        "excellent": "Optimal Rhythm",
+        "good": "Stable Rhythm",
+        "fair": "Slightly Off",
+        "poor": "Needs Adjustment"
+      }
+    },
+    "energy": {
+      "label": "Energy",
+      "status": {
+        "excellent": "Full Energy",
+        "good": "Good Energy",
+        "fair": "Moderate",
+        "low": "Rest Recommended"
+      }
+    }
+  },
+  "detail": {
+    "recovery": {
+      "analysis": "Analysis",
+      "calculatedAt": "Recovery Score Calculated At",
+      "dailyRecovery": "Daily Recovery",
+      "weeklyAverage": "Weekly Average",
+      "learnWhat": "What is Recovery?",
+      "learnBestPractices": "Recovery Best Practices",
+      "learn": "Learn"
+    },
+    "sleep": {
+      "sleepScore": "Sleep Score",
+      "duration": "Duration",
+      "quality": "Quality",
+      "sleepStages": "Sleep Stages",
+      "bedtime": "Bedtime",
+      "wakeTime": "Wake Time",
+      "target": "Target",
+      "history": "Sleep Score History"
+    },
+    "health": {
+      "mostRecent": "Most Recent",
+      "baseline": "Baseline",
+      "typicalRange": "Typical Range"
+    },
+    "energy": {
+      "history": "Energy Score History",
+      "contributingFactors": "Contributing Factors",
+      "dailyCurve": "Daily Energy Curve",
+      "peakFocus": "Peak Focus",
+      "afternoonDip": "Afternoon Dip"
+    },
+    "rhythm": {
+      "history": "Rhythm Score History",
+      "bedtimeConsistency": "Bedtime Consistency",
+      "wakeConsistency": "Wake Time Consistency",
+      "weeklyPattern": "Weekly Pattern",
+      "target": "Target",
+      "contributingFactors": "Contributing Factors"
+    }
+  },
+  "metric": {
+    "currentStatus": "Current Status",
+    "tempoInsight": "Tempo Insight",
+    "sleep": {
+      "title": "Restorative Sleep",
+      "label": "Sleep",
+      "deepSleep": "Deep Sleep",
+      "remSleep": "REM",
+      "awake": "Awake",
+      "excellent": "Excellent",
+      "good": "Good",
+      "normal": "Normal"
+    },
+    "hrv": {
+      "title": "Heart Rate Variability",
+      "label": "HRV",
+      "unit": "ms",
+      "maxHrv": "Max HRV",
+      "restingHr": "Resting HR",
+      "readiness": "Readiness",
+      "peak": "Peak",
+      "relaxed": "Relaxed",
+      "ready": "Ready"
+    },
+    "steps": {
+      "title": "Movement Rhythm",
+      "label": "Steps",
+      "distance": "Distance",
+      "calories": "Calories",
+      "flights": "Flights",
+      "keepGoing": "Keep Going",
+      "active": "Active"
+    },
+    "health": {
+      "hrv": {
+        "name": "Heart Rate Variability",
+        "shortName": "HRV",
+        "cardLabel": "HRV"
+      },
+      "rhr": {
+        "name": "Resting Heart Rate",
+        "shortName": "Resting HR",
+        "cardLabel": "Resting HR"
+      },
+      "resp": {
+        "name": "Respiratory Rate",
+        "shortName": "Resp",
+        "cardLabel": "Respiratory"
+      },
+      "spo2": {
+        "name": "Blood Oxygen",
+        "shortName": "SpO2",
+        "cardLabel": "Blood Oxygen"
+      },
+      "temp": {
+        "name": "Wrist Temperature",
+        "shortName": "Temp",
+        "cardLabel": "Wrist Temp"
+      },
+      "status": {
+        "inRange": "Within Range",
+        "outOfRange": "Out of Range",
+        "within": "Within"
+      }
+    }
+  },
+  "alert": {
+    "recoveryNeeded": {
+      "title": "Recovery Needed",
+      "description": "Your HRV is below baseline. Consider taking it easy today.",
+      "time": "This Morning"
+    },
+    "recoveryComplete": {
+      "title": "Recovery Complete",
+      "description": "Your HRV has returned to baseline after yesterday's workout.",
+      "time": "Today"
+    },
+    "lateCaffeine": {
+      "title": "Late Caffeine",
+      "description": "Coffee at 4pm may have delayed sleep onset by 45 minutes. Consider limiting afternoon caffeine.",
+      "time": "Yesterday"
+    },
+    "weekendJetlag": {
+      "title": "Weekend Jetlag",
+      "description": "Your wake time shifted 2 hours this weekend. Try to gradually align with weekday schedule.",
+      "time": "Sunday"
+    },
+    "lowActivity": {
+      "title": "Low Activity",
+      "description": "Your step count has been below average for the past 3 days. Consider some light stretching or a walk.",
+      "time": "Yesterday"
+    }
+  },
+  "error": {
+    "network": "Sorry, a network error occurred.",
+    "api": "Sorry, failed to fetch data.",
+    "retry": "Retry"
+  },
+  "tab": {
+    "today": "Today",
+    "rhythm": "Rhythm",
+    "breathe": "",
+    "insights": "Insights",
+    "settings": "Settings"
+  }
+}

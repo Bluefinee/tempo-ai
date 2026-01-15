@@ -1,6 +1,6 @@
 /**
- * RhythmInteractiveChart - タッチ対応リズムチャート
- * スムーズなドラッグ操作でツールチップ表示
+ * RhythmInteractiveChart - Touch-enabled Rhythm Chart
+ * Smooth drag operation with tooltip display
  */
 
 import React, { useState, useCallback, useMemo, useRef } from "react";
@@ -152,14 +152,10 @@ export const RhythmInteractiveChart = ({
     return { x, y, energy: closestPoint.energy };
   }, [data, currentHour, chartWidth, chartHeight]);
 
-  // ピークとディップの位置を取得
+  // Get peak and dip positions
   const annotations = useMemo(() => {
-    const peak = points.find(
-      (p) => p.data.label === "Peak" || p.data.label === "ピーク",
-    );
-    const dip = points.find(
-      (p) => p.data.label === "Dip" || p.data.label === "低迷期",
-    );
+    const peak = points.find((p) => p.data.label === "Peak");
+    const dip = points.find((p) => p.data.label === "Dip");
     return { peak, dip };
   }, [points]);
 

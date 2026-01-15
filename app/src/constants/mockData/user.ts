@@ -1,6 +1,6 @@
 /**
  * Mock User Data
- * ユーザープロファイル関連のモックデータ
+ * User profile related mock data
  */
 
 import type { UserProfile } from "../../domain/models";
@@ -10,7 +10,7 @@ import type { UserProfile } from "../../domain/models";
  */
 export const MOCK_USER: UserProfile = {
   id: "mock_user_1",
-  nickname: "太郎",
+  nickname: "John",
   age: 30,
   gender: "male",
   heightCm: 175,

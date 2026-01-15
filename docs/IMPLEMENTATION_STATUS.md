@@ -404,6 +404,35 @@ MOCK_AI_RESPONSE = {
 | ✅  | alertGenerator.ts 閾値ハードコード         | `ALERT_THRESHOLDS` 定数オブジェクトを `alertConstants.ts` に定義                   |
 | ✅  | RhythmInteractiveChart setTimeout 1500     | `TOOLTIP_AUTO_HIDE_DELAY` 定数を `rhythmConstants.ts` に定義                       |
 
+### 7.7 解決済み: 最終ハードコード監査（4回目）（2026-01-15 追加）
+
+`docs/FINAL_HARDCODE_AUDIT_REPORT.md` の監査結果に基づく DRY 原則違反・i18n 漏れを修正。
+
+| #   | 問題                                          | 対応内容                                                                  |
+| --- | --------------------------------------------- | ------------------------------------------------------------------------- |
+| ✅  | スコア計算閾値の分散                          | `scoreConstants.ts` に `SCORE_THRESHOLDS` 定数として集約                  |
+| ✅  | 睡眠タイミングデフォルト値の分散              | `environmentConstants.ts` に `SLEEP_TIMING_DEFAULTS` 追加                 |
+| ✅  | selectors.ts 曜日ラベルハードコード           | `t("common.weekdays.short.*")` で i18n 化                                 |
+| ✅  | selectors.ts 期間ラベルハードコード           | `t("common.period.*")` で i18n 化                                         |
+| ✅  | RhythmInteractiveChart AM/PM ハードコード     | `t("common.time.am/pm")` で i18n 化                                       |
+| ✅  | onboardingStore.ts ニックネームハードコード   | `t("common.defaultNickname")` で i18n 化                                  |
+| ✅  | settings.tsx カラーコード直書き               | `colors.indigo[500]`, `colors.stone[*]` などテーマ定数に置換              |
+| ✅  | dataSourceAdapter.ts location フォールバック  | `t("common.currentLocation")` で i18n 化                                  |
+
+**新規 i18n キー追加**:
+
+```json
+{
+  "common": {
+    "weekdays": { "short": { "sun": "Sun", "mon": "Mon", ... } },
+    "period": { "weeksAgo": "{{count}}W ago", "now": "Now" },
+    "time": { "am": "AM", "pm": "PM" },
+    "defaultNickname": "User",
+    "currentLocation": "Current Location"
+  }
+}
+```
+
 ---
 
 ## 8. 主要ファイルパス
@@ -527,9 +556,10 @@ app/src/
 | ファイル                                    | 説明                                                                         |
 | ------------------------------------------- | ---------------------------------------------------------------------------- |
 | `app/src/constants/chartConstants.ts`       | チャート関連の共通定数（SCORE_TYPICAL_RANGE, DATA_STALE_THRESHOLD_HOURS 等） |
-| `app/src/constants/environmentConstants.ts` | 環境データのデフォルト値（DEFAULT_ENVIRONMENT_DATA, DEFAULT_LOCATION 等）    |
+| `app/src/constants/environmentConstants.ts` | 環境データのデフォルト値（DEFAULT_ENVIRONMENT_DATA, SLEEP_TIMING_DEFAULTS）  |
 | `app/src/constants/rhythmConstants.ts`      | サーカディアンリズム定数（CIRCADIAN_PHASE_OFFSETS, TOOLTIP_AUTO_HIDE_DELAY） |
 | `app/src/constants/alertConstants.ts`       | アラート閾値定数（ALERT_THRESHOLDS）                                         |
+| `app/src/constants/scoreConstants.ts`       | スコア計算閾値定数（SCORE_THRESHOLDS）                                       |
 
 ---
 
@@ -539,6 +569,24 @@ app/src/
 
 ```json
 {
+  "common": {
+    "weekdays": {
+      "short": {
+        "sun": "Sun", "mon": "Mon", "tue": "Tue", "wed": "Wed",
+        "thu": "Thu", "fri": "Fri", "sat": "Sat"
+      }
+    },
+    "period": {
+      "weeksAgo": "{{count}}W ago",
+      "now": "Now"
+    },
+    "time": {
+      "am": "AM",
+      "pm": "PM"
+    },
+    "defaultNickname": "User",
+    "currentLocation": "Current Location"
+  },
   "chart": {
     "now": "Now",
     "timeAxis": {

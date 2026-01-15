@@ -278,24 +278,26 @@
   - `app/src/constants/environmentConstants.ts`
   - `app/src/constants/rhythmConstants.ts`
   - `app/src/constants/alertConstants.ts`
-- **関連ファイル**:
-  - `app/src/stores/userStore.ts`
-  - `app/src/stores/healthStore/index.ts`
-  - `app/app/(main)/rhythm.tsx`
-  - `app/app/(main)/settings.tsx`
-  - `app/app/(main)/recovery-detail.tsx`
-  - `app/app/(main)/sleep-detail.tsx`
-  - `app/app/(main)/rhythm-detail.tsx`
-  - `app/app/(main)/energy-detail.tsx`
-  - `app/app/(main)/health-detail.tsx`
-  - `app/app/(main)/action-detail.tsx`
-  - `app/src/components/RhythmInteractiveChart.tsx`
-  - `app/src/components/HealthMetricDetail.tsx`
-  - `app/src/domain/services/rhythmPhaseCalculator.ts`
-  - `app/src/domain/services/alertGenerator.ts`
-  - `app/src/i18n/locales/en.json`
-  - `app/src/i18n/locales/ja.json`
-  - `app/src/constants/index.ts`
+
+### ✅ TASK-FINAL-AUDIT: 最終ハードコード監査（4回目）
+- **状態**: ✅ 完了
+- **内容**: `docs/FINAL_HARDCODE_AUDIT_REPORT.md` の監査結果に基づくDRY原則違反・i18n漏れ修正
+  - [x] スコア計算閾値分散 → `scoreConstants.ts` に `SCORE_THRESHOLDS` 集約
+  - [x] 睡眠タイミングデフォルト分散 → `environmentConstants.ts` に `SLEEP_TIMING_DEFAULTS` 追加
+  - [x] selectors.ts 曜日ラベル → `t("common.weekdays.short.*")` で i18n化
+  - [x] selectors.ts 期間ラベル → `t("common.period.*")` で i18n化
+  - [x] RhythmInteractiveChart AM/PM → `t("common.time.am/pm")` で i18n化
+  - [x] onboardingStore.ts ニックネーム → `t("common.defaultNickname")` で i18n化
+  - [x] settings.tsx カラーコード → テーマ定数 `colors.*` に置換
+  - [x] dataSourceAdapter.ts location → `t("common.currentLocation")` で i18n化
+- **新規作成ファイル**:
+  - `app/src/constants/scoreConstants.ts`
+- **i18nキー追加**:
+  - `common.weekdays.short.*` (sun〜sat)
+  - `common.period.*` (weeksAgo, now)
+  - `common.time.*` (am, pm)
+  - `common.defaultNickname`
+  - `common.currentLocation`
 
 ---
 
@@ -306,31 +308,146 @@
 | Pre-release (パイプライン統合) | 1 | 1 | 0 | 0 |
 | Pre-release (ハードコードレビュー) | 1 | 1 | 0 | 0 |
 | Pre-release (第三者監査レビュー) | 1 | 1 | 0 | 0 |
+| Pre-release (最終監査・4回目) | 1 | 1 | 0 | 0 |
 | Phase 1 (MVP) | 5 | 0 | 0 | 5 |
 | Phase 2 (品質) | 5 | 0 | 0 | 5 |
 | Phase 3 (拡張) | 3 | 0 | 0 | 3 |
-| **合計** | **16** | **3** | **0** | **13** |
+| **合計** | **17** | **4** | **0** | **13** |
+
+---
+
+## 📋 推奨実装順序（クイックリファレンス）
+
+以下の順序で実装を進めることを推奨します。
+
+### Step 1: 🔴 HealthKit 基盤（必須・ブロッカー）
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  1. TASK-001: HealthKitService 実装                         │
+│     ├─ getSleepMetrics()                                    │
+│     ├─ getHRVMetrics()                                      │
+│     ├─ getActivityMetrics()                                 │
+│     ├─ getRhythmAnalysis()                                  │
+│     └─ getRealtimeMetrics()                                 │
+│                                                             │
+│  2. TASK-002: HealthKit履歴データ取得                       │
+│     ├─ getHRVHistory(7d/30d/60d)                            │
+│     ├─ getRHRHistory(7d/30d/60d)                            │
+│     ├─ getRespiratoryHistory(7d/30d/60d)                    │
+│     ├─ getSpO2History(7d/30d/60d)                           │
+│     ├─ getWristTempHistory(7d/30d/60d)                      │
+│     └─ getSleepTimingHistory(7d/30d/60d)                    │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Step 2: 🟠 データ永続化・エラー処理
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  3. TASK-003: スコア履歴AsyncStorage保存の有効化            │
+│     └─ healthStore/index.ts の保存条件見直し               │
+│                                                             │
+│  4. TASK-004: 空データ時のUI表示（EmptyState）              │
+│     ├─ EmptyChartState コンポーネント                       │
+│     └─ EmptyScoreState コンポーネント                       │
+│                                                             │
+│  5. TASK-005: エラーハンドリング強化                        │
+│     ├─ try-catch 強化                                       │
+│     ├─ Store error state 追加                               │
+│     └─ リトライ機構                                         │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Step 3: 🟡 品質向上（MVP後）
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  6. TASK-006: 環境データ完全実装                            │
+│     ├─ UV index API取得                                     │
+│     ├─ 湿度API取得                                          │
+│     └─ 気圧24h変化計算                                      │
+│                                                             │
+│  7. TASK-007: USE_MOCK_DATAフラグ一元化                     │
+│                                                             │
+│  8. TASK-008: 単体テスト追加（スコア計算）                  │
+│     ├─ calculateRecoveryScore() テスト                      │
+│     ├─ calculateSleepScore() テスト                         │
+│     ├─ calculateRhythmScore() テスト                        │
+│     └─ calculateEnergyScore() テスト                        │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Step 4: 🟢 インフラ・テスト（品質向上後）
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  9. TASK-009: 環境変数管理整備                              │
+│     ├─ .env.development                                     │
+│     ├─ .env.production                                      │
+│     └─ .env.example 更新                                    │
+│                                                             │
+│ 10. TASK-010: E2Eテスト追加                                 │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Step 5: 🔵 拡張機能（将来）
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ 11. TASK-011: リマインダー機能                              │
+│ 12. TASK-012: Apple Watch連携                               │
+│ 13. TASK-013: ウィジェット対応                              │
+└─────────────────────────────────────────────────────────────┘
+```
 
 ---
 
 ## リリースクライテリア
 
-### Pre-release 条件 ✅
+### Pre-release 条件 ✅ 完了
 - [x] TASK-PRE: Mock/実データパイプライン統合 ✅ 完了
 - [x] TASK-REVIEW: ハードコードレビュー＆修正 ✅ 完了
 - [x] TASK-AUDIT: 第三者監査レビュー＆修正 ✅ 完了
+- [x] TASK-FINAL-AUDIT: 最終ハードコード監査（4回目） ✅ 完了
 
-### MVP リリース条件
-- [ ] TASK-001: HealthKitService 実装完了
-- [ ] TASK-002: HealthKit 履歴データ取得完了
-- [ ] TASK-003: スコア履歴保存有効化
-- [ ] TASK-004: 空データ UI 対応
-- [ ] TASK-005: 基本的なエラーハンドリング
+### MVP リリース条件 ⏳ 未完了
+| チェック | タスク | 説明 | 依存関係 |
+|:--------:|--------|------|----------|
+| ⬜ | TASK-001 | HealthKitService 実装 | なし |
+| ⬜ | TASK-002 | HealthKit 履歴データ取得 | TASK-001 |
+| ⬜ | TASK-003 | スコア履歴保存有効化 | なし |
+| ⬜ | TASK-004 | 空データ UI 対応 | なし |
+| ⬜ | TASK-005 | 基本的なエラーハンドリング | なし |
 
-### 品質リリース条件
-- [ ] 上記 MVP 条件すべて
-- [ ] TASK-006: 環境データ完全実装
-- [ ] TASK-008: 単体テストカバレッジ 80%以上
+### 品質リリース条件 ⏳ 未完了
+| チェック | タスク | 説明 | 依存関係 |
+|:--------:|--------|------|----------|
+| ⬜ | MVP条件 | 上記 MVP 条件すべて | - |
+| ⬜ | TASK-006 | 環境データ完全実装 | なし |
+| ⬜ | TASK-008 | 単体テストカバレッジ 80%以上 | なし |
+
+---
+
+## 🚀 次のアクション（今すぐ始められること）
+
+### 並行して進められるタスク（依存関係なし）
+
+1. **TASK-001: HealthKitService 実装**
+   - 新規ファイル: `app/src/services/healthKitService.ts`
+   - 参考: `app/src/services/dataSourceAdapter.ts` の TODO コメント
+
+2. **TASK-003: スコア履歴保存有効化**
+   - 修正ファイル: `app/src/stores/healthStore/index.ts`
+   - 変更内容: `!DATA_SOURCE_CONFIG.USE_MOCK_HEALTHKIT` 条件を緩和
+
+3. **TASK-004: 空データ UI 対応**
+   - 新規ファイル: `app/src/components/EmptyScoreState.tsx`
+   - 既存の `EmptyChartState.tsx` を拡張
+
+### ブロックされているタスク
+
+- **TASK-002**: TASK-001 の完了が必要
 
 ---
 

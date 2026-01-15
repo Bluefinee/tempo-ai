@@ -18,12 +18,12 @@
  * 60日分でも数十〜数百レコードのため高速に処理可能。
  */
 export interface DailyHealthSample {
-  /** 日の開始時刻 (00:00:00) */
-  date: Date;
-  /** 日次集計値（mean/sum depending on metric） */
-  value: number;
-  /** 集計元のサンプル数（オプション、デバッグ用） */
-  sampleCount?: number;
+	/** 日の開始時刻 (00:00:00) */
+	date: Date;
+	/** 日次集計値（mean/sum depending on metric） */
+	value: number;
+	/** 集計元のサンプル数（オプション、デバッグ用） */
+	sampleCount?: number;
 }
 
 /**
@@ -36,15 +36,15 @@ export type HealthTimeRange = "7D" | "30D" | "60D";
  * ヘルスメトリクスの種類
  */
 export type HealthMetricType =
-  | "hrv"
-  | "rhr"
-  | "respiratory"
-  | "spo2"
-  | "wristTemp"
-  | "recoveryScore"
-  | "sleepScore"
-  | "rhythmScore"
-  | "energyScore";
+	| "hrv"
+	| "rhr"
+	| "respiratory"
+	| "spo2"
+	| "wristTemp"
+	| "recoveryScore"
+	| "sleepScore"
+	| "rhythmScore"
+	| "energyScore";
 
 // =============================================================================
 // 履歴データ型
@@ -57,17 +57,17 @@ export type HealthMetricType =
  * ベースラインと典型範囲を含み、トレンド分析をサポート。
  */
 export interface HealthMetricHistory {
-  metricType: HealthMetricType;
-  samples: DailyHealthSample[];
-  /** 60日ローリング平均 */
-  baseline: number;
-  typicalRange: {
-    min: number;
-    max: number;
-    /** 14日以上のデータがあれば 'personal'、なければ 'default' */
-    source: "personal" | "default";
-  };
-  lastUpdated: Date;
+	metricType: HealthMetricType;
+	samples: DailyHealthSample[];
+	/** 60日ローリング平均 */
+	baseline: number;
+	typicalRange: {
+		min: number;
+		max: number;
+		/** 14日以上のデータがあれば 'personal'、なければ 'default' */
+		source: "personal" | "default";
+	};
+	lastUpdated: Date;
 }
 
 /**
@@ -87,17 +87,17 @@ export type TrendDirection = "improving" | "stable" | "declining";
  * 1日を通して一貫した値を表示する。
  */
 export interface DailySnapshot {
-  /** 算出日 (YYYY-MM-DD 形式) */
-  date: string;
-  /** 算出時刻 */
-  calculatedAt: Date;
-  /** 各スコア（0-100） */
-  scores: {
-    recovery: number;
-    sleep: number;
-    rhythm: number;
-    energy: number;
-  };
+	/** 算出日 (YYYY-MM-DD 形式) */
+	date: string;
+	/** 算出時刻 */
+	calculatedAt: Date;
+	/** 各スコア（0-100） */
+	scores: {
+		recovery: number;
+		sleep: number;
+		rhythm: number;
+		energy: number;
+	};
 }
 
 /**
@@ -105,16 +105,16 @@ export interface DailySnapshot {
  * 個々のメトリクスの現在値と更新情報
  */
 export interface RealtimeHealthMetric {
-  /** 現在値 */
-  value: number;
-  /** 単位 */
-  unit: string;
-  /** ベースライン（60日平均） */
-  baseline: number;
-  /** ベースラインからの乖離率（%） */
-  deviationPercent: number;
-  /** 最終更新時刻 */
-  lastUpdated: Date;
+	/** 現在値 */
+	value: number;
+	/** 単位 */
+	unit: string;
+	/** ベースライン（60日平均） */
+	baseline: number;
+	/** ベースラインからの乖離率（%） */
+	deviationPercent: number;
+	/** 最終更新時刻 */
+	lastUpdated: Date;
 }
 
 /**
@@ -124,11 +124,11 @@ export interface RealtimeHealthMetric {
  * アプリを開くたびに最新データを取得する。
  */
 export interface RealtimeMetrics {
-  hrv: RealtimeHealthMetric;
-  rhr: RealtimeHealthMetric;
-  respiratory: RealtimeHealthMetric;
-  spo2: RealtimeHealthMetric;
-  wristTemp: RealtimeHealthMetric;
+	hrv: RealtimeHealthMetric;
+	rhr: RealtimeHealthMetric;
+	respiratory: RealtimeHealthMetric;
+	spo2: RealtimeHealthMetric;
+	wristTemp: RealtimeHealthMetric;
 }
 
 // =============================================================================
@@ -140,8 +140,8 @@ export interface RealtimeMetrics {
  * 既存の BarChart コンポーネントとの互換性を維持
  */
 export interface BarChartDataPoint {
-  label: string;
-  value: number;
+	label: string;
+	value: number;
 }
 
 /**
@@ -149,8 +149,8 @@ export interface BarChartDataPoint {
  * 既存の HealthAreaChart コンポーネントとの互換性を維持
  */
 export interface AreaChartDataPoint {
-  day: string;
-  value: number;
+	day: string;
+	value: number;
 }
 
 // =============================================================================
@@ -162,31 +162,31 @@ export interface AreaChartDataPoint {
  * 個人データが 14 日未満の場合に使用
  */
 export const DEFAULT_TYPICAL_RANGES: Record<
-  HealthMetricType,
-  { min: number; max: number }
+	HealthMetricType,
+	{ min: number; max: number }
 > = {
-  hrv: { min: 20, max: 100 },
-  rhr: { min: 50, max: 80 },
-  respiratory: { min: 10, max: 16 },
-  spo2: { min: 95, max: 100 },
-  wristTemp: { min: 35.5, max: 37.0 },
-  recoveryScore: { min: 0, max: 100 },
-  sleepScore: { min: 0, max: 100 },
-  rhythmScore: { min: 0, max: 100 },
-  energyScore: { min: 0, max: 100 },
+	hrv: { min: 20, max: 100 },
+	rhr: { min: 50, max: 80 },
+	respiratory: { min: 10, max: 16 },
+	spo2: { min: 95, max: 100 },
+	wristTemp: { min: 35.5, max: 37.0 },
+	recoveryScore: { min: 0, max: 100 },
+	sleepScore: { min: 0, max: 100 },
+	rhythmScore: { min: 0, max: 100 },
+	energyScore: { min: 0, max: 100 },
 };
 
 /**
  * メトリクス種別ごとの単位
  */
 export const METRIC_UNITS: Record<HealthMetricType, string> = {
-  hrv: "ms",
-  rhr: "bpm",
-  respiratory: "rpm",
-  spo2: "%",
-  wristTemp: "°C",
-  recoveryScore: "",
-  sleepScore: "",
-  rhythmScore: "",
-  energyScore: "",
+	hrv: "ms",
+	rhr: "bpm",
+	respiratory: "rpm",
+	spo2: "%",
+	wristTemp: "°C",
+	recoveryScore: "",
+	sleepScore: "",
+	rhythmScore: "",
+	energyScore: "",
 };

@@ -8,15 +8,15 @@
 // ========================================
 
 export type UserGoal =
-  | "better_sleep"
-  | "more_energy"
-  | "less_stress"
-  | "peak_performance";
+	| "better_sleep"
+	| "more_energy"
+	| "less_stress"
+	| "peak_performance";
 
 export interface UserProfile {
-  goals: UserGoal[];
-  wakeUpTime: string;
-  windDownTime: string;
+	goals: UserGoal[];
+	wakeUpTime: string;
+	windDownTime: string;
 }
 
 // ========================================
@@ -24,10 +24,10 @@ export interface UserProfile {
 // ========================================
 
 export interface ScoresData {
-  recovery: number; // 0-100
-  sleep: number; // 0-100
-  rhythm: number; // 0-100
-  energy: number; // 0-100
+	recovery: number; // 0-100
+	sleep: number; // 0-100
+	rhythm: number; // 0-100
+	energy: number; // 0-100
 }
 
 // ========================================
@@ -35,31 +35,31 @@ export interface ScoresData {
 // ========================================
 
 export interface SleepData {
-  durationMinutes: number;
-  deepSleepMinutes: number;
-  deepSleepPercent: number;
-  remSleepMinutes: number;
-  remSleepPercent: number;
-  bedtime?: string;
-  wakeTime?: string;
-  vsTargetBedtime?: string; // "+15min" or "-10min"
+	durationMinutes: number;
+	deepSleepMinutes: number;
+	deepSleepPercent: number;
+	remSleepMinutes: number;
+	remSleepPercent: number;
+	bedtime?: string;
+	wakeTime?: string;
+	vsTargetBedtime?: string; // "+15min" or "-10min"
 }
 
 export interface HrvData {
-  current: number;
-  baseline: number;
-  deviation?: number;
+	current: number;
+	baseline: number;
+	deviation?: number;
 }
 
 export interface RhrData {
-  current: number;
-  baseline: number;
+	current: number;
+	baseline: number;
 }
 
 export interface HealthMetrics {
-  hrv: HrvData;
-  rhr: RhrData;
-  sleep: SleepData;
+	hrv: HrvData;
+	rhr: RhrData;
+	sleep: SleepData;
 }
 
 // ========================================
@@ -69,13 +69,13 @@ export interface HealthMetrics {
 export type PressureTrend = "rising" | "stable" | "falling";
 
 export interface WeatherData {
-  temperature: number;
-  pressure: number;
-  pressureTrend: PressureTrend;
-  sunrise: string;
-  sunset: string;
-  description?: string;
-  location?: string;
+	temperature: number;
+	pressure: number;
+	pressureTrend: PressureTrend;
+	sunrise: string;
+	sunset: string;
+	description?: string;
+	location?: string;
 }
 
 // ========================================
@@ -83,22 +83,22 @@ export interface WeatherData {
 // ========================================
 
 export interface RhythmPhases {
-  peakFocus: {
-    start: string; // HH:mm
-    end: string; // HH:mm
-  };
-  afternoonDip: {
-    start: string; // HH:mm
-    end: string; // HH:mm
-  };
-  secondWind: {
-    start: string; // HH:mm
-    end: string; // HH:mm
-  };
-  windDown: {
-    start: string; // HH:mm
-    end: string; // HH:mm
-  };
+	peakFocus: {
+		start: string; // HH:mm
+		end: string; // HH:mm
+	};
+	afternoonDip: {
+		start: string; // HH:mm
+		end: string; // HH:mm
+	};
+	secondWind: {
+		start: string; // HH:mm
+		end: string; // HH:mm
+	};
+	windDown: {
+		start: string; // HH:mm
+		end: string; // HH:mm
+	};
 }
 
 // ========================================
@@ -106,56 +106,56 @@ export interface RhythmPhases {
 // ========================================
 
 export interface AdviceRequest {
-  user: UserProfile;
-  scores: ScoresData;
-  healthMetrics: HealthMetrics;
-  weather: WeatherData;
-  rhythmPhases: RhythmPhases;
-  locale?: string;
+	user: UserProfile;
+	scores: ScoresData;
+	healthMetrics: HealthMetrics;
+	weather: WeatherData;
+	rhythmPhases: RhythmPhases;
+	locale?: string;
 }
 
 export type OneThingIcon = "walking" | "breathing" | "rest" | "coffee" | "sun";
 
 export interface WhyThisMattersItem {
-  headline: string;
-  explanation: string;
+	headline: string;
+	explanation: string;
 }
 
 export interface TodayInsight {
-  title: string; // 英語、詩的（2-4語）
-  summary: string; // 日本語、100-150文字
-  whyThisMatters: {
-    hrv: WhyThisMattersItem;
-    sleep: WhyThisMattersItem;
-    rhythm: WhyThisMattersItem;
-  };
-  whatThisMeansForToday: string; // 日本語、80-120文字
+	title: string; // 英語、詩的（2-4語）
+	summary: string; // 日本語、100-150文字
+	whyThisMatters: {
+		hrv: WhyThisMattersItem;
+		sleep: WhyThisMattersItem;
+		rhythm: WhyThisMattersItem;
+	};
+	whatThisMeansForToday: string; // 日本語、80-120文字
 }
 
 export interface TodayOneThing {
-  icon: OneThingIcon;
-  action: string; // 20文字以内
-  summary: string; // 40文字以内
-  time: string | null; // HH:MM形式 または null
-  whyThisAction: string; // 3-4文
-  benefits: string[]; // 各15文字以内
-  howToDoIt: string[]; // 各20文字以内
-  expectedBenefit: {
-    text: string;
-    source: string;
-  };
+	icon: OneThingIcon;
+	action: string; // 20文字以内
+	summary: string; // 40文字以内
+	time: string | null; // HH:MM形式 または null
+	whyThisAction: string; // 3-4文
+	benefits: string[]; // 各15文字以内
+	howToDoIt: string[]; // 各20文字以内
+	expectedBenefit: {
+		text: string;
+		source: string;
+	};
 }
 
 export interface RelatedInsight {
-  label: string; // "Research Finding"
-  text: string; // 30文字以内
-  source: string;
+	label: string; // "Research Finding"
+	text: string; // 30文字以内
+	source: string;
 }
 
 export interface AdviceResponse {
-  todayInsight: TodayInsight;
-  todayOneThing: TodayOneThing;
-  relatedInsight: RelatedInsight;
+	todayInsight: TodayInsight;
+	todayOneThing: TodayOneThing;
+	relatedInsight: RelatedInsight;
 }
 
 // ========================================
@@ -163,13 +163,13 @@ export interface AdviceResponse {
 // ========================================
 
 export interface WeatherResponse {
-  temperature: number;
-  pressure: number;
-  pressureTrend: PressureTrend;
-  sunrise: string;
-  sunset: string;
-  description: string;
-  location: string;
+	temperature: number;
+	pressure: number;
+	pressureTrend: PressureTrend;
+	sunrise: string;
+	sunset: string;
+	description: string;
+	location: string;
 }
 
 // ========================================
@@ -177,9 +177,9 @@ export interface WeatherResponse {
 // ========================================
 
 export interface ApiError {
-  error: string;
-  message?: string;
-  statusCode?: number;
+	error: string;
+	message?: string;
+	statusCode?: number;
 }
 
 // ========================================
@@ -187,5 +187,5 @@ export interface ApiError {
 // ========================================
 
 export type ApiResponse<T> =
-  | { success: true; data: T }
-  | { success: false; error: ApiError };
+	| { success: true; data: T }
+	| { success: false; error: ApiError };

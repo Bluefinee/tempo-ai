@@ -1,31 +1,31 @@
 // User store
+
+// Breathe store
 export {
-  useUserStore,
-  selectIsCalibrating,
-  selectCalibrationProgress,
-} from "./userStore";
+	selectFormattedElapsedTime,
+	selectIsSessionComplete,
+	selectSessionProgress,
+	useBreatheStore,
+} from "./breatheStore";
 
 // Health store
 export {
-  useHealthStore,
-  selectIsHealthDataStale,
-  selectTempoScore,
-  selectIsCalibrating as selectIsCalibratingHealth,
-  selectCurrentPhase,
-  selectCalibrationProgress as selectCalibrationProgressHealth,
+	selectCalibrationProgress as selectCalibrationProgressHealth,
+	selectCurrentPhase,
+	selectIsCalibrating as selectIsCalibratingHealth,
+	selectIsHealthDataStale,
+	selectTempoScore,
+	useHealthStore,
 } from "./healthStore";
 
 // Insight store
 export {
-  useInsightStore,
-  selectCurrentGenerationMessage,
-  selectIsInsightStale,
+	selectCurrentGenerationMessage,
+	selectIsInsightStale,
+	useInsightStore,
 } from "./insightStore";
-
-// Breathe store
 export {
-  useBreatheStore,
-  selectIsSessionComplete,
-  selectSessionProgress,
-  selectFormattedElapsedTime,
-} from "./breatheStore";
+	selectCalibrationProgress,
+	selectIsCalibrating,
+	useUserStore,
+} from "./userStore";

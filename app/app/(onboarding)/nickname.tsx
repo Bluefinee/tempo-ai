@@ -1,198 +1,224 @@
 /**
- * NicknameScreen - ニックネーム入力画面
- * sozai/new のスタイルを React Native で再現
- * Step 3 of 9
+ * Nickname Screen - Onboarding Step 2
+ * User enters their name for personalization
  */
 
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
-import { Colors, FontFamily } from "../../src/theme";
-import { PrimaryButton, InputField } from "../../src/components";
-import { useUserStore } from "../../src/stores";
-import type { JSX } from "react";
+import { User } from "lucide-react-native";
+import type { ReactElement } from "react";
+import { useEffect, useState } from "react";
+import {
+	Dimensions,
+	KeyboardAvoidingView,
+	Platform,
+	StyleSheet,
+	Text,
+	TextInput,
+	View,
+} from "react-native";
+import Animated, {
+	useAnimatedStyle,
+	useSharedValue,
+	withDelay,
+	withSpring,
+	withTiming,
+} from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+	AnimatedButton,
+	OnboardingContainer,
+} from "../../src/components/onboarding";
+import { t } from "../../src/i18n";
+import { useOnboardingStore } from "../../src/stores/onboardingStore";
+import { Colors, FontFamily, Typography } from "../../src/theme";
 
-const CURRENT_STEP = 3;
-const TOTAL_STEPS = 9;
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
-const NicknameScreen = (): JSX.Element => {
-  const router = useRouter();
-  const setDraftNickname = useUserStore((state) => state.setDraftNickname);
-  const draftNickname = useUserStore((state) => state.draftProfile.nickname);
-  const [nickname, setNickname] = useState(draftNickname || "");
-  const [error, setError] = useState("");
+const NicknameScreen = (): ReactElement => {
+	const router = useRouter();
+	const insets = useSafeAreaInsets();
+	const { nickname, setNickname } = useOnboardingStore();
+	const [inputValue, setInputValue] = useState(nickname);
 
-  const handleNext = (): void => {
-    if (!nickname.trim()) {
-      setError("Please enter a nickname");
-      return;
-    }
-    if (nickname.length > 20) {
-      setError("Nickname must be 20 characters or less");
-      return;
-    }
-    setDraftNickname(nickname.trim());
-    router.push("/(onboarding)/basic-info");
-  };
+	// Animation values
+	const iconOpacity = useSharedValue(0);
+	const iconScale = useSharedValue(0.8);
+	const titleOpacity = useSharedValue(0);
+	const inputOpacity = useSharedValue(0);
+	const buttonOpacity = useSharedValue(0);
 
-  return (
-    <View style={styles.container}>
-      {/* Decorative background blobs */}
-      <View style={styles.blobTopRight} />
-      <View style={styles.blobBottomLeft} />
+	useEffect(() => {
+		iconOpacity.value = withDelay(200, withTiming(1, { duration: 500 }));
+		iconScale.value = withDelay(
+			200,
+			withSpring(1, { damping: 12, stiffness: 100 }),
+		);
+		titleOpacity.value = withDelay(400, withTiming(1, { duration: 500 }));
+		inputOpacity.value = withDelay(600, withTiming(1, { duration: 500 }));
+		buttonOpacity.value = withDelay(800, withTiming(1, { duration: 500 }));
+	}, [buttonOpacity, iconOpacity, iconScale, inputOpacity, titleOpacity]);
 
-      <SafeAreaView style={styles.safeArea}>
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          style={styles.keyboardView}
-        >
-          {/* Progress Bar */}
-          <View style={styles.progressContainer}>
-            {[...Array(TOTAL_STEPS)].map((_, idx) => (
-              <View
-                key={idx}
-                style={[
-                  styles.progressSegment,
-                  idx < CURRENT_STEP
-                    ? styles.progressActive
-                    : styles.progressInactive,
-                ]}
-              />
-            ))}
-          </View>
+	const iconStyle = useAnimatedStyle(() => ({
+		opacity: iconOpacity.value,
+		transform: [{ scale: iconScale.value }],
+	}));
 
-          {/* Content */}
-          <View style={styles.content}>
-            <Text style={styles.emoji}>🤖</Text>
-            <Text style={styles.title}>Warm AI Guidance</Text>
-            <Text style={styles.description}>
-              No robotic charts. Just gentle, poetic advice to help you feel
-              your best.
-            </Text>
+	const titleStyle = useAnimatedStyle(() => ({
+		opacity: titleOpacity.value,
+	}));
 
-            <View style={styles.inputWrapper}>
-              <InputField
-                label="What should we call you?"
-                value={nickname}
-                onChangeText={(text) => {
-                  setNickname(text);
-                  setError("");
-                }}
-                placeholder="Enter your name"
-                autoFocus
-                maxLength={20}
-                error={error}
-              />
-            </View>
-          </View>
+	const inputStyle = useAnimatedStyle(() => ({
+		opacity: inputOpacity.value,
+	}));
 
-          {/* Footer */}
-          <View style={styles.footer}>
-            <PrimaryButton onPress={handleNext} disabled={!nickname.trim()}>
-              Continue
-            </PrimaryButton>
-          </View>
-        </KeyboardAvoidingView>
-      </SafeAreaView>
-    </View>
-  );
+	const buttonStyle = useAnimatedStyle(() => ({
+		opacity: buttonOpacity.value,
+	}));
+
+	const handleChangeText = (text: string) => {
+		setInputValue(text);
+	};
+
+	const handleNext = () => {
+		Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+		setNickname(inputValue.trim());
+		router.push("./personalize");
+	};
+
+	// Allow proceeding even without a name (will use default)
+	const canProceed = true;
+
+	return (
+		<OnboardingContainer step={2} blobVariant="default">
+			<KeyboardAvoidingView
+				style={styles.keyboardView}
+				behavior={Platform.OS === "ios" ? "padding" : "height"}
+			>
+				<View style={styles.content}>
+					{/* Icon */}
+					<Animated.View style={[styles.iconContainer, iconStyle]}>
+						<View style={styles.iconOuter}>
+							<View style={styles.iconInner}>
+								<User size={40} color={Colors.indigo[500]} />
+							</View>
+						</View>
+					</Animated.View>
+
+					{/* Title */}
+					<Animated.View style={[styles.titleContainer, titleStyle]}>
+						<Text style={styles.title}>{t("onboarding.nickname.title")}</Text>
+						<Text style={styles.hint}>{t("onboarding.nickname.hint")}</Text>
+					</Animated.View>
+
+					{/* Input */}
+					<Animated.View style={[styles.inputContainer, inputStyle]}>
+						<TextInput
+							style={styles.input}
+							value={inputValue}
+							onChangeText={handleChangeText}
+							placeholder={t("onboarding.nickname.placeholder")}
+							placeholderTextColor={Colors.stone[400]}
+							autoCapitalize="words"
+							autoCorrect={false}
+							returnKeyType="done"
+							onSubmitEditing={handleNext}
+						/>
+					</Animated.View>
+
+					{/* Spacer */}
+					<View style={styles.spacer} />
+
+					{/* Button */}
+					<Animated.View
+						style={[
+							styles.buttonArea,
+							buttonStyle,
+							{ paddingBottom: Math.max(insets.bottom, 24) },
+						]}
+					>
+						<AnimatedButton
+							onPress={handleNext}
+							variant="primary"
+							disabled={!canProceed}
+						>
+							{t("onboarding.nickname.next")}
+						</AnimatedButton>
+					</Animated.View>
+				</View>
+			</KeyboardAvoidingView>
+		</OnboardingContainer>
+	);
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.stone[50],
-    overflow: "hidden",
-  },
-  safeArea: {
-    flex: 1,
-  },
-  keyboardView: {
-    flex: 1,
-  },
-  // Decorative blobs
-  blobTopRight: {
-    position: "absolute",
-    top: -100,
-    right: -80,
-    width: 256,
-    height: 256,
-    backgroundColor: Colors.indigo[100],
-    borderRadius: 128,
-    opacity: 0.4,
-  },
-  blobBottomLeft: {
-    position: "absolute",
-    bottom: -80,
-    left: -60,
-    width: 320,
-    height: 320,
-    backgroundColor: Colors.amber[100],
-    borderRadius: 160,
-    opacity: 0.4,
-  },
-  // Progress bar
-  progressContainer: {
-    flexDirection: "row",
-    paddingHorizontal: 32,
-    paddingTop: 48,
-    gap: 8,
-  },
-  progressSegment: {
-    flex: 1,
-    height: 4,
-    borderRadius: 2,
-  },
-  progressActive: {
-    backgroundColor: Colors.indigo[500],
-  },
-  progressInactive: {
-    backgroundColor: Colors.stone[200],
-  },
-  // Content
-  content: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 32,
-  },
-  emoji: {
-    fontSize: 60,
-    marginBottom: 32,
-  },
-  title: {
-    fontFamily: FontFamily.serif,
-    fontSize: 24,
-    fontWeight: "700",
-    color: Colors.stone[900],
-    textAlign: "center",
-    letterSpacing: -0.5,
-    marginBottom: 16,
-  },
-  description: {
-    fontFamily: FontFamily.regular,
-    fontSize: 16,
-    color: Colors.stone[500],
-    textAlign: "center",
-    lineHeight: 26,
-    marginBottom: 32,
-  },
-  inputWrapper: {
-    width: "100%",
-  },
-  // Footer
-  footer: {
-    paddingHorizontal: 32,
-    paddingBottom: 48,
-    alignItems: "center",
-  },
+	keyboardView: {
+		flex: 1,
+	},
+	content: {
+		flex: 1,
+		paddingTop: 20,
+	},
+	iconContainer: {
+		alignItems: "center",
+		marginBottom: 32,
+	},
+	iconOuter: {
+		width: SCREEN_WIDTH * 0.28,
+		aspectRatio: 1,
+		borderRadius: 1000,
+		backgroundColor: Colors.indigo[100],
+		alignItems: "center",
+		justifyContent: "center",
+	},
+	iconInner: {
+		width: "70%",
+		height: "70%",
+		borderRadius: 1000,
+		backgroundColor: Colors.indigo[50],
+		alignItems: "center",
+		justifyContent: "center",
+	},
+	titleContainer: {
+		alignItems: "center",
+		marginBottom: 32,
+		paddingHorizontal: 16,
+	},
+	title: {
+		...Typography.heading2,
+		color: Colors.stone[900],
+		textAlign: "center",
+		lineHeight: 32,
+		marginBottom: 12,
+	},
+	hint: {
+		fontFamily: FontFamily.regular,
+		fontSize: 15,
+		color: Colors.stone[500],
+		textAlign: "center",
+	},
+	inputContainer: {
+		paddingHorizontal: 16,
+	},
+	input: {
+		backgroundColor: Colors.white,
+		borderRadius: 16,
+		paddingVertical: 18,
+		paddingHorizontal: 20,
+		fontSize: 18,
+		fontFamily: FontFamily.medium,
+		color: Colors.stone[900],
+		borderWidth: 2,
+		borderColor: Colors.stone[200],
+		textAlign: "center",
+	},
+	spacer: {
+		flex: 1,
+	},
+	buttonArea: {
+		paddingHorizontal: 16,
+		paddingTop: 20,
+	},
 });
 
 export default NicknameScreen;

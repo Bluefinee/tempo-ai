@@ -1,26 +1,63 @@
-import { Stack } from "expo-router";
-import type { JSX } from "react";
+/**
+ * Onboarding Layout
+ * 6-screen flow: Language → Welcome → Nickname → Personalize → Connect → Ready
+ */
 
-const OnboardingLayout = (): JSX.Element => {
-  return (
-    <Stack
-      screenOptions={{
-        headerShown: false,
-        animation: "slide_from_right",
-        gestureEnabled: false, // オンボーディング中は戻るジェスチャーを無効化
-      }}
-    >
-      <Stack.Screen name="index" />
-      <Stack.Screen name="healthkit" />
-      <Stack.Screen name="nickname" />
-      <Stack.Screen name="basic-info" />
-      <Stack.Screen name="chronotype" />
-      <Stack.Screen name="bedtime" />
-      <Stack.Screen name="lifestyle" />
-      <Stack.Screen name="location" />
-      <Stack.Screen name="complete" />
-    </Stack>
-  );
+import { Stack } from "expo-router";
+import type { ReactElement } from "react";
+import { Colors } from "../../src/theme";
+
+const OnboardingLayout = (): ReactElement => {
+	return (
+		<Stack
+			screenOptions={{
+				headerShown: false,
+				gestureEnabled: false,
+				contentStyle: {
+					backgroundColor: Colors.stone[50],
+				},
+				animation: "fade",
+				animationDuration: 400,
+			}}
+		>
+			<Stack.Screen
+				name="index"
+				options={{
+					animation: "fade",
+				}}
+			/>
+			<Stack.Screen
+				name="welcome"
+				options={{
+					animation: "fade",
+				}}
+			/>
+			<Stack.Screen
+				name="nickname"
+				options={{
+					animation: "slide_from_right",
+				}}
+			/>
+			<Stack.Screen
+				name="personalize"
+				options={{
+					animation: "slide_from_bottom",
+				}}
+			/>
+			<Stack.Screen
+				name="connect"
+				options={{
+					animation: "slide_from_right",
+				}}
+			/>
+			<Stack.Screen
+				name="ready"
+				options={{
+					animation: "fade_from_bottom",
+				}}
+			/>
+		</Stack>
+	);
 };
 
 export default OnboardingLayout;

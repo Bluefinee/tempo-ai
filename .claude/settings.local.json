@@ -148,7 +148,12 @@
       "Bash(do if [[ ! \"$file\" =~ index.ts$ ]])",
       "Bash(done)",
       "Bash(npx jest:*)",
-      "Bash(git -C /Users/masakazuiwahara/Development/tempo-ai log --oneline)"
+      "Bash(git -C /Users/masakazuiwahara/Development/tempo-ai log --oneline)",
+      "Bash(npx expo:*)",
+      "Bash(npx @biomejs/biome format:*)",
+      "Bash(npm cache clean:*)",
+      "Bash(sort:*)",
+      "Bash(npx eslint:*)"
     ],
     "deny": [],
     "ask": [],

@@ -7,37 +7,37 @@
  * - オプションでラベル表示
  */
 
-import React from "react";
-import { View, Text, StyleSheet, ViewStyle } from "react-native";
+import type React from "react";
+import { StyleSheet, Text, View, type ViewStyle } from "react-native";
 import Animated, { FadeInUp } from "react-native-reanimated";
 import { colors } from "../theme";
 
 export interface MiniBarChartData {
-  label?: string;
-  value: number;
+	label?: string;
+	value: number;
 }
 
 export interface MiniBarChartProps {
-  /** チャートデータ */
-  data: MiniBarChartData[];
-  /** バーの色 */
-  color: string;
-  /** チャートの高さ（デフォルト: 48） */
-  height?: number;
-  /** ラベルを表示するか（デフォルト: false） */
-  showLabels?: boolean;
-  /** 最大値（デフォルト: 100） */
-  maxValue?: number;
-  /** 非アクティブバーの透明度（デフォルト: 0.3） */
-  inactiveOpacity?: number;
-  /** アニメーションを有効にするか（デフォルト: false） */
-  animated?: boolean;
-  /** バー間のギャップ（デフォルト: 4） */
-  gap?: number;
-  /** バーの角丸（デフォルト: 2） */
-  borderRadius?: number;
-  /** コンテナスタイル */
-  style?: ViewStyle;
+	/** チャートデータ */
+	data: MiniBarChartData[];
+	/** バーの色 */
+	color: string;
+	/** チャートの高さ（デフォルト: 48） */
+	height?: number;
+	/** ラベルを表示するか（デフォルト: false） */
+	showLabels?: boolean;
+	/** 最大値（デフォルト: 100） */
+	maxValue?: number;
+	/** 非アクティブバーの透明度（デフォルト: 0.3） */
+	inactiveOpacity?: number;
+	/** アニメーションを有効にするか（デフォルト: false） */
+	animated?: boolean;
+	/** バー間のギャップ（デフォルト: 4） */
+	gap?: number;
+	/** バーの角丸（デフォルト: 2） */
+	borderRadius?: number;
+	/** コンテナスタイル */
+	style?: ViewStyle;
 }
 
 /**
@@ -62,84 +62,84 @@ export interface MiniBarChartProps {
  * />
  */
 export const MiniBarChart = ({
-  data,
-  color,
-  height = 48,
-  showLabels = false,
-  maxValue = 100,
-  inactiveOpacity = 0.3,
-  animated = false,
-  gap = 4,
-  borderRadius = 2,
-  style,
+	data,
+	color,
+	height = 48,
+	showLabels = false,
+	maxValue = 100,
+	inactiveOpacity = 0.3,
+	animated = false,
+	gap = 4,
+	borderRadius = 2,
+	style,
 }: MiniBarChartProps): React.ReactElement => {
-  const chartHeight = showLabels ? height - 20 : height;
-  const lastIndex = data.length - 1;
+	const chartHeight = showLabels ? height - 20 : height;
+	const lastIndex = data.length - 1;
 
-  const renderBar = (
-    item: MiniBarChartData,
-    index: number,
-  ): React.ReactElement => {
-    const heightPercentage = Math.min((item.value / maxValue) * 100, 100);
-    const isLast = index === lastIndex;
-    const opacity = isLast ? 1 : inactiveOpacity;
+	const renderBar = (
+		item: MiniBarChartData,
+		index: number,
+	): React.ReactElement => {
+		const heightPercentage = Math.min((item.value / maxValue) * 100, 100);
+		const isLast = index === lastIndex;
+		const opacity = isLast ? 1 : inactiveOpacity;
 
-    const barStyle: ViewStyle = {
-      height: `${heightPercentage}%`,
-      backgroundColor: color,
-      opacity,
-      borderRadius,
-      minHeight: 2,
-    };
+		const barStyle: ViewStyle = {
+			height: `${heightPercentage}%`,
+			backgroundColor: color,
+			opacity,
+			borderRadius,
+			minHeight: 2,
+		};
 
-    if (animated) {
-      return (
-        <Animated.View
-          key={index}
-          entering={FadeInUp.delay(index * 30).duration(300)}
-          style={[styles.barWrapper, { height: chartHeight }]}
-        >
-          <View style={barStyle} />
-          {showLabels && item.label && (
-            <Text style={styles.label}>{item.label}</Text>
-          )}
-        </Animated.View>
-      );
-    }
+		if (animated) {
+			return (
+				<Animated.View
+					key={index}
+					entering={FadeInUp.delay(index * 30).duration(300)}
+					style={[styles.barWrapper, { height: chartHeight }]}
+				>
+					<View style={barStyle} />
+					{showLabels && item.label && (
+						<Text style={styles.label}>{item.label}</Text>
+					)}
+				</Animated.View>
+			);
+		}
 
-    return (
-      <View key={index} style={[styles.barWrapper, { height: chartHeight }]}>
-        <View style={barStyle} />
-        {showLabels && item.label && (
-          <Text style={styles.label}>{item.label}</Text>
-        )}
-      </View>
-    );
-  };
+		return (
+			<View key={index} style={[styles.barWrapper, { height: chartHeight }]}>
+				<View style={barStyle} />
+				{showLabels && item.label && (
+					<Text style={styles.label}>{item.label}</Text>
+				)}
+			</View>
+		);
+	};
 
-  return (
-    <View style={[styles.container, { height, gap }, style]}>
-      {data.map(renderBar)}
-    </View>
-  );
+	return (
+		<View style={[styles.container, { height, gap }, style]}>
+			{data.map(renderBar)}
+		</View>
+	);
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flexDirection: "row",
-    alignItems: "flex-end",
-    justifyContent: "space-between",
-  },
-  barWrapper: {
-    flex: 1,
-    justifyContent: "flex-end",
-    alignItems: "center",
-  },
-  label: {
-    fontSize: 10,
-    fontWeight: "600",
-    color: colors.stone[400],
-    marginTop: 6,
-    textAlign: "center",
-  },
+	container: {
+		flexDirection: "row",
+		alignItems: "flex-end",
+		justifyContent: "space-between",
+	},
+	barWrapper: {
+		flex: 1,
+		justifyContent: "flex-end",
+		alignItems: "center",
+	},
+	label: {
+		fontSize: 10,
+		fontWeight: "600",
+		color: colors.stone[400],
+		marginTop: 6,
+		textAlign: "center",
+	},
 });

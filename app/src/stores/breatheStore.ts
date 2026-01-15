@@ -3,7 +3,9 @@
  * @see docs/specs/product_spec.md
  */
 
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
 
 // ========================================
 // Types
@@ -12,37 +14,37 @@ import { create } from "zustand";
 type BreathePhase = "idle" | "inhale" | "hold" | "exhale";
 
 interface BreatheState {
-  // Session State
-  isActive: boolean;
-  isPaused: boolean;
-  phase: BreathePhase;
+	// Session State
+	isActive: boolean;
+	isPaused: boolean;
+	phase: BreathePhase;
 
-  // Timing
-  sessionDuration: number; // 総セッション時間（秒）
-  elapsedTime: number; // 経過時間（秒）
-  phaseTimeRemaining: number; // 現在フェーズ残り時間（ミリ秒）
+	// Timing
+	sessionDuration: number; // 総セッション時間（秒）
+	elapsedTime: number; // 経過時間（秒）
+	phaseTimeRemaining: number; // 現在フェーズ残り時間（ミリ秒）
 
-  // Settings
-  hapticEnabled: boolean;
+	// Settings
+	hapticEnabled: boolean;
 
-  // Stats
-  completedSessions: number;
+	// Stats
+	completedSessions: number;
 
-  // Actions
-  start: () => void;
-  pause: () => void;
-  resume: () => void;
-  stop: () => void;
-  startSession: () => void;
-  pauseSession: () => void;
-  resumeSession: () => void;
-  stopSession: () => void;
-  setPhase: (phase: BreathePhase) => void;
-  updateElapsedTime: (seconds: number) => void;
-  setPhaseTimeRemaining: (ms: number) => void;
-  setHapticEnabled: (enabled: boolean) => void;
-  incrementCompletedSessions: () => void;
-  reset: () => void;
+	// Actions
+	start: () => void;
+	pause: () => void;
+	resume: () => void;
+	stop: () => void;
+	startSession: () => void;
+	pauseSession: () => void;
+	resumeSession: () => void;
+	stopSession: () => void;
+	setPhase: (phase: BreathePhase) => void;
+	updateElapsedTime: (seconds: number) => void;
+	setPhaseTimeRemaining: (ms: number) => void;
+	setHapticEnabled: (enabled: boolean) => void;
+	incrementCompletedSessions: () => void;
+	reset: () => void;
 }
 
 // ========================================
@@ -55,118 +57,130 @@ const DEFAULT_SESSION_DURATION = 60; // 1分
 // Store
 // ========================================
 
-export const useBreatheStore = create<BreatheState>((set, get) => ({
-  // Initial State
-  isActive: false,
-  isPaused: false,
-  phase: "idle",
-  sessionDuration: DEFAULT_SESSION_DURATION,
-  elapsedTime: 0,
-  phaseTimeRemaining: 0,
-  hapticEnabled: true,
-  completedSessions: 0,
+export const useBreatheStore = create<BreatheState>()(
+	persist(
+		(set, get) => ({
+			// Initial State
+			isActive: false,
+			isPaused: false,
+			phase: "idle",
+			sessionDuration: DEFAULT_SESSION_DURATION,
+			elapsedTime: 0,
+			phaseTimeRemaining: 0,
+			hapticEnabled: true,
+			completedSessions: 0,
 
-  // Actions (alias for compatibility)
-  start: () => {
-    set({
-      isActive: true,
-      isPaused: false,
-      phase: "inhale",
-      elapsedTime: 0,
-    });
-  },
+			// Actions (alias for compatibility)
+			start: () => {
+				set({
+					isActive: true,
+					isPaused: false,
+					phase: "inhale",
+					elapsedTime: 0,
+				});
+			},
 
-  pause: () => {
-    set({ isPaused: true });
-  },
+			pause: () => {
+				set({ isPaused: true });
+			},
 
-  resume: () => {
-    set({ isPaused: false });
-  },
+			resume: () => {
+				set({ isPaused: false });
+			},
 
-  stop: () => {
-    set({
-      isActive: false,
-      isPaused: false,
-      phase: "idle",
-      elapsedTime: 0,
-      phaseTimeRemaining: 0,
-    });
-  },
+			stop: () => {
+				set({
+					isActive: false,
+					isPaused: false,
+					phase: "idle",
+					elapsedTime: 0,
+					phaseTimeRemaining: 0,
+				});
+			},
 
-  startSession: () => {
-    set({
-      isActive: true,
-      isPaused: false,
-      phase: "inhale",
-      elapsedTime: 0,
-    });
-  },
+			startSession: () => {
+				set({
+					isActive: true,
+					isPaused: false,
+					phase: "inhale",
+					elapsedTime: 0,
+				});
+			},
 
-  pauseSession: () => {
-    set({ isPaused: true });
-  },
+			pauseSession: () => {
+				set({ isPaused: true });
+			},
 
-  resumeSession: () => {
-    set({ isPaused: false });
-  },
+			resumeSession: () => {
+				set({ isPaused: false });
+			},
 
-  stopSession: () => {
-    set({
-      isActive: false,
-      isPaused: false,
-      phase: "idle",
-      elapsedTime: 0,
-      phaseTimeRemaining: 0,
-    });
-  },
+			stopSession: () => {
+				set({
+					isActive: false,
+					isPaused: false,
+					phase: "idle",
+					elapsedTime: 0,
+					phaseTimeRemaining: 0,
+				});
+			},
 
-  setPhase: (phase) => {
-    set({ phase });
-  },
+			setPhase: (phase) => {
+				set({ phase });
+			},
 
-  updateElapsedTime: (seconds) => {
-    const { sessionDuration } = get();
-    set({ elapsedTime: Math.min(seconds, sessionDuration) });
-  },
+			updateElapsedTime: (seconds) => {
+				const { sessionDuration } = get();
+				set({ elapsedTime: Math.min(seconds, sessionDuration) });
+			},
 
-  setPhaseTimeRemaining: (ms) => {
-    set({ phaseTimeRemaining: ms });
-  },
+			setPhaseTimeRemaining: (ms) => {
+				set({ phaseTimeRemaining: ms });
+			},
 
-  setHapticEnabled: (enabled) => {
-    set({ hapticEnabled: enabled });
-  },
+			setHapticEnabled: (enabled) => {
+				set({ hapticEnabled: enabled });
+			},
 
-  incrementCompletedSessions: () => {
-    set((state) => ({
-      completedSessions: state.completedSessions + 1,
-    }));
-  },
+			incrementCompletedSessions: () => {
+				set((state) => ({
+					completedSessions: state.completedSessions + 1,
+				}));
+			},
 
-  reset: () => {
-    set({
-      isActive: false,
-      isPaused: false,
-      phase: "idle",
-      elapsedTime: 0,
-      phaseTimeRemaining: 0,
-    });
-  },
-}));
+			reset: () => {
+				set({
+					isActive: false,
+					isPaused: false,
+					phase: "idle",
+					elapsedTime: 0,
+					phaseTimeRemaining: 0,
+				});
+			},
+		}),
+		{
+			name: "tempo-breathe-storage",
+			storage: createJSONStorage(() => AsyncStorage),
+			partialize: (state) => ({
+				completedSessions: state.completedSessions,
+				hapticEnabled: state.hapticEnabled,
+			}),
+		},
+	),
+);
 
 // ========================================
 // Selectors
 // ========================================
 
 export const selectIsSessionComplete = (state: BreatheState): boolean =>
-  state.elapsedTime >= state.sessionDuration;
+	state.elapsedTime >= state.sessionDuration;
 
 export const selectSessionProgress = (state: BreatheState): number =>
-  state.sessionDuration > 0 ? state.elapsedTime / state.sessionDuration : 0;
+	state.sessionDuration > 0 ? state.elapsedTime / state.sessionDuration : 0;
 
 export const selectFormattedElapsedTime = (state: BreatheState): string => {
-  const minutes = Math.floor(state.elapsedTime / 60);
-  const seconds = state.elapsedTime % 60;
-  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+	const minutes = Math.floor(state.elapsedTime / 60);
+	const seconds = state.elapsedTime % 60;
+	return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 };

@@ -2,29 +2,30 @@
  * ドメインモデル - 一括エクスポート
  */
 
-// ユーザープロファイル
-export * from "./userProfile";
-
-// スコア
-export * from "./score";
-
+// アドバイス
+export * from "./advice";
+// AI Response
+export * from "./aiResponse";
+// Detail Data (詳細画面データ)
+export * from "./detailData";
+// Environment (環境データ)
+export * from "./environment";
+// Health History (HealthKit 対応)
+export * from "./healthHistory";
 // ヘルスメトリクス
 export * from "./healthMetrics";
 
-// アドバイス
-export * from "./advice";
-
-// 天気
-export * from "./weather";
-
-// Rhythm
-export * from "./rhythm";
-
 // Insight
 export * from "./insight";
-
-// AI Response
-export * from "./aiResponse";
-
-// Health History (HealthKit 対応)
-export * from "./healthHistory";
+// Onboarding
+export * from "./onboarding";
+// Rhythm
+export * from "./rhythm";
+// スコア
+export * from "./score";
+// Score History (スコア履歴永続化)
+export * from "./scoreHistory";
+// ユーザープロファイル
+export * from "./userProfile";
+// 天気
+export * from "./weather";

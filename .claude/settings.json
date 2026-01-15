@@ -1,0 +1,42 @@
+{
+  "$schema": "https://claude.ai/schemas/claude-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(npm run:*)",
+      "Bash(npm test:*)",
+      "Bash(npm start:*)",
+      "Bash(pnpm:*)",
+      "Bash(npx:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git pull:*)",
+      "Bash(git log:*)",
+      "Bash(git diff:*)",
+      "Bash(git status:*)",
+      "Bash(git checkout:*)",
+      "Bash(git stash:*)",
+      "Bash(gh pr:*)",
+      "Bash(gh api:*)",
+      "Bash(ls:*)",
+      "Bash(tree:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(cat:*)",
+      "Bash(mv:*)",
+      "Bash(rm:*)",
+      "Bash(mkdir:*)",
+      "WebFetch(domain:github.com)",
+      "WebSearch"
+    ],
+    "deny": []
+  },
+  "context": {
+    "include": [
+      ".claude/CLAUDE.md",
+      ".claude/react-native-standards.md",
+      ".claude/typescript-hono-standards.md",
+      ".claude/ux-concepts.md"
+    ]
+  }
+}

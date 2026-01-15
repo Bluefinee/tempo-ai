@@ -174,13 +174,12 @@ env/
 venv/
 ENV/
 
-# CLAUDE.md is EXPLICITLY tracked (not ignored)
-# This file contains important project context for AI development
-!CLAUDE.md
-
 # Claude Code configuration and standards
 !.claude/
 !.claude/**
+
+# Claude Code local settings (personal, not shared)
+.claude/settings.local.json
 
 .serena
 .guidelines/

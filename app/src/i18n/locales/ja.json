@@ -1,352 +1,512 @@
 {
-  "common": {
-    "button": {
-      "save": "保存",
-      "cancel": "キャンセル",
-      "continue": "続ける",
-      "start": "始める",
-      "close": "閉じる",
-      "viewTrend": "トレンドを見る"
-    },
-    "loading": "読み込み中...",
-    "error": "申し訳ありません。エラーが発生しました。",
-    "last12Hours": "過去12時間のアクティビティ"
-  },
-  "screen": {
-    "today": {
-      "title": "Today",
-      "greeting": {
-        "morning": "おはようございます",
-        "afternoon": "こんにちは",
-        "evening": "こんばんは",
-        "night": "お疲れ様です"
-      },
-      "tempoScore": "Tempo Score",
-      "aiInsight": "AI インサイト",
-      "viewAnalysis": "分析を見る",
-      "todayOneThing": {
-        "title": "今日のワンアクション",
-        "text": "午後2時頃に5分間の散歩をしてみると、夜のリズムが安定しやすくなります。"
-      },
-      "healthSummary": "ヘルスサマリー",
-      "normal": "正常",
-      "insight": {
-        "label": "インサイト",
-        "text": "23時前の就寝で深い睡眠が24%向上する傾向があります"
-      },
-      "metrics": {
-        "sleep": "睡眠",
-        "hrv": "HRV",
-        "steps": "歩数"
-      }
-    },
-    "rhythm": {
-      "title": "あなたの体内時計",
-      "subtitle": "自然なエネルギーをピークと同期しましょう",
-      "upcomingWindows": "今後の時間帯",
-      "seeDetails": "詳細を見る",
-      "environmentalData": "環境データ",
-      "phases": {
-        "peakEnergy": {
-          "title": "Peak Focus",
-          "time": "現在 — 12:00",
-          "description": "複雑な問題解決や集中力を要する作業にぜひ取り組んでみてください。認知パフォーマンスが最大化される時間帯です。"
-        },
-        "melatoninWindow": {
-          "title": "Wind Down",
-          "time": "21:30 — 7:00",
-          "description": "照明を暗くし、画面を控えて睡眠の準備をしていきましょう。体が休息モードに入る時間帯です。"
-        }
-      },
-      "labels": {
-        "peak": "Peak",
-        "dip": "Dip",
-        "peakFocus": "Peak Focus",
-        "afternoonDip": "Afternoon Dip"
-      },
-      "sunrise": "日の出",
-      "sunset": "日の入り",
-      "environment": {
-        "weather": "天気",
-        "temperature": "気温",
-        "humidity": "湿度",
-        "pressure": "気圧",
-        "pressureTrend": {
-          "rising": "上昇中",
-          "stable": "安定",
-          "falling": "下降中"
-        },
-        "uv": "UV指数",
-        "uvLevel": {
-          "low": "弱い",
-          "moderate": "中程度",
-          "high": "強い",
-          "veryHigh": "非常に強い"
-        },
-        "moonPhase": "月齢",
-        "phases": {
-          "newMoon": "新月",
-          "waxingCrescent": "三日月",
-          "firstQuarter": "上弦の月",
-          "waxingGibbous": "十三夜月",
-          "fullMoon": "満月",
-          "waningGibbous": "十八夜月",
-          "lastQuarter": "下弦の月",
-          "waningCrescent": "二十六夜月"
-        }
-      }
-    },
-    "breathe": {
-      "title": "Breathe",
-      "subtitle": "ボックス呼吸法 • 4-4-4",
-      "instruction": {
-        "ready": "準備はいいですか？",
-        "inhale": "深く吸って...",
-        "hold": "止めて...",
-        "exhale": "ゆっくり吐いて..."
-      },
-      "phase": {
-        "inhale": "吸う",
-        "hold": "止める",
-        "exhale": "吐く"
-      },
-      "sessionInProgress": "セッション中",
-      "tapToBegin": "タップして開始"
-    },
-    "insights": {
-      "title": "Insights",
-      "subtitle": "あなたのデータから発見されたパターン",
-      "thisWeek": "今週",
-      "avgScore": "平均スコア",
-      "topDiscovery": "トップの発見",
-      "topDiscoveryTitle": "18時以降のウォーキングで深い睡眠が改善",
-      "topDiscoveryDescription": "夕方に15分以上歩いた日は、深い睡眠スコアが18%高くなる傾向があります。",
-      "viewDetails": "詳細を見る",
-      "recentAlerts": "最近のアラート",
-      "weeklyAverage": "週間平均スコア",
-      "featuredDiscovery": "注目の発見",
-      "discoveryTitle": "回復力が高まっています",
-      "discoveryDescription": "先週のあなたのHRVは12%向上しました。一貫した就寝時間のルーティンが良い影響を与えているようです。",
-      "learnMore": "詳しく見る",
-      "noAlerts": "アラートはありません"
-    },
-    "insightDetail": {
-      "header": "今日のインサイト",
-      "whyThisMatters": "背景",
-      "whatThisMeans": "おすすめの過ごし方"
-    },
-    "actionDetail": {
-      "header": "今日のワンアクション",
-      "howToDoIt": "実践方法",
-      "expectedBenefit": "期待される効果"
-    },
-    "settings": {
-      "title": "Settings",
-      "subtitle": "あなたのリズムをパーソナライズ",
-      "profile": {
-        "plan": "フリープラン",
-        "memberSince": "{{year}}年から利用"
-      },
-      "myRhythm": "マイリズム",
-      "targetBedtime": "目標就寝時間",
-      "targetWakeUp": "目標起床時間",
-      "preferences": "設定",
-      "gentleNudges": "やさしいリマインダー",
-      "hapticFeedback": "触覚フィードバック",
-      "dataSource": "データソース",
-      "appleHealth": "Apple Health",
-      "ouraRing": "Oura Ring",
-      "connected": "接続済み",
-      "connect": "接続",
-      "support": "サポート",
-      "helpCenter": "ヘルプセンター",
-      "privacyPolicy": "プライバシーポリシー",
-      "resetSignOut": "オンボーディングをリセット / サインアウト",
-      "version": "TempoAI v1.0.2 (Build 402)"
-    }
-  },
-  "score": {
-    "recovery": {
-      "label": "回復",
-      "status": {
-        "excellent": "回復十分",
-        "good": "良好な回復",
-        "fair": "まずまず",
-        "needsRest": "休息が必要"
-      }
-    },
-    "sleep": {
-      "label": "睡眠",
-      "status": {
-        "excellent": "最高の睡眠",
-        "good": "良質な睡眠",
-        "fair": "普通の睡眠",
-        "poor": "改善の余地あり"
-      }
-    },
-    "rhythm": {
-      "label": "リズム",
-      "status": {
-        "excellent": "最適なリズム",
-        "good": "安定したリズム",
-        "fair": "やや乱れあり",
-        "poor": "調整が必要"
-      }
-    },
-    "energy": {
-      "label": "エネルギー",
-      "status": {
-        "excellent": "エネルギー満タン",
-        "good": "エネルギー十分",
-        "fair": "普通",
-        "low": "休息推奨"
-      }
-    }
-  },
-  "detail": {
-    "recovery": {
-      "analysis": "分析",
-      "calculatedAt": "回復スコア計算時刻",
-      "dailyRecovery": "日次回復度",
-      "weeklyAverage": "週間平均",
-      "learnWhat": "回復度とは？",
-      "learnBestPractices": "回復のベストプラクティス",
-      "learn": "学ぶ"
-    },
-    "sleep": {
-      "sleepScore": "睡眠スコア",
-      "duration": "睡眠時間",
-      "quality": "睡眠の質",
-      "sleepStages": "睡眠ステージ",
-      "bedtime": "就寝",
-      "wakeTime": "起床",
-      "target": "目標",
-      "history": "睡眠スコア履歴"
-    },
-    "health": {
-      "mostRecent": "最新値",
-      "baseline": "ベースライン",
-      "typicalRange": "標準範囲"
-    },
-    "energy": {
-      "history": "エネルギースコア履歴",
-      "contributingFactors": "構成要素",
-      "dailyCurve": "1日のエネルギー曲線",
-      "peakFocus": "Peak Focus",
-      "afternoonDip": "Afternoon Dip"
-    },
-    "rhythm": {
-      "history": "リズムスコア履歴",
-      "bedtimeConsistency": "就寝時刻の一貫性",
-      "wakeConsistency": "起床時刻の一貫性",
-      "weeklyPattern": "週間パターン",
-      "target": "目標",
-      "contributingFactors": "構成要素"
-    }
-  },
-  "metric": {
-    "currentStatus": "現在の状態",
-    "tempoInsight": "Tempo インサイト",
-    "sleep": {
-      "title": "回復的な睡眠",
-      "label": "睡眠",
-      "deepSleep": "深い睡眠",
-      "remSleep": "REM",
-      "awake": "覚醒",
-      "excellent": "最高",
-      "good": "良好",
-      "normal": "正常"
-    },
-    "hrv": {
-      "title": "心拍変動",
-      "label": "HRV",
-      "unit": "ms",
-      "maxHrv": "最大HRV",
-      "restingHr": "安静時心拍数",
-      "readiness": "準備状態",
-      "peak": "ピーク",
-      "relaxed": "リラックス",
-      "ready": "準備OK"
-    },
-    "steps": {
-      "title": "運動リズム",
-      "label": "歩数",
-      "distance": "距離",
-      "calories": "カロリー",
-      "flights": "階段",
-      "keepGoing": "その調子",
-      "active": "アクティブ"
-    },
-    "health": {
-      "hrv": {
-        "name": "心拍変動",
-        "shortName": "HRV",
-        "cardLabel": "HRV"
-      },
-      "rhr": {
-        "name": "安静時心拍数",
-        "shortName": "安静時HR",
-        "cardLabel": "安静時心拍数"
-      },
-      "resp": {
-        "name": "呼吸数",
-        "shortName": "呼吸",
-        "cardLabel": "呼吸数"
-      },
-      "spo2": {
-        "name": "血中酸素濃度",
-        "shortName": "SpO2",
-        "cardLabel": "血中酸素濃度"
-      },
-      "temp": {
-        "name": "手首温度",
-        "shortName": "体温",
-        "cardLabel": "手首温度"
-      },
-      "status": {
-        "inRange": "正常範囲内",
-        "outOfRange": "範囲外",
-        "within": "範囲"
-      }
-    }
-  },
-  "alert": {
-    "recoveryNeeded": {
-      "title": "回復が必要",
-      "description": "HRVが基準値を下回っています。今日は無理をせず、ゆっくり過ごしてみてください。",
-      "time": "今朝"
-    },
-    "recoveryComplete": {
-      "title": "回復完了",
-      "description": "昨日のワークアウト後、HRVがベースラインに戻りました。",
-      "time": "今日"
-    },
-    "lateCaffeine": {
-      "title": "遅い時間のカフェイン",
-      "description": "16時のコーヒーにより、入眠が45分遅れた可能性があります。午後のカフェインは控えめにしてみてください。",
-      "time": "昨日"
-    },
-    "weekendJetlag": {
-      "title": "週末時差ボケ",
-      "description": "今週末、起床時間が2時間ずれました。平日との差を少しずつ縮めていきましょう。",
-      "time": "日曜"
-    },
-    "lowActivity": {
-      "title": "活動量低下",
-      "description": "過去3日間の歩数が平均を下回っています。軽いストレッチや散歩を取り入れてみてください。",
-      "time": "昨日"
-    }
-  },
-  "error": {
-    "network": "申し訳ありません。ネットワークエラーが発生しました。",
-    "api": "申し訳ありません。データの取得に失敗しました。",
-    "retry": "再試行"
-  },
-  "tab": {
-    "today": "Today",
-    "rhythm": "Rhythm",
-    "breathe": "",
-    "insights": "Insights",
-    "settings": "Settings"
-  }
+	"common": {
+		"button": {
+			"save": "保存",
+			"cancel": "キャンセル",
+			"continue": "続ける",
+			"start": "始める",
+			"close": "閉じる",
+			"viewTrend": "トレンドを見る"
+		},
+		"loading": "読み込み中...",
+		"error": "申し訳ありません。エラーが発生しました。",
+		"last12Hours": "過去12時間のアクティビティ",
+		"defaultNickname": "ユーザー",
+		"currentLocation": "現在地",
+		"weekdays": {
+			"short": {
+				"sun": "日",
+				"mon": "月",
+				"tue": "火",
+				"wed": "水",
+				"thu": "木",
+				"fri": "金",
+				"sat": "土"
+			}
+		},
+		"period": {
+			"weeksAgo": "{{count}}週前",
+			"now": "今"
+		},
+		"time": {
+			"am": "午前",
+			"pm": "午後"
+		}
+	},
+	"screen": {
+		"loading": {
+			"recovery": "回復データを読み込み中...",
+			"sleep": "睡眠データを読み込み中...",
+			"rhythm": "リズムデータを読み込み中...",
+			"energy": "エネルギーデータを読み込み中...",
+			"health": "ヘルスデータを読み込み中..."
+		},
+		"today": {
+			"title": "Today",
+			"greeting": {
+				"morning": "おはようございます",
+				"afternoon": "こんにちは",
+				"evening": "こんばんは",
+				"night": "お疲れ様です"
+			},
+			"tempoScore": "Tempo Score",
+			"aiInsight": "AI インサイト",
+			"viewAnalysis": "分析を見る",
+			"todayOneThing": {
+				"title": "今日のワンアクション",
+				"text": "午後2時頃に5分間の散歩をしてみると、夜のリズムが安定しやすくなります。"
+			},
+			"healthSummary": "ヘルスサマリー",
+			"normal": "正常",
+			"insight": {
+				"label": "インサイト",
+				"text": "23時前の就寝で深い睡眠が24%向上する傾向があります"
+			},
+			"metrics": {
+				"sleep": "睡眠",
+				"hrv": "HRV",
+				"steps": "歩数"
+			}
+		},
+		"rhythm": {
+			"title": "あなたの体内時計",
+			"subtitle": "自然なエネルギーをピークと同期しましょう",
+			"upcomingWindows": "今後の時間帯",
+			"seeDetails": "詳細を見る",
+			"environmentalData": "環境データ",
+			"phases": {
+				"peakEnergy": {
+					"title": "Peak Focus",
+					"time": "現在 — 12:00",
+					"description": "複雑な問題解決や集中力を要する作業にぜひ取り組んでみてください。認知パフォーマンスが最大化される時間帯です。"
+				},
+				"melatoninWindow": {
+					"title": "Wind Down",
+					"time": "21:30 — 7:00",
+					"description": "照明を暗くし、画面を控えて睡眠の準備をしていきましょう。体が休息モードに入る時間帯です。"
+				}
+			},
+			"labels": {
+				"peak": "Peak",
+				"dip": "Dip",
+				"peakFocus": "Peak Focus",
+				"afternoonDip": "Afternoon Dip"
+			},
+			"sunrise": "日の出",
+			"sunset": "日の入り",
+			"environment": {
+				"weather": "天気",
+				"temperature": "気温",
+				"humidity": "湿度",
+				"pressure": "気圧",
+				"pressureTrend": {
+					"rising": "上昇中",
+					"stable": "安定",
+					"falling": "下降中"
+				},
+				"uv": "UV指数",
+				"uvLevel": {
+					"low": "弱い",
+					"moderate": "中程度",
+					"high": "強い",
+					"veryHigh": "非常に強い"
+				},
+				"moonPhase": "月齢",
+				"phases": {
+					"newMoon": "新月",
+					"waxingCrescent": "三日月",
+					"firstQuarter": "上弦の月",
+					"waxingGibbous": "十三夜月",
+					"fullMoon": "満月",
+					"waningGibbous": "十八夜月",
+					"lastQuarter": "下弦の月",
+					"waningCrescent": "二十六夜月"
+				}
+			}
+		},
+		"breathe": {
+			"title": "Breathe",
+			"subtitle": "ボックス呼吸法 • 4-4-4",
+			"instruction": {
+				"ready": "準備はいいですか？",
+				"inhale": "深く吸って...",
+				"hold": "止めて...",
+				"exhale": "ゆっくり吐いて..."
+			},
+			"phase": {
+				"inhale": "吸う",
+				"hold": "止める",
+				"exhale": "吐く"
+			},
+			"sessionInProgress": "セッション中",
+			"tapToBegin": "タップして開始"
+		},
+		"insights": {
+			"title": "Insights",
+			"subtitle": "あなたのデータから発見されたパターン",
+			"thisWeek": "今週",
+			"avgScore": "平均スコア",
+			"topDiscovery": "トップの発見",
+			"topDiscoveryTitle": "18時以降のウォーキングで深い睡眠が改善",
+			"topDiscoveryDescription": "夕方に15分以上歩いた日は、深い睡眠スコアが18%高くなる傾向があります。",
+			"viewDetails": "詳細を見る",
+			"recentAlerts": "最近のアラート",
+			"weeklyAverage": "週間平均スコア",
+			"featuredDiscovery": "注目の発見",
+			"discoveryTitle": "回復力が高まっています",
+			"discoveryDescription": "先週のあなたのHRVは12%向上しました。一貫した就寝時間のルーティンが良い影響を与えているようです。",
+			"learnMore": "詳しく見る",
+			"noAlerts": "アラートはありません"
+		},
+		"insightDetail": {
+			"header": "今日のインサイト",
+			"whyThisMatters": "背景",
+			"whatThisMeans": "おすすめの過ごし方"
+		},
+		"actionDetail": {
+			"header": "今日のワンアクション",
+			"howToDoIt": "実践方法",
+			"expectedBenefit": "期待される効果"
+		},
+		"settings": {
+			"title": "Settings",
+			"subtitle": "あなたのリズムをパーソナライズ",
+			"profile": {
+				"plan": "フリープラン",
+				"memberSince": "{{year}}年から利用",
+				"defaultNickname": "ユーザー"
+			},
+			"myRhythm": "マイリズム",
+			"targetBedtime": "目標就寝時間",
+			"targetWakeUp": "目標起床時間",
+			"preferences": "設定",
+			"gentleNudges": "やさしいリマインダー",
+			"hapticFeedback": "触覚フィードバック",
+			"dataSource": "データソース",
+			"appleHealth": "Apple Health",
+			"ouraRing": "Oura Ring",
+			"connected": "接続済み",
+			"connect": "接続",
+			"support": "サポート",
+			"helpCenter": "ヘルプセンター",
+			"privacyPolicy": "プライバシーポリシー",
+			"resetSignOut": "オンボーディングをリセット / サインアウト",
+			"version": "TempoAI v1.0.2 (Build 402)",
+			"resetAlert": {
+				"title": "オンボーディングをリセット",
+				"message": "すべてのデータがリセットされ、オンボーディングが最初から始まります。よろしいですか？",
+				"cancel": "キャンセル",
+				"reset": "リセット"
+			}
+		},
+		"actionDetail": {
+			"header": "今日のワンアクション",
+			"howToDoIt": "実践方法",
+			"expectedBenefit": "期待される効果",
+			"remindAt": "にリマインド"
+		},
+		"healthDetail": {
+			"title": "ヘルス",
+			"weekdays": {
+				"su": "日",
+				"m": "月",
+				"t": "火",
+				"w": "水",
+				"th": "木",
+				"f": "金",
+				"s": "土"
+			},
+			"status": {
+				"low": "低",
+				"high": "高"
+			}
+		}
+	},
+	"score": {
+		"recovery": {
+			"label": "回復",
+			"status": {
+				"excellent": "回復十分",
+				"good": "良好な回復",
+				"fair": "まずまず",
+				"needsRest": "休息が必要"
+			}
+		},
+		"sleep": {
+			"label": "睡眠",
+			"status": {
+				"excellent": "最高の睡眠",
+				"good": "良質な睡眠",
+				"fair": "普通の睡眠",
+				"poor": "改善の余地あり"
+			}
+		},
+		"rhythm": {
+			"label": "リズム",
+			"status": {
+				"excellent": "最適なリズム",
+				"good": "安定したリズム",
+				"fair": "やや乱れあり",
+				"poor": "調整が必要"
+			}
+		},
+		"energy": {
+			"label": "エネルギー",
+			"status": {
+				"excellent": "エネルギー満タン",
+				"good": "エネルギー十分",
+				"fair": "普通",
+				"low": "休息推奨"
+			}
+		}
+	},
+	"detail": {
+		"recovery": {
+			"analysis": "分析",
+			"calculatedAt": "回復スコア計算時刻",
+			"dailyRecovery": "日次回復度",
+			"weeklyAverage": "週間平均",
+			"learnWhat": "回復度とは？",
+			"learnBestPractices": "回復のベストプラクティス",
+			"learn": "学ぶ"
+		},
+		"sleep": {
+			"sleepScore": "睡眠スコア",
+			"duration": "睡眠時間",
+			"quality": "睡眠の質",
+			"sleepStages": "睡眠ステージ",
+			"bedtime": "就寝",
+			"wakeTime": "起床",
+			"target": "目標",
+			"history": "睡眠スコア履歴"
+		},
+		"health": {
+			"mostRecent": "最新値",
+			"baseline": "ベースライン",
+			"typicalRange": "標準範囲"
+		},
+		"energy": {
+			"history": "エネルギースコア履歴",
+			"contributingFactors": "構成要素",
+			"dailyCurve": "1日のエネルギー曲線",
+			"peakFocus": "Peak Focus",
+			"afternoonDip": "Afternoon Dip"
+		},
+		"rhythm": {
+			"history": "リズムスコア履歴",
+			"bedtimeConsistency": "就寝時刻の一貫性",
+			"wakeConsistency": "起床時刻の一貫性",
+			"weeklyPattern": "週間パターン",
+			"target": "目標",
+			"contributingFactors": "構成要素",
+			"analysis": "リズム分析",
+			"dailyRhythm": "日々のリズム",
+			"learn": "学ぶ",
+			"learnWhat": "体内リズムとは？",
+			"learnBestPractices": "睡眠スケジュールのコツ"
+		}
+	},
+	"metric": {
+		"currentStatus": "現在の状態",
+		"tempoInsight": "Tempo インサイト",
+		"sleep": {
+			"title": "回復的な睡眠",
+			"label": "睡眠",
+			"deepSleep": "深い睡眠",
+			"remSleep": "REM",
+			"awake": "覚醒",
+			"excellent": "最高",
+			"good": "良好",
+			"normal": "正常",
+			"stages": {
+				"deep": "深い睡眠",
+				"rem": "REM",
+				"light": "浅い睡眠",
+				"awake": "覚醒"
+			}
+		},
+		"hrv": {
+			"title": "心拍変動",
+			"label": "HRV",
+			"unit": "ms",
+			"maxHrv": "最大HRV",
+			"restingHr": "安静時心拍数",
+			"readiness": "準備状態",
+			"peak": "ピーク",
+			"relaxed": "リラックス",
+			"ready": "準備OK"
+		},
+		"steps": {
+			"title": "運動リズム",
+			"label": "歩数",
+			"distance": "距離",
+			"calories": "カロリー",
+			"flights": "階段",
+			"keepGoing": "その調子",
+			"active": "アクティブ"
+		},
+		"health": {
+			"hrv": {
+				"name": "心拍変動",
+				"shortName": "HRV",
+				"cardLabel": "HRV"
+			},
+			"rhr": {
+				"name": "安静時心拍数",
+				"shortName": "安静時HR",
+				"cardLabel": "安静時心拍数"
+			},
+			"resp": {
+				"name": "呼吸数",
+				"shortName": "呼吸",
+				"cardLabel": "呼吸数"
+			},
+			"spo2": {
+				"name": "血中酸素濃度",
+				"shortName": "SpO2",
+				"cardLabel": "血中酸素濃度"
+			},
+			"temp": {
+				"name": "手首温度",
+				"shortName": "体温",
+				"cardLabel": "手首温度"
+			},
+			"status": {
+				"inRange": "正常範囲内",
+				"outOfRange": "範囲外",
+				"within": "範囲"
+			}
+		}
+	},
+	"alert": {
+		"recoveryNeeded": {
+			"title": "回復が必要",
+			"description": "HRVが基準値を下回っています。今日は無理をせず、ゆっくり過ごしてみてください。",
+			"time": "今朝"
+		},
+		"recoveryComplete": {
+			"title": "回復完了",
+			"description": "昨日のワークアウト後、HRVがベースラインに戻りました。",
+			"time": "今日"
+		},
+		"lateCaffeine": {
+			"title": "遅い時間のカフェイン",
+			"description": "16時のコーヒーにより、入眠が45分遅れた可能性があります。午後のカフェインは控えめにしてみてください。",
+			"time": "昨日"
+		},
+		"weekendJetlag": {
+			"title": "週末時差ボケ",
+			"description": "今週末、起床時間が2時間ずれました。平日との差を少しずつ縮めていきましょう。",
+			"time": "日曜"
+		},
+		"lowActivity": {
+			"title": "活動量低下",
+			"description": "過去3日間の歩数が平均を下回っています。軽いストレッチや散歩を取り入れてみてください。",
+			"time": "昨日"
+		}
+	},
+	"chart": {
+		"noData": "データがありません",
+		"noDataDescription": "{{days}}日間使用するとデータが表示されます",
+		"insufficientData": "データを蓄積中...",
+		"insufficientDataDescription": "{{current}}/{{required}}日分を収集済み",
+		"now": "現在",
+		"timeAxis": {
+			"6am": "6時",
+			"12pm": "12時",
+			"6pm": "18時",
+			"12am": "0時",
+			"6": "6:00",
+			"12": "12:00",
+			"18": "18:00",
+			"22": "22:00"
+		},
+		"timeframeLabels": {
+			"30d": {
+				"0": "1週",
+				"1": "2週",
+				"2": "3週",
+				"3": "4週",
+				"4": "今"
+			},
+			"60d": {
+				"0": "6週前",
+				"1": "4週前",
+				"2": "2週前",
+				"3": "1週前",
+				"4": "今"
+			}
+		}
+	},
+	"error": {
+		"network": "申し訳ありません。ネットワークエラーが発生しました。",
+		"api": "申し訳ありません。データの取得に失敗しました。",
+		"retry": "再試行"
+	},
+	"tab": {
+		"today": "Today",
+		"rhythm": "Rhythm",
+		"breathe": "",
+		"insights": "Insights",
+		"settings": "Settings"
+	},
+	"onboarding": {
+		"welcome": {
+			"title": "Tempo AI へ\nようこそ",
+			"subtitle": "あなたの体内リズムを発見し、\n最高の自分を引き出しましょう",
+			"cta": "はじめる"
+		},
+		"nickname": {
+			"title": "なんとお呼び\nすればいいですか？",
+			"placeholder": "お名前を入力",
+			"hint": "パーソナライズに使用します",
+			"next": "続ける"
+		},
+		"personalize": {
+			"title": "Tempo AI で\n叶えたいことは？",
+			"subtitle": "最大3つまで選べます",
+			"goals": {
+				"betterSleep": "より良い睡眠",
+				"moreEnergy": "もっと活力を",
+				"lessStress": "ストレス軽減",
+				"peakPerformance": "最高のパフォーマンス"
+			},
+			"scheduleTitle": "理想のスケジュール",
+			"wakeUp": "起床",
+			"bedTime": "就寝",
+			"hint": "少なくとも1つの目標を選択してください",
+			"next": "続ける"
+		},
+		"connect": {
+			"title": "あなたの健康データと\nつながりましょう",
+			"dataItems": {
+				"sleep": {
+					"title": "睡眠データ",
+					"description": "休息の質を理解"
+				},
+				"hrv": {
+					"title": "心拍変動",
+					"description": "回復度を把握"
+				},
+				"activity": {
+					"title": "活動量",
+					"description": "日々のリズムを追跡"
+				}
+			},
+			"privacy": "データはあなたのデバイス上に安全に保管されます。\n共有されることはありません。",
+			"connectCta": "データを連携する",
+			"skipCta": "あとで設定"
+		},
+		"ready": {
+			"title": "準備完了！",
+			"subtitle": "これから{{days}}日間、\nあなたのリズムを学習します",
+			"tipsTitle": "学習期間について",
+			"tips": {
+				"watch": "Apple Watchを装着して就寝",
+				"score": "スコアは学習完了後に表示されます",
+				"checkIn": "毎朝チェックでパーソナライズ向上"
+			},
+			"cta": "Tempo AI を始める"
+		}
+	}
 }

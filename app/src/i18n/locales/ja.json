@@ -118,6 +118,7 @@
       "subtitle": "あなたのデータから発見されたパターン",
       "thisWeek": "今週",
       "avgScore": "平均スコア",
+      "weekdays": ["月", "火", "水", "木", "金", "土", "日"],
       "topDiscovery": "トップの発見",
       "topDiscoveryTitle": "18時以降のウォーキングで深い睡眠が改善",
       "topDiscoveryDescription": "夕方に15分以上歩いた日は、深い睡眠スコアが18%高くなる傾向があります。",

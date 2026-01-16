@@ -8,12 +8,12 @@
  */
 
 import {
-  DailyHealthSample,
-  HealthMetricHistory,
-  HealthMetricType,
-  HealthTimeRange,
-  DEFAULT_TYPICAL_RANGES,
-  TrendDirection,
+	type DailyHealthSample,
+	DEFAULT_TYPICAL_RANGES,
+	type HealthMetricHistory,
+	type HealthMetricType,
+	type HealthTimeRange,
+	type TrendDirection,
 } from "../domain/models/healthHistory";
 
 // =============================================================================
@@ -26,16 +26,16 @@ import {
  * @returns Date 配列（古い順）
  */
 export const generateDateRange = (days: number): Date[] => {
-  const dates: Date[] = [];
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+	const dates: Date[] = [];
+	const today = new Date();
+	today.setHours(0, 0, 0, 0);
 
-  for (let i = days - 1; i >= 0; i--) {
-    const date = new Date(today);
-    date.setDate(date.getDate() - i);
-    dates.push(date);
-  }
-  return dates;
+	for (let i = days - 1; i >= 0; i--) {
+		const date = new Date(today);
+		date.setDate(date.getDate() - i);
+		dates.push(date);
+	}
+	return dates;
 };
 
 /**
@@ -44,10 +44,10 @@ export const generateDateRange = (days: number): Date[] => {
  * @returns YYYY-MM-DD 形式の文字列
  */
 export const formatDateString = (date: Date): string => {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+	const year = date.getFullYear();
+	const month = String(date.getMonth() + 1).padStart(2, "0");
+	const day = String(date.getDate()).padStart(2, "0");
+	return `${year}-${month}-${day}`;
 };
 
 // =============================================================================
@@ -61,8 +61,8 @@ export const formatDateString = (date: Date): string => {
  * @returns 0-1 の間の数値
  */
 export const seededRandom = (seed: number): number => {
-  const x = Math.sin(seed * 12.9898 + seed * 78.233) * 43758.5453;
-  return x - Math.floor(x);
+	const x = Math.sin(seed * 12.9898 + seed * 78.233) * 43758.5453;
+	return x - Math.floor(x);
 };
 
 /**
@@ -73,11 +73,11 @@ export const seededRandom = (seed: number): number => {
  * @returns min-max の間の数値
  */
 export const seededRandomInRange = (
-  seed: number,
-  min: number,
-  max: number,
+	seed: number,
+	min: number,
+	max: number,
 ): number => {
-  return min + seededRandom(seed) * (max - min);
+	return min + seededRandom(seed) * (max - min);
 };
 
 // =============================================================================
@@ -97,24 +97,24 @@ export const seededRandomInRange = (
  * @returns DailyHealthSample 配列
  */
 export const generateDailySamples = (
-  baseValue: number,
-  variance: number,
-  days: number,
-  seed: number = 42,
+	baseValue: number,
+	variance: number,
+	days: number,
+	seed: number = 42,
 ): DailyHealthSample[] => {
-  const dates = generateDateRange(days);
+	const dates = generateDateRange(days);
 
-  return dates.map((date, index) => {
-    const random = seededRandom(seed + index);
-    const variation = (random - 0.5) * variance * 2;
-    const value = Math.round((baseValue + variation) * 10) / 10;
+	return dates.map((date, index) => {
+		const random = seededRandom(seed + index);
+		const variation = (random - 0.5) * variance * 2;
+		const value = Math.round((baseValue + variation) * 10) / 10;
 
-    return {
-      date,
-      value: Math.max(0, value), // 負の値を防ぐ
-      sampleCount: Math.floor(seededRandomInRange(seed + index + 1000, 1, 20)),
-    };
-  });
+		return {
+			date,
+			value: Math.max(0, value), // 負の値を防ぐ
+			sampleCount: Math.floor(seededRandomInRange(seed + index + 1000, 1, 20)),
+		};
+	});
 };
 
 // =============================================================================
@@ -128,14 +128,14 @@ export const generateDailySamples = (
  * @returns 平均値（小数点1桁）
  */
 export const calculateBaseline = (
-  samples: DailyHealthSample[],
-  days: number,
+	samples: DailyHealthSample[],
+	days: number,
 ): number => {
-  const relevantSamples = samples.slice(-days);
-  if (relevantSamples.length === 0) return 0;
+	const relevantSamples = samples.slice(-days);
+	if (relevantSamples.length === 0) return 0;
 
-  const sum = relevantSamples.reduce((acc, s) => acc + s.value, 0);
-  return Math.round((sum / relevantSamples.length) * 10) / 10;
+	const sum = relevantSamples.reduce((acc, s) => acc + s.value, 0);
+	return Math.round((sum / relevantSamples.length) * 10) / 10;
 };
 
 /**
@@ -149,22 +149,22 @@ export const calculateBaseline = (
  * @returns 典型範囲とソース
  */
 export const calculateTypicalRange = (
-  samples: DailyHealthSample[],
-  defaultRange: { min: number; max: number },
+	samples: DailyHealthSample[],
+	defaultRange: { min: number; max: number },
 ): { min: number; max: number; source: "personal" | "default" } => {
-  if (samples.length < 14) {
-    return { ...defaultRange, source: "default" };
-  }
+	if (samples.length < 14) {
+		return { ...defaultRange, source: "default" };
+	}
 
-  const values = samples.map((s) => s.value).sort((a, b) => a - b);
-  const p5Index = Math.floor(values.length * 0.05);
-  const p95Index = Math.floor(values.length * 0.95);
+	const values = samples.map((s) => s.value).sort((a, b) => a - b);
+	const p5Index = Math.floor(values.length * 0.05);
+	const p95Index = Math.floor(values.length * 0.95);
 
-  return {
-    min: Math.round(values[p5Index] * 10) / 10,
-    max: Math.round(values[p95Index] * 10) / 10,
-    source: "personal",
-  };
+	return {
+		min: Math.round(values[p5Index] * 10) / 10,
+		max: Math.round(values[p95Index] * 10) / 10,
+		source: "personal",
+	};
 };
 
 /**
@@ -177,26 +177,26 @@ export const calculateTypicalRange = (
  * @returns トレンド方向
  */
 export const calculateTrend = (
-  samples: DailyHealthSample[],
+	samples: DailyHealthSample[],
 ): TrendDirection => {
-  if (samples.length < 7) return "stable";
+	if (samples.length < 7) return "stable";
 
-  const recent = samples.slice(-7);
-  const previous = samples.slice(-14, -7);
+	const recent = samples.slice(-7);
+	const previous = samples.slice(-14, -7);
 
-  if (previous.length === 0) return "stable";
+	if (previous.length === 0) return "stable";
 
-  const recentAvg = recent.reduce((a, b) => a + b.value, 0) / recent.length;
-  const previousAvg =
-    previous.reduce((a, b) => a + b.value, 0) / previous.length;
+	const recentAvg = recent.reduce((a, b) => a + b.value, 0) / recent.length;
+	const previousAvg =
+		previous.reduce((a, b) => a + b.value, 0) / previous.length;
 
-  if (previousAvg === 0) return "stable";
+	if (previousAvg === 0) return "stable";
 
-  const changePercent = ((recentAvg - previousAvg) / previousAvg) * 100;
+	const changePercent = ((recentAvg - previousAvg) / previousAvg) * 100;
 
-  if (changePercent > 5) return "improving";
-  if (changePercent < -5) return "declining";
-  return "stable";
+	if (changePercent > 5) return "improving";
+	if (changePercent < -5) return "declining";
+	return "stable";
 };
 
 // =============================================================================
@@ -210,18 +210,18 @@ export const calculateTrend = (
  * seed: シード値（メトリクスごとに異なる値で一貫性を確保）
  */
 const MOCK_GENERATOR_CONFIG: Record<
-  HealthMetricType,
-  { baseValue: number; variance: number; seed: number }
+	HealthMetricType,
+	{ baseValue: number; variance: number; seed: number }
 > = {
-  hrv: { baseValue: 77, variance: 15, seed: 101 },
-  rhr: { baseValue: 59, variance: 4, seed: 102 },
-  respiratory: { baseValue: 11.2, variance: 0.8, seed: 103 },
-  spo2: { baseValue: 98, variance: 1, seed: 104 },
-  wristTemp: { baseValue: 36.4, variance: 0.3, seed: 105 },
-  recoveryScore: { baseValue: 68, variance: 15, seed: 201 },
-  sleepScore: { baseValue: 78, variance: 12, seed: 202 },
-  rhythmScore: { baseValue: 88, variance: 8, seed: 203 },
-  energyScore: { baseValue: 72, variance: 14, seed: 204 },
+	hrv: { baseValue: 77, variance: 15, seed: 101 },
+	rhr: { baseValue: 59, variance: 4, seed: 102 },
+	respiratory: { baseValue: 11.2, variance: 0.8, seed: 103 },
+	spo2: { baseValue: 98, variance: 1, seed: 104 },
+	wristTemp: { baseValue: 36.4, variance: 0.3, seed: 105 },
+	recoveryScore: { baseValue: 68, variance: 15, seed: 201 },
+	sleepScore: { baseValue: 78, variance: 12, seed: 202 },
+	rhythmScore: { baseValue: 88, variance: 8, seed: 203 },
+	energyScore: { baseValue: 72, variance: 14, seed: 204 },
 };
 
 // =============================================================================
@@ -241,32 +241,32 @@ const MOCK_GENERATOR_CONFIG: Record<
  * console.log(hrvHistory.samples.length); // 30
  */
 export const getMockMetricHistory = (
-  metricType: HealthMetricType,
-  timeRange: HealthTimeRange = "60D",
+	metricType: HealthMetricType,
+	timeRange: HealthTimeRange = "60D",
 ): HealthMetricHistory => {
-  const days = timeRange === "7D" ? 7 : timeRange === "30D" ? 30 : 60;
-  const config = MOCK_GENERATOR_CONFIG[metricType];
+	const days = timeRange === "7D" ? 7 : timeRange === "30D" ? 30 : 60;
+	const config = MOCK_GENERATOR_CONFIG[metricType];
 
-  if (!config) {
-    throw new Error(`Unknown metric type: ${metricType}`);
-  }
+	if (!config) {
+		throw new Error(`Unknown metric type: ${metricType}`);
+	}
 
-  const samples = generateDailySamples(
-    config.baseValue,
-    config.variance,
-    days,
-    config.seed,
-  );
+	const samples = generateDailySamples(
+		config.baseValue,
+		config.variance,
+		days,
+		config.seed,
+	);
 
-  const defaultRange = DEFAULT_TYPICAL_RANGES[metricType];
+	const defaultRange = DEFAULT_TYPICAL_RANGES[metricType];
 
-  return {
-    metricType,
-    samples,
-    baseline: calculateBaseline(samples, 60),
-    typicalRange: calculateTypicalRange(samples, defaultRange),
-    lastUpdated: new Date(),
-  };
+	return {
+		metricType,
+		samples,
+		baseline: calculateBaseline(samples, 60),
+		typicalRange: calculateTypicalRange(samples, defaultRange),
+		lastUpdated: new Date(),
+	};
 };
 
 /**
@@ -276,17 +276,17 @@ export const getMockMetricHistory = (
  * @returns スコア種別をキーとした HealthMetricHistory のオブジェクト
  */
 export const getAllScoreHistories = (
-  timeRange: HealthTimeRange = "60D",
+	timeRange: HealthTimeRange = "60D",
 ): Record<
-  "recoveryScore" | "sleepScore" | "rhythmScore" | "energyScore",
-  HealthMetricHistory
+	"recoveryScore" | "sleepScore" | "rhythmScore" | "energyScore",
+	HealthMetricHistory
 > => {
-  return {
-    recoveryScore: getMockMetricHistory("recoveryScore", timeRange),
-    sleepScore: getMockMetricHistory("sleepScore", timeRange),
-    rhythmScore: getMockMetricHistory("rhythmScore", timeRange),
-    energyScore: getMockMetricHistory("energyScore", timeRange),
-  };
+	return {
+		recoveryScore: getMockMetricHistory("recoveryScore", timeRange),
+		sleepScore: getMockMetricHistory("sleepScore", timeRange),
+		rhythmScore: getMockMetricHistory("rhythmScore", timeRange),
+		energyScore: getMockMetricHistory("energyScore", timeRange),
+	};
 };
 
 /**
@@ -296,16 +296,16 @@ export const getAllScoreHistories = (
  * @returns メトリクス種別をキーとした HealthMetricHistory のオブジェクト
  */
 export const getAllHealthMetricHistories = (
-  timeRange: HealthTimeRange = "60D",
+	timeRange: HealthTimeRange = "60D",
 ): Record<
-  "hrv" | "rhr" | "respiratory" | "spo2" | "wristTemp",
-  HealthMetricHistory
+	"hrv" | "rhr" | "respiratory" | "spo2" | "wristTemp",
+	HealthMetricHistory
 > => {
-  return {
-    hrv: getMockMetricHistory("hrv", timeRange),
-    rhr: getMockMetricHistory("rhr", timeRange),
-    respiratory: getMockMetricHistory("respiratory", timeRange),
-    spo2: getMockMetricHistory("spo2", timeRange),
-    wristTemp: getMockMetricHistory("wristTemp", timeRange),
-  };
+	return {
+		hrv: getMockMetricHistory("hrv", timeRange),
+		rhr: getMockMetricHistory("rhr", timeRange),
+		respiratory: getMockMetricHistory("respiratory", timeRange),
+		spo2: getMockMetricHistory("spo2", timeRange),
+		wristTemp: getMockMetricHistory("wristTemp", timeRange),
+	};
 };

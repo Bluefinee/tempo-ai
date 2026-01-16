@@ -4,32 +4,32 @@
  */
 
 import type {
-  DailySnapshot,
-  RealtimeMetrics,
-  RealtimeHealthMetric,
+	DailySnapshot,
+	RealtimeHealthMetric,
+	RealtimeMetrics,
 } from "../../../domain/models/healthHistory";
-import {
-  formatDateString,
-  getAllHealthMetricHistories,
-} from "../../mockDataFactory";
 import { calculateDeviationPercent } from "../../../utils/healthDataTransformer";
+import {
+	formatDateString,
+	getAllHealthMetricHistories,
+} from "../../mockDataFactory";
 
 /**
  * モック日次スナップショットを生成
  * 朝1回算出、その日は固定の値
  */
 export const createMockDailySnapshot = (): DailySnapshot => {
-  const now = new Date();
-  return {
-    date: formatDateString(now),
-    calculatedAt: now,
-    scores: {
-      recovery: 70,
-      sleep: 85,
-      rhythm: 92,
-      energy: 78,
-    },
-  };
+	const now = new Date();
+	return {
+		date: formatDateString(now),
+		calculatedAt: now,
+		scores: {
+			recovery: 70,
+			sleep: 85,
+			rhythm: 92,
+			energy: 78,
+		},
+	};
 };
 
 /**
@@ -37,27 +37,27 @@ export const createMockDailySnapshot = (): DailySnapshot => {
  * アプリ起動ごとに最新値を取得する想定
  */
 export const createMockRealtimeMetrics = (): RealtimeMetrics => {
-  const now = new Date();
+	const now = new Date();
 
-  const createMetric = (
-    value: number,
-    unit: string,
-    baseline: number,
-  ): RealtimeHealthMetric => ({
-    value,
-    unit,
-    baseline,
-    deviationPercent: calculateDeviationPercent(value, baseline),
-    lastUpdated: now,
-  });
+	const createMetric = (
+		value: number,
+		unit: string,
+		baseline: number,
+	): RealtimeHealthMetric => ({
+		value,
+		unit,
+		baseline,
+		deviationPercent: calculateDeviationPercent(value, baseline),
+		lastUpdated: now,
+	});
 
-  return {
-    hrv: createMetric(82, "ms", 77),
-    rhr: createMetric(59, "bpm", 59),
-    respiratory: createMetric(11.2, "rpm", 11.0),
-    spo2: createMetric(98, "%", 98),
-    wristTemp: createMetric(36.4, "°C", 36.3),
-  };
+	return {
+		hrv: createMetric(82, "ms", 77),
+		rhr: createMetric(59, "bpm", 59),
+		respiratory: createMetric(11.2, "rpm", 11.0),
+		spo2: createMetric(98, "%", 98),
+		wristTemp: createMetric(36.4, "°C", 36.3),
+	};
 };
 
 /** モック日次スナップショット（初期値） */

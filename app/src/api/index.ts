@@ -1,7 +1,7 @@
 export { apiClient } from "./client";
 export type {
-  AdviceRequest,
-  AdviceResponse,
-  WeatherResponse,
-  ApiError,
+	AdviceRequest,
+	AdviceResponse,
+	ApiError,
+	WeatherResponse,
 } from "./types";

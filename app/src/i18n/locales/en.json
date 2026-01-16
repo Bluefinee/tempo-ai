@@ -118,6 +118,7 @@
       "subtitle": "Patterns discovered from your data",
       "thisWeek": "This Week",
       "avgScore": "Avg Score",
+      "weekdays": ["M", "T", "W", "T", "F", "S", "S"],
       "topDiscovery": "Top Discovery",
       "topDiscoveryTitle": "Evening walks improve deep sleep",
       "topDiscoveryDescription": "On days when you walk more than 15 minutes after 6pm, your deep sleep score tends to be 18% higher.",

@@ -189,7 +189,7 @@ export const HealthAreaChart = ({
 	);
 
 	const chartId = useMemo(
-		() => `healthChart_${Math.random().toString(36).substr(2, 9)}`,
+		() => `healthChart_${Math.random().toString(36).substring(2, 11)}`,
 		[],
 	);
 

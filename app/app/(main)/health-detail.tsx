@@ -106,15 +106,11 @@ const historyToChartData = (
 	];
 
 	if (!samples?.length) {
-		return [
-			{ day: weekdayLabels[2], value: 0 },
-			{ day: weekdayLabels[5], value: 0 },
-			{ day: weekdayLabels[6], value: 0 },
-			{ day: weekdayLabels[0], value: 0 },
-			{ day: weekdayLabels[1], value: 0 },
-			{ day: weekdayLabels[2], value: 0 },
-			{ day: weekdayLabels[3], value: 0 },
-		];
+		// Return placeholder data for each day of the week (Sun=0 to Sat=6)
+		return weekdayLabels.map((day) => ({
+			day,
+			value: 0,
+		}));
 	}
 	const last7 = samples.slice(-7);
 	return last7.map((s) => ({

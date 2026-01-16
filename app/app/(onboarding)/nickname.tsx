@@ -86,9 +86,6 @@ const NicknameScreen = (): ReactElement => {
 		router.push("./personalize");
 	};
 
-	// Allow proceeding even without a name (will use default)
-	const canProceed = true;
-
 	return (
 		<OnboardingContainer step={2} blobVariant="default">
 			<KeyboardAvoidingView
@@ -140,7 +137,6 @@ const NicknameScreen = (): ReactElement => {
 						<AnimatedButton
 							onPress={handleNext}
 							variant="primary"
-							disabled={!canProceed}
 						>
 							{t("onboarding.nickname.next")}
 						</AnimatedButton>

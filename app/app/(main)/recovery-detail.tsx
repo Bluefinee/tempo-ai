@@ -246,7 +246,7 @@ const RecoveryDetailScreen = (): React.ReactElement => {
 									{t("detail.recovery.dailyRecovery")}
 								</Text>
 								<HealthAreaChart
-									data={chartData[timeframe]}
+									data={chartData?.[timeframe] ?? []}
 									colorHex={colors.emerald[500]}
 									typicalRange={SCORE_TYPICAL_RANGE}
 									unit="%"

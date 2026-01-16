@@ -244,7 +244,7 @@ const RhythmDetailScreen = (): React.ReactElement => {
 									{t("detail.rhythm.dailyRhythm")}
 								</Text>
 								<HealthAreaChart
-									data={chartData[timeframe]}
+									data={chartData?.[timeframe] ?? []}
 									colorHex={colors.purple[500]}
 									typicalRange={SCORE_TYPICAL_RANGE}
 									unit="%"

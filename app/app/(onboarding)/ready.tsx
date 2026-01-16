@@ -164,9 +164,12 @@ const ReadyScreen = (): ReactElement => {
 		complete();
 
 		// Wait a bit then navigate to main screen
-		setTimeout(() => {
+		const timeoutId = setTimeout(() => {
 			router.replace("/(main)");
 		}, 1800);
+
+		// Cleanup function stored for potential future use
+		return () => clearTimeout(timeoutId);
 	};
 
 	const confettiStyle = useAnimatedStyle(() => ({

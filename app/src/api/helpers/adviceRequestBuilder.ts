@@ -47,23 +47,37 @@ interface BuildAdviceRequestParams {
 /**
  * アドバイスAPIリクエストを構築
  */
+// Valid goal types for type checking
+const VALID_GOALS = ["better_sleep", "more_energy", "less_stress", "peak_performance"] as const;
+type GoalType = (typeof VALID_GOALS)[number];
+
+const isValidGoal = (goal: unknown): goal is GoalType => {
+	return typeof goal === "string" && VALID_GOALS.includes(goal as GoalType);
+};
+
+const isValidTimeString = (time: unknown): time is string => {
+	if (typeof time !== "string") return false;
+	return /^\d{2}:\d{2}$/.test(time);
+};
+
 export const buildAdviceRequest = ({
 	healthStore,
 	userStore,
 	weather,
 }: BuildAdviceRequestParams): AdviceRequest => {
 	const profile = userStore.profile;
-	const goals = (profile?.goals as string[]) ?? ["better_sleep"];
-	const wakeUpTime = (profile?.wakeUpTime as string) ?? "07:00";
-	const windDownTime = (profile?.windDownTime as string) ?? "23:00";
+
+	// Validate and extract goals
+	const rawGoals = Array.isArray(profile?.goals) ? profile.goals : [];
+	const validatedGoals = rawGoals.filter(isValidGoal);
+	const goals: GoalType[] = validatedGoals.length > 0 ? validatedGoals : ["better_sleep"];
+
+	// Validate and extract times
+	const wakeUpTime = isValidTimeString(profile?.wakeUpTime) ? profile.wakeUpTime : "07:00";
+	const windDownTime = isValidTimeString(profile?.windDownTime) ? profile.windDownTime : "23:00";
 
 	const user: UserProfile = {
-		goals: goals as (
-			| "better_sleep"
-			| "more_energy"
-			| "less_stress"
-			| "peak_performance"
-		)[],
+		goals,
 		wakeUpTime,
 		windDownTime,
 	};
@@ -116,7 +130,7 @@ export const buildAdviceRequest = ({
 			remSleepPercent,
 			bedtime: sleep?.bedtime ?? "23:15",
 			wakeTime: sleep?.wakeTime ?? "06:45",
-			vsTargetBedtime: "+15min", // TODO: 実際の計算を実装
+			vsTargetBedtime: "+15min", // Placeholder - calculate from actual bedtime vs target
 		},
 	};
 

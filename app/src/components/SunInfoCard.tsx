@@ -8,6 +8,7 @@ import type React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 
+import { t } from "../i18n";
 import { Colors } from "../theme";
 
 type SunType = "sunrise" | "sunset";
@@ -43,7 +44,7 @@ const getTypeConfig = (
 			iconColor: Colors.amber[500],
 			iconBgColor: "rgba(251, 191, 36, 0.12)",
 			labelColor: Colors.stone[400],
-			defaultLabel: "Sunrise",
+			defaultLabel: t("screen.rhythm.sunrise"),
 		};
 	}
 	return {
@@ -51,7 +52,7 @@ const getTypeConfig = (
 		iconColor: Colors.indigo[500],
 		iconBgColor: "rgba(99, 102, 241, 0.12)",
 		labelColor: Colors.stone[400],
-		defaultLabel: "Sunset",
+		defaultLabel: t("screen.rhythm.sunset"),
 	};
 };
 
@@ -104,15 +105,13 @@ const styles = StyleSheet.create({
 		flex: 1,
 	},
 	card: {
-		backgroundColor: "#FFFFFF",
+		backgroundColor: Colors.white,
 		borderRadius: 20,
 		padding: 16,
-		// シャドウ（iOS）
-		shadowColor: "#000",
+		shadowColor: Colors.black,
 		shadowOffset: { width: 0, height: 8 },
 		shadowOpacity: 0.12,
 		shadowRadius: 16,
-		// シャドウ（Android）
 		elevation: 8,
 	},
 	cardPressed: {
@@ -136,7 +135,7 @@ const styles = StyleSheet.create({
 	time: {
 		fontSize: 24,
 		fontWeight: "700",
-		color: "#1C1917",
+		color: Colors.stone[900],
 		letterSpacing: -0.5,
 	},
 	iconWrapper: {

@@ -37,7 +37,8 @@ const getTimeframeLabels = (timeframe: "30D" | "60D"): string[] => {
 export type BaselineTrend = "up" | "down" | "neutral";
 
 interface HealthMetricDetailProps {
-	id: string;
+	/** @deprecated id prop is no longer used - will be removed in future version */
+	id?: string;
 	name: string;
 	value: number | string;
 	unit: string;
@@ -55,6 +56,11 @@ const generateTimeframeData = (
 	timeframe: Timeframe,
 	typicalRange: { min: number; max: number },
 ): ChartDataPoint[] => {
+	// Guard against empty baseData
+	if (!baseData || baseData.length === 0) {
+		return [];
+	}
+
 	const baseValue =
 		typeof baseData[0]?.value === "number"
 			? baseData[0].value
@@ -120,7 +126,6 @@ const generateTimeframeData = (
 };
 
 export const HealthMetricDetail = ({
-	id,
 	name,
 	value,
 	unit,
@@ -217,7 +222,7 @@ export const HealthMetricDetail = ({
 				<View style={styles.legend}>
 					<CheckCircle2 size={16} color={colorHex} />
 					<Text style={styles.legendText}>
-						Typical Range: {typicalRange.min}-{typicalRange.max}{" "}
+						{t("chart.typicalRange")}: {typicalRange.min}-{typicalRange.max}{" "}
 						{unit.replace(" ", "")}
 					</Text>
 				</View>

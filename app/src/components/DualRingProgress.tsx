@@ -13,6 +13,8 @@ import Animated, {
 } from "react-native-reanimated";
 import Svg, { Circle } from "react-native-svg";
 
+import { Colors } from "../theme";
+
 interface DualRingProgressProps {
 	size: number;
 	strokeWidth: number;
@@ -33,7 +35,7 @@ export const DualRingProgress = ({
 	outerProgress,
 	innerColor,
 	outerColor,
-	backgroundColor = "#E7E5E4",
+	backgroundColor = Colors.stone[200],
 	duration = 1000,
 }: DualRingProgressProps): React.ReactElement => {
 	const innerRadius = (size - strokeWidth * 3) / 2;

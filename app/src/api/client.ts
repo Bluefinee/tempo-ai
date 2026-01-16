@@ -72,7 +72,7 @@ class ApiClient {
 
 			const json = await response.json();
 			// バックエンドは { success: true, data: ... } 形式で返す
-			if (json.success && json.data) {
+			if (json.success && json.data !== undefined) {
 				return { success: true, data: json.data as T };
 			}
 			// 直接データが返ってくる場合

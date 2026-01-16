@@ -36,7 +36,7 @@ export const ProgressIndicator = ({
 				now: currentStep,
 			}}
 		>
-			{[0, 1, 2, 3].map((stepNum) => (
+			{Array.from({ length: ONBOARDING_TOTAL_STEPS }, (_, i) => i).map((stepNum) => (
 				<Dot
 					key={`progress-dot-step-${stepNum}`}
 					index={stepNum}

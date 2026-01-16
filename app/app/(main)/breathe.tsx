@@ -192,7 +192,7 @@ const BreatheScreen = (): React.ReactElement => {
 		if (!isActive && timeLeft === 0) {
 			setTimeLeft(60);
 		}
-		setIsActive(!isActive);
+		setIsActive((prev) => !prev);
 	}, [isActive, timeLeft]);
 
 	const handleClose = useCallback((): void => {

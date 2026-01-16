@@ -79,13 +79,12 @@ export const HealthMetricCard = ({
 
 const styles = StyleSheet.create({
 	container: {
-		backgroundColor: "#FFFFFF",
+		backgroundColor: colors.white,
 		borderRadius: 20,
 		padding: 16,
 		minHeight: 130,
 		justifyContent: "space-between",
-		// 浮遊感のある強いシャドウ
-		shadowColor: "#000",
+		shadowColor: colors.black,
 		shadowOffset: { width: 0, height: 8 },
 		shadowOpacity: 0.12,
 		shadowRadius: 16,

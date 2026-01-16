@@ -24,7 +24,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AnimatedButton } from "../../src/components/onboarding";
-import { setLocale } from "../../src/i18n";
+import { setLocale, t } from "../../src/i18n";
 import { useOnboardingStore } from "../../src/stores/onboardingStore";
 import { Colors, FontFamily, Typography } from "../../src/theme";
 
@@ -197,7 +197,7 @@ const LanguageScreen = (): ReactElement => {
 				]}
 			>
 				<AnimatedButton onPress={handleContinue} variant="primary">
-					Continue
+					{t("common.button.continue")}
 				</AnimatedButton>
 			</Animated.View>
 		</View>

@@ -30,7 +30,15 @@ const MOCK_DATA = {
 	weeklyScores: [40, 60, 75, 45, 80, 90, 70],
 };
 
-const WEEKDAYS = ["M", "T", "W", "T", "F", "S", "S"];
+// i18n対応: 曜日は翻訳ファイルから取得
+const getWeekdays = (): string[] => {
+	const weekdays = t("screen.insights.weekdays", { returnObjects: true });
+	// フォールバック: 配列でない場合はデフォルト値を返す
+	if (Array.isArray(weekdays)) {
+		return weekdays;
+	}
+	return ["M", "T", "W", "T", "F", "S", "S"];
+};
 
 // Alert configurations
 interface AlertConfig {
@@ -181,7 +189,7 @@ const InsightsScreen = (): React.ReactElement => {
 															: colors.stone[400],
 													}}
 												>
-													{WEEKDAYS[i]}
+													{getWeekdays()[i]}
 												</Text>
 												{isToday && (
 													<View className="w-1 h-1 bg-indigo-500 rounded-full mt-1" />

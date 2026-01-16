@@ -7,7 +7,7 @@ import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
 import { Wind } from "lucide-react-native";
 import type React from "react";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { Platform, Pressable, StyleSheet } from "react-native";
 import Animated, {
 	useAnimatedStyle,
@@ -36,17 +36,21 @@ export const BreatheFAB = ({
 	// Pulse animation
 	const pulseScale = useSharedValue(1);
 
-	// Start pulse animation if enabled
-	if (showPulse) {
-		pulseScale.value = withRepeat(
-			withSequence(
-				withTiming(1.05, { duration: 1000 }),
-				withTiming(1, { duration: 1000 }),
-			),
-			-1,
-			true,
-		);
-	}
+	// Start pulse animation if enabled - moved to useEffect to follow React rules
+	useEffect(() => {
+		if (showPulse) {
+			pulseScale.value = withRepeat(
+				withSequence(
+					withTiming(1.05, { duration: 1000 }),
+					withTiming(1, { duration: 1000 }),
+				),
+				-1,
+				true,
+			);
+		} else {
+			pulseScale.value = 1;
+		}
+	}, [showPulse, pulseScale]);
 
 	const pulseStyle = useAnimatedStyle(() => ({
 		transform: [{ scale: pulseScale.value }],
@@ -108,5 +112,3 @@ const styles = StyleSheet.create({
 		transform: [{ scale: 0.95 }],
 	},
 });
-
-export default BreatheFAB;

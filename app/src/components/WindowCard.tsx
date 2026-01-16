@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
 	},
 	description: {
 		fontSize: 14,
-		color: "#78716C",
+		color: Colors.stone[500],
 		lineHeight: 20,
 	},
 });

@@ -256,7 +256,7 @@ const SleepDetailScreen = (): React.ReactElement => {
 									{t("detail.sleep.history")}
 								</Text>
 								<HealthAreaChart
-									data={chartData[timeframe]}
+									data={chartData?.[timeframe] ?? []}
 									colorHex={colors.indigo[500]}
 									typicalRange={SCORE_TYPICAL_RANGE}
 									unit="%"

@@ -10,7 +10,6 @@ import { Activity, Home, Settings } from "lucide-react-native";
 import type React from "react";
 import { Platform, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-// import { BarChart3 } from "lucide-react-native"; // Insights タブ復活時に使用
 import { Colors, FontFamily } from "../../src/theme";
 
 // タブバーの基本高さ（SafeArea除く）

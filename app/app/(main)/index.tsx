@@ -227,8 +227,8 @@ const TodayScreen = (): React.ReactElement => {
 	const healthCards = createHealthCards(realtimeMetrics, healthSummaryHistory);
 	const metricCards = getMetricCards(scores, scoreChartData);
 
-	const greeting = getGreeting(nickname || undefined, language);
-	const today = formatDate(new Date(), language);
+	const greeting = getGreeting(nickname || undefined, language ?? undefined);
+	const today = formatDate(new Date(), language ?? undefined);
 
 	// ローディング表示
 	if (isLoading) {

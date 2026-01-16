@@ -116,7 +116,7 @@ const LanguageScreen = (): ReactElement => {
 	const router = useRouter();
 	const insets = useSafeAreaInsets();
 	const { language, setLanguage } = useOnboardingStore();
-	const [selectedLanguage, setSelectedLanguage] = useState<Language>(language);
+	const [selectedLanguage, setSelectedLanguage] = useState<Language>(language ?? "en");
 
 	// Animation values
 	const iconOpacity = useSharedValue(0);

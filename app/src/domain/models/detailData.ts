@@ -3,7 +3,7 @@
  * Types for dynamically calculated detail screen data
  */
 
-import type { HealthMetricHistory, TrendDirection } from "./healthHistory";
+import type { TrendDirection } from "./healthHistory";
 
 // =============================================================================
 // Common Types

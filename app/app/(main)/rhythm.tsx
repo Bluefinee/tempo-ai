@@ -51,8 +51,8 @@ const RhythmScreen = (): React.ReactElement => {
 	const environmentData = useEnvironmentData();
 	const { peakFocus, melatoninWindow } = useUpcomingWindows();
 
-	// フォールバックデータを適用
-	const RHYTHM_DATA = rhythmChartData ?? DEFAULT_RHYTHM_DATA;
+	// フォールバックデータを適用（readonlyをmutableに変換）
+	const RHYTHM_DATA = rhythmChartData ?? [...DEFAULT_RHYTHM_DATA];
 	const envData = environmentData ?? DEFAULT_ENVIRONMENT_DATA;
 
 	// Upcoming Windows のフォールバック時間

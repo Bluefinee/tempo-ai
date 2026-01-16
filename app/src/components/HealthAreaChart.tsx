@@ -65,49 +65,30 @@ export const HealthAreaChart = ({
 	const [touchedIndex, setTouchedIndex] = useState<number | null>(null);
 	const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
 
-	// 空データチェック
-	if (data.length === 0) {
-		return (
-			<EmptyChartState
-				currentDays={0}
-				requiredDays={requiredDays}
-				height={height}
-				colorHex={colorHex}
-			/>
-		);
-	}
-
-	// データが2点未満の場合（線を引けない）
-	if (data.length < 2) {
-		return (
-			<EmptyChartState
-				currentDays={data.length}
-				requiredDays={requiredDays}
-				height={height}
-				colorHex={colorHex}
-			/>
-		);
-	}
+	// データが十分かどうか（全てのhooksより後でチェック）
+	const hasEnoughData = data.length >= 2;
 
 	// Y軸のドメインを計算（データとtypicalRangeを含む）
 	const { minY, maxY } = useMemo(() => {
+		if (!hasEnoughData) return { minY: 0, maxY: 100 };
 		const allValues = data.map((d) => d.value);
 		const minVal = Math.min(...allValues, typicalRange.min) * 0.95;
 		const maxVal = Math.max(...allValues, typicalRange.max) * 1.05;
 		return { minY: minVal, maxY: maxVal };
-	}, [data, typicalRange]);
+	}, [data, typicalRange, hasEnoughData]);
 
-	const yRange = maxY - minY;
+	const yRange = maxY - minY || 1;
 
 	// データポイントの座標を計算
 	const points = useMemo(() => {
+		if (!hasEnoughData) return [];
 		return data.map((d, index) => {
 			const x = PADDING_LEFT + (index / (data.length - 1)) * chartWidth;
 			const y =
 				PADDING_TOP + chartHeight - ((d.value - minY) / yRange) * chartHeight;
 			return { x, y, data: d, index };
 		});
-	}, [data, chartWidth, chartHeight, minY, yRange]);
+	}, [data, chartWidth, chartHeight, minY, yRange, hasEnoughData]);
 
 	// SVGパスを生成（スムーズな曲線）
 	const areaPath = useMemo(() => {
@@ -150,6 +131,7 @@ export const HealthAreaChart = ({
 
 	// Typical Rangeのバンド位置
 	const typicalRangeBand = useMemo(() => {
+		if (!hasEnoughData) return { y1: 0, y2: 0, height: 0 };
 		const y1 =
 			PADDING_TOP +
 			chartHeight -
@@ -159,11 +141,12 @@ export const HealthAreaChart = ({
 			chartHeight -
 			((typicalRange.min - minY) / yRange) * chartHeight;
 		return { y1, y2, height: y2 - y1 };
-	}, [typicalRange, chartHeight, minY, yRange]);
+	}, [typicalRange, chartHeight, minY, yRange, hasEnoughData]);
 
 	// タッチハンドリング
 	const findClosestPoint = useCallback(
 		(touchX: number) => {
+			if (points.length === 0) return null;
 			let closest = points[0];
 			let minDist = Math.abs(touchX - points[0].x);
 
@@ -184,8 +167,10 @@ export const HealthAreaChart = ({
 		(evt: GestureResponderEvent) => {
 			const touchX = evt.nativeEvent.locationX;
 			const closest = findClosestPoint(touchX);
-			setTouchedIndex(closest.index);
-			setTooltipPosition({ x: closest.x, y: closest.y });
+			if (closest) {
+				setTouchedIndex(closest.index);
+				setTooltipPosition({ x: closest.x, y: closest.y });
+			}
 		},
 		[findClosestPoint],
 	);
@@ -203,7 +188,34 @@ export const HealthAreaChart = ({
 		[handleTouch],
 	);
 
-	const chartId = `healthChart_${Math.random().toString(36).substr(2, 9)}`;
+	const chartId = useMemo(
+		() => `healthChart_${Math.random().toString(36).substr(2, 9)}`,
+		[],
+	);
+
+	// 空データチェック（全てのhooksより後）
+	if (data.length === 0) {
+		return (
+			<EmptyChartState
+				currentDays={0}
+				requiredDays={requiredDays}
+				height={height}
+				colorHex={colorHex}
+			/>
+		);
+	}
+
+	// データが2点未満の場合（線を引けない）
+	if (!hasEnoughData) {
+		return (
+			<EmptyChartState
+				currentDays={data.length}
+				requiredDays={requiredDays}
+				height={height}
+				colorHex={colorHex}
+			/>
+		);
+	}
 
 	return (
 		<View className="relative">
